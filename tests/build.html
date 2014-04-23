@@ -1,0 +1,56 @@
+<!doctype html>
+<html charset="utf-8" ng-app="app">
+<head>
+    <title>Crossword</title>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="../plugin/js/angular.js"></script>
+    <script type="text/javascript" src="../plugin/js/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="../plugin/js/qantic.angularjs.stylemodel.js"></script>
+    <script type="text/javascript" src="../src/js/customSelectElement.js"></script>
+    <script type="text/javascript" src="../src/js/basics.js"></script>
+    <script type="text/javascript" src="../src/js/crossword.js"></script>
+    <script type="text/javascript" src="../src/js/markers.js"></script>
+    <script type="text/javascript" src="../src/js/SizeController.js"></script>
+    <script type="text/javascript" src="../src/js/TableController.js"></script>
+    <script type="text/javascript" src="../src/js/WordController.js"></script>
+    <link rel="stylesheet" type="text/css" href="../plugin/css/crosswordsearch.css"></link>
+</head>
+<body>
+    <div class="crw-crossword" ng-controller="SizeController">
+        <div class="crw-grid divider" ng-style="styleGridSize()">
+            <div ng-mousedown="startResize()">
+                <div id="handle-left" transform-multi-style style-name="size-left" ng-style="modLeft.styleObject['handle-left'].style"></div>
+                <div id="handle-top" transform-multi-style style-name="size-top" ng-style="modTop.styleObject['handle-top'].style"></div>
+                <div id="handle-right" transform-multi-style style-name="size-right" ng-style="modRight.styleObject['handle-right'].style"></div>
+                <div id="handle-bottom" transform-multi-style style-name="size-bottom" ng-style="modBottom.styleObject['handle-bottom'].style"></div>
+            </div>
+        </div>
+        <div class="crw-mask" ng-style="styleGridSize()">
+        <table class="crw-table" ng-style="styleShift()" ng-controller="TableController" ng-Init="setMode('build')" crw-catch-dragging>
+        <tr ng-repeat="row in crw.content" crw-index-checker="line">
+            <td class="crw-field" ng-repeat="field in row" crw-index-checker="column">
+                <div ng-click="activate(line, column)" ng-mouseenter="intoField(line, column)" ng-mouseleave="outofField(line, column)">
+                    <button tabindex="-1" unselectable="on" ng-keypress="type($event)" crw-set-focus>{{field.letter}}</button>
+                    <div unselectable="on" ng-repeat="marker in getMarks(line, column)" class="crw-marked" ng-class ="getImgClass(marker)"></div>
+                </div>
+            </td>
+        </tr>
+        </table>
+        </div>
+    </div>
+    <div id="crw-controls" ng-controller="WordController" ng-switch on="immediate">
+        <p>Felder: <button ng-click="randomize()" title="Leere Felder mit zufälligen Buchstaben auffüllen">Auffüllen</button><button ng-click="empty()" title="Alle Felder leeren">Leeren</button></button><button ng-click="save()">Testausgabe</button></p>
+        <ul class="crw-word">
+            <li ng-class="{'highlight': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crw.words) | orderBy:'id'" ng-controller="EntryController">
+                <dl class="cse" cse-select cse-options="colors" cse-model="word.color">
+                </dl>
+                <span>{{word.fields | joinWord}} (ab [{{word.start.x + 1}}, {{word.start.y + 1}}] nach {{word.direction}})</span>
+                <button ng-click="deleteWord(word.id)">Löschen</button>
+            </li>
+        </ul>
+        <div class="crw-immediate" ng-if="immediate"></div>
+        <div ng-switch-when="invalidWords" crw-invalid-words></div>
+        <div ng-switch-when="saveCrossword" crw-save-crossword></div>
+    </div>
+</body>
+</html>

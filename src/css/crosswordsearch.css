@@ -1,0 +1,170 @@
+body {
+    font-family: sans-serif;
+}
+
+.crw-crossword {
+    position: relative;
+    float: left;
+    min-width: 320px;
+    margin: 10px 100px 100px 10px;
+}
+.crw-grid {
+    -moz-box-sizing: content-box;
+    border-sizing: content-box;
+    position: relative;
+    border-left: 1px solid transparent;
+    border-top: 1px solid transparent;
+}
+.crw-grid.divider {
+    background-image: url(../images/grid.png);
+}
+.crw-grid #handle-left {
+    cursor: w-resize;
+}
+.crw-grid #handle-right {
+    cursor: e-resize;
+}
+.crw-grid #handle-left,
+.crw-grid #handle-right {
+   position: absolute;
+   z-index: 10;
+   top: 15px;
+   bottom: 15px;
+/*   background-color: red;*/
+}
+.crw-grid #handle-top {
+    cursor: n-resize;
+}
+.crw-grid #handle-bottom {
+    cursor: s-resize;
+}
+.crw-grid #handle-top,
+.crw-grid #handle-bottom {
+   position: absolute;
+   z-index: 10;
+   left: 15px;
+   right: 15px;
+/*   background-color: red;*/
+}
+.crw-mask {
+    position: absolute;
+    top: 62px;
+    left: 62px;
+    overflow: hidden;
+}
+table.crw-table {
+    position: absolute;
+    border-collapse: collapse;
+}
+td.crw-field {
+    height: 30px;
+    width: 30px;
+    border: 1px solid transparent;
+    padding: 0;
+    vertical-align: middle;
+    text-align: center;
+}
+td.crw-field  > div {
+    position: relative;
+    height: 30px;
+}
+td.crw-field button {
+    height: 26px;
+    width: 26px;
+    border: none;
+    padding: 0;
+    margin: 2px;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 18px;
+}
+td.crw-field button:focus {
+    border: none;
+    background-color: #ddd;
+}
+div.crw-marked {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 31px;
+    height:31px;
+}
+div.crw-marked.grey { background-image: url(../images/markers-grey.png); }
+div.crw-marked.black { background-image: url(../images/markers-black.png); }
+div.crw-marked.red { background-image: url(../images/markers-red.png); }
+div.crw-marked.green { background-image: url(../images/markers-green.png); }
+div.crw-marked.blue { background-image: url(../images/markers-blue.png); }
+div.crw-marked.orange { background-image: url(../images/markers-orange.png); }
+div.crw-marked.violet { background-image: url(../images/markers-violet.png); }
+div.crw-marked.aqua { background-image: url(../images/markers-aqua.png); }
+div.crw-marked.right { background-position: 0px 0px; }
+div.crw-marked.horizontal { background-position: -31px 0px; }
+div.crw-marked.left { background-position: -62px 0px; }
+div.crw-marked.down-left { background-position: -124px 0px; }
+div.crw-marked.origin { background-position: 0px -31px; }
+div.crw-marked.corner-down-right { background-position: -62px -31px; }
+div.crw-marked.diagonal-up { background-position: -93px -31px; }
+div.crw-marked.corner-up-left { background-position: -124px -31px; }
+div.crw-marked.down-right { background-position: 0px -62px; }
+div.crw-marked.up-right { background-position: -62px -62px; }
+div.crw-marked.down { background-position: -124px -62px; }
+div.crw-marked.corner-up-right { background-position: 0px -93px; }
+div.crw-marked.diagonal-down { background-position: -31px -93px; }
+div.crw-marked.corner-down-left { background-position: -62px -93px; }
+div.crw-marked.vertical { background-position: -124px -93px; }
+div.crw-marked.up-left { background-position: -62px -124px; }
+div.crw-marked.up { background-position: -124px -124px; }
+
+#crw-controls {
+    display: inline-block;
+    width: 30em;
+    margin: 10px;
+}
+#crw-controls p {
+    margin-top: 0;
+}
+#crw-controls p.actions {
+    margin-bottom: 3px;
+}
+#crw-controls input {
+    box-shadow: none;
+}
+#crw-controls p.error, #crw-controls p.confirm {
+    margin-bottom: 3px;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+#crw-controls p.error {
+    color: red;
+}
+#crw-controls p.confirm {
+    color: green;
+}
+ul.crw-word {
+    list-style-type: none;
+    padding-left: 0;
+}
+ul.crw-word>li {
+    padding: 2px 0;
+}
+ul.crw-word>li>* {
+    vertical-align: middle;
+}
+ul.crw-word>li>img {
+    margin: 2px 3px;
+}
+ul.crw-word li.highlight {
+    background-color: #fdc;
+}
+.crw-immediate {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.crw-immediate+div {
+    position: relative;
+    padding: 10px;
+    border: 1px solid red;
+}
