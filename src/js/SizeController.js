@@ -10,10 +10,10 @@ app.controller("SizeController", ['$scope', '$document',
     // after each drag operation, irrespective of their success,
     // handles and left/top positioning of the table must be reset
     var resetSizes = function (cols, rows) {
-        l = t = (2 * size)-1;
-        r = ((2 + cols) * size)+1;
-        b = ((2 + rows) * size)+1;
-        lg = tg = 2 * size;
+        l = t = -1;
+        r = (cols * size)+1;
+        b = (rows * size)+1;
+        lg = tg = 0;
         wg = cols * size;
         hg = rows * size;
         $scope.modLeft.transform(l, 0);
@@ -119,8 +119,8 @@ app.controller("SizeController", ['$scope', '$document',
     // style for table and grid position spans multiple style models
     $scope.styleShift = function () {
         return {
-            'left': (62 - lg) + 'px',
-            'top': (62 - tg) + 'px'
+            'left': -lg + 'px',
+            'top': -tg + 'px'
         };
     };
 
@@ -128,10 +128,10 @@ app.controller("SizeController", ['$scope', '$document',
     // resulting size in field units
     var abstractSize = function () {
         return {
-            left: 2 - lg / size,
-            right: (lg + wg) / size - 2,
-            top: 2 - tg / size,
-            bottom: (tg + hg) / size - 2
+            left: -lg / size,
+            right: (lg + wg) / size,
+            top: -tg / size,
+            bottom: (tg + hg) / size
         };
     };
 

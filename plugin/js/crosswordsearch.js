@@ -382,6 +382,7 @@ app.factory("basics", function() {
     };
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
+        pluginPath: "wp-content/plugins/crosswordsearch/",
         randomColor: function(last) {
             var color;
             do {
@@ -779,10 +780,10 @@ app.factory("markers", [ "basics", function(basics) {
 app.controller("SizeController", [ "$scope", "$document", "immediate", "crossword", "basics", "StyleModelContainer", function($scope, $document, immediate, crossword, basics, StyleModelContainer) {
     var size = basics.fieldSize, t, b, l, r, lg, tg, wg, hg;
     var resetSizes = function(cols, rows) {
-        l = t = 2 * size - 1;
-        r = (2 + cols) * size + 1;
-        b = (2 + rows) * size + 1;
-        lg = tg = 2 * size;
+        l = t = -1;
+        r = cols * size + 1;
+        b = rows * size + 1;
+        lg = tg = 0;
         wg = cols * size;
         hg = rows * size;
         $scope.modLeft.transform(l, 0);
@@ -867,17 +868,17 @@ app.controller("SizeController", [ "$scope", "$document", "immediate", "crosswor
     };
     $scope.styleShift = function() {
         return {
-            left: 62 - lg + "px",
-            top: 62 - tg + "px"
+            left: -lg + "px",
+            top: -tg + "px"
         };
     };
     var currentSize;
     var abstractSize = function() {
         return {
-            left: 2 - lg / size,
-            right: (lg + wg) / size - 2,
-            top: 2 - tg / size,
-            bottom: (tg + hg) / size - 2
+            left: -lg / size,
+            right: (lg + wg) / size,
+            top: -tg / size,
+            bottom: (tg + hg) / size
         };
     };
     $scope.startResize = function() {
@@ -1069,6 +1070,7 @@ app.controller("TableController", [ "$scope", "basics", "immediate", "crossword"
         }
     };
     $scope.type = function(event) {
+        event.preventDefault();
         var key = event.charCode || event.keyCode || event.which;
         var keychar = String.fromCharCode(key);
         if (basics.letterRegEx().test(keychar)) {
@@ -1106,14 +1108,14 @@ app.controller("TableController", [ "$scope", "basics", "immediate", "crossword"
     };
 } ]);
 
-app.directive("cseContent", function() {
+app.directive("cseContent", [ "basics", function(basics) {
     return {
         scope: {
             value: "="
         },
-        template: '<img src="../plugin/images/bullet-{{value}}.png">'
+        template: '<img ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
     };
-});
+} ]);
 
 app.filter("joinWord", function() {
     return function(input) {
@@ -1127,7 +1129,7 @@ app.filter("joinWord", function() {
 
 app.directive("crwInvalidWords", function() {
     return {
-        template: '<p ng-pluralize count="invalidCount" when="{' + "'one': 'Das markierte Wort passt nicht mehr vollständig in das Rätselfeld. " + "Um die Größe anzupassen, muss es gelöscht werden.'," + "'other': 'Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. " + "Um die Größe anzupassen, müssen sie gelöscht werden.'}\"></p>" + '<p class="actions">' + '<button ng-click="deleteInvalid()">Löschen</button>' + '<button ng-click="abortInvalid()">Abbrechen</button></p>'
+        template: '<p ng-pluralize count="invalidCount" when="{' + "'one': 'Das markierte Wort passt nicht mehr vollständig in das Rätselfeld. " + "Um die Größe anzupassen, muss es gelöscht werden.'," + "'other': 'Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. " + "Um die Größe anzupassen, müssen sie gelöscht werden.'}\"></p>" + '<p class="actions">' + '<button ng-click="deleteInvalid()">Löschen</button> ' + '<button ng-click="abortInvalid()">Abbrechen</button></p>'
     };
 });
 

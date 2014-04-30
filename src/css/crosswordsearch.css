@@ -1,12 +1,11 @@
-body {
-    font-family: sans-serif;
-}
-
 .crw-crossword {
     position: relative;
     float: left;
     min-width: 320px;
-    margin: 10px 100px 100px 10px;
+    margin: 10px;
+}
+.crw-crossword.wide {
+    margin: 72px;
 }
 .crw-grid {
     -moz-box-sizing: content-box;
@@ -48,13 +47,13 @@ body {
 }
 .crw-mask {
     position: absolute;
-    top: 62px;
-    left: 62px;
     overflow: hidden;
 }
 table.crw-table {
     position: absolute;
     border-collapse: collapse;
+    width: auto;
+    height: auto;
 }
 td.crw-field {
     height: 30px;
@@ -75,8 +74,11 @@ td.crw-field button {
     padding: 0;
     margin: 2px;
     background-color: transparent;
+    background-image: none;
+    color: black;
     font-weight: bold;
     font-size: 18px;
+    cursor: default;
 }
 td.crw-field button:focus {
     border: none;
@@ -143,9 +145,12 @@ div.crw-marked.up { background-position: -124px -124px; }
 ul.crw-word {
     list-style-type: none;
     padding-left: 0;
+    margin-left: 0;
+    font-size: 14px;
 }
 ul.crw-word>li {
     padding: 2px 0;
+    margin-left: 0;
 }
 ul.crw-word>li>* {
     vertical-align: middle;
@@ -154,7 +159,7 @@ ul.crw-word>li>img {
     margin: 2px 3px;
 }
 ul.crw-word li.highlight {
-    background-color: #fdc;
+    background-color: #ddd;
 }
 .crw-immediate {
     position: fixed;
@@ -162,9 +167,11 @@ ul.crw-word li.highlight {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1000;
 }
 .crw-immediate+div {
     position: relative;
     padding: 10px;
-    border: 1px solid red;
+    border: 1px solid black;
+    z-index: 1001;
 }

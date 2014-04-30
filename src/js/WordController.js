@@ -1,12 +1,12 @@
 // image to show in cse select element
-app.directive('cseContent', function() {
+app.directive('cseContent', ['basics', function(basics) {
     return {
         scope: {
             value: "="
         },
-        template: '<img src="../plugin/images/bullet-{{value}}.png">'
+        template: '<img ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
     };
-});
+}]);
 
 // concatenate letter sequences to a string
 // empty fields are shown as "_"
@@ -31,7 +31,7 @@ app.directive('crwInvalidWords', function() {
             '\'other\': \'Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. ' +
             'Um die Größe anzupassen, müssen sie gelöscht werden.\'}"></p>' +
             '<p class="actions">' +
-            '<button ng-click="deleteInvalid()">Löschen</button>' +
+            '<button ng-click="deleteInvalid()">Löschen</button> ' +
             '<button ng-click="abortInvalid()">Abbrechen</button></p>'
     };
 });

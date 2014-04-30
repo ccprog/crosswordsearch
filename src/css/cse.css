@@ -10,7 +10,11 @@ dl.cse {
     display: inline-block;
     margin: 0 4px;
     padding:0px;
+    line-height:19px;
     vertical-align:bottom;
+}
+.cse dd, .cse dt, .cse ul, .cse li {
+    line-height: inherit;
 }
 .cse dd {
     position:relative; 
@@ -49,10 +53,13 @@ dl.cse {
     min-width:36px;
     list-style:none;
 }
+.cse dd li {
+    margin: 0;
+    padding: 0;
+}
 .cse dd ul li a {
     padding: 0px;
     display:block;
-    line-height: 19px;
 }
 .cse dd ul li a:hover {
     background-color: Highlight;
@@ -62,5 +69,6 @@ dl.cse {
 }
 .cse img {
     border:none;
+    box-shadow: none;
     vertical-align:middle;
 }

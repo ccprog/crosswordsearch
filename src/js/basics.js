@@ -24,6 +24,9 @@ app.factory('basics', function () {
         // the list of marking colors selectable on build page.
         colors: ["black", "red", "green", "blue", "orange", "violet", "aqua"],
 
+        // base directory
+        pluginPath: 'wp-content/plugins/crosswordsearch/',
+
         // select one color at random, but exclude the one provided as the parameter
         randomColor: function (last) {
             var color;

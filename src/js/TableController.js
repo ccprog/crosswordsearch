@@ -201,6 +201,7 @@ app.controller("TableController", ["$scope", 'basics', 'immediate', "crossword",
     // for compatibility with browsers, OS and hardware
     // if you stray from basic latin script
     $scope.type = function (event) {
+        event.preventDefault();
         // extract the letter from event data the best way you can
         var key = event.charCode || event.keyCode || event.which;
         var keychar = String.fromCharCode(key);
