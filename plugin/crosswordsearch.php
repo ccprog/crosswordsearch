@@ -28,31 +28,24 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
-require('letter_distributions.php');
-
 function add_crw_scripts () {
 	global $post;
     $plugin_path = plugins_url() . '/crosswordsearch/';
     
-    $locale = array();
     $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-'.get_locale().'.json';
-    if( file_exists( $file ) ){
-        $locale = json_decode( file_get_contents( $file ), true );    
+    if( !file_exists( $file ) ){
+        $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-en.json';
     }
-	$lang = explode( '_', get_locale() )[0];
-	$letter_data = crw_get_letter_data ( $lang );
+    $locale = json_decode( file_get_contents( $file ), true );
 	
 	if ( has_shortcode( $post->post_content, 'crosswordsearch') ) {
         wp_enqueue_script('angular', $plugin_path . 'js/angular.min.js');
         wp_enqueue_script('angular-sanitize', $plugin_path . 'js/angular-sanitize.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', $plugin_path . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
         wp_enqueue_script('crw-js', $plugin_path . 'js/crosswordsearch.js', array( 'angular', 'angular-sanitize', 'quantic-stylemodel' ));
-        wp_localize_script('crw-js', 'crwBasics', array(
-            'pluginPath' => $plugin_path,
-            'letterDist' => $letter_data['dist'],
-            'letterRegEx' => $letter_data['regex'],
-            'locale' => $locale
-        ));
+        wp_localize_script('crw-js', 'crwBasics', array_merge((array)$locale, array(
+            'pluginPath' => $plugin_path
+        )));
 	}
 }
 
