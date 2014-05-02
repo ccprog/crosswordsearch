@@ -20,51 +20,6 @@ app.filter('joinWord', function () {
     };
 });
 
-// template for user dialogue in case of table size change
-// and when a word crosses the table boundaries
-// user can confirm deletion or abort
-app.directive('crwInvalidWords', function() {
-    return {
-        template: '<p ng-pluralize count="invalidCount" when="{' +
-            '\'one\': \'Das markierte Wort passt nicht mehr vollständig in das Rätselfeld. ' +
-            'Um die Größe anzupassen, muss es gelöscht werden.\',' +
-            '\'other\': \'Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. ' +
-            'Um die Größe anzupassen, müssen sie gelöscht werden.\'}"></p>' +
-            '<p class="actions">' +
-            '<button ng-click="deleteInvalid()">Löschen</button> ' +
-            '<button ng-click="abortInvalid()">Abbrechen</button></p>'
-    };
-});
-
-// template for user dialogue for saving a crossword
-// TODO: yet only a stub
-app.directive('crwSaveCrossword', function() {
-    return {
-        template: '<form name="uploader">' + 
-            '<p>Zum Speichern muss das Rätsel einen Namen erhalten (mindestens 4 Buchstaben):</p>' +
-            '<p class="actions">' +
-            '<input type="text" ng-model="crw.name" name="name" required="" ng-minlength="4"> ' +
-            '<button ng-disabled="!uploader.name.$valid" ng-click="upload()">Speichern</button></p>' +
-            '<p class="error" ng-show="uploader.name.$error.required">' +
-            'Ein Name muss angegeben werden!</p>' +
-            '<p class="error" ng-show="uploader.name.$error.minlength">' +
-            'Der Name ist zu kurz!</p>' +
-            '<p class="confirm" ng-show="uploader.name.$valid">' +
-            'So geht\'s!</p>' +
-            '</form>'
-    };
-});
-
-// template for user dialogue in case of invalid solution
-// on user ok click the solution entry is removed immediately
-app.directive('crwFalseWord', function() {
-    return {
-        template: '<p>Das markierte Wort ist kein Teil der Lösung.</p>' +
-            '<p class="actions">' +
-            '<button ng-click="deleteFalse()">Löschen</button></p>'
-    };
-});
-
 // word list entry controller, mostly needed for $filter and colors import
 app.controller("EntryController", ["$scope", "$filter", "crossword", 'basics',
         function ($scope, $filter, crossword, basics) {
@@ -74,6 +29,9 @@ app.controller("EntryController", ["$scope", "$filter", "crossword", 'basics',
     $scope.deleteWord = function (id) {
         crossword.deleteWord(id, 'words');
     };
+    
+    //build page only: localize direction string
+    $scope.localizeDirection = basics.localize;
 }]);
 
 /* control elements controller */

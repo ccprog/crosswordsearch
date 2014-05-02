@@ -1,0 +1,101 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: crosswordsearch 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-05-02 17:50+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: plugin/crosswordsearch.php:109
+msgid "Fill all empty fields with random letters"
+msgstr ""
+
+#: plugin/crosswordsearch.php:109
+msgid "Fill fields"
+msgstr ""
+
+#: plugin/crosswordsearch.php:110
+msgid "Empty all fields"
+msgstr ""
+
+#: plugin/crosswordsearch.php:110
+msgid "Empty"
+msgstr ""
+
+#: plugin/crosswordsearch.php:111
+msgid "Save the riddle"
+msgstr ""
+
+#: plugin/crosswordsearch.php:111 plugin/crosswordsearch.php:136
+msgid "Save"
+msgstr ""
+
+#. / translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
+#: plugin/crosswordsearch.php:117
+#, php-format
+msgid "from line %1$s, column %2$s %3$s"
+msgstr ""
+
+#: plugin/crosswordsearch.php:118 plugin/crosswordsearch.php:127
+#: plugin/crosswordsearch.php:157
+msgid "Delete"
+msgstr ""
+
+#: plugin/crosswordsearch.php:124
+msgid ""
+"The marked word no longer fits into the crossword area. For a successfull "
+"resize this word must be deleted."
+msgstr ""
+
+#: plugin/crosswordsearch.php:125
+msgid ""
+"The marked words no longer fit into the crossword area. For a successfull "
+"resize these words must be deleted."
+msgstr ""
+
+#: plugin/crosswordsearch.php:128
+msgid "Abort"
+msgstr ""
+
+#: plugin/crosswordsearch.php:133
+msgid "To save it, the riddle must get a name: (at least 4 letters)"
+msgstr ""
+
+#: plugin/crosswordsearch.php:138
+msgid "A name must be given!"
+msgstr ""
+
+#: plugin/crosswordsearch.php:139
+msgid "The name is too short!"
+msgstr ""
+
+#: plugin/crosswordsearch.php:140
+msgid "That's the way!"
+msgstr ""
+
+#: plugin/crosswordsearch.php:146
+msgid "Riddle:"
+msgstr ""
+
+#: plugin/crosswordsearch.php:146
+msgid "Load a new riddle"
+msgstr ""
+
+#: plugin/crosswordsearch.php:146
+msgid "Load"
+msgstr ""
+
+#: plugin/crosswordsearch.php:155
+msgid "The marked word is not part of the solution."
+msgstr ""

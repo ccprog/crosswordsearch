@@ -5,6 +5,7 @@ Plugin URI: https://github.com/ccprog/crosswordseach
 Version: 0.1.0
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
+Text Domain: crw-text
 Description: Adds a wordsearch-style crossword in place of a shortcode. Crosswords can be in building-mode for developing new riddles, which then can be stored for later usage, or they can be in solving-mode, where existing riddles are loaded into the page for readers to solve.
 
 Copyright Claus Colloseus 2014 for RadiJojo.de
@@ -31,9 +32,16 @@ require('letter_distributions.php');
 
 function add_crw_scripts () {
 	global $post;
+    $plugin_path = plugins_url() . '/crosswordsearch/';
+    
+    $locale = array();
+    $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-'.get_locale().'.json';
+    if( file_exists( $file ) ){
+        $locale = json_decode( file_get_contents( $file ), true );    
+    }
 	$lang = explode( '_', get_locale() )[0];
 	$letter_data = crw_get_letter_data ( $lang );
-    $plugin_path = plugins_url() . '/crosswordsearch/';
+	
 	if ( has_shortcode( $post->post_content, 'crosswordsearch') ) {
         wp_enqueue_script('angular', $plugin_path . 'js/angular.min.js');
         wp_enqueue_script('angular-sanitize', $plugin_path . 'js/angular-sanitize.min.js', array( 'angular' ));
@@ -42,12 +50,19 @@ function add_crw_scripts () {
         wp_localize_script('crw-js', 'crwBasics', array(
             'pluginPath' => $plugin_path,
             'letterDist' => $letter_data['dist'],
-            'letterRegEx' => $letter_data['regex']
+            'letterRegEx' => $letter_data['regex'],
+            'locale' => $locale
         ));
 	}
 }
 
 add_action( 'wp_enqueue_scripts', 'add_crw_scripts');
+
+function crw_load_text() {
+    load_plugin_textdomain( 'crw-text', false, 'crosswordsearch/languages/' );
+}
+
+add_action('plugins_loaded', 'crw_load_text');
 
 function crw_shortcode_handler( $atts, $content = null ) {
     $plugin_path = plugins_url() . '/crosswordsearch/';
@@ -99,24 +114,44 @@ function crw_shortcode_handler( $atts, $content = null ) {
         // build mode: global editing and wordlist with color chooser and delete button
         $html .= '
         <p>Felder:
-            <button ng-click="randomize()" title="Leere Felder mit zufälligen Buchstaben auffüllen">Auffüllen</button>
-            <button ng-click="empty()" title="Alle Felder leeren">Leeren</button>
-            <button ng-click="save()">Testausgabe</button>
+            <button ng-click="randomize()" title="' . __('Fill all empty fields with random letters', 'crw-text') . '">' . __('Fill fields', 'crw-text') . '</button>
+            <button ng-click="empty()" title="' . __('Empty all fields', 'crw-text') . '">' . __('Empty', 'crw-text') . '</button>
+            <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>
         </p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crw.words) | orderBy:\'id\'" ng-controller="EntryController">
-                <dl class="cse" cse-select cse-options="colors" cse-model="word.color"></dl>
-                <span>{{word.fields | joinWord}} (ab [{{word.start.x + 1}}, {{word.start.y + 1}}] nach {{word.direction}})</span>
-                <button ng-click="deleteWord(word.id)">Löschen</button>
+                <dl class="cse" cse-select cse-options="colors" cse-model="word.color"></dl>';
+                /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
+                $html .= '<span>{{word.fields | joinWord}} (' . sprintf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') . ')</span>
+                <button ng-click="deleteWord(word.id)">' . __('Delete', 'crw-text') . '</button>
             </li>
         </ul>
         <div class="crw-immediate" ng-if="immediate"></div>
-        <div ng-switch-when="invalidWords" crw-invalid-words></div>
-        <div ng-switch-when="saveCrossword" crw-save-crossword></div>';
+        <div ng-switch-when="invalidWords">
+            <p ng-pluralize count="invalidCount" when="{
+                \'one\': \'' . __('The marked word no longer fits into the crossword area. For a successfull resize this word must be deleted.', 'crw-text') . '\',
+                \'other\': \'' . __('The marked words no longer fit into the crossword area. For a successfull resize these words must be deleted.', 'crw-text') . '\'}"></p>
+            <p class="actions">
+                <button ng-click="deleteInvalid()">' . __('Delete', 'crw-text') . '</button>
+                <button ng-click="abortInvalid()">' . __('Abort', 'crw-text') . '</button>
+            </p>
+        </div>
+        <div ng-switch-when="saveCrossword">
+            <form name="uploader">
+                <p>' . __('To save it, the riddle must get a name: (at least 4 letters)', 'crw-text') . '</p>
+                <p class="actions">
+                    <input type="text" ng-model="crw.name" name="name" required="" ng-minlength="4">
+                    <button ng-disabled="!uploader.name.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
+                </p>
+                <p class="error" ng-show="uploader.name.$error.required">' . __('A name must be given!', 'crw-text') . '</p>
+                <p class="error" ng-show="uploader.name.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
+                <p class="confirm" ng-show="uploader.name.$valid">' . __('That\'s the way!', 'crw-text') . '</p>
+            </form>
+        </div>';
     } elseif ( 'solve' == $mode ) {
         // solve mode: load/save functions and wordlist as solution display
         $html .= '
-        <p>Rätsel: <button ng-click="load()" title="">Laden</button></p>
+        <p>' . __('Riddle:', 'crw-text') . ' <button ng-click="load()" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button></p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crw.solution) | orderBy:\'id\'" ng-controller="EntryController">
                 <img ng-src="' . $plugin_path . 'images/bullet-{{word.color}}.png">
@@ -124,7 +159,12 @@ function crw_shortcode_handler( $atts, $content = null ) {
             </li>
         </ul>
         <div class="crw-immediate" ng-if="immediate"></div>
-        <div ng-switch-when="falseWord" crw-false-word></div>';
+        <div ng-switch-when="falseWord">
+            <p>' . __('The marked word is not part of the solution.', 'crw-text') . '</p>
+            <p class="actions">
+                <button ng-click="deleteFalse()">' . __('Delete', 'crw-text') . '</button>
+            </p>
+        </div>';
     }
     $html .= '
     </div>
