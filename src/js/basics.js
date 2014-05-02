@@ -3,29 +3,12 @@ var app = angular.module('app', ['ngSanitize', 'qantic.angularjs.stylemodel', 'c
 
 /* constants */
 app.factory('basics', function () {
-    // letter distribution data for supported languages
-    var letterDist =  {
-        "english": {"A": 8, "B": 1, "C": 3, "D": 4, "E": 12, "F": 2, "G": 2, "H": 6, "I": 7, "J": 1, "K": 1, "L": 4, "M": 2, "N": 6, "O": 7, "P": 2, "Q": 1, "R": 6, "S": 6, "T": 9, "U": 3, "V": 1, "W": 2, "X": 1, "Y": 2, "Z": 1}, "french": {"A": 8, "B":1, "C": 3, "D": 3, "E": 17, "F": 1, "G": 1, "H": 1, "I": 7, "J": 1, "K": 1, "L": 5, "M": 3, "N": 7, "O": 5, "P": 3, "Q": 1, "R": 6, "S": 8, "T": 7, "U": 6, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1},
-        "german": {"A": 6, "B": 2, "C": 3, "D": 5, "E": 17, "F": 1, "G": 3, "H": 4, "I": 7, "J": 1, "K": 1, "L": 3, "M": 2, "N": 10, "O": 2, "P": 1, "Q": 1, "R": 7, "S": 8, "T": 6, "U": 4, "V": 1, "W": 2, "X": 1, "Y": 1, "Z": 1},
-        "spanish": {"A": 12, "B": 1, "C": 4, "D": 5, "E": 13, "F": 1, "G": 1, "H": 1, "I": 6, "J": 1, "K": 1, "L": 5, "M": 3, "N": 7, "O": 8, "P": 2, "Q": 1, "R": 7, "S": 8, "T": 4, "U": 4, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1},
-        "portuguese": {"A": 14, "B": 1, "C": 4, "D": 5, "E": 12, "F": 1, "G": 1, "H": 1, "I": 6, "J": 1, "K": 1, "L": 3, "M": 4, "N": 5, "O": 11, "P": 2, "Q": 1, "R": 6, "S": 8, "T": 4, "U": 4, "V": 1, "W": 1, "X": 1, "Y": 1, "Z": 1},
-        "italian": {"A": 11, "B": 1, "C": 4, "D": 3, "E": 11, "F": 1, "G": 1, "H": 1, "I": 11, "J": 1, "K": 1, "L": 6, "M": 2, "N": 7, "O": 10, "P": 3, "Q": 1, "R": 6, "S": 5, "T": 5, "U": 3, "V": 2, "W": 1, "X": 1, "Y": 1, "Z": 1},
-        "turkish": {"A": 11, "B": 3, "C": 2, "D": 4, "E": 11, "F": 1, "G": 2, "H": 1, "I": 13, "J": 1, "K": 4, "L": 5, "M": 3, "N": 7, "O": 3, "P": 1, "Q": 1, "R": 7, "S": 5, "T": 3, "U": 5, "V": 1, "W": 1, "X": 1, "Y": 3, "Z": 1},
-        "swedish": {"A": 13, "B": 1, "C": 1, "D": 4, "E": 11, "F": 2, "G": 3, "H": 2, "I": 5, "J": 1, "K": 3, "L": 5, "M": 3, "N": 9, "O": 5, "P": 1, "Q": 1, "R": 8, "S": 6, "T": 8, "U": 2, "V": 2, "W": 1, "X": 1, "Y": 1, "Z": 1},
-        "polish": {"A": 9, "B": 2, "C": 5, "D": 4, "E": 8, "F": 1, "G": 1, "H": 1, "I": 8, "J": 2, "K": 3, "L": 4, "M": 3, "N": 6, "O": 8, "P": 3, "Q": 1, "R": 4, "S": 5, "T": 3, "U": 2, "V": 1, "W": 4, "X": 1, "Y": 4, "Z": 7},
-        "dutch": {"A": 7, "B": 2, "C": 1, "D": 6, "E": 19, "F": 1, "G": 3, "H": 2, "I": 6, "J": 1, "K": 2, "L": 3, "M": 2, "N": 10, "O": 6, "P": 2, "Q": 1, "R": 6, "S": 4, "T": 7, "U": 2, "V": 3, "W": 1, "X": 1, "Y": 1, "Z": 1},
-        "danish": {"A": 9, "B": 2, "C": 1, "D": 5, "E": 16, "F": 2, "G": 4, "H": 1, "I": 6, "J": 1, "K": 3, "L": 5, "M": 3, "N": 7, "O": 5, "P": 1, "Q": 1, "R": 9, "S": 5, "T": 6, "U": 2, "V": 2, "W": 1, "X": 1, "Y": 1, "Z": 1}
-    };
-
-    // regex of allowed letters, defaults to standard latin
-    // add other languages to support specific letters, especcially non-latin scripts
-    var letterRegEx = {"default": /[a-zA-Z]/};
     return {
         // the list of marking colors selectable on build page.
         colors: ["black", "red", "green", "blue", "orange", "violet", "aqua"],
 
         // base directory
-        pluginPath: 'wp-content/plugins/crosswordsearch/',
+        pluginPath: crwBasics.pluginPath,
 
         // select one color at random, but exclude the one provided as the parameter
         randomColor: function (last) {
@@ -36,22 +19,11 @@ app.factory('basics', function () {
             return color;
         },
 
-        // return a concatenated string containing all supported letters for
-        // one language. TODO: Obsolete now?
-        letters: function (lang) {
-            var list = "", dist = letterDist[lang];
-            angular.forEach(dist, function (val, key) {
-                list += key;
-            });
-            return list;
-        },
-
-        // return one random letter for a specific language.
-        // The probability of each letter is determined by the language's
-        // letter distribution data
-        randomLetter: function (lang) {
-            var list = "", total = 0, dist = letterDist[lang];
-            angular.forEach(dist, function (val, key) {
+        // return one random letter. The probability of each letter
+        // is determined by the letter distribution data
+        randomLetter: function () {
+            var list = "", total = 0;
+            angular.forEach(crwBasics.letterDist, function (val, key) {
                 total += val;
                 for (var i = 0; i < val; i++) {
                     list += key;
@@ -61,10 +33,8 @@ app.factory('basics', function () {
             return list.slice(pos, pos+1);
         },
 
-        // return the regex describing allowed letters for one language
-        letterRegEx: function (lang) {
-            return letterRegEx[lang || "default"];
-        },
+        // return the regex describing allowed letters
+        letterRegEx: new RegExp(crwBasics.letterRegEx),
 
         // pixel sizing for one crossword field, including borders
         // This must match the width and height of images/grid.png

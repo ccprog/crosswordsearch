@@ -206,7 +206,7 @@ app.controller("TableController", ["$scope", 'basics', 'immediate', "crossword",
         var key = event.charCode || event.keyCode || event.which;
         var keychar = String.fromCharCode(key);
         // if it is an allowed letter, enter into field
-        if (basics.letterRegEx().test(keychar)) {
+        if (basics.letterRegEx.test(keychar)) {
             this.field.letter = keychar.toUpperCase();
         } else switch (key) {
         // else catch special keys:
