@@ -21,13 +21,13 @@ crwApp.filter('joinWord', function () {
 });
 
 // word list entry controller, mostly needed for $filter and colors import
-crwApp.controller("EntryController", ["$scope", "$filter", "crossword", 'basics',
-        function ($scope, $filter, crossword, basics) {
+crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
+        function ($scope, $filter, basics) {
     $scope.colors = basics.colors;
 
     // build page only: event handler on "delete" button click
     $scope.deleteWord = function (id) {
-        crossword.deleteWord(id, 'words');
+        $scope.crw.deleteWord(id, 'words');
     };
     
     //build page only: localize direction string
@@ -35,10 +35,10 @@ crwApp.controller("EntryController", ["$scope", "$filter", "crossword", 'basics'
 }]);
 
 /* control elements controller */
-crwApp.controller("WordController", ["$scope", "$sanitize", "crossword", 'immediate',
-        function ($scope, $sanitize, crossword, immediate) {
+crwApp.controller("WordController", ["$scope", "$sanitize", 'immediate',
+        function ($scope, $sanitize, immediate) {
     var deferred, highlight = [];
-    $scope.crw = crossword.getCrossword();
+    $scope.crosswordData = $scope.crw.getCrosswordData();
 
     // tweak: since ordering on object entries seems not to really work,
     // map them into an Array
@@ -53,28 +53,27 @@ crwApp.controller("WordController", ["$scope", "$sanitize", "crossword", 'immedi
     // build page only: event handler for "fill" button:
     // fill all empty fields with a random letter
     $scope.randomize = function () {
-        crossword.randomizeEmptyFields();
+        $scope.crw.randomizeEmptyFields();
     };
 
     // build page only: event handler for "empty" button:
     // empty all fields
     $scope.empty = function () {
-        crossword.emptyAllFields();
+        $scope.crw.emptyAllFields();
     };
 
     // solve page only: event handler for "load" button:
     // load a crossword TODO: really load from server
     $scope.load = function () {
-        crossword.loadCrossword();
-        $scope.crw = crossword.getCrossword();
+        $scope.crw.loadCrosswordData();
     };
 
     // build page only: event handler for "save" button:
     // ask for crossword name
     $scope.save = function () {
         immediate.newPromise('saveCrossword').then(function () {
-            $scope.crw.name = $sanitize($scope.crw.name);
-            console.log(angular.toJson($scope.crw));
+            $scope.crosswordData.name = $sanitize($scope.crosswordData.name);
+            console.log(angular.toJson($scope.crosswordData));
         }, angular.noop);
     };
 

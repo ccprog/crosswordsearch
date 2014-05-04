@@ -80,7 +80,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper">
+<div class="crw-wrapper" ng-controller="CrosswordController">
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
@@ -98,7 +98,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         </div>
         <div class="crw-mask" ng-style="styleGridSize()">
             <table class="crw-table" ng-style="styleShift()" ng-controller="TableController" ng-Init="setMode(\'' . $mode . '\')" crw-catch-dragging>
-                <tr ng-repeat="row in crw.content" crw-index-checker="line">
+                <tr ng-repeat="row in crosswordData.content" crw-index-checker="line">
                     <td class="crw-field" ng-repeat="field in row" crw-index-checker="column">
                         <div ';
                         // button clicking only for build mode
@@ -125,7 +125,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
             <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>
         </p>
         <ul class="crw-word">
-            <li ng-class="{\'highlight\': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crw.words) | orderBy:\'id\'" ng-controller="EntryController">
+            <li ng-class="{\'highlight\': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:\'id\'" ng-controller="EntryController">
                 <dl class="cse" cse-select cse-options="colors" cse-model="word.color"></dl>';
                 /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
                 $html .= '<span>{{word.fields | joinWord}} (' . sprintf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') . ')</span>
@@ -146,7 +146,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
             <form name="uploader">
                 <p>' . __('To save it, the riddle must get a name: (at least 4 letters)', 'crw-text') . '</p>
                 <p class="actions">
-                    <input type="text" ng-model="crw.name" name="name" required="" ng-minlength="4">
+                    <input type="text" ng-model="crosswordData.name" name="name" required="" ng-minlength="4">
                     <button ng-disabled="!uploader.name.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
                 </p>
                 <p class="error" ng-show="uploader.name.$error.required">' . __('A name must be given!', 'crw-text') . '</p>
@@ -159,7 +159,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $html .= '
         <p>' . __('Riddle:', 'crw-text') . ' <button ng-click="load()" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button></p>
         <ul class="crw-word">
-            <li ng-class="{\'highlight\': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crw.solution) | orderBy:\'id\'" ng-controller="EntryController">
+            <li ng-class="{\'highlight\': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'id\'" ng-controller="EntryController">
                 <img ng-src="' . $plugin_path . 'images/bullet-{{word.color}}.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>

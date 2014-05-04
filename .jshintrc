@@ -8,6 +8,7 @@
     "globals": {
         "angular": true,
         "customSelectElement": true,
-        "app": true
+        "crwApp": true,
+        "crwBasics": true
     }
 }

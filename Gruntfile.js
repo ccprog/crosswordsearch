@@ -3,8 +3,9 @@ module.exports = function(grunt) {
   var jslist = [
     'src/js/customSelectElement.js',
     'src/js/basics.js',
-    'src/js/crossword.js',
-    'src/js/markers.js',
+    'src/js/crosswordFactory.js',
+    'src/js/markerFactory.js',
+    'src/js/CrosswordController.js',
     'src/js/SizeController.js',
     'src/js/TableController.js',
     'src/js/WordController.js'

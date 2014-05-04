@@ -1,7 +1,7 @@
 /* grid size controller */
 crwApp.controller("SizeController", ['$scope', '$document',
-        'immediate', 'crossword', 'basics', 'StyleModelContainer',
-        function ($scope, $document, immediate, crossword, basics, StyleModelContainer) {
+        'immediate', 'basics', 'StyleModelContainer',
+        function ($scope, $document, immediate, basics, StyleModelContainer) {
     // one-letter sizes are pixel positions as they result from dragging,
     // -g sizes are adjusted to multiples of the grid size
     var size = basics.fieldSize,
@@ -22,11 +22,11 @@ crwApp.controller("SizeController", ['$scope', '$document',
         $scope.modBottom.transform(0, b);
     };
 
-    $scope.crw = crossword.getCrossword();
+    $scope.crosswordData = $scope.crw.getCrosswordData();
 
     // add a style model for each table side
-    StyleModelContainer.add('size-left', -Infinity, (($scope.crw.size.height - 3)*size)+1, 0, 0);
-    StyleModelContainer.add('size-top', 0, 0, -Infinity, (($scope.crw.size.width - 3)*size)+1);
+    StyleModelContainer.add('size-left', -Infinity, (($scope.crosswordData.size.height - 3)*size)+1, 0, 0);
+    StyleModelContainer.add('size-top', 0, 0, -Infinity, (($scope.crosswordData.size.width - 3)*size)+1);
     StyleModelContainer.add('size-right', (5*size)+1, Infinity, 0, 0);
     StyleModelContainer.add('size-bottom', 0, 0, (5*size)+1, Infinity);
 
@@ -36,8 +36,8 @@ crwApp.controller("SizeController", ['$scope', '$document',
     $scope.modBottom = StyleModelContainer.get('size-bottom');
 
     // init styles and setup watch for abstract size changes (fields, not pixels)
-    resetSizes($scope.crw.size.width, $scope.crw.size.height);
-    $scope.$watch('crw.size', function (newSize) {
+    resetSizes($scope.crosswordData.size.width, $scope.crosswordData.size.height);
+    $scope.$watch('crosswordData.size', function (newSize) {
         resetSizes(newSize.width, newSize.height);
     });
 
@@ -154,19 +154,19 @@ crwApp.controller("SizeController", ['$scope', '$document',
                 bottom: newSize.bottom - currentSize.bottom
             };
             // test for words crossing the table boundaries
-            var critical = crossword.testWordBoundaries(change);
+            var critical = $scope.crw.testWordBoundaries(change);
             if (critical.length) {
                 // trigger async user interaction to ask whether change should be applied.
                 immediate.newPromise('invalidWords', critical).then(function () {
                     // yes: apply all style changes.
-                    crossword.changeSize(change, critical);
+                    $scope.crw.changeSize(change, critical);
                 }, function () {
                     // no: reset styles
                     resetSizes(currentSize.right + currentSize.left, currentSize.bottom + currentSize.top);
                 });
             } else {
                 // reset styles
-                $scope.$apply(crossword.changeSize(change, critical));
+                $scope.$apply($scope.crw.changeSize(change, critical));
             }
         }
         // finally unbind function from mouseup event

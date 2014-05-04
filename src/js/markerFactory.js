@@ -1,63 +1,63 @@
 /* table markings data object provider */
-crwApp.factory('markers', ['basics', function (basics) {
-    // wrapper object
-    var markers = {};
+crwApp.factory('markerFactory', ['basics', function (basics) {
+    function Markers () {
+        // wrapper object
+        var markers = {};
 
-    // add a marker to a field. For each field that has markers,
-    // under its coordinates, an array is provided containing
-    // an object {marking: ..., img: ...} for each individual image.
-    // marking is a reference to the producing marking object,
-    // img the CSS class name for the individual marker part
-    function add (marking, x, y, img) {
-        if (img != null) {
-            if (markers[x] == null) {
-                markers[x] = {};
+        // add a marker to a field. For each field that has markers,
+        // under its coordinates, an array is provided containing
+        // an object {marking: ..., img: ...} for each individual image.
+        // marking is a reference to the producing marking object,
+        // img the CSS class name for the individual marker part
+        function add (marking, x, y, img) {
+            if (img != null) {
+                if (markers[x] == null) {
+                    markers[x] = {};
+                }
+                if (markers[x][y] == null) {
+                    markers[x][y] = {};
+                }
+                markers[x][y][marking.id] = {marking: marking, img: img};
             }
-            if (markers[x][y] == null) {
-                markers[x][y] = {};
-            }
-            markers[x][y][marking.id] = {marking: marking, img: img};
         }
-    }
 
-    // loop through the fields of a marking object to set the individual markers
-    // swap identifies reverse direction of the sequence
-    // (identified by the calling function)
-    function setMarkers (marking, swap) {
-        var mapping = basics.directionMapping[marking.direction];
+        // loop through the fields of a marking object to set the individual markers
+        // swap identifies reverse direction of the sequence
+        // (identified by the calling function)
+        function setMarkers (marking, swap) {
+            var mapping = basics.directionMapping[marking.direction];
 
-        angular.forEach(marking.fields, function (field, i) {
-            if (i === 0) {
-                add(marking, field.x, field.y,marking.direction);
-                if (marking.direction === 'origin') {
-                    return;
-                }
-                if (swap) {
-                    add(marking, field.x - 1, field.y, mapping.left);
+            angular.forEach(marking.fields, function (field, i) {
+                if (i === 0) {
+                    add(marking, field.x, field.y,marking.direction);
+                    if (marking.direction === 'origin') {
+                        return;
+                    }
+                    if (swap) {
+                        add(marking, field.x - 1, field.y, mapping.left);
+                    } else {
+                        add(marking, field.x + 1, field.y, mapping.right);
+                    }
+                } else if (i === marking.fields.length - 1) {
+                    add(marking, field.x, field.y, mapping.end);
+                    if (swap) {
+                        add(marking, field.x + 1, field.y, mapping.right);
+                    } else {
+                        add(marking, field.x - 1, field.y, mapping.left);
+                    }
                 } else {
+                    add(marking, field.x, field.y, mapping.middle);
+                    add(marking, field.x - 1, field.y, mapping.left);
                     add(marking, field.x + 1, field.y, mapping.right);
                 }
-            } else if (i === marking.fields.length - 1) {
-                add(marking, field.x, field.y, mapping.end);
-                if (swap) {
-                    add(marking, field.x + 1, field.y, mapping.right);
-                } else {
-                    add(marking, field.x - 1, field.y, mapping.left);
-                }
-            } else {
-                add(marking, field.x, field.y, mapping.middle);
-                add(marking, field.x - 1, field.y, mapping.left);
-                add(marking, field.x + 1, field.y, mapping.right);
-            }
-        });
-    }
+            });
+        }
 
-    return {
         // add a new marking sequence or exchange it with altered positioning
         // (as during mouse movement)
         // If it already exists, marking.fields will be overwritten or otherwise
         // added and the sequence of fields between .start and .stop computed
-        setNewMarkers: function (marking) {
+        this.setNewMarkers = function (marking) {
             var from = marking.start, to = marking.stop;
             var i, dif_x = to.x - from.x, dif_y = to.y - from.y;
             var swap = dif_x < 0 || (dif_x === 0 && dif_y < 0);
@@ -92,18 +92,18 @@ crwApp.factory('markers', ['basics', function (basics) {
             }
 
             setMarkers(marking, swap);
-        },
+        };
 
         // trigger the color change of a marking
-        exchangeMarkers: function (fields, id, color) {
+        this.exchangeMarkers = function (fields, id, color) {
             angular.forEach(fields, function(field) {
                 markers[field.x][field.y][id].marking.color = color;
             });
-        },
+        };
 
         // trigger the shift of marking positions on table resize
         // shift_x, shift_y are left/down coordinates
-        shiftMarkers: function (markings, shift_x, shift_y) {
+        this.shiftMarkers = function (markings, shift_x, shift_y) {
             angular.forEach(markings, function (marking) {
                 var from = marking.start, to = marking.stop;
                 var swap = to.x < from.x || (to.x === from.x && to.y < from.y);
@@ -116,28 +116,34 @@ crwApp.factory('markers', ['basics', function (basics) {
 
                 setMarkers(marking, swap);
             }, this);
-        },
+        };
 
         // return all markers for one field as an array
-        getMarks: function (x, y) {
+        this.getMarks = function (x, y) {
             if (markers[x] == null || y == null) {
                 return undefined;
             }
             return markers[x][y];
-        },
+        };
 
         // delete one marking identified by its id
-        deleteMarking: function (id) {
+        this.deleteMarking = function (id) {
             angular.forEach(markers, function(x) {
                 angular.forEach(x, function (y) {
                     delete y[id];
                 });
             });
-        },
+        };
 
         // delete all markings
-        deleteAllMarking: function () {
+        this.deleteAllMarking = function () {
             markers = {};
+        };
+    }
+
+    return {
+        getMarkers: function () {
+            return new Markers();
         }
     };
 }]);

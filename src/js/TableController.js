@@ -55,9 +55,10 @@ crwApp.directive('crwIndexChecker', function() {
 
 /* table and fields controller */
 
-crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crossword", 'markers',
-        function ($scope, basics, immediate, crossword, markers) {
+crwApp.controller("TableController", ["$scope", 'basics', 'immediate', 'markerFactory',
+        function ($scope, basics, immediate, markerFactory) {
     var isMarking = false, currentMarking, mode;
+    var markers = markerFactory.getMarkers();
 
     // test whether start and stop field are in a straight or diagonal relation
     function validMarking (newStop) {
@@ -72,7 +73,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crosswor
         if (mode === 'build') { // build page
             currentMarking = { id: 0 };
             // remove marking for deleted words
-            $scope.$watch('crw.words', function (newWords, oldWords) {
+            $scope.$watch('crosswordData.words', function (newWords, oldWords) {
                 var probe, shift_x = 0, shift_y = 0;
                 angular.forEach(oldWords, function (word, id) {
                     if (!newWords[id]) {
@@ -88,7 +89,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crosswor
                     shift_y = newWords[probe].start.y - oldWords[probe].start.y;
                     if(shift_x !== 0 || shift_y !== 0) {
                         // shift markers the same as words have moved
-                        markers.shiftMarkers($scope.crw.words, shift_x, shift_y);
+                        markers.shiftMarkers($scope.crosswordData.words, shift_x, shift_y);
                     }
                 }
             }, true);
@@ -97,7 +98,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crosswor
             // find the highest id allocated for words
             var resetId = function () {
                 var nextId = 0;
-                angular.forEach($scope.crw.words, function (word, id) {
+                angular.forEach($scope.crosswordData.words, function (word, id) {
                     nextId = Math.max(nextId, id);
                 });
                 return nextId;
@@ -105,7 +106,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crosswor
             // shift marking ids so they never overlap with word ids
             currentMarking = { id: resetId() };
             // remove marking for deleted solutions and colorize valid solutions
-            $scope.$watch('crw.solution', function (newWords, oldWords) {
+            $scope.$watch('crosswordData.solution', function (newWords, oldWords) {
                 angular.forEach(oldWords, function (word, id) {
                     if (!newWords[id]) {
                         markers.deleteMarking(word.markingId);
@@ -148,7 +149,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crosswor
         currentMarking = { id: currentMarking.id+1 };
         // during build markings get a random color,
         // unconfirmed markings during solve remain grey
-        currentMarking.color = mode === 'build' ? crossword.randomColor() : 'grey';
+        currentMarking.color = mode === 'build' ? $scope.crw.randomColor() : 'grey';
     };
 
     // event handler on mouseup in a field:
@@ -159,14 +160,14 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crosswor
         if (!angular.equals(currentMarking.start, currentMarking.stop)) {
             if (mode === 'build') {
                 // on build page save new marking as word
-                crossword.setWord(currentMarking);
+                $scope.crw.setWord(currentMarking);
             } else {
                 // on solve page test if marking is a valid solution
-                var word = crossword.probeWord(currentMarking);
+                var word = $scope.crw.probeWord(currentMarking);
                 if (!word.solved) {
                     // if not, inform user and delete the marking on confirmation
                     immediate.newPromise('falseWord', word).then(function () {
-                        crossword.deleteWord(currentMarking.id, 'solution');
+                        $scope.crw.deleteWord(currentMarking.id, 'solution');
                     });
                 }
             }
@@ -232,7 +233,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crosswor
             }
             break;
         case 0x28: //down
-            if (this.line < this.crw.content.length - 1) {
+            if (this.line < this.crosswordData.content.length - 1) {
                 this.activate(this.line+1,this.column);
             }
             break;
