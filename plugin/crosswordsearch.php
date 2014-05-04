@@ -28,8 +28,19 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
+$crw_has_crossword = false;
+
+function crw_load_text() {
+    load_plugin_textdomain( 'crw-text', false, 'crosswordsearch/languages/' );
+}
+add_action('plugins_loaded', 'crw_load_text');
+
+function crw_add_angular_attribute ($attributes) {
+    return $attributes . ' xmlns:ng="http://angularjs.org" id="ng-app" ng-app="app"';
+}
+
 function add_crw_scripts () {
-	global $post;
+	global $crw_has_crossword;
     $plugin_path = plugins_url() . '/crosswordsearch/';
     
     $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-'.get_locale().'.json';
@@ -38,7 +49,7 @@ function add_crw_scripts () {
     }
     $locale = json_decode( file_get_contents( $file ), true );
 	
-	if ( has_shortcode( $post->post_content, 'crosswordsearch') ) {
+	if ( $crw_has_crossword ) {
         wp_enqueue_script('angular', $plugin_path . 'js/angular.min.js');
         wp_enqueue_script('angular-sanitize', $plugin_path . 'js/angular-sanitize.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', $plugin_path . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
@@ -49,13 +60,15 @@ function add_crw_scripts () {
 	}
 }
 
-add_action( 'wp_enqueue_scripts', 'add_crw_scripts');
-
-function crw_load_text() {
-    load_plugin_textdomain( 'crw-text', false, 'crosswordsearch/languages/' );
+function crw_find_shortcode () {
+	global $post, $crw_has_crossword;
+	if ( has_shortcode( $post->post_content, 'crosswordsearch') ) {
+        $crw_has_crossword = true;
+        add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
+        add_action( 'wp_enqueue_scripts', 'add_crw_scripts');
+    }
 }
-
-add_action('plugins_loaded', 'crw_load_text');
+add_action( 'get_header', 'crw_find_shortcode');
 
 function crw_shortcode_handler( $atts, $content = null ) {
     $plugin_path = plugins_url() . '/crosswordsearch/';
@@ -67,7 +80,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	
 	// wrapper divs
 	$html = '
-<div ng-app="app">
+<div class="crw-wrapper">
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
@@ -164,6 +177,5 @@ function crw_shortcode_handler( $atts, $content = null ) {
 </div>';
 	return $html;
 }
-
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
