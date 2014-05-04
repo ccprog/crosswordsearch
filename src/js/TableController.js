@@ -1,6 +1,6 @@
 // prevent letter highlighting and catch angular setFocus events sending
 // them to <button> even when the button is hidden under marker images
-app.directive('crwSetFocus', function() {
+crwApp.directive('crwSetFocus', function() {
     return {
         link: function(scope, element, attrs) {
             element.on('mousemove', function (event) {
@@ -16,7 +16,7 @@ app.directive('crwSetFocus', function() {
 });
 
 // bind/unbind mousedown/mouseup events during letter marking
-app.directive('crwCatchDragging', ['$document', function($document) {
+crwApp.directive('crwCatchDragging', ['$document', function($document) {
     return {
         link: function(scope, element, attrs) {
             // catch mouseup even outside of the table during marking
@@ -43,7 +43,7 @@ app.directive('crwCatchDragging', ['$document', function($document) {
 }]);
 
 // keep the line/column values current when $index changes
-app.directive('crwIndexChecker', function() {
+crwApp.directive('crwIndexChecker', function() {
     return {
         link: function(scope, element, attrs) {
             scope.$watch('$index', function (newIndex) {
@@ -55,7 +55,7 @@ app.directive('crwIndexChecker', function() {
 
 /* table and fields controller */
 
-app.controller("TableController", ["$scope", 'basics', 'immediate', "crossword", 'markers',
+crwApp.controller("TableController", ["$scope", 'basics', 'immediate', "crossword", 'markers',
         function ($scope, basics, immediate, crossword, markers) {
     var isMarking = false, currentMarking, mode;
 

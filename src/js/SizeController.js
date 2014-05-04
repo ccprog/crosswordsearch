@@ -1,5 +1,5 @@
 /* grid size controller */
-app.controller("SizeController", ['$scope', '$document',
+crwApp.controller("SizeController", ['$scope', '$document',
         'immediate', 'crossword', 'basics', 'StyleModelContainer',
         function ($scope, $document, immediate, crossword, basics, StyleModelContainer) {
     // one-letter sizes are pixel positions as they result from dragging,

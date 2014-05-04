@@ -1,5 +1,5 @@
 /* table markings data object provider */
-app.factory('markers', ['basics', function (basics) {
+crwApp.factory('markers', ['basics', function (basics) {
     // wrapper object
     var markers = {};
 

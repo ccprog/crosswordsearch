@@ -36,7 +36,7 @@ function crw_load_text() {
 add_action('plugins_loaded', 'crw_load_text');
 
 function crw_add_angular_attribute ($attributes) {
-    return $attributes . ' xmlns:ng="http://angularjs.org" id="ng-app" ng-app="app"';
+    return $attributes . ' xmlns:ng="http://angularjs.org" id="ng-app" ng-app="crwApp"';
 }
 
 function add_crw_scripts () {

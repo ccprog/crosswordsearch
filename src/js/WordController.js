@@ -1,5 +1,5 @@
 // image to show in cse select element
-app.directive('cseContent', ['basics', function(basics) {
+crwApp.directive('cseContent', ['basics', function(basics) {
     return {
         scope: {
             value: "="
@@ -10,7 +10,7 @@ app.directive('cseContent', ['basics', function(basics) {
 
 // concatenate letter sequences to a string
 // empty fields are shown as "_"
-app.filter('joinWord', function () {
+crwApp.filter('joinWord', function () {
     return function (input) {
         var word = "";
         angular.forEach(input, function (val) {
@@ -21,7 +21,7 @@ app.filter('joinWord', function () {
 });
 
 // word list entry controller, mostly needed for $filter and colors import
-app.controller("EntryController", ["$scope", "$filter", "crossword", 'basics',
+crwApp.controller("EntryController", ["$scope", "$filter", "crossword", 'basics',
         function ($scope, $filter, crossword, basics) {
     $scope.colors = basics.colors;
 
@@ -35,7 +35,7 @@ app.controller("EntryController", ["$scope", "$filter", "crossword", 'basics',
 }]);
 
 /* control elements controller */
-app.controller("WordController", ["$scope", "$sanitize", "crossword", 'immediate',
+crwApp.controller("WordController", ["$scope", "$sanitize", "crossword", 'immediate',
         function ($scope, $sanitize, crossword, immediate) {
     var deferred, highlight = [];
     $scope.crw = crossword.getCrossword();

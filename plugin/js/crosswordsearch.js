@@ -64,9 +64,9 @@ customSelectElement.directive("cseSelect", function() {
     };
 });
 
-var app = angular.module("app", [ "ngSanitize", "qantic.angularjs.stylemodel", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "ngSanitize", "qantic.angularjs.stylemodel", "customSelectElement" ]);
 
-app.factory("basics", function() {
+crwApp.factory("basics", function() {
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
         pluginPath: crwBasics.pluginPath,
@@ -139,7 +139,7 @@ app.factory("basics", function() {
     };
 });
 
-app.factory("immediate", [ "$q", function($q) {
+crwApp.factory("immediate", [ "$q", function($q) {
     var store = {};
     return {
         register: function(name, callback) {
@@ -160,7 +160,7 @@ app.factory("immediate", [ "$q", function($q) {
     };
 } ]);
 
-app.factory("crossword", [ "basics", function(basics) {
+crwApp.factory("crossword", [ "basics", function(basics) {
     var crossword = {
         name: "",
         size: {
@@ -329,7 +329,7 @@ app.factory("crossword", [ "basics", function(basics) {
     };
 } ]);
 
-app.factory("markers", [ "basics", function(basics) {
+crwApp.factory("markers", [ "basics", function(basics) {
     var markers = {};
     function add(marking, x, y, img) {
         if (img != null) {
@@ -458,7 +458,7 @@ app.factory("markers", [ "basics", function(basics) {
     };
 } ]);
 
-app.controller("SizeController", [ "$scope", "$document", "immediate", "crossword", "basics", "StyleModelContainer", function($scope, $document, immediate, crossword, basics, StyleModelContainer) {
+crwApp.controller("SizeController", [ "$scope", "$document", "immediate", "crossword", "basics", "StyleModelContainer", function($scope, $document, immediate, crossword, basics, StyleModelContainer) {
     var size = basics.fieldSize, t, b, l, r, lg, tg, wg, hg;
     var resetSizes = function(cols, rows) {
         l = t = -1;
@@ -591,7 +591,7 @@ app.controller("SizeController", [ "$scope", "$document", "immediate", "crosswor
     };
 } ]);
 
-app.directive("crwSetFocus", function() {
+crwApp.directive("crwSetFocus", function() {
     return {
         link: function(scope, element, attrs) {
             element.on("mousemove", function(event) {
@@ -606,7 +606,7 @@ app.directive("crwSetFocus", function() {
     };
 });
 
-app.directive("crwCatchDragging", [ "$document", function($document) {
+crwApp.directive("crwCatchDragging", [ "$document", function($document) {
     return {
         link: function(scope, element, attrs) {
             var tableMouseDown = function(event) {
@@ -628,7 +628,7 @@ app.directive("crwCatchDragging", [ "$document", function($document) {
     };
 } ]);
 
-app.directive("crwIndexChecker", function() {
+crwApp.directive("crwIndexChecker", function() {
     return {
         link: function(scope, element, attrs) {
             scope.$watch("$index", function(newIndex) {
@@ -638,7 +638,7 @@ app.directive("crwIndexChecker", function() {
     };
 });
 
-app.controller("TableController", [ "$scope", "basics", "immediate", "crossword", "markers", function($scope, basics, immediate, crossword, markers) {
+crwApp.controller("TableController", [ "$scope", "basics", "immediate", "crossword", "markers", function($scope, basics, immediate, crossword, markers) {
     var isMarking = false, currentMarking, mode;
     function validMarking(newStop) {
         var dif_x = currentMarking.start.x - newStop.x, dif_y = currentMarking.start.y - newStop.y;
@@ -789,7 +789,7 @@ app.controller("TableController", [ "$scope", "basics", "immediate", "crossword"
     };
 } ]);
 
-app.directive("cseContent", [ "basics", function(basics) {
+crwApp.directive("cseContent", [ "basics", function(basics) {
     return {
         scope: {
             value: "="
@@ -798,7 +798,7 @@ app.directive("cseContent", [ "basics", function(basics) {
     };
 } ]);
 
-app.filter("joinWord", function() {
+crwApp.filter("joinWord", function() {
     return function(input) {
         var word = "";
         angular.forEach(input, function(val) {
@@ -808,7 +808,7 @@ app.filter("joinWord", function() {
     };
 });
 
-app.controller("EntryController", [ "$scope", "$filter", "crossword", "basics", function($scope, $filter, crossword, basics) {
+crwApp.controller("EntryController", [ "$scope", "$filter", "crossword", "basics", function($scope, $filter, crossword, basics) {
     $scope.colors = basics.colors;
     $scope.deleteWord = function(id) {
         crossword.deleteWord(id, "words");
@@ -816,7 +816,7 @@ app.controller("EntryController", [ "$scope", "$filter", "crossword", "basics", 
     $scope.localizeDirection = basics.localize;
 } ]);
 
-app.controller("WordController", [ "$scope", "$sanitize", "crossword", "immediate", function($scope, $sanitize, crossword, immediate) {
+crwApp.controller("WordController", [ "$scope", "$sanitize", "crossword", "immediate", function($scope, $sanitize, crossword, immediate) {
     var deferred, highlight = [];
     $scope.crw = crossword.getCrossword();
     $scope.wordsToArray = function(words) {

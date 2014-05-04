@@ -1,8 +1,8 @@
-/* app setup */
-var app = angular.module('app', ['ngSanitize', 'qantic.angularjs.stylemodel', 'customSelectElement']);
+/* crwApp setup */
+var crwApp = angular.module('crwApp', ['ngSanitize', 'qantic.angularjs.stylemodel', 'customSelectElement']);
 
 /* constants */
-app.factory('basics', function () {
+crwApp.factory('basics', function () {
     return {
         // the list of marking colors selectable on build page.
         colors: ["black", "red", "green", "blue", "orange", "violet", "aqua"],
@@ -97,7 +97,7 @@ app.factory('basics', function () {
 });
 
 /* cross scope relay for deferred functions */
-app.factory('immediate', ['$q', function ($q) {
+crwApp.factory('immediate', ['$q', function ($q) {
     // deferred listening hooks cache
     var store = {};
     return {

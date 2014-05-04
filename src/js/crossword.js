@@ -1,5 +1,5 @@
 /* crossword data object provider */
-app.factory('crossword', ['basics', function (basics) {
+crwApp.factory('crossword', ['basics', function (basics) {
     // default empty crossword object
     var crossword = {
         'name': '',
