@@ -97,25 +97,25 @@ crwApp.factory('basics', function () {
 });
 
 /* cross scope relay for deferred functions */
-crwApp.factory('immediate', ['$q', function ($q) {
-    // deferred listening hooks cache
-    var store = {};
-    return {
+crwApp.factory('qStore', ['$q', function ($q) {
+    function Store () {
+		// deferred listening hooks cache
+		var store = {};
         // listeners can register callback functions that will provide
         // them with a deferred object and one optional argument they can
         // relate to the resolver functions.
         // callbacks must take the form function(deferred, arg)
-        register: function (name, callback) {
+        this.register = function (name, callback) {
             if (!store[name]) {
                 store[name] = [];
             }
             store[name].push(callback);
-        },
+        };
 
         // providers start deferred execution by calling this
         // with the argument for the listeners.
         // The promise object is returned.
-        newPromise: function (name, arg) {
+        this.newPromise = function (name, arg) {
             var deferred = $q.defer();
             if (store[name]) {
                 angular.forEach(store[name], function (callback) {
@@ -123,6 +123,11 @@ crwApp.factory('immediate', ['$q', function ($q) {
                 });
             }
             return deferred.promise;
-        }
-    };
+        };
+	}
+	return {
+		addStore: function () {
+			return new Store();
+		}
+	};
 }]);

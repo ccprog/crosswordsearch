@@ -35,8 +35,7 @@ crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
 }]);
 
 /* control elements controller */
-crwApp.controller("WordController", ["$scope", "$sanitize", 'immediate',
-        function ($scope, $sanitize, immediate) {
+crwApp.controller("WordController", ["$scope", "$sanitize", function ($scope, $sanitize) {
     var deferred, highlight = [];
     $scope.crosswordData = $scope.crw.getCrosswordData();
 
@@ -71,7 +70,7 @@ crwApp.controller("WordController", ["$scope", "$sanitize", 'immediate',
     // build page only: event handler for "save" button:
     // ask for crossword name
     $scope.save = function () {
-        immediate.newPromise('saveCrossword').then(function () {
+        $scope.immediateStore.newPromise('saveCrossword').then(function () {
             $scope.crosswordData.name = $sanitize($scope.crosswordData.name);
             console.log(angular.toJson($scope.crosswordData));
         }, angular.noop);
@@ -90,7 +89,7 @@ crwApp.controller("WordController", ["$scope", "$sanitize", 'immediate',
     // build page only: deferred handlers for user dialogue in case of
     // table size change
     // register
-    immediate.register('invalidWords', function (invalidDeferred, critical) {
+    $scope.immediateStore.register('invalidWords', function (invalidDeferred, critical) {
         deferred = invalidDeferred;
         // highlight words crossing the new table boundaries
         highlight = critical;
@@ -114,7 +113,7 @@ crwApp.controller("WordController", ["$scope", "$sanitize", 'immediate',
     // solve page only: deferred handler for user dialogue in case of
     // invalid solution
     // register
-    immediate.register('falseWord', function (falseDeferred, word) {
+    $scope.immediateStore.register('falseWord', function (falseDeferred, word) {
         deferred = falseDeferred;
         // highlight invalid solution
         highlight = [word.id];
@@ -127,7 +126,7 @@ crwApp.controller("WordController", ["$scope", "$sanitize", 'immediate',
         highlight = [];
     };
 
-    immediate.register('saveCrossword', function (saveDeferred) {
+    $scope.immediateStore.register('saveCrossword', function (saveDeferred) {
         deferred = saveDeferred;
         $scope.immediate = 'saveCrossword';
     });

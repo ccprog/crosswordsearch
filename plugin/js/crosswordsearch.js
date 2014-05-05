@@ -139,16 +139,16 @@ crwApp.factory("basics", function() {
     };
 });
 
-crwApp.factory("immediate", [ "$q", function($q) {
-    var store = {};
-    return {
-        register: function(name, callback) {
+crwApp.factory("qStore", [ "$q", function($q) {
+    function Store() {
+        var store = {};
+        this.register = function(name, callback) {
             if (!store[name]) {
                 store[name] = [];
             }
             store[name].push(callback);
-        },
-        newPromise: function(name, arg) {
+        };
+        this.newPromise = function(name, arg) {
             var deferred = $q.defer();
             if (store[name]) {
                 angular.forEach(store[name], function(callback) {
@@ -156,6 +156,11 @@ crwApp.factory("immediate", [ "$q", function($q) {
                 });
             }
             return deferred.promise;
+        };
+    }
+    return {
+        addStore: function() {
+            return new Store();
         }
     };
 } ]);
@@ -463,11 +468,12 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
     };
 } ]);
 
-crwApp.controller("CrosswordController", [ "$scope", "crosswordFactory", function($scope, crosswordFactory) {
+crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory", function($scope, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
+    $scope.immediateStore = qStore.addStore();
 } ]);
 
-crwApp.controller("SizeController", [ "$scope", "$document", "immediate", "basics", "StyleModelContainer", function($scope, $document, immediate, basics, StyleModelContainer) {
+crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleModelContainer", function($scope, $document, basics, StyleModelContainer) {
     var size = basics.fieldSize, t, b, l, r, lg, tg, wg, hg;
     var resetSizes = function(cols, rows) {
         l = t = -1;
@@ -587,7 +593,7 @@ crwApp.controller("SizeController", [ "$scope", "$document", "immediate", "basic
             };
             var critical = $scope.crw.testWordBoundaries(change);
             if (critical.length) {
-                immediate.newPromise("invalidWords", critical).then(function() {
+                $scope.immediateStore.newPromise("invalidWords", critical).then(function() {
                     $scope.crw.changeSize(change, critical);
                 }, function() {
                     resetSizes(currentSize.right + currentSize.left, currentSize.bottom + currentSize.top);
@@ -647,7 +653,7 @@ crwApp.directive("crwIndexChecker", function() {
     };
 });
 
-crwApp.controller("TableController", [ "$scope", "basics", "immediate", "markerFactory", function($scope, basics, immediate, markerFactory) {
+crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", function($scope, basics, markerFactory) {
     var isMarking = false, currentMarking, mode;
     var markers = markerFactory.getMarkers();
     function validMarking(newStop) {
@@ -732,7 +738,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "immediate", "markerF
             } else {
                 var word = $scope.crw.probeWord(currentMarking);
                 if (!word.solved) {
-                    immediate.newPromise("falseWord", word).then(function() {
+                    $scope.immediateStore.newPromise("falseWord", word).then(function() {
                         $scope.crw.deleteWord(currentMarking.id, "solution");
                     });
                 }
@@ -826,7 +832,7 @@ crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($
     $scope.localizeDirection = basics.localize;
 } ]);
 
-crwApp.controller("WordController", [ "$scope", "$sanitize", "immediate", function($scope, $sanitize, immediate) {
+crwApp.controller("WordController", [ "$scope", "$sanitize", function($scope, $sanitize) {
     var deferred, highlight = [];
     $scope.crosswordData = $scope.crw.getCrosswordData();
     $scope.wordsToArray = function(words) {
@@ -846,7 +852,7 @@ crwApp.controller("WordController", [ "$scope", "$sanitize", "immediate", functi
         $scope.crw.loadCrosswordData();
     };
     $scope.save = function() {
-        immediate.newPromise("saveCrossword").then(function() {
+        $scope.immediateStore.newPromise("saveCrossword").then(function() {
             $scope.crosswordData.name = $sanitize($scope.crosswordData.name);
             console.log(angular.toJson($scope.crosswordData));
         }, angular.noop);
@@ -859,7 +865,7 @@ crwApp.controller("WordController", [ "$scope", "$sanitize", "immediate", functi
         }
         return false;
     };
-    immediate.register("invalidWords", function(invalidDeferred, critical) {
+    $scope.immediateStore.register("invalidWords", function(invalidDeferred, critical) {
         deferred = invalidDeferred;
         highlight = critical;
         $scope.invalidCount = critical.length;
@@ -875,7 +881,7 @@ crwApp.controller("WordController", [ "$scope", "$sanitize", "immediate", functi
         highlight = [];
         deferred.reject();
     };
-    immediate.register("falseWord", function(falseDeferred, word) {
+    $scope.immediateStore.register("falseWord", function(falseDeferred, word) {
         deferred = falseDeferred;
         highlight = [ word.id ];
         $scope.immediate = "falseWord";
@@ -885,7 +891,7 @@ crwApp.controller("WordController", [ "$scope", "$sanitize", "immediate", functi
         deferred.resolve();
         highlight = [];
     };
-    immediate.register("saveCrossword", function(saveDeferred) {
+    $scope.immediateStore.register("saveCrossword", function(saveDeferred) {
         deferred = saveDeferred;
         $scope.immediate = "saveCrossword";
     });

@@ -55,8 +55,8 @@ crwApp.directive('crwIndexChecker', function() {
 
 /* table and fields controller */
 
-crwApp.controller("TableController", ["$scope", 'basics', 'immediate', 'markerFactory',
-        function ($scope, basics, immediate, markerFactory) {
+crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
+        function ($scope, basics, markerFactory) {
     var isMarking = false, currentMarking, mode;
     var markers = markerFactory.getMarkers();
 
@@ -166,7 +166,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'immediate', 'markerFa
                 var word = $scope.crw.probeWord(currentMarking);
                 if (!word.solved) {
                     // if not, inform user and delete the marking on confirmation
-                    immediate.newPromise('falseWord', word).then(function () {
+                    $scope.immediateStore.newPromise('falseWord', word).then(function () {
                         $scope.crw.deleteWord(currentMarking.id, 'solution');
                     });
                 }

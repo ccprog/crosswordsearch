@@ -1,7 +1,6 @@
 /* grid size controller */
-crwApp.controller("SizeController", ['$scope', '$document',
-        'immediate', 'basics', 'StyleModelContainer',
-        function ($scope, $document, immediate, basics, StyleModelContainer) {
+crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleModelContainer',
+        function ($scope, $document, basics, StyleModelContainer) {
     // one-letter sizes are pixel positions as they result from dragging,
     // -g sizes are adjusted to multiples of the grid size
     var size = basics.fieldSize,
@@ -157,7 +156,7 @@ crwApp.controller("SizeController", ['$scope', '$document',
             var critical = $scope.crw.testWordBoundaries(change);
             if (critical.length) {
                 // trigger async user interaction to ask whether change should be applied.
-                immediate.newPromise('invalidWords', critical).then(function () {
+                $scope.immediateStore.newPromise('invalidWords', critical).then(function () {
                     // yes: apply all style changes.
                     $scope.crw.changeSize(change, critical);
                 }, function () {
