@@ -10,15 +10,13 @@ crwApp.directive('cseContent', ['basics', function(basics) {
 
 // concatenate letter sequences to a string
 // empty fields are shown as "_"
-crwApp.filter('joinWord', function () {
+crwApp.filter('joinWord', ['reduce', function (reduce) {
     return function (input) {
-        var word = "";
-        angular.forEach(input, function (val) {
-            word += val.word.letter || "_";
+        return reduce(input, "", function (result, value) {
+            return result + (value.word.letter || "_");
         });
-        return word;
     };
-});
+}]);
 
 // word list entry controller, mostly needed for $filter and colors import
 crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
@@ -29,7 +27,7 @@ crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
     $scope.deleteWord = function (id) {
         $scope.crw.deleteWord(id, 'words');
     };
-    
+
     //build page only: localize direction string
     $scope.localizeDirection = basics.localize;
 }]);

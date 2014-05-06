@@ -25,14 +25,14 @@ crwApp.directive('crwCatchDragging', ['$document', function($document) {
                 $document.bind('mouseup', tableMouseUp);
                 scope.startMark();
             };
-            
+
             var tableMouseUp = function (event) {
                 event.preventDefault();
                 $document.unbind('mouseup', tableMouseUp);
                 // this is bound to a DOM event, therefore it must be $applied
                 scope.$apply(scope.stopMark());
             };
-            
+
             element.bind('mousedown', tableMouseDown);
             $document.bind('mouseup', tableMouseUp);
             element.on('$destroy', function () {
@@ -66,7 +66,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
             dif_y = currentMarking.start.y - newStop.y;
         return Math.abs(dif_x) === Math.abs(dif_y) || dif_x === 0 || dif_y === 0;
     }
-   
+
     // init controller for build and solve page
     $scope.setMode = function (m) {
         mode = m;
@@ -95,16 +95,8 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
             }, true);
         }
         if (mode === 'solve') { // solve page
-            // find the highest id allocated for words
-            var resetId = function () {
-                var nextId = 0;
-                angular.forEach($scope.crosswordData.words, function (word, id) {
-                    nextId = Math.max(nextId, id);
-                });
-                return nextId;
-            };
             // shift marking ids so they never overlap with word ids
-            currentMarking = { id: resetId() };
+            currentMarking = { id: $scope.crw.getHighId() };
             // remove marking for deleted solutions and colorize valid solutions
             $scope.$watch('crosswordData.solution', function (newWords, oldWords) {
                 angular.forEach(oldWords, function (word, id) {
@@ -122,7 +114,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 // reset marking ids if no solutions are present,
                 // i. e. after a new crossword has been loaded
                 if (!probe) {
-                    currentMarking.id = resetId();
+                    currentMarking.id = $scope.crw.getHighId();
                 }
             }, true);
         }

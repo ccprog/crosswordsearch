@@ -66,7 +66,24 @@ customSelectElement.directive("cseSelect", function() {
 
 var crwApp = angular.module("crwApp", [ "ngSanitize", "qantic.angularjs.stylemodel", "customSelectElement" ]);
 
-crwApp.factory("basics", function() {
+crwApp.factory("reduce", function() {
+    return function(array, initial, func) {
+        angular.forEach(array, function(value, key) {
+            initial = func.apply(value, [ initial, value, key ]);
+        });
+        return initial;
+    };
+});
+
+crwApp.factory("basics", [ "reduce", function(reduce) {
+    var total = 0;
+    var list = reduce(crwBasics.letterDist, "", function(result, value, key) {
+        total += value;
+        for (var i = 0; i < value; i++) {
+            result += key;
+        }
+        return result;
+    });
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
         pluginPath: crwBasics.pluginPath,
@@ -78,13 +95,6 @@ crwApp.factory("basics", function() {
             return color;
         },
         randomLetter: function() {
-            var list = "", total = 0;
-            angular.forEach(crwBasics.letterDist, function(val, key) {
-                total += val;
-                for (var i = 0; i < val; i++) {
-                    list += key;
-                }
-            });
             var pos = Math.floor(Math.random() * total);
             return list.slice(pos, pos + 1);
         },
@@ -137,7 +147,7 @@ crwApp.factory("basics", function() {
         },
         testCrossword: '{"name":"test","size":{"width":10,"height":7},"table":[[{"letter":"V"},{"letter":"N"},{"letter":"N"},{"letter":"C"},{"letter":"G"},{"letter":"L"},{"letter":"D"},{"letter":"S"},{"letter":"E"},{"letter":"Y"}],[{"letter":"M"},{"letter":"E"},{"letter":"R"},{"letter":"K"},{"letter":"U"},{"letter":"R"},{"letter":"N"},{"letter":"A"},{"letter":"M"},{"letter":"E"}],[{"letter":"T"},{"letter":"P"},{"letter":"N"},{"letter":"J"},{"letter":"U"},{"letter":"P"},{"letter":"I"},{"letter":"T"},{"letter":"E"},{"letter":"R"}],[{"letter":"D"},{"letter":"T"},{"letter":"N"},{"letter":"U"},{"letter":"R"},{"letter":"A"},{"letter":"N"},{"letter":"U"},{"letter":"S"},{"letter":"D"}],[{"letter":"W"},{"letter":"U"},{"letter":"D"},{"letter":"S"},{"letter":"S"},{"letter":"E"},{"letter":"B"},{"letter":"R"},{"letter":"F"},{"letter":"E"}],[{"letter":"E"},{"letter":"N"},{"letter":"N"},{"letter":"O"},{"letter":"S"},{"letter":"I"},{"letter":"A"},{"letter":"N"},{"letter":"E"},{"letter":"C"}],[{"letter":"E"},{"letter":"E"},{"letter":"I"},{"letter":"S"},{"letter":"G"},{"letter":"M"},{"letter":"D"},{"letter":"E"},{"letter":"N"},{"letter":"H"}]],"words":{"2":{"id":2,"color":"orange","stop":{"x":0,"y":5},"start":{"x":4,"y":5},"fields":[{"x":4,"y":5,"word":{"letter":"S"}},{"x":3,"y":5,"word":{"letter":"O"}},{"x":2,"y":5,"word":{"letter":"N"}},{"x":1,"y":5,"word":{"letter":"N"}},{"x":0,"y":5,"word":{"letter":"E"}}],"direction":"left"},"3":{"id":3,"color":"violet","stop":{"x":5,"y":1},"start":{"x":0,"y":1},"fields":[{"x":0,"y":1,"word":{"letter":"M"}},{"x":1,"y":1,"word":{"letter":"E"}},{"x":2,"y":1,"word":{"letter":"R"}},{"x":3,"y":1,"word":{"letter":"K"}},{"x":4,"y":1,"word":{"letter":"U"}},{"x":5,"y":1,"word":{"letter":"R"}}],"direction":"right"},"4":{"id":4,"color":"green","stop":{"x":4,"y":4},"start":{"x":0,"y":0},"fields":[{"x":0,"y":0,"word":{"letter":"V"}},{"x":1,"y":1,"word":{"letter":"E"}},{"x":2,"y":2,"word":{"letter":"N"}},{"x":3,"y":3,"word":{"letter":"U"}},{"x":4,"y":4,"word":{"letter":"S"}}],"direction":"down-right"},"5":{"id":5,"color":"aqua","stop":{"x":9,"y":4},"start":{"x":9,"y":1},"fields":[{"x":9,"y":1,"word":{"letter":"E"}},{"x":9,"y":2,"word":{"letter":"R"}},{"x":9,"y":3,"word":{"letter":"D"}},{"x":9,"y":4,"word":{"letter":"E"}}],"direction":"down"},"6":{"id":6,"color":"black","stop":{"x":8,"y":3},"start":{"x":5,"y":6},"fields":[{"x":5,"y":6,"word":{"letter":"M"}},{"x":6,"y":5,"word":{"letter":"A"}},{"x":7,"y":4,"word":{"letter":"R"}},{"x":8,"y":3,"word":{"letter":"S"}}],"direction":"up-right"},"7":{"id":7,"color":"blue","stop":{"x":9,"y":2},"start":{"x":3,"y":2},"fields":[{"x":3,"y":2,"word":{"letter":"J"}},{"x":4,"y":2,"word":{"letter":"U"}},{"x":5,"y":2,"word":{"letter":"P"}},{"x":6,"y":2,"word":{"letter":"I"}},{"x":7,"y":2,"word":{"letter":"T"}},{"x":8,"y":2,"word":{"letter":"E"}},{"x":9,"y":2,"word":{"letter":"R"}}],"direction":"right"},"8":{"id":8,"color":"red","stop":{"x":7,"y":5},"start":{"x":7,"y":0},"fields":[{"x":7,"y":0,"word":{"letter":"S"}},{"x":7,"y":1,"word":{"letter":"A"}},{"x":7,"y":2,"word":{"letter":"T"}},{"x":7,"y":3,"word":{"letter":"U"}},{"x":7,"y":4,"word":{"letter":"R"}},{"x":7,"y":5,"word":{"letter":"N"}}],"direction":"down"},"9":{"id":9,"color":"violet","stop":{"x":8,"y":3},"start":{"x":3,"y":3},"fields":[{"x":3,"y":3,"word":{"letter":"U"}},{"x":4,"y":3,"word":{"letter":"R"}},{"x":5,"y":3,"word":{"letter":"A"}},{"x":6,"y":3,"word":{"letter":"N"}},{"x":7,"y":3,"word":{"letter":"U"}},{"x":8,"y":3,"word":{"letter":"S"}}],"direction":"right"},"10":{"id":10,"color":"aqua","stop":{"x":1,"y":5},"start":{"x":1,"y":0},"fields":[{"x":1,"y":0,"word":{"letter":"N"}},{"x":1,"y":1,"word":{"letter":"E"}},{"x":1,"y":2,"word":{"letter":"P"}},{"x":1,"y":3,"word":{"letter":"T"}},{"x":1,"y":4,"word":{"letter":"U"}},{"x":1,"y":5,"word":{"letter":"N"}}],"direction":"down"}}}'
     };
-});
+} ]);
 
 crwApp.factory("qStore", [ "$q", function($q) {
     function Store() {
@@ -165,7 +175,7 @@ crwApp.factory("qStore", [ "$q", function($q) {
     };
 } ]);
 
-crwApp.factory("crosswordFactory", [ "basics", function(basics) {
+crwApp.factory("crosswordFactory", [ "basics", "reduce", function(basics, reduce) {
     function Crw() {
         var addRows = function(number, top) {
             if (number > 0) {
@@ -247,13 +257,13 @@ crwApp.factory("crosswordFactory", [ "basics", function(basics) {
         this.setName = function(str) {
             crossword.name = str;
         };
-        this.randomColor = function() {
-            var highID = 0;
-            angular.forEach(crossword.words, function(word) {
-                if (word.id > highID) {
-                    highID = word.id;
-                }
+        this.getHighId = function() {
+            return reduce(crossword.words, 0, function(result, word) {
+                return Math.max(result, word.id);
             });
+        };
+        this.randomColor = function() {
+            var highID = this.getHighId();
             return basics.randomColor(highID > 0 ? crossword.words[highID].color : undefined);
         };
         this.deleteWord = function(id, target) {
@@ -685,15 +695,8 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
             }, true);
         }
         if (mode === "solve") {
-            var resetId = function() {
-                var nextId = 0;
-                angular.forEach($scope.crosswordData.words, function(word, id) {
-                    nextId = Math.max(nextId, id);
-                });
-                return nextId;
-            };
             currentMarking = {
-                id: resetId()
+                id: $scope.crw.getHighId()
             };
             $scope.$watch("crosswordData.solution", function(newWords, oldWords) {
                 angular.forEach(oldWords, function(word, id) {
@@ -709,7 +712,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                     probe = true;
                 });
                 if (!probe) {
-                    currentMarking.id = resetId();
+                    currentMarking.id = $scope.crw.getHighId();
                 }
             }, true);
         }
@@ -814,15 +817,13 @@ crwApp.directive("cseContent", [ "basics", function(basics) {
     };
 } ]);
 
-crwApp.filter("joinWord", function() {
+crwApp.filter("joinWord", [ "reduce", function(reduce) {
     return function(input) {
-        var word = "";
-        angular.forEach(input, function(val) {
-            word += val.word.letter || "_";
+        return reduce(input, "", function(result, value) {
+            return result + (value.word.letter || "_");
         });
-        return word;
     };
-});
+} ]);
 
 crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($scope, $filter, basics) {
     $scope.colors = basics.colors;

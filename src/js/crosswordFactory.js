@@ -1,5 +1,5 @@
 /* crossword data object contructor */
-crwApp.factory('crosswordFactory', ['basics', function (basics) {
+crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce) {
     function Crw () {
         // add or delete the given number of rows
         // if number is negative, rows will be removed
@@ -108,15 +108,17 @@ crwApp.factory('crosswordFactory', ['basics', function (basics) {
             crossword.name = str;
         };
 
+        // return the highest id used for words
+        this.getHighId = function () {
+            return reduce(crossword.words, 0, function (result, word) {
+                return Math.max(result, word.id);
+            });
+        };
+
         // identify a color that is different from the one used
         // for the last marked sequence
         this.randomColor = function () {
-            var highID = 0;
-            angular.forEach(crossword.words, function (word) {
-                if (word.id > highID) {
-                    highID = word.id;
-                }
-            });
+            var highID = this.getHighId();
             return basics.randomColor(highID > 0 ? crossword.words[highID].color : undefined);
         };
 
