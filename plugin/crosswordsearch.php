@@ -55,7 +55,8 @@ function add_crw_scripts () {
         wp_enqueue_script('quantic-stylemodel', $plugin_path . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
         wp_enqueue_script('crw-js', $plugin_path . 'js/crosswordsearch.js', array( 'angular', 'angular-sanitize', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge((array)$locale, array(
-            'pluginPath' => $plugin_path
+            'pluginPath' => $plugin_path,
+            'ajaxUrl' => admin_url( 'admin-ajax.php' )
         )));
 	}
 }
@@ -74,13 +75,15 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $plugin_path = plugins_url() . '/crosswordsearch/';
 	extract( shortcode_atts( array(
 		'mode' => 'build',
+        'name' => '',
 	), $atts ) );
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', $plugin_path . 'css/crosswordsearch.css');
 	
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController">
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="crosswordName=\'' . esc_attr($name) . '\'">
+    <p class="crw-label" ng-if="crosswordData.name !== \'\'">{{crosswordData.name}}</p>
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
@@ -98,7 +101,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         </div>
         <div class="crw-mask" ng-style="styleGridSize()">
             <table class="crw-table" ng-style="styleShift()" ng-controller="TableController" ng-Init="setMode(\'' . $mode . '\')" crw-catch-dragging>
-                <tr ng-repeat="row in crosswordData.content" crw-index-checker="line">
+                <tr ng-repeat="row in crosswordData.table" crw-index-checker="line">
                     <td class="crw-field" ng-repeat="field in row" crw-index-checker="column">
                         <div ';
                         // button clicking only for build mode
@@ -179,3 +182,15 @@ function crw_shortcode_handler( $atts, $content = null ) {
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
+function crw_get_crossword() {
+    global $wpdb;
+    $name = sanitize_text_field( $_POST['name'] );
+    $data = $wpdb->get_var($wpdb->prepare("
+        SELECT data
+        FROM crw_crosswords
+        WHERE name = %s
+    ", $name));
+    echo $data;
+    die();
+}
+add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );

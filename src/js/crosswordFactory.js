@@ -1,6 +1,12 @@
 /* crossword data object contructor */
-crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce) {
+crwApp.factory('crosswordFactory', ['$http', 'basics', 'reduce',
+        function ($http, basics, reduce) {
+    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+
     function Crw () {
+        //parent data object
+        var crossword = {};
+
         // add or delete the given number of rows
         // if number is negative, rows will be removed
         // top == true at the top of the table, false at the bottom
@@ -11,13 +17,13 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce
                     var row = [];
                     addFields(row, crossword.size.width, false);
                     if (top) {
-                        crossword.content.unshift(row);
+                        crossword.table.unshift(row);
                     } else {
-                        crossword.content.push(row);
+                        crossword.table.push(row);
                     }
                 }
             } else {
-                crossword.content.splice(top ? 0 : crossword.content.length + number, -number);
+                crossword.table.splice(top ? 0 : crossword.table.length + number, -number);
             }
             if (top) {
                 angular.forEach(crossword.words, function (word) {
@@ -48,8 +54,8 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce
         // loop through all rows to add/remove fields
         // word positioning indices are adjusted
         var addAdditionalFields = function (number, left) {
-            for (var i=0; i < crossword.content.length; i++) {
-                addFields(crossword.content[i], number, left);
+            for (var i=0; i < crossword.table.length; i++) {
+                addFields(crossword.table[i], number, left);
             }
             if (left) {
                 angular.forEach(crossword.words, function (word) {
@@ -61,7 +67,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce
 
         // convenience loop through all fields in all rows
         var forAllFields = function (func) {
-            angular.forEach(crossword.content, function (line, row) {
+            angular.forEach(crossword.table, function (line, row) {
                 angular.forEach(line, function (field, col) {
                     func.call(field, row, col);
                 });
@@ -69,21 +75,24 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce
         };
 
         // default empty crossword object
-        var crossword = {
-            'name': '',
-            size: {
-                width: 10,
-                height: 10
-            },
-            // crossword table containing the letters
-            content: [],
-            // all letter sequences that have been saved as solution words
-            words: {},
-            // letter sequences that have been marked on the solve page,
-            // irrespective of their status as a valid solution
-            solution: {}
+        var loadDefault = function () {
+            angular.extend(crossword, {
+                'name': '',
+                size: {
+                    width: 10,
+                    height: 10
+                },
+                // crossword table containing the letters
+                table: [],
+                // all letter sequences that have been saved as solution words
+                words: {},
+                // letter sequences that have been marked on the solve page,
+                // irrespective of their status as a valid solution
+                solution: {}
+            });
         };
         // init default crossword
+        loadDefault();
         addRows(crossword.size.height, false);
 
         // return crossword data object
@@ -91,16 +100,25 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce
             return crossword;
         };
 
-        // load a crossword from a json string
-        this.loadCrosswordData = function (json) {
-            // test entry is provisorial
-            var obj = angular.fromJson(json || basics.testCrossword);
-            // do not exchange the top level object to make watching it possible
-            crossword.name = obj.name;
-            crossword.size = obj.size;
-            crossword.words = obj.words;
-            crossword.content = obj.table;
-            crossword.solution = {};
+        // load a crossword
+        this.loadCrosswordData = function (name) {
+            if (!name || name === '') {
+                loadDefault();
+                return;
+            }
+            $http({
+                method: 'POST',
+                url: crwBasics.ajaxUrl,
+                data: {
+                    action: 'get_crossword',
+                    name: name
+                },
+                transformRequest: jQuery.param,
+                transformResponse: angular.fromJson
+            }).success(function(data, status, headers, config) {
+                // do not exchange the top level object to make watching it possible
+                angular.extend(crossword, data);
+            });
         };
 
         // set a name for a crossword
@@ -157,7 +175,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce
         // and the enhanced object is mirrored back
         this.setWord = function (marking) {
             angular.forEach(marking.fields, function (field) {
-                field.word = crossword.content[field.y][field.x];
+                field.word = crossword.table[field.y][field.x];
             });
             return (crossword.words[marking.id] = marking);
         };
@@ -172,7 +190,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', function (basics, reduce
         this.probeWord = function (marking) {
             var entry = marking;
             angular.forEach(entry.fields, function (field) {
-                field.word = crossword.content[field.y][field.x];
+                field.word = crossword.table[field.y][field.x];
             });
             entry.solved = false;
             angular.forEach(crossword.words, function (word) {

@@ -21,8 +21,6 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
         $scope.modBottom.transform(0, b);
     };
 
-    $scope.crosswordData = $scope.crw.getCrosswordData();
-
     // add a style model for each table side
     StyleModelContainer.add('size-left', -Infinity, (($scope.crosswordData.size.height - 3)*size)+1, 0, 0);
     StyleModelContainer.add('size-top', 0, 0, -Infinity, (($scope.crosswordData.size.width - 3)*size)+1);

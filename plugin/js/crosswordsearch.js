@@ -144,8 +144,7 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
         },
         localize: function(str) {
             return crwBasics.locale[str] || str;
-        },
-        testCrossword: '{"name":"test","size":{"width":10,"height":7},"table":[[{"letter":"V"},{"letter":"N"},{"letter":"N"},{"letter":"C"},{"letter":"G"},{"letter":"L"},{"letter":"D"},{"letter":"S"},{"letter":"E"},{"letter":"Y"}],[{"letter":"M"},{"letter":"E"},{"letter":"R"},{"letter":"K"},{"letter":"U"},{"letter":"R"},{"letter":"N"},{"letter":"A"},{"letter":"M"},{"letter":"E"}],[{"letter":"T"},{"letter":"P"},{"letter":"N"},{"letter":"J"},{"letter":"U"},{"letter":"P"},{"letter":"I"},{"letter":"T"},{"letter":"E"},{"letter":"R"}],[{"letter":"D"},{"letter":"T"},{"letter":"N"},{"letter":"U"},{"letter":"R"},{"letter":"A"},{"letter":"N"},{"letter":"U"},{"letter":"S"},{"letter":"D"}],[{"letter":"W"},{"letter":"U"},{"letter":"D"},{"letter":"S"},{"letter":"S"},{"letter":"E"},{"letter":"B"},{"letter":"R"},{"letter":"F"},{"letter":"E"}],[{"letter":"E"},{"letter":"N"},{"letter":"N"},{"letter":"O"},{"letter":"S"},{"letter":"I"},{"letter":"A"},{"letter":"N"},{"letter":"E"},{"letter":"C"}],[{"letter":"E"},{"letter":"E"},{"letter":"I"},{"letter":"S"},{"letter":"G"},{"letter":"M"},{"letter":"D"},{"letter":"E"},{"letter":"N"},{"letter":"H"}]],"words":{"2":{"id":2,"color":"orange","stop":{"x":0,"y":5},"start":{"x":4,"y":5},"fields":[{"x":4,"y":5,"word":{"letter":"S"}},{"x":3,"y":5,"word":{"letter":"O"}},{"x":2,"y":5,"word":{"letter":"N"}},{"x":1,"y":5,"word":{"letter":"N"}},{"x":0,"y":5,"word":{"letter":"E"}}],"direction":"left"},"3":{"id":3,"color":"violet","stop":{"x":5,"y":1},"start":{"x":0,"y":1},"fields":[{"x":0,"y":1,"word":{"letter":"M"}},{"x":1,"y":1,"word":{"letter":"E"}},{"x":2,"y":1,"word":{"letter":"R"}},{"x":3,"y":1,"word":{"letter":"K"}},{"x":4,"y":1,"word":{"letter":"U"}},{"x":5,"y":1,"word":{"letter":"R"}}],"direction":"right"},"4":{"id":4,"color":"green","stop":{"x":4,"y":4},"start":{"x":0,"y":0},"fields":[{"x":0,"y":0,"word":{"letter":"V"}},{"x":1,"y":1,"word":{"letter":"E"}},{"x":2,"y":2,"word":{"letter":"N"}},{"x":3,"y":3,"word":{"letter":"U"}},{"x":4,"y":4,"word":{"letter":"S"}}],"direction":"down-right"},"5":{"id":5,"color":"aqua","stop":{"x":9,"y":4},"start":{"x":9,"y":1},"fields":[{"x":9,"y":1,"word":{"letter":"E"}},{"x":9,"y":2,"word":{"letter":"R"}},{"x":9,"y":3,"word":{"letter":"D"}},{"x":9,"y":4,"word":{"letter":"E"}}],"direction":"down"},"6":{"id":6,"color":"black","stop":{"x":8,"y":3},"start":{"x":5,"y":6},"fields":[{"x":5,"y":6,"word":{"letter":"M"}},{"x":6,"y":5,"word":{"letter":"A"}},{"x":7,"y":4,"word":{"letter":"R"}},{"x":8,"y":3,"word":{"letter":"S"}}],"direction":"up-right"},"7":{"id":7,"color":"blue","stop":{"x":9,"y":2},"start":{"x":3,"y":2},"fields":[{"x":3,"y":2,"word":{"letter":"J"}},{"x":4,"y":2,"word":{"letter":"U"}},{"x":5,"y":2,"word":{"letter":"P"}},{"x":6,"y":2,"word":{"letter":"I"}},{"x":7,"y":2,"word":{"letter":"T"}},{"x":8,"y":2,"word":{"letter":"E"}},{"x":9,"y":2,"word":{"letter":"R"}}],"direction":"right"},"8":{"id":8,"color":"red","stop":{"x":7,"y":5},"start":{"x":7,"y":0},"fields":[{"x":7,"y":0,"word":{"letter":"S"}},{"x":7,"y":1,"word":{"letter":"A"}},{"x":7,"y":2,"word":{"letter":"T"}},{"x":7,"y":3,"word":{"letter":"U"}},{"x":7,"y":4,"word":{"letter":"R"}},{"x":7,"y":5,"word":{"letter":"N"}}],"direction":"down"},"9":{"id":9,"color":"violet","stop":{"x":8,"y":3},"start":{"x":3,"y":3},"fields":[{"x":3,"y":3,"word":{"letter":"U"}},{"x":4,"y":3,"word":{"letter":"R"}},{"x":5,"y":3,"word":{"letter":"A"}},{"x":6,"y":3,"word":{"letter":"N"}},{"x":7,"y":3,"word":{"letter":"U"}},{"x":8,"y":3,"word":{"letter":"S"}}],"direction":"right"},"10":{"id":10,"color":"aqua","stop":{"x":1,"y":5},"start":{"x":1,"y":0},"fields":[{"x":1,"y":0,"word":{"letter":"N"}},{"x":1,"y":1,"word":{"letter":"E"}},{"x":1,"y":2,"word":{"letter":"P"}},{"x":1,"y":3,"word":{"letter":"T"}},{"x":1,"y":4,"word":{"letter":"U"}},{"x":1,"y":5,"word":{"letter":"N"}}],"direction":"down"}}}'
+        }
     };
 } ]);
 
@@ -175,21 +174,23 @@ crwApp.factory("qStore", [ "$q", function($q) {
     };
 } ]);
 
-crwApp.factory("crosswordFactory", [ "basics", "reduce", function(basics, reduce) {
+crwApp.factory("crosswordFactory", [ "$http", "basics", "reduce", function($http, basics, reduce) {
+    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     function Crw() {
+        var crossword = {};
         var addRows = function(number, top) {
             if (number > 0) {
                 for (var i = 0; i < number; i++) {
                     var row = [];
                     addFields(row, crossword.size.width, false);
                     if (top) {
-                        crossword.content.unshift(row);
+                        crossword.table.unshift(row);
                     } else {
-                        crossword.content.push(row);
+                        crossword.table.push(row);
                     }
                 }
             } else {
-                crossword.content.splice(top ? 0 : crossword.content.length + number, -number);
+                crossword.table.splice(top ? 0 : crossword.table.length + number, -number);
             }
             if (top) {
                 angular.forEach(crossword.words, function(word) {
@@ -215,8 +216,8 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", function(basics, reduce
             }
         };
         var addAdditionalFields = function(number, left) {
-            for (var i = 0; i < crossword.content.length; i++) {
-                addFields(crossword.content[i], number, left);
+            for (var i = 0; i < crossword.table.length; i++) {
+                addFields(crossword.table[i], number, left);
             }
             if (left) {
                 angular.forEach(crossword.words, function(word) {
@@ -226,33 +227,46 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", function(basics, reduce
             }
         };
         var forAllFields = function(func) {
-            angular.forEach(crossword.content, function(line, row) {
+            angular.forEach(crossword.table, function(line, row) {
                 angular.forEach(line, function(field, col) {
                     func.call(field, row, col);
                 });
             });
         };
-        var crossword = {
-            name: "",
-            size: {
-                width: 10,
-                height: 10
-            },
-            content: [],
-            words: {},
-            solution: {}
+        var loadDefault = function() {
+            angular.extend(crossword, {
+                name: "",
+                size: {
+                    width: 10,
+                    height: 10
+                },
+                table: [],
+                words: {},
+                solution: {}
+            });
         };
+        loadDefault();
         addRows(crossword.size.height, false);
         this.getCrosswordData = function() {
             return crossword;
         };
-        this.loadCrosswordData = function(json) {
-            var obj = angular.fromJson(json || basics.testCrossword);
-            crossword.name = obj.name;
-            crossword.size = obj.size;
-            crossword.words = obj.words;
-            crossword.content = obj.table;
-            crossword.solution = {};
+        this.loadCrosswordData = function(name) {
+            if (!name || name === "") {
+                loadDefault();
+                return;
+            }
+            $http({
+                method: "POST",
+                url: crwBasics.ajaxUrl,
+                data: {
+                    action: "get_crossword",
+                    name: name
+                },
+                transformRequest: jQuery.param,
+                transformResponse: angular.fromJson
+            }).success(function(data, status, headers, config) {
+                angular.extend(crossword, data);
+            });
         };
         this.setName = function(str) {
             crossword.name = str;
@@ -285,14 +299,14 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", function(basics, reduce
         };
         this.setWord = function(marking) {
             angular.forEach(marking.fields, function(field) {
-                field.word = crossword.content[field.y][field.x];
+                field.word = crossword.table[field.y][field.x];
             });
             return crossword.words[marking.id] = marking;
         };
         this.probeWord = function(marking) {
             var entry = marking;
             angular.forEach(entry.fields, function(field) {
-                field.word = crossword.content[field.y][field.x];
+                field.word = crossword.table[field.y][field.x];
             });
             entry.solved = false;
             angular.forEach(crossword.words, function(word) {
@@ -481,6 +495,8 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
 crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory", function($scope, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
+    $scope.crw.loadCrosswordData($scope.crosswordName);
+    $scope.crosswordData = $scope.crw.getCrosswordData();
 } ]);
 
 crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleModelContainer", function($scope, $document, basics, StyleModelContainer) {
@@ -497,7 +513,6 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
         $scope.modRight.transform(r, 0);
         $scope.modBottom.transform(0, b);
     };
-    $scope.crosswordData = $scope.crw.getCrosswordData();
     StyleModelContainer.add("size-left", -Infinity, ($scope.crosswordData.size.height - 3) * size + 1, 0, 0);
     StyleModelContainer.add("size-top", 0, 0, -Infinity, ($scope.crosswordData.size.width - 3) * size + 1);
     StyleModelContainer.add("size-right", 5 * size + 1, Infinity, 0, 0);
@@ -800,7 +815,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
             break;
 
           case 40:
-            if (this.line < this.crosswordData.content.length - 1) {
+            if (this.line < this.crosswordData.table.length - 1) {
                 this.activate(this.line + 1, this.column);
             }
             break;
@@ -835,7 +850,6 @@ crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($
 
 crwApp.controller("WordController", [ "$scope", "$sanitize", function($scope, $sanitize) {
     var deferred, highlight = [];
-    $scope.crosswordData = $scope.crw.getCrosswordData();
     $scope.wordsToArray = function(words) {
         var arr = [];
         angular.forEach(words, function(item) {
@@ -850,7 +864,7 @@ crwApp.controller("WordController", [ "$scope", "$sanitize", function($scope, $s
         $scope.crw.emptyAllFields();
     };
     $scope.load = function() {
-        $scope.crw.loadCrosswordData();
+        $scope.crw.loadCrosswordData("test");
     };
     $scope.save = function() {
         $scope.immediateStore.newPromise("saveCrossword").then(function() {

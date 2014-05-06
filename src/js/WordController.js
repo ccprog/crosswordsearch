@@ -35,7 +35,6 @@ crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
 /* control elements controller */
 crwApp.controller("WordController", ["$scope", "$sanitize", function ($scope, $sanitize) {
     var deferred, highlight = [];
-    $scope.crosswordData = $scope.crw.getCrosswordData();
 
     // tweak: since ordering on object entries seems not to really work,
     // map them into an Array
@@ -62,7 +61,7 @@ crwApp.controller("WordController", ["$scope", "$sanitize", function ($scope, $s
     // solve page only: event handler for "load" button:
     // load a crossword TODO: really load from server
     $scope.load = function () {
-        $scope.crw.loadCrosswordData();
+        $scope.crw.loadCrosswordData('test');
     };
 
     // build page only: event handler for "save" button:

@@ -225,7 +225,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
             }
             break;
         case 0x28: //down
-            if (this.line < this.crosswordData.content.length - 1) {
+            if (this.line < this.crosswordData.table.length - 1) {
                 this.activate(this.line+1,this.column);
             }
             break;
