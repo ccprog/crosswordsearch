@@ -190,10 +190,11 @@ function crw_get_crossword() {
         FROM crw_crosswords
         WHERE name = %s
     ", $name));
-    echo $crossword;
+    echo wp_unslash($crossword);
     die();
 }
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
+add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 function crw_set_crossword() {
     global $wpdb;
@@ -216,3 +217,4 @@ function crw_set_crossword() {
     die();
 }
 add_action( 'wp_ajax_nopriv_set_crossword', 'crw_set_crossword' );
+add_action( 'wp_ajax_set_crossword', 'crw_set_crossword' );
