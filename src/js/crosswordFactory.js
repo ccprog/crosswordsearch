@@ -1,10 +1,15 @@
 /* crossword data object contructor */
-crwApp.factory('crosswordFactory', ['$http', 'basics', 'reduce',
-        function ($http, basics, reduce) {
+crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
+        function ($http, $q, basics, reduce) {
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    $http.defaults.transformRequest = jQuery.param;
+    var httpDefaults = {
+        method: 'POST',
+        url: crwBasics.ajaxUrl
+    };
 
     function Crw () {
-        //parent data object
+        // parent data object
         var crossword = {};
 
         // add or delete the given number of rows
@@ -90,10 +95,10 @@ crwApp.factory('crosswordFactory', ['$http', 'basics', 'reduce',
                 // irrespective of their status as a valid solution
                 solution: {}
             });
+            addRows(crossword.size.height, false);
         };
         // init default crossword
         loadDefault();
-        addRows(crossword.size.height, false);
 
         // return crossword data object
         this.getCrosswordData = function () {
@@ -106,18 +111,34 @@ crwApp.factory('crosswordFactory', ['$http', 'basics', 'reduce',
                 loadDefault();
                 return;
             }
-            $http({
-                method: 'POST',
-                url: crwBasics.ajaxUrl,
+            return $http(angular.extend({
                 data: {
                     action: 'get_crossword',
                     name: name
-                },
-                transformRequest: jQuery.param,
-                transformResponse: angular.fromJson
-            }).success(function(data, status, headers, config) {
+                }
+            }, httpDefaults)).success(function(data, status, headers, config) {
                 // do not exchange the top level object to make watching it possible
                 angular.extend(crossword, data);
+            });
+        };
+
+        // save a crossword
+        this.saveCrosswordData = function (name) {
+            return $http(angular.extend({
+                data: {
+                    action: 'set_crossword',
+                    name: name,
+                    crossword: angular.toJson(crossword)
+                }
+            }, httpDefaults)).
+            // look for php execution errors
+            then(function(response) {
+                if(response.data) {
+                    return $q.reject(response.data);
+                }
+            // web server errors
+            }, function (response) {
+                return $q.reject(response.status + '<br/>' + response.data);
             });
         };
 
@@ -140,7 +161,7 @@ crwApp.factory('crosswordFactory', ['$http', 'basics', 'reduce',
             return basics.randomColor(highID > 0 ? crossword.words[highID].color : undefined);
         };
 
-        // delete the letter sequence identified by id form the target list
+        // delete the letter sequence identified by id from the target list
         // target can be 'words' or 'solution'
         this.deleteWord = function (id, target) {
             if (crossword[target][id]) {

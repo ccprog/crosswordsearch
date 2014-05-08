@@ -84,9 +84,10 @@ msgstr "Ein Name muss angegeben werden!"
 msgid "The name is too short!"
 msgstr "Der Name ist zu kurz!"
 
-#: plugin/crosswordsearch.php:138
-msgid "That's the way!"
-msgstr "So geht's!"
+
+#: plugin/crosswordsearch.php:157
+msgid "That looks good!"
+msgstr "So sieht es gut aus!"
 
 #: plugin/crosswordsearch.php:144
 msgid "Riddle:"

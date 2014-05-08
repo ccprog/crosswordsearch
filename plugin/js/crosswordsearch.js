@@ -64,7 +64,7 @@ customSelectElement.directive("cseSelect", function() {
     };
 });
 
-var crwApp = angular.module("crwApp", [ "ngSanitize", "qantic.angularjs.stylemodel", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "qantic.angularjs.stylemodel", "customSelectElement" ]);
 
 crwApp.factory("reduce", function() {
     return function(array, initial, func) {
@@ -174,8 +174,13 @@ crwApp.factory("qStore", [ "$q", function($q) {
     };
 } ]);
 
-crwApp.factory("crosswordFactory", [ "$http", "basics", "reduce", function($http, basics, reduce) {
+crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function($http, $q, basics, reduce) {
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    $http.defaults.transformRequest = jQuery.param;
+    var httpDefaults = {
+        method: "POST",
+        url: crwBasics.ajaxUrl
+    };
     function Crw() {
         var crossword = {};
         var addRows = function(number, top) {
@@ -244,9 +249,9 @@ crwApp.factory("crosswordFactory", [ "$http", "basics", "reduce", function($http
                 words: {},
                 solution: {}
             });
+            addRows(crossword.size.height, false);
         };
         loadDefault();
-        addRows(crossword.size.height, false);
         this.getCrosswordData = function() {
             return crossword;
         };
@@ -255,17 +260,28 @@ crwApp.factory("crosswordFactory", [ "$http", "basics", "reduce", function($http
                 loadDefault();
                 return;
             }
-            $http({
-                method: "POST",
-                url: crwBasics.ajaxUrl,
+            return $http(angular.extend({
                 data: {
                     action: "get_crossword",
                     name: name
-                },
-                transformRequest: jQuery.param,
-                transformResponse: angular.fromJson
-            }).success(function(data, status, headers, config) {
+                }
+            }, httpDefaults)).success(function(data, status, headers, config) {
                 angular.extend(crossword, data);
+            });
+        };
+        this.saveCrosswordData = function(name) {
+            return $http(angular.extend({
+                data: {
+                    action: "set_crossword",
+                    name: name,
+                    crossword: angular.toJson(crossword)
+                }
+            }, httpDefaults)).then(function(response) {
+                if (response.data) {
+                    return $q.reject(response.data);
+                }
+            }, function(response) {
+                return $q.reject(response.status + "<br/>" + response.data);
             });
         };
         this.setName = function(str) {
@@ -497,6 +513,9 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
     $scope.immediateStore = qStore.addStore();
     $scope.crw.loadCrosswordData($scope.crosswordName);
     $scope.crosswordData = $scope.crw.getCrosswordData();
+    $scope.setDisplayName = function(name) {
+        $scope.crosswordName = name;
+    };
 } ]);
 
 crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleModelContainer", function($scope, $document, basics, StyleModelContainer) {
@@ -848,7 +867,7 @@ crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($
     $scope.localizeDirection = basics.localize;
 } ]);
 
-crwApp.controller("WordController", [ "$scope", "$sanitize", function($scope, $sanitize) {
+crwApp.controller("WordController", [ "$scope", function($scope) {
     var deferred, highlight = [];
     $scope.wordsToArray = function(words) {
         var arr = [];
@@ -864,13 +883,16 @@ crwApp.controller("WordController", [ "$scope", "$sanitize", function($scope, $s
         $scope.crw.emptyAllFields();
     };
     $scope.load = function() {
-        $scope.crw.loadCrosswordData("test");
+        var name = "test";
+        $scope.crw.loadCrosswordData(name).then(function() {
+            $scope.setDisplayName(name);
+        });
     };
     $scope.save = function() {
         $scope.immediateStore.newPromise("saveCrossword").then(function() {
-            $scope.crosswordData.name = $sanitize($scope.crosswordData.name);
-            console.log(angular.toJson($scope.crosswordData));
-        }, angular.noop);
+            $scope.setDisplayName($scope.crosswordData.name);
+            $scope.immediate = null;
+        });
     };
     $scope.isHighlighted = function(id) {
         for (var i = 0; i < highlight.length; i++) {
@@ -911,7 +933,8 @@ crwApp.controller("WordController", [ "$scope", "$sanitize", function($scope, $s
         $scope.immediate = "saveCrossword";
     });
     $scope.upload = function() {
-        $scope.immediate = null;
-        deferred.resolve();
+        $scope.crw.saveCrosswordData($scope.crosswordData.name).then(deferred.resolve, function(error) {
+            $scope.saveError = error;
+        });
     };
 } ]);

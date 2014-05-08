@@ -51,9 +51,8 @@ function add_crw_scripts () {
 	
 	if ( $crw_has_crossword ) {
         wp_enqueue_script('angular', $plugin_path . 'js/angular.min.js');
-        wp_enqueue_script('angular-sanitize', $plugin_path . 'js/angular-sanitize.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', $plugin_path . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
-        wp_enqueue_script('crw-js', $plugin_path . 'js/crosswordsearch.js', array( 'angular', 'angular-sanitize', 'quantic-stylemodel' ));
+        wp_enqueue_script('crw-js', $plugin_path . 'js/crosswordsearch.js', array( 'angular', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge((array)$locale, array(
             'pluginPath' => $plugin_path,
             'ajaxUrl' => admin_url( 'admin-ajax.php' )
@@ -82,8 +81,8 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="crosswordName=\'' . esc_attr($name) . '\'">
-    <p class="crw-label" ng-if="crosswordData.name !== \'\'">{{crosswordData.name}}</p>
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="setDisplayName(\'' . esc_attr($name) . '\')">
+    <p class="crw-label" ng-if="crosswordName !== \'\'">{{crosswordName}}</p>
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
@@ -149,12 +148,13 @@ function crw_shortcode_handler( $atts, $content = null ) {
             <form name="uploader">
                 <p>' . __('To save it, the riddle must get a name: (at least 4 letters)', 'crw-text') . '</p>
                 <p class="actions">
-                    <input type="text" ng-model="crosswordData.name" name="name" required="" ng-minlength="4">
-                    <button ng-disabled="!uploader.name.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
+                    <input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4">
+                    <button ng-disabled="!uploader.crosswordName.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
                 </p>
-                <p class="error" ng-show="uploader.name.$error.required">' . __('A name must be given!', 'crw-text') . '</p>
-                <p class="error" ng-show="uploader.name.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
-                <p class="confirm" ng-show="uploader.name.$valid">' . __('That\'s the way!', 'crw-text') . '</p>
+                <p class="error" ng-show="uploader.crosswordName.$error.required">' . __('A name must be given!', 'crw-text') . '</p>
+                <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
+                <p class="error" ng-show="saveError">{{saveError}}</p>
+                <p class="confirm" ng-show="uploader.crosswordName.$valid">' . __('That looks good!', 'crw-text') . '</p>
             </form>
         </div>';
     } elseif ( 'solve' == $mode ) {
@@ -185,12 +185,34 @@ add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 function crw_get_crossword() {
     global $wpdb;
     $name = sanitize_text_field( $_POST['name'] );
-    $data = $wpdb->get_var($wpdb->prepare("
-        SELECT data
+    $crossword = $wpdb->get_var($wpdb->prepare("
+        SELECT crossword
         FROM crw_crosswords
         WHERE name = %s
     ", $name));
-    echo $data;
+    echo $crossword;
     die();
 }
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
+
+function crw_set_crossword() {
+    global $wpdb;
+    $error = '';
+    $name = sanitize_text_field( $_POST['name'] );
+    $esc_name = esc_sql($name);
+    if ($_POST['name'] !== $esc_name) {
+        $error = sprintf('This name would have been saved as <pre>%s</pre>', $esc_name);
+    } else {
+        $crossword = $_POST['crossword'];
+        $success = $wpdb->insert('crw_crosswords', array(
+            'name' => $name,
+            'crossword' => $crossword,
+        ));
+        if ($success === false) {
+            $error = 'The crossword could not be saved to the database.<br/>' . $wpdb->$last_error;
+        }
+    }
+    echo $error;
+    die();
+}
+add_action( 'wp_ajax_nopriv_set_crossword', 'crw_set_crossword' );

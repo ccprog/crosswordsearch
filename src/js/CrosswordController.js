@@ -5,4 +5,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
 	$scope.immediateStore = qStore.addStore();
     $scope.crw.loadCrosswordData($scope.crosswordName);
     $scope.crosswordData = $scope.crw.getCrosswordData();
+
+    $scope.setDisplayName = function (name) {
+        $scope.crosswordName = name;
+    };
 }]);

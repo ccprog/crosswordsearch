@@ -33,7 +33,7 @@ crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
 }]);
 
 /* control elements controller */
-crwApp.controller("WordController", ["$scope", "$sanitize", function ($scope, $sanitize) {
+crwApp.controller("WordController", ["$scope", function ($scope) {
     var deferred, highlight = [];
 
     // tweak: since ordering on object entries seems not to really work,
@@ -61,16 +61,19 @@ crwApp.controller("WordController", ["$scope", "$sanitize", function ($scope, $s
     // solve page only: event handler for "load" button:
     // load a crossword TODO: really load from server
     $scope.load = function () {
-        $scope.crw.loadCrosswordData('test');
+        var name = 'test';
+        $scope.crw.loadCrosswordData(name).then(function () {
+            $scope.setDisplayName(name);
+        });
     };
 
     // build page only: event handler for "save" button:
     // ask for crossword name
     $scope.save = function () {
         $scope.immediateStore.newPromise('saveCrossword').then(function () {
-            $scope.crosswordData.name = $sanitize($scope.crosswordData.name);
-            console.log(angular.toJson($scope.crosswordData));
-        }, angular.noop);
+            $scope.setDisplayName($scope.crosswordData.name);
+            $scope.immediate=null;
+        });
     };
 
     // compare id to the highlight list
@@ -128,7 +131,12 @@ crwApp.controller("WordController", ["$scope", "$sanitize", function ($scope, $s
         $scope.immediate = 'saveCrossword';
     });
     $scope.upload = function () {
-        $scope.immediate=null;
-        deferred.resolve();
+        $scope.crw.saveCrosswordData($scope.crosswordData.name).then(
+            deferred.resolve,
+            function (error) {
+                $scope.saveError = error;
+            }
+        );
+
     };
 }]);
