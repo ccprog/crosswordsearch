@@ -255,19 +255,36 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
         this.getCrosswordData = function() {
             return crossword;
         };
-        this.loadCrosswordData = function(name) {
-            if (!name || name === "") {
-                loadDefault();
-                return;
+        var serverError = function(response) {
+            return $q.reject("server error, status " + response.status);
+        };
+        var phpError = function(response) {
+            if (typeof response.data !== "object") {
+                return "malformed request";
             }
-            return $http(angular.extend({
-                data: {
-                    action: "get_crossword",
-                    name: name
-                }
-            }, httpDefaults)).success(function(data, status, headers, config) {
-                angular.extend(crossword, data);
-            });
+            if (response.data.error) {
+                return response.data.error;
+            }
+            return false;
+        };
+        this.loadCrosswordData = function(name) {
+            if (name) {
+                return $http(angular.extend({
+                    data: {
+                        action: "get_crossword",
+                        name: name
+                    }
+                }, httpDefaults)).then(function(response) {
+                    var errorMessage = phpError(response);
+                    if (errorMessage) {
+                        return $q.reject(errorMessage);
+                    }
+                    angular.extend(crossword, response.data);
+                }, serverError);
+            } else {
+                loadDefault();
+                return $q.reject();
+            }
         };
         this.saveCrosswordData = function(name) {
             return $http(angular.extend({
@@ -277,12 +294,11 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                     crossword: angular.toJson(crossword)
                 }
             }, httpDefaults)).then(function(response) {
-                if (response.data) {
-                    return $q.reject(response.data);
+                var errorMessage = phpError(response);
+                if (errorMessage) {
+                    return $q.reject(errorMessage);
                 }
-            }, function(response) {
-                return $q.reject(response.status + "<br/>" + response.data);
-            });
+            }, serverError);
         };
         this.setName = function(str) {
             crossword.name = str;
@@ -511,10 +527,15 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
 crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory", function($scope, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
-    $scope.crw.loadCrosswordData($scope.crosswordName);
     $scope.crosswordData = $scope.crw.getCrosswordData();
-    $scope.setDisplayName = function(name) {
-        $scope.crosswordName = name;
+    $scope.load = function(name) {
+        $scope.crw.loadCrosswordData(name).then(function() {
+            $scope.crosswordName = name;
+        }, function(error) {
+            if (error) {
+                alert(error);
+            }
+        });
     };
 } ]);
 
@@ -882,15 +903,9 @@ crwApp.controller("WordController", [ "$scope", function($scope) {
     $scope.empty = function() {
         $scope.crw.emptyAllFields();
     };
-    $scope.load = function() {
-        var name = "test";
-        $scope.crw.loadCrosswordData(name).then(function() {
-            $scope.setDisplayName(name);
-        });
-    };
     $scope.save = function() {
         $scope.immediateStore.newPromise("saveCrossword").then(function() {
-            $scope.setDisplayName($scope.crosswordData.name);
+            $scope.crosswordName = $scope.crosswordData.name;
             $scope.immediate = null;
         });
     };
@@ -927,6 +942,9 @@ crwApp.controller("WordController", [ "$scope", function($scope) {
         $scope.immediate = null;
         deferred.resolve();
         highlight = [];
+    };
+    $scope.resetError = function() {
+        $scope.saveError = null;
     };
     $scope.immediateStore.register("saveCrossword", function(saveDeferred) {
         deferred = saveDeferred;

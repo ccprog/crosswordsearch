@@ -105,21 +105,44 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             return crossword;
         };
 
+        // web server error messages
+        var serverError = function (response) {
+            return $q.reject('server error, status ' + response.status);
+        };
+
+        // php error messages
+        var phpError = function (response) {
+            // look for admin-ajax.php errors
+            if (typeof response.data !== 'object') {
+                return 'malformed request';
+            }
+            // look for php execution errors
+            if(response.data.error) {
+                return response.data.error;
+            }
+            return false;
+        };
+
         // load a crossword
         this.loadCrosswordData = function (name) {
-            if (!name || name === '') {
+            if (name) {
+                return $http(angular.extend({
+                    data: {
+                        action: 'get_crossword',
+                        name: name
+                    }
+                }, httpDefaults)).then(function(response) {
+                    var errorMessage = phpError(response);
+                    if (errorMessage) {
+                        return $q.reject(errorMessage);
+                    }
+                    // do not exchange the top level object to make watching it possible
+                    angular.extend(crossword, response.data);
+                }, serverError);
+            } else {
                 loadDefault();
-                return;
+                return $q.reject();
             }
-            return $http(angular.extend({
-                data: {
-                    action: 'get_crossword',
-                    name: name
-                }
-            }, httpDefaults)).success(function(data, status, headers, config) {
-                // do not exchange the top level object to make watching it possible
-                angular.extend(crossword, data);
-            });
         };
 
         // save a crossword
@@ -130,16 +153,12 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                     name: name,
                     crossword: angular.toJson(crossword)
                 }
-            }, httpDefaults)).
-            // look for php execution errors
-            then(function(response) {
-                if(response.data) {
-                    return $q.reject(response.data);
+            }, httpDefaults)).then(function(response) {
+                var errorMessage = phpError(response);
+                if (errorMessage) {
+                    return $q.reject(errorMessage);
                 }
-            // web server errors
-            }, function (response) {
-                return $q.reject(response.status + '<br/>' + response.data);
-            });
+            }, serverError);
         };
 
         // set a name for a crossword

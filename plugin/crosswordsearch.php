@@ -81,7 +81,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="setDisplayName(\'' . esc_attr($name) . '\')">
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="load(\'' . esc_attr($name) . '\')">
     <p class="crw-label" ng-if="crosswordName !== \'\'">{{crosswordName}}</p>
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
@@ -148,19 +148,19 @@ function crw_shortcode_handler( $atts, $content = null ) {
             <form name="uploader">
                 <p>' . __('To save it, the riddle must get a name: (at least 4 letters)', 'crw-text') . '</p>
                 <p class="actions">
-                    <input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4">
+                    <input type="text" ng-model="crosswordData.name" ng-change="resetError()" name="crosswordName" required="" ng-minlength="4">
                     <button ng-disabled="!uploader.crosswordName.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
                 </p>
                 <p class="error" ng-show="uploader.crosswordName.$error.required">' . __('A name must be given!', 'crw-text') . '</p>
                 <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
                 <p class="error" ng-show="saveError">{{saveError}}</p>
-                <p class="confirm" ng-show="uploader.crosswordName.$valid">' . __('That looks good!', 'crw-text') . '</p>
+                <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</p>
             </form>
         </div>';
     } elseif ( 'solve' == $mode ) {
         // solve mode: load/save functions and wordlist as solution display
         $html .= '
-        <p>' . __('Riddle:', 'crw-text') . ' <button ng-click="load()" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button></p>
+        <p>' . __('Riddle:', 'crw-text') . ' <button ng-click="load(\'test\')" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button></p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.id)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'id\'" ng-controller="EntryController">
                 <img ng-src="' . $plugin_path . 'images/bullet-{{word.color}}.png">
@@ -190,8 +190,14 @@ function crw_get_crossword() {
         FROM crw_crosswords
         WHERE name = %s
     ", $name));
-    echo wp_unslash($crossword);
-    die();
+    if ($crossword) {
+        echo wp_unslash($crossword);
+        die();
+    } else {
+        wp_send_json(array(
+            error => 'no crossword found under this name'
+        ));
+    }
 }
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
 add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
@@ -213,7 +219,9 @@ function crw_set_crossword() {
             $error = 'The crossword could not be saved to the database.<br/>' . $wpdb->$last_error;
         }
     }
-    echo $error;
+    wp_send_json(array(
+        error => $error
+    ));
     die();
 }
 add_action( 'wp_ajax_nopriv_set_crossword', 'crw_set_crossword' );

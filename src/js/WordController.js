@@ -58,20 +58,11 @@ crwApp.controller("WordController", ["$scope", function ($scope) {
         $scope.crw.emptyAllFields();
     };
 
-    // solve page only: event handler for "load" button:
-    // load a crossword TODO: really load from server
-    $scope.load = function () {
-        var name = 'test';
-        $scope.crw.loadCrosswordData(name).then(function () {
-            $scope.setDisplayName(name);
-        });
-    };
-
     // build page only: event handler for "save" button:
     // ask for crossword name
     $scope.save = function () {
         $scope.immediateStore.newPromise('saveCrossword').then(function () {
-            $scope.setDisplayName($scope.crosswordData.name);
+            $scope.crosswordName = $scope.crosswordData.name;
             $scope.immediate=null;
         });
     };
@@ -124,6 +115,10 @@ crwApp.controller("WordController", ["$scope", function ($scope) {
         $scope.immediate=null;
         deferred.resolve();
         highlight = [];
+    };
+
+    $scope.resetError = function () {
+        $scope.saveError = null;
     };
 
     $scope.immediateStore.register('saveCrossword', function (saveDeferred) {
