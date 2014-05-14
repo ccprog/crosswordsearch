@@ -1,0 +1,128 @@
+{
+  "id": "http://example.com/schema",
+  "type": "object",
+  "required": [ "name", "size", "table", "words", "solution" ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 255
+    },
+    "size": {
+      "required": [ "width", "height" ],
+      "additionalProperties": false,
+      "properties": {
+        "width": {
+          "type": "number",
+          "multipleOf": 1,
+          "minimum": 2
+        },
+        "height": {
+          "type": "number",
+          "multipleOf": 1,
+          "minimum": 2
+        }
+      }
+    },
+    "table": {
+      "type": "array",
+      "minItems": 2,
+      "additionalItems": false,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "additionalItems": false,
+        "items": {
+          "$ref": "#/definitions/word"
+        }
+      }
+    },
+    "words": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [ "ID", "color", "start", "stop", "fields", "direction" ],
+        "additionalProperties": false,
+        "properties": {
+          "ID": {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          },
+          "color": {
+            "type": "string",
+            "enum": [ "black", "red", "green", "blue", "orange", "violet", "aqua" ]
+          },
+          "start": {
+            "$ref": "#/definitions/position"
+          },
+          "stop": {
+            "$ref": "#/definitions/position"
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": [ "x", "y", "word" ],
+              "additionalProperties": false,
+              "properties": {
+                "x": {
+                  "type": "number",
+                  "multipleOf": 1,
+                  "minimum": 0
+                },
+                "y": {
+                  "type": "number",
+                  "multipleOf": 1,
+                  "minimum": 0
+                },
+                "word": {
+                  "$ref": "#/definitions/word"
+                }
+              }
+            }
+          },
+          "direction": {
+            "type": "string",
+            "enum": [ "down-right", "up-left", "up-right", "down-left", "down", "up", "left", "right" ]
+          }
+        }
+      }
+    },
+    "solution": {
+      "type": "object",
+      "maxProperties": 0
+    }
+  },
+  "definitions": {
+    "position": {
+      "required": [ "x", "y" ],
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number",
+          "multipleOf": 1
+        },
+        "y": {
+          "type": "number",
+          "multipleOf": 1
+        }
+      }
+    },
+    "word": {
+      "type": "object",
+      "required": [ "letter" ],
+      "additionalProperties": false,
+      "properties": {
+        "letter": {
+              "type": [ "string", "null" ],
+              "minLength": 1,
+              "maxLength": 1,
+              "pattern": "[a-zA-Z]"
+        }
+      }
+    }
+  }
+}
