@@ -64,7 +64,7 @@ customSelectElement.directive("cseSelect", function() {
     };
 });
 
-var crwApp = angular.module("crwApp", [ "qantic.angularjs.stylemodel", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "ngSanitize", "qantic.angularjs.stylemodel", "customSelectElement" ]);
 
 crwApp.factory("reduce", function() {
     return function(array, initial, func) {
@@ -256,14 +256,19 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
             return crossword;
         };
         var serverError = function(response) {
-            return $q.reject("server error, status " + response.status);
+            return $q.reject({
+                error: "server error",
+                debug: "status " + response.status
+            });
         };
         var phpError = function(response) {
             if (typeof response.data !== "object") {
-                return "malformed request";
+                return {
+                    error: "malformed request"
+                };
             }
             if (response.data.error) {
-                return response.data.error;
+                return response.data;
             }
             return false;
         };
@@ -275,9 +280,9 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                         name: name
                     }
                 }, httpDefaults)).then(function(response) {
-                    var errorMessage = phpError(response);
-                    if (errorMessage) {
-                        return $q.reject(errorMessage);
+                    var error = phpError(response);
+                    if (error) {
+                        return $q.reject(error);
                     }
                     angular.extend(crossword, response.data);
                 }, serverError);
@@ -294,9 +299,9 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                     crossword: angular.toJson(crossword)
                 }
             }, httpDefaults)).then(function(response) {
-                var errorMessage = phpError(response);
-                if (errorMessage) {
-                    return $q.reject(errorMessage);
+                var error = phpError(response);
+                if (error) {
+                    return $q.reject(error);
                 }
             }, serverError);
         };
@@ -305,7 +310,7 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
         };
         this.getHighId = function() {
             return reduce(crossword.words, 0, function(result, word) {
-                return Math.max(result, word.id);
+                return Math.max(result, word.ID);
             });
         };
         this.randomColor = function() {
@@ -333,7 +338,7 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
             angular.forEach(marking.fields, function(field) {
                 field.word = crossword.table[field.y][field.x];
             });
-            return crossword.words[marking.id] = marking;
+            return crossword.words[marking.ID] = marking;
         };
         this.probeWord = function(marking) {
             var entry = marking;
@@ -347,8 +352,8 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                     word.solved = true;
                 }
             });
-            entry.markingId = marking.id;
-            return crossword.solution[entry.id] = entry;
+            entry.markingId = marking.ID;
+            return crossword.solution[entry.ID] = entry;
         };
         this.testWordBoundaries = function(change) {
             var critical = [];
@@ -401,7 +406,7 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
                 if (markers[x][y] == null) {
                     markers[x][y] = {};
                 }
-                markers[x][y][marking.id] = {
+                markers[x][y][marking.ID] = {
                     marking: marking,
                     img: img
                 };
@@ -438,7 +443,7 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
             var from = marking.start, to = marking.stop;
             var i, dif_x = to.x - from.x, dif_y = to.y - from.y;
             var swap = dif_x < 0 || dif_x === 0 && dif_y < 0;
-            this.deleteMarking(marking.id);
+            this.deleteMarking(marking.ID);
             marking.fields = [];
             if (dif_x * dif_y > 0) {
                 marking.direction = swap ? "up-left" : "down-right";
@@ -492,7 +497,7 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
             angular.forEach(markings, function(marking) {
                 var from = marking.start, to = marking.stop;
                 var swap = to.x < from.x || to.x === from.x && to.y < from.y;
-                this.deleteMarking(marking.id);
+                this.deleteMarking(marking.ID);
                 angular.forEach(marking.fields, function(field) {
                     field.x += shift_x;
                     field.y += shift_y;
@@ -729,7 +734,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         mode = m;
         if (mode === "build") {
             currentMarking = {
-                id: 0
+                ID: 0
             };
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
                 var probe, shift_x = 0, shift_y = 0;
@@ -751,7 +756,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         }
         if (mode === "solve") {
             currentMarking = {
-                id: $scope.crw.getHighId()
+                ID: $scope.crw.getHighId()
             };
             $scope.$watch("crosswordData.solution", function(newWords, oldWords) {
                 angular.forEach(oldWords, function(word, id) {
@@ -762,12 +767,12 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                 var probe = false;
                 angular.forEach(newWords, function(word, id) {
                     if (!oldWords[id]) {
-                        markers.exchangeMarkers(word.fields, currentMarking.id, word.color);
+                        markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
                     }
                     probe = true;
                 });
                 if (!probe) {
-                    currentMarking.id = $scope.crw.getHighId();
+                    currentMarking.ID = $scope.crw.getHighId();
                 }
             }, true);
         }
@@ -784,7 +789,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
     $scope.startMark = function() {
         isMarking = true;
         currentMarking = {
-            id: currentMarking.id + 1
+            ID: currentMarking.ID + 1
         };
         currentMarking.color = mode === "build" ? $scope.crw.randomColor() : "grey";
     };
@@ -797,12 +802,12 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                 var word = $scope.crw.probeWord(currentMarking);
                 if (!word.solved) {
                     $scope.immediateStore.newPromise("falseWord", word).then(function() {
-                        $scope.crw.deleteWord(currentMarking.id, "solution");
+                        $scope.crw.deleteWord(currentMarking.ID, "solution");
                     });
                 }
             }
         } else {
-            markers.deleteMarking(currentMarking.id);
+            markers.deleteMarking(currentMarking.ID);
         }
     };
     $scope.intoField = function(row, col) {
@@ -880,6 +885,26 @@ crwApp.filter("joinWord", [ "reduce", function(reduce) {
     };
 } ]);
 
+crwApp.directive("crwSaneInput", [ "$sanitize", function($sanitize) {
+    return {
+        require: "ngModel",
+        link: function(scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                viewValue = viewValue.replace(/\s+/, " ");
+                var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, "");
+                sanitized = $sanitize(sanitized);
+                if (sanitized === viewValue) {
+                    ctrl.$setValidity("sane", true);
+                    return viewValue;
+                } else {
+                    ctrl.$setValidity("sane", false);
+                    return undefined;
+                }
+            });
+        }
+    };
+} ]);
+
 crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($scope, $filter, basics) {
     $scope.colors = basics.colors;
     $scope.deleteWord = function(id) {
@@ -935,7 +960,7 @@ crwApp.controller("WordController", [ "$scope", function($scope) {
     };
     $scope.immediateStore.register("falseWord", function(falseDeferred, word) {
         deferred = falseDeferred;
-        highlight = [ word.id ];
+        highlight = [ word.ID ];
         $scope.immediate = "falseWord";
     });
     $scope.deleteFalse = function() {
@@ -943,16 +968,14 @@ crwApp.controller("WordController", [ "$scope", function($scope) {
         deferred.resolve();
         highlight = [];
     };
-    $scope.resetError = function() {
-        $scope.saveError = null;
-    };
     $scope.immediateStore.register("saveCrossword", function(saveDeferred) {
         deferred = saveDeferred;
         $scope.immediate = "saveCrossword";
     });
     $scope.upload = function() {
         $scope.crw.saveCrosswordData($scope.crosswordData.name).then(deferred.resolve, function(error) {
-            $scope.saveError = error;
+            $scope.saveError = error.error;
+            $scope.saveDebug = error.debug;
         });
     };
 } ]);

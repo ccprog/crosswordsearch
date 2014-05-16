@@ -107,18 +107,21 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
 
         // web server error messages
         var serverError = function (response) {
-            return $q.reject('server error, status ' + response.status);
+            return $q.reject({
+                error: 'server error',
+                debug: 'status ' + response.status
+            });
         };
 
         // php error messages
         var phpError = function (response) {
             // look for admin-ajax.php errors
             if (typeof response.data !== 'object') {
-                return 'malformed request';
+                return {error: 'malformed request'};
             }
             // look for php execution errors
             if(response.data.error) {
-                return response.data.error;
+                return response.data;
             }
             return false;
         };
@@ -132,9 +135,9 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                         name: name
                     }
                 }, httpDefaults)).then(function(response) {
-                    var errorMessage = phpError(response);
-                    if (errorMessage) {
-                        return $q.reject(errorMessage);
+                    var error = phpError(response);
+                    if (error) {
+                        return $q.reject(error);
                     }
                     // do not exchange the top level object to make watching it possible
                     angular.extend(crossword, response.data);
@@ -154,9 +157,9 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                     crossword: angular.toJson(crossword)
                 }
             }, httpDefaults)).then(function(response) {
-                var errorMessage = phpError(response);
-                if (errorMessage) {
-                    return $q.reject(errorMessage);
+                var error = phpError(response);
+                if (error) {
+                    return $q.reject(error);
                 }
             }, serverError);
         };
@@ -169,7 +172,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
         // return the highest id used for words
         this.getHighId = function () {
             return reduce(crossword.words, 0, function (result, word) {
-                return Math.max(result, word.id);
+                return Math.max(result, word.ID);
             });
         };
 
@@ -206,7 +209,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
 
         // save a field sequence in the words list
         // marking must be an object of the form
-        // { id: ...,
+        // { ID: ...,
         // color: ...,
         // start: {x: ..., y: ...},
         // stop: {x: ..., y: ...},
@@ -217,7 +220,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             angular.forEach(marking.fields, function (field) {
                 field.word = crossword.table[field.y][field.x];
             });
-            return (crossword.words[marking.id] = marking);
+            return (crossword.words[marking.ID] = marking);
         };
 
         // look up whether a field sequence (format see above)
@@ -239,8 +242,8 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                     word.solved = true;
                 }
             });
-            entry.markingId = marking.id;
-            return (crossword.solution[entry.id] = entry);
+            entry.markingId = marking.ID;
+            return (crossword.solution[entry.ID] = entry);
         };
 
         // test whether a size change will leave letter sequences running

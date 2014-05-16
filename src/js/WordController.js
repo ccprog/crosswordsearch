@@ -18,6 +18,29 @@ crwApp.filter('joinWord', ['reduce', function (reduce) {
     };
 }]);
 
+// sanitize input field more or less the same way WordPress
+// does on receiving the data
+crwApp.directive('crwSaneInput', ["$sanitize", function ($sanitize) {
+    return {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                // the first two mimic WordPress sanitize_text_field()
+                viewValue = viewValue.replace(/\s+/, ' ');
+                var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, '');
+                sanitized = $sanitize(sanitized);
+                if (sanitized === viewValue) {
+                    ctrl.$setValidity('sane', true);
+                    return viewValue;
+                } else {
+                    ctrl.$setValidity('sane', false);
+                    return undefined;
+                }
+            });
+        }
+    };
+}]);
+
 // word list entry controller, mostly needed for $filter and colors import
 crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
         function ($scope, $filter, basics) {
@@ -107,7 +130,7 @@ crwApp.controller("WordController", ["$scope", function ($scope) {
     $scope.immediateStore.register('falseWord', function (falseDeferred, word) {
         deferred = falseDeferred;
         // highlight invalid solution
-        highlight = [word.id];
+        highlight = [word.ID];
         $scope.immediate = 'falseWord';
     });
     // event handler for "delete" button (resolve as only possible action)
@@ -117,21 +140,20 @@ crwApp.controller("WordController", ["$scope", function ($scope) {
         highlight = [];
     };
 
-    $scope.resetError = function () {
-        $scope.saveError = null;
-    };
-
+    // build page only: deferred handler for user dialogue on data upload
+    // register
     $scope.immediateStore.register('saveCrossword', function (saveDeferred) {
         deferred = saveDeferred;
         $scope.immediate = 'saveCrossword';
     });
+    // event handler for "upload" button
     $scope.upload = function () {
         $scope.crw.saveCrosswordData($scope.crosswordData.name).then(
             deferred.resolve,
             function (error) {
-                $scope.saveError = error;
+                $scope.saveError = error.error;
+                $scope.saveDebug = error.debug;
             }
         );
-
     };
 }]);

@@ -71,7 +71,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
     $scope.setMode = function (m) {
         mode = m;
         if (mode === 'build') { // build page
-            currentMarking = { id: 0 };
+            currentMarking = { ID: 0 };
             // remove marking for deleted words
             $scope.$watch('crosswordData.words', function (newWords, oldWords) {
                 var probe, shift_x = 0, shift_y = 0;
@@ -96,7 +96,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
         }
         if (mode === 'solve') { // solve page
             // shift marking ids so they never overlap with word ids
-            currentMarking = { id: $scope.crw.getHighId() };
+            currentMarking = { ID: $scope.crw.getHighId() };
             // remove marking for deleted solutions and colorize valid solutions
             $scope.$watch('crosswordData.solution', function (newWords, oldWords) {
                 angular.forEach(oldWords, function (word, id) {
@@ -107,14 +107,14 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 var probe = false;
                 angular.forEach(newWords, function (word, id) {
                     if (!oldWords[id]) {
-                        markers.exchangeMarkers(word.fields, currentMarking.id, word.color);
+                        markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
                     }
                     probe = true;
                 });
                 // reset marking ids if no solutions are present,
                 // i. e. after a new crossword has been loaded
                 if (!probe) {
-                    currentMarking.id = $scope.crw.getHighId();
+                    currentMarking.ID = $scope.crw.getHighId();
                 }
             }, true);
         }
@@ -138,7 +138,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
     // choose a color and start marking
     $scope.startMark = function () {
         isMarking = true;
-        currentMarking = { id: currentMarking.id+1 };
+        currentMarking = { ID: currentMarking.ID+1 };
         // during build markings get a random color,
         // unconfirmed markings during solve remain grey
         currentMarking.color = mode === 'build' ? $scope.crw.randomColor() : 'grey';
@@ -159,13 +159,13 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 if (!word.solved) {
                     // if not, inform user and delete the marking on confirmation
                     $scope.immediateStore.newPromise('falseWord', word).then(function () {
-                        $scope.crw.deleteWord(currentMarking.id, 'solution');
+                        $scope.crw.deleteWord(currentMarking.ID, 'solution');
                     });
                 }
             }
         } else {
             // delete one-field markings
-            markers.deleteMarking(currentMarking.id);
+            markers.deleteMarking(currentMarking.ID);
         }
     };
 

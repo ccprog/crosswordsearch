@@ -17,7 +17,7 @@ crwApp.factory('markerFactory', ['basics', function (basics) {
                 if (markers[x][y] == null) {
                     markers[x][y] = {};
                 }
-                markers[x][y][marking.id] = {marking: marking, img: img};
+                markers[x][y][marking.ID] = {marking: marking, img: img};
             }
         }
 
@@ -62,7 +62,7 @@ crwApp.factory('markerFactory', ['basics', function (basics) {
             var i, dif_x = to.x - from.x, dif_y = to.y - from.y;
             var swap = dif_x < 0 || (dif_x === 0 && dif_y < 0);
 
-            this.deleteMarking(marking.id);
+            this.deleteMarking(marking.ID);
             marking.fields = [];
             if (dif_x * dif_y > 0) {
                 marking.direction = swap ? "up-left" : "down-right";
@@ -108,7 +108,7 @@ crwApp.factory('markerFactory', ['basics', function (basics) {
                 var from = marking.start, to = marking.stop;
                 var swap = to.x < from.x || (to.x === from.x && to.y < from.y);
 
-                this.deleteMarking(marking.id);
+                this.deleteMarking(marking.ID);
                 angular.forEach(marking.fields, function (field) {
                     field.x += shift_x;
                     field.y += shift_y;
