@@ -143,7 +143,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	$html = '
 <div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . esc_js($project) . '\', \'' . esc_js($name) . '\')">
     <p class="crw-label" ng-if="crosswordData.name !== \'\'">{{crosswordData.name}}</p>
-    <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController">
+    <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController" ng-if="crosswordData">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
 	    if ( 'build' == $mode ) {

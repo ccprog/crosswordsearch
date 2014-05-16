@@ -70,10 +70,14 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
     // init controller for build and solve page
     $scope.setMode = function (m) {
         mode = m;
+        // shift marking ids so they never overlap with pre-existing word ids
+        currentMarking = { ID: $scope.crw.getHighId() };
         if (mode === 'build') { // build page
-            currentMarking = { ID: 0 };
+            // load existing markings
+            markers.redrawMarkers($scope.crosswordData.words);
             // remove marking for deleted words
             $scope.$watch('crosswordData.words', function (newWords, oldWords) {
+                console.log(newWords, oldWords);
                 var probe, shift_x = 0, shift_y = 0;
                 angular.forEach(oldWords, function (word, id) {
                     if (!newWords[id]) {
@@ -89,14 +93,12 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                     shift_y = newWords[probe].start.y - oldWords[probe].start.y;
                     if(shift_x !== 0 || shift_y !== 0) {
                         // shift markers the same as words have moved
-                        markers.shiftMarkers($scope.crosswordData.words, shift_x, shift_y);
+                        markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
                     }
                 }
             }, true);
         }
         if (mode === 'solve') { // solve page
-            // shift marking ids so they never overlap with word ids
-            currentMarking = { ID: $scope.crw.getHighId() };
             // remove marking for deleted solutions and colorize valid solutions
             $scope.$watch('crosswordData.solution', function (newWords, oldWords) {
                 angular.forEach(oldWords, function (word, id) {

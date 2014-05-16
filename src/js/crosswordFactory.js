@@ -81,27 +81,6 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             });
         };
 
-        // default empty crossword object
-        var loadDefault = function () {
-            angular.extend(crossword, {
-                'name': '',
-                size: {
-                    width: 10,
-                    height: 10
-                },
-                // crossword table containing the letters
-                table: [],
-                // all letter sequences that have been saved as solution words
-                words: {},
-                // letter sequences that have been marked on the solve page,
-                // irrespective of their status as a valid solution
-                solution: {}
-            });
-            addRows(crossword.size.height, false);
-        };
-        // init default crossword
-        loadDefault();
-
         // return crossword data object
         this.getCrosswordData = function () {
             return crossword;
@@ -133,27 +112,41 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             project = p;
         };
 
+        // default empty crossword object
+        this.loadDefault = function () {
+            angular.extend(crossword, {
+                'name': '',
+                size: {
+                    width: 10,
+                    height: 10
+                },
+                // crossword table containing the letters
+                table: [],
+                // all letter sequences that have been saved as solution words
+                words: {},
+                // letter sequences that have been marked on the solve page,
+                // irrespective of their status as a valid solution
+                solution: {}
+            });
+            addRows(crossword.size.height, false);
+        };
+
         // load a crossword
         this.loadCrosswordData = function (name) {
-            if (name) {
-                return $http(angular.extend({
-                    data: {
-                        action: 'get_crossword',
-                        project: project,
-                        name: name
-                    }
-                }, httpDefaults)).then(function(response) {
-                    var error = phpError(response);
-                    if (error) {
-                        return $q.reject(error);
-                    }
-                    // do not exchange the top level object to make watching it possible
-                    angular.extend(crossword, response.data);
-                }, serverError);
-            } else {
-                loadDefault();
-                return $q.reject();
-            }
+            return $http(angular.extend({
+                data: {
+                    action: 'get_crossword',
+                    project: project,
+                    name: name
+                }
+            }, httpDefaults)).then(function(response) {
+                var error = phpError(response);
+                if (error) {
+                    return $q.reject(error);
+                }
+                // do not exchange the top level object to make watching it possible
+                angular.extend(crossword, response.data);
+            }, serverError);
         };
 
         // save a crossword

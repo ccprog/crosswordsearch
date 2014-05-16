@@ -101,17 +101,17 @@ crwApp.factory('markerFactory', ['basics', function (basics) {
             });
         };
 
-        // trigger the shift of marking positions on table resize
-        // shift_x, shift_y are left/down coordinates
-        this.shiftMarkers = function (markings, shift_x, shift_y) {
+        // redraw all markers, either on initial load or as the result of a table resize
+        // shift_x, shift_y shift marking positions and are left/down coordinates (optional))
+        this.redrawMarkers = function (markings, shift_x, shift_y) {
             angular.forEach(markings, function (marking) {
                 var from = marking.start, to = marking.stop;
                 var swap = to.x < from.x || (to.x === from.x && to.y < from.y);
 
                 this.deleteMarking(marking.ID);
                 angular.forEach(marking.fields, function (field) {
-                    field.x += shift_x;
-                    field.y += shift_y;
+                    field.x += (shift_x || 0);
+                    field.y += (shift_y || 0);
                 });
 
                 setMarkers(marking, swap);

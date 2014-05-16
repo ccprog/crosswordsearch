@@ -239,20 +239,6 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                 });
             });
         };
-        var loadDefault = function() {
-            angular.extend(crossword, {
-                name: "",
-                size: {
-                    width: 10,
-                    height: 10
-                },
-                table: [],
-                words: {},
-                solution: {}
-            });
-            addRows(crossword.size.height, false);
-        };
-        loadDefault();
         this.getCrosswordData = function() {
             return crossword;
         };
@@ -276,25 +262,33 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
         this.setProject = function(p) {
             project = p;
         };
+        this.loadDefault = function() {
+            angular.extend(crossword, {
+                name: "",
+                size: {
+                    width: 10,
+                    height: 10
+                },
+                table: [],
+                words: {},
+                solution: {}
+            });
+            addRows(crossword.size.height, false);
+        };
         this.loadCrosswordData = function(name) {
-            if (name) {
-                return $http(angular.extend({
-                    data: {
-                        action: "get_crossword",
-                        project: project,
-                        name: name
-                    }
-                }, httpDefaults)).then(function(response) {
-                    var error = phpError(response);
-                    if (error) {
-                        return $q.reject(error);
-                    }
-                    angular.extend(crossword, response.data);
-                }, serverError);
-            } else {
-                loadDefault();
-                return $q.reject();
-            }
+            return $http(angular.extend({
+                data: {
+                    action: "get_crossword",
+                    project: project,
+                    name: name
+                }
+            }, httpDefaults)).then(function(response) {
+                var error = phpError(response);
+                if (error) {
+                    return $q.reject(error);
+                }
+                angular.extend(crossword, response.data);
+            }, serverError);
         };
         this.saveCrosswordData = function(name) {
             return $http(angular.extend({
@@ -499,14 +493,14 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
                 markers[field.x][field.y][id].marking.color = color;
             });
         };
-        this.shiftMarkers = function(markings, shift_x, shift_y) {
+        this.redrawMarkers = function(markings, shift_x, shift_y) {
             angular.forEach(markings, function(marking) {
                 var from = marking.start, to = marking.stop;
                 var swap = to.x < from.x || to.x === from.x && to.y < from.y;
                 this.deleteMarking(marking.ID);
                 angular.forEach(marking.fields, function(field) {
-                    field.x += shift_x;
-                    field.y += shift_y;
+                    field.x += shift_x || 0;
+                    field.y += shift_y || 0;
                 });
                 setMarkers(marking, swap);
             }, this);
@@ -538,21 +532,23 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
 crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory", function($scope, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
-    $scope.crosswordData = $scope.crw.getCrosswordData();
     $scope.prepare = function(project, name) {
         $scope.crw.setProject(project);
-        if (name) {
-            $scope.load(name);
-        }
+        $scope.load(name);
     };
     $scope.load = function(name) {
-        $scope.crw.loadCrosswordData(name).then(function() {
-            $scope.crosswordName = name;
-        }, function(error) {
-            if (error) {
-                alert(error.error);
-            }
-        });
+        if (name) {
+            $scope.crw.loadCrosswordData(name).then(function() {
+                $scope.crosswordData = $scope.crw.getCrosswordData();
+            }, function(error) {
+                if (error) {
+                    alert(error.error);
+                }
+            });
+        } else {
+            $scope.crw.loadDefault();
+            $scope.crosswordData = $scope.crw.getCrosswordData();
+        }
     };
 } ]);
 
@@ -744,11 +740,13 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
     }
     $scope.setMode = function(m) {
         mode = m;
+        currentMarking = {
+            ID: $scope.crw.getHighId()
+        };
         if (mode === "build") {
-            currentMarking = {
-                ID: 0
-            };
+            markers.redrawMarkers($scope.crosswordData.words);
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
+                console.log(newWords, oldWords);
                 var probe, shift_x = 0, shift_y = 0;
                 angular.forEach(oldWords, function(word, id) {
                     if (!newWords[id]) {
@@ -761,15 +759,12 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                     shift_x = newWords[probe].start.x - oldWords[probe].start.x;
                     shift_y = newWords[probe].start.y - oldWords[probe].start.y;
                     if (shift_x !== 0 || shift_y !== 0) {
-                        markers.shiftMarkers($scope.crosswordData.words, shift_x, shift_y);
+                        markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
                     }
                 }
             }, true);
         }
         if (mode === "solve") {
-            currentMarking = {
-                ID: $scope.crw.getHighId()
-            };
             $scope.$watch("crosswordData.solution", function(newWords, oldWords) {
                 angular.forEach(oldWords, function(word, id) {
                     if (!newWords[id]) {
