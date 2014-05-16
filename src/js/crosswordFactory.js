@@ -11,6 +11,8 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
     function Crw () {
         // parent data object
         var crossword = {};
+        // project key
+        var project = '';
 
         // add or delete the given number of rows
         // if number is negative, rows will be removed
@@ -126,12 +128,18 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             return false;
         };
 
+        // set the project key
+        this.setProject = function (p) {
+            project = p;
+        };
+
         // load a crossword
         this.loadCrosswordData = function (name) {
             if (name) {
                 return $http(angular.extend({
                     data: {
                         action: 'get_crossword',
+                        project: project,
                         name: name
                     }
                 }, httpDefaults)).then(function(response) {
@@ -154,6 +162,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                 data: {
                     action: 'set_crossword',
                     name: name,
+                    project: project,
                     crossword: angular.toJson(crossword)
                 }
             }, httpDefaults)).then(function(response) {

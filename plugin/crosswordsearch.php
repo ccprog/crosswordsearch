@@ -28,9 +28,63 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
+
+/* plugin installation */
+global $crw_db_version, $wpdb, $data_table_name;
+$crw_db_version = "0.1";
+
+$data_table_name = $wpdb->prefix . "crw_crosswords";
+// WP_PLUGIN_DIR points to path in server fs, even if it traverses a symbolic link
+// this form is needed for register_activation_hook (call to plugin_basename()),
+$plugin_file = WP_PLUGIN_DIR . '/crosswordsearch/crosswordsearch.php';
+// plugin_dir_path( __FILE__ ) points to the source path
+// this is needed for include/require and file_get_contents
+
+
+function crw_install () {
+    global $wpdb, $charset_collate, $crw_db_version, $data_table_name;
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+    $sql = "
+CREATE TABLE IF NOT EXISTS $data_table_name (
+  project varchar(255) NOT NULL,
+  name varchar(255) NOT NULL,
+  crossword text NOT NULL,
+  PRIMARY KEY  (project, name)
+) $charset_collate;\n";
+    dbDelta( $sql );
+
+    add_option( "crw_db_version", $crw_db_version );
+}
+register_activation_hook( $plugin_file, 'crw_install' );
+
+// temporary test data
+function crw_install_data () {
+    global $wpdb, $data_table_name;
+
+    $data_files = array(
+        '../tests/testCrossword.json',
+        '../tests/chaimae.json'
+    );
+
+    foreach( $data_files as $file) {
+        $json = file_get_contents(plugin_dir_path( __FILE__ ) . $file);
+        $data = json_decode( $json );
+
+        $rows_affected = $wpdb->replace($data_table_name, array(
+            'project' => 'test',
+            'name' => $data->name,
+            'crossword' => $json,
+        ));
+    }
+}
+register_activation_hook( $plugin_file, 'crw_install_data' );
+
+/* plugin load routines */
+
 $crw_has_crossword = false;
 
-function crw_load_text() {
+function crw_load_text () {
     load_plugin_textdomain( 'crw-text', false, 'crosswordsearch/languages/' );
 }
 add_action('plugins_loaded', 'crw_load_text');
@@ -41,21 +95,21 @@ function crw_add_angular_attribute ($attributes) {
 
 function add_crw_scripts () {
 	global $crw_has_crossword;
-    $plugin_path = plugins_url() . '/crosswordsearch/';
-    
+    $plugin_url = plugins_url() . '/crosswordsearch/';
+
     $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-'.get_locale().'.json';
     if( !file_exists( $file ) ){
         $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-en.json';
     }
     $locale = json_decode( file_get_contents( $file ), true );
-	
+
 	if ( $crw_has_crossword ) {
-        wp_enqueue_script('angular', $plugin_path . 'js/angular.min.js');
-        wp_enqueue_script('angular-sanitize', $plugin_path . 'js/angular-sanitize.min.js', array( 'angular' ));
-        wp_enqueue_script('quantic-stylemodel', $plugin_path . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
-        wp_enqueue_script('crw-js', $plugin_path . 'js/crosswordsearch.js', array( 'angular', 'angular-sanitize', 'quantic-stylemodel' ));
+        wp_enqueue_script('angular', $plugin_url . 'js/angular.min.js');
+        wp_enqueue_script('angular-sanitize', $plugin_url . 'js/angular-sanitize.min.js', array( 'angular' ));
+        wp_enqueue_script('quantic-stylemodel', $plugin_url . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
+        wp_enqueue_script('crw-js', $plugin_url . 'js/crosswordsearch.js', array( 'angular', 'angular-sanitize', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge((array)$locale, array(
-            'pluginPath' => $plugin_path,
+            'pluginPath' => $plugin_url,
             'ajaxUrl' => admin_url( 'admin-ajax.php' )
         )));
 	}
@@ -63,6 +117,7 @@ function add_crw_scripts () {
 
 function crw_find_shortcode () {
 	global $post, $crw_has_crossword;
+
 	if ( has_shortcode( $post->post_content, 'crosswordsearch') ) {
         $crw_has_crossword = true;
         add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
@@ -71,19 +126,23 @@ function crw_find_shortcode () {
 }
 add_action( 'get_header', 'crw_find_shortcode');
 
+/* load the crossword into a post */
+
 function crw_shortcode_handler( $atts, $content = null ) {
-    $plugin_path = plugins_url() . '/crosswordsearch/';
+    $plugin_url = plugins_url() . '/crosswordsearch/';
+
 	extract( shortcode_atts( array(
 		'mode' => 'build',
+        'project' => '',
         'name' => '',
 	), $atts ) );
 	// load stylesheet into page bottom to get it past theming
-    wp_enqueue_style('crw-css', $plugin_path . 'css/crosswordsearch.css');
-	
+    wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
+
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="load(\'' . esc_js($name) . '\')">
-    <p class="crw-label" ng-if="crosswordName !== \'\'">{{crosswordName}}</p>
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . esc_js($project) . '\', \'' . esc_js($name) . '\')">
+    <p class="crw-label" ng-if="crosswordData.name !== \'\'">{{crosswordData.name}}</p>
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
@@ -163,10 +222,10 @@ function crw_shortcode_handler( $atts, $content = null ) {
     } elseif ( 'solve' == $mode ) {
         // solve mode: load/save functions and wordlist as solution display
         $html .= '
-        <p>' . __('Riddle:', 'crw-text') . ' <button ng-click="load(\'test\')" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button></p>
+        <p>' . __('Riddle:', 'crw-text') . ' <button ng-click="load(\'test\', \'test\')" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button></p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
-                <img ng-src="' . $plugin_path . 'images/bullet-{{word.color}}.png">
+                <img ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>
@@ -185,14 +244,19 @@ function crw_shortcode_handler( $atts, $content = null ) {
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
+/* ajax communication */
+
 function crw_verify_json($json, &$msg) {
     include('schema/jsv4.php');
     include('schema/schema-store.php');
+
+    //schema loading
     $raw_schema = json_decode( file_get_contents(plugin_dir_path( __FILE__ ) . 'schema/schema.json') );
     $url = $raw_schema->id;
     $store = new SchemaStore();
     $store->add($url, $raw_schema);
     $schema = $store->get($url);
+
     // json string decoding
     try {
         $crossword = json_decode($json);
@@ -200,6 +264,7 @@ function crw_verify_json($json, &$msg) {
         $msg = 'decode exception';
         return false;
     }
+
     // schema validation
     $answer = Jsv4::validate($crossword, $schema);
     if ( !$answer->valid ) {
@@ -209,6 +274,7 @@ function crw_verify_json($json, &$msg) {
         }
         return false;
     }
+
     // verify width and height are consistent
     if ( $crossword->size->height !== count($crossword->table)) {
         $msg = 'height inconsistency';
@@ -220,6 +286,7 @@ function crw_verify_json($json, &$msg) {
             return false;
         }
     }
+
     foreach ( $crossword->words as $key => $word ) {
         // verify keys match ID content
         if ( (int)$key !== $word->ID ) {
@@ -236,6 +303,7 @@ function crw_verify_json($json, &$msg) {
         // direction fits start/stop position
         // each letter is in the right position
     }
+
     return $crossword->name;
 }
 
@@ -250,32 +318,38 @@ function crw_send_error ( $error, $debug ) {
 }
 
 function crw_get_crossword() {
-    global $wpdb;
+    global $wpdb, $data_table_name;
+
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
     $crossword = $wpdb->get_var( $wpdb->prepare("
         SELECT crossword
-        FROM crw_crosswords
-        WHERE name = %s
-    ", $name) );
+        FROM $data_table_name
+        WHERE project = %s AND name = %s
+    ", $project, $name) );
+
     if ($crossword) {
         echo $crossword;
         die();
     } else {
         $error = __('The crossword was not found.', 'crw-text');
-        crw_send_error($error, $wpdb->$last_error);
+        crw_send_error($error, $wpdb->last_error);
     }
 }
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
 add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 function crw_set_crossword() {
-    global $wpdb;
+    global $wpdb, $data_table_name;
     $error = '';
+    $debug = NULL;
+
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $unsafe_name = wp_unslash($_POST['name']);
     $name = sanitize_text_field( $unsafe_name );
     $crossword = wp_unslash( $_POST['crossword'] );
     $verification = crw_verify_json( $crossword, $msg );
-    $debug = NULL;
+
     if ( !$verification ) {
         $error = __('The crossword data sent are invalid.', 'crw-text');
         $debug = $msg;
@@ -286,8 +360,9 @@ function crw_set_crossword() {
         $error = __('The name sent is inconsistent with crossword data.', 'crw-text');
         $debug = $name . ' / ' . $verification;
     } else {
-        $success = $wpdb->insert('crw_crosswords', array(
+        $success = $wpdb->insert($data_table_name, array(
             'name' => $name,
+            'project' => $project,
             'crossword' => $crossword,
         ));
         if ($success === false) {
@@ -295,6 +370,7 @@ function crw_set_crossword() {
             $debug = $wpdb->$last_error;
         }
     }
+
     crw_send_error($error, $debug);
     die();
 }

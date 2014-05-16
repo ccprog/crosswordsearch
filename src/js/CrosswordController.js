@@ -5,13 +5,21 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
 	$scope.immediateStore = qStore.addStore();
     $scope.crosswordData = $scope.crw.getCrosswordData();
 
+    // init crossword at page load time
+    $scope.prepare = function (project, name) {
+        $scope.crw.setProject(project);
+        if (name) {
+            $scope.load(name);
+        }
+    };
+
     // load a crossword
     $scope.load = function (name) {
         $scope.crw.loadCrosswordData(name).then(function () {
             $scope.crosswordName = name;
         }, function (error) {
             if (error) {
-                alert(error);
+                alert(error.error);
             }
         });
     };
