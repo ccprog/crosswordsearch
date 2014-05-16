@@ -1,107 +1,130 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# German translations for crosswordsearch package.
+# Copyright (C) 2014 Claus Colloseus <ccprog@gmx.de>
+# This file is distributed under the same license as the crosswordsearch package.
+# Claus Colloseus <ccprog@gmx.de>, 2014.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-02 16:27+0200\n"
-"PO-Revision-Date: 2014-05-02 17:53+0200\n"
+"POT-Creation-Date: 2014-05-16 21:32+0200\n"
+"PO-Revision-Date: 2014-05-11 13:36+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: de_DE\n"
+"Language-Team: German\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: plugin/crosswordsearch.php:108
+#: plugin/crosswordsearch.php:185
 msgid "Fill all empty fields with random letters"
 msgstr "Leere Felder mit zufälligen Buchstaben auffüllen"
 
-#: plugin/crosswordsearch.php:108
+#: plugin/crosswordsearch.php:185
 msgid "Fill fields"
 msgstr "Auffüllen"
 
-#: plugin/crosswordsearch.php:109
+#: plugin/crosswordsearch.php:186
 msgid "Empty all fields"
 msgstr "Alle Felder leeren"
 
-#: plugin/crosswordsearch.php:109
+#: plugin/crosswordsearch.php:186
 msgid "Empty"
 msgstr "Leeren"
 
-#: plugin/crosswordsearch.php:110
+#: plugin/crosswordsearch.php:187
 msgid "Save the riddle"
 msgstr "Das Rätsel speichern"
 
-#: plugin/crosswordsearch.php:110 plugin/crosswordsearch.php:134
+#: plugin/crosswordsearch.php:187 plugin/crosswordsearch.php:212
 msgid "Save"
 msgstr "Speichern"
 
 #. / translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
-#: plugin/crosswordsearch.php:117
+#: plugin/crosswordsearch.php:193
 #, php-format
 msgid "from line %1$s, column %2$s %3$s"
 msgstr "von Zeile %1$s, Spalte %2$s nach %3$s"
 
-#: plugin/crosswordsearch.php:116 plugin/crosswordsearch.php:125
-#: plugin/crosswordsearch.php:155
+#: plugin/crosswordsearch.php:194 plugin/crosswordsearch.php:203
+#: plugin/crosswordsearch.php:236
 msgid "Delete"
 msgstr "Löschen"
 
-#: plugin/crosswordsearch.php:122
+#: plugin/crosswordsearch.php:200
 msgid ""
 "The marked word no longer fits into the crossword area. For a successfull "
 "resize this word must be deleted."
 msgstr ""
-"Das markierte Wort passt nicht mehr vollständig in das Rätselfeld. "
-"Um die Größe anzupassen, muss es gelöscht werden."
+"Das markierte Wort passt nicht mehr vollständig in das Rätselfeld. Um die "
+"Größe anzupassen, muss es gelöscht werden."
 
-#: plugin/crosswordsearch.php:123
+#: plugin/crosswordsearch.php:201
 msgid ""
 "The marked words no longer fit into the crossword area. For a successfull "
 "resize these words must be deleted."
 msgstr ""
-"Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. "
-"Um die Größe anzupassen, müssen sie gelöscht werden."
+"Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. Um "
+"die Größe anzupassen, müssen sie gelöscht werden."
 
-#: plugin/crosswordsearch.php:126
+#: plugin/crosswordsearch.php:204
 msgid "Abort"
 msgstr "Abbrechen"
 
-#: plugin/crosswordsearch.php:131
+#: plugin/crosswordsearch.php:209
 msgid "To save it, the riddle must get a name: (at least 4 letters)"
-msgstr "Zum Speichern muss das Rätsel einen Namen erhalten (mindestens 4 Buchstaben):"
+msgstr ""
+"Zum Speichern muss das Rätsel einen Namen erhalten (mindestens 4 Buchstaben):"
 
-#: plugin/crosswordsearch.php:136
+#: plugin/crosswordsearch.php:214
 msgid "A name must be given!"
 msgstr "Ein Name muss angegeben werden!"
 
-#: plugin/crosswordsearch.php:137
+#: plugin/crosswordsearch.php:215
 msgid "The name is too short!"
 msgstr "Der Name ist zu kurz!"
 
+#: plugin/crosswordsearch.php:216
+msgid "Dont't try to be clever!"
+msgstr ""
 
-#: plugin/crosswordsearch.php:157
+#: plugin/crosswordsearch.php:219
 msgid "That looks good!"
 msgstr "So sieht es gut aus!"
 
-#: plugin/crosswordsearch.php:144
+#: plugin/crosswordsearch.php:225
 msgid "Riddle:"
 msgstr "Rätsel:"
 
-#: plugin/crosswordsearch.php:144
+#: plugin/crosswordsearch.php:225
 msgid "Load a new riddle"
 msgstr "Ein neues Rätsel laden"
 
-#: plugin/crosswordsearch.php:144
+#: plugin/crosswordsearch.php:225
 msgid "Load"
 msgstr "Laden"
 
-#: plugin/crosswordsearch.php:153
+#: plugin/crosswordsearch.php:234
 msgid "The marked word is not part of the solution."
 msgstr "Das markierte Wort ist kein Teil der Lösung."
 
+#: plugin/crosswordsearch.php:335
+msgid "The crossword was not found."
+msgstr "Das Kreuzworträtsel wurde nicht gefunden."
+
+#: plugin/crosswordsearch.php:354
+msgid "The crossword data sent are invalid."
+msgstr "Die Rätseldaten sind ungültig."
+
+#: plugin/crosswordsearch.php:357
+msgid "The name has forbidden content."
+msgstr "Der Name enthält nicht zulässige Bestandteile."
+
+#: plugin/crosswordsearch.php:360
+msgid "The name sent is inconsistent with crossword data."
+msgstr "Der Name passt nicht zu den Rätseldaten."
+
+#: plugin/crosswordsearch.php:369
+msgid "The crossword could not be saved to the database."
+msgstr "Das Rätsel konnte nicht in der Datenbank gespeichert werden."

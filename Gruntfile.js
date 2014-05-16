@@ -1,16 +1,71 @@
 module.exports = function(grunt) {
 
-  var jslist = [
-    'src/js/customSelectElement.js',
-    'src/js/basics.js',
-    'src/js/crosswordFactory.js',
-    'src/js/markerFactory.js',
-    'src/js/CrosswordController.js',
-    'src/js/SizeController.js',
-    'src/js/TableController.js',
-    'src/js/WordController.js'
-  ];
+  // use `msginit -i crw-text.pot -l <ll_CC> -o crw-text-<ll_CC>.po` to start new translations
   
+  grunt.registerMultiTask('msgmerge', function() {
+
+    var options = this.options({
+        text_domain: 'messages',
+        template: './',
+    });
+
+	if( grunt.file.isDir(options.template) ) {
+	    options.template = options.template.replace(/\/$/, '') + '/' + options.text_domain + '.pot';
+    }
+
+	if( !grunt.file.exists(options.template) ) {
+        grunt.fail.warn('Template file not found: ' + options.template, 3);
+    }
+
+    grunt.verbose.writeln('Template: ' + options.template);
+    
+	var done = this.async();
+    var counter = this.files.length;
+
+    this.files.forEach(function(file) {
+
+	  grunt.util.spawn( {
+	    cmd: 'msgmerge',
+	    args: ['-U', file.src, options.template]
+	  }, function(error, result, code){
+
+		grunt.verbose.write('Updating: ' + file.src + ' ...');
+
+		if (error) {
+			grunt.verbose.error();
+		} else {
+		    grunt.verbose.ok();
+		}
+
+		counter--;
+
+		if (error || counter === 0) {
+			done(error);
+		}
+
+	  });
+		
+	});
+
+  });
+
+  var srcdir = 'src/js/',
+    destdir = 'plugin/js/',
+    l10ndir = 'plugin/languages/';
+
+  var text_domain = 'crw-text';
+
+  var jslist = [
+    srcdir + 'customSelectElement.js',
+    srcdir + 'basics.js',
+    srcdir + 'crosswordFactory.js',
+    srcdir + 'markerFactory.js',
+    srcdir + 'CrosswordController.js',
+    srcdir + 'SizeController.js',
+    srcdir + 'TableController.js',
+    srcdir + 'WordController.js'
+  ];
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     licence: grunt.file.read('./LICENCE'),
@@ -25,7 +80,7 @@ module.exports = function(grunt) {
             beautify: true
           },
         src: jslist,
-        dest: 'plugin/js/<%= pkg.name %>.js'
+        dest: destdir + '<%= pkg.name %>.js'
       },
       mini: {
         options: {
@@ -34,13 +89,13 @@ module.exports = function(grunt) {
           }
         },
         src: jslist,
-        dest: 'plugin/js/<%= pkg.name %>.min.js'
+        dest: destdir + '<%= pkg.name %>.min.js'
       }
     },
     cssmin: {
       combine: {
         files: {
-          'plugin/css/<%= pkg.name %>.css': ['src/css/crosswordsearch.css', 'src/css/cse.css']
+          'plugin/css/<%= pkg.name %>.css': ['src/css/*.css']
         }
       }
     },
@@ -53,8 +108,9 @@ module.exports = function(grunt) {
     },
     pot: {
         options: {
-            text_domain: 'crw-text',
-            dest: 'plugin/languages/',
+            text_domain: text_domain,
+            copyright_holder: 'Claus Colloseus <ccprog@gmx.de>',
+            dest: l10ndir,
             encoding: 'UTF-8',
             overwrite: true,
             keywords: [
@@ -79,9 +135,19 @@ module.exports = function(grunt) {
             expand: true,
         }
     },
+    msgmerge: {
+      options: {
+        text_domain: text_domain,
+        template: l10ndir,
+      },
+      files: {
+        src: l10ndir + text_domain + '-*.po',
+        expand: true,
+      }
+    },
     po2mo: {
       files: {
-        src: 'plugin/languages/*.po',
+        src: l10ndir + '*.po',
         expand: true,
       },
     }
@@ -94,4 +160,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-po2mo');
 
   grunt.registerTask('default', ['uglify', 'cssmin']);
+  grunt.registerTask('msgupdate', ['pot', 'msgmerge']);
 };
