@@ -34,7 +34,6 @@ crwApp.directive('crwCatchDragging', ['$document', function($document) {
             };
 
             element.bind('mousedown', tableMouseDown);
-            $document.bind('mouseup', tableMouseUp);
             element.on('$destroy', function () {
                 $document.unbind('mouseup', tableMouseUp);
             });
@@ -77,7 +76,6 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
             markers.redrawMarkers($scope.crosswordData.words);
             // remove marking for deleted words
             $scope.$watch('crosswordData.words', function (newWords, oldWords) {
-                console.log(newWords, oldWords);
                 var probe, shift_x = 0, shift_y = 0;
                 angular.forEach(oldWords, function (word, id) {
                     if (!newWords[id]) {
@@ -149,6 +147,9 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
     // event handler on mouseup in a field:
     // stop marking and evaluate
     $scope.stopMark = function () {
+        if (!isMarking) {
+            return;
+        }
         isMarking = false;
         // is the marking longer than only one field
         if (!angular.equals(currentMarking.start, currentMarking.stop)) {
