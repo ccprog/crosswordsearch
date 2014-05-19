@@ -148,32 +148,6 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
     };
 } ]);
 
-crwApp.factory("qStore", [ "$q", function($q) {
-    function Store() {
-        var store = {};
-        this.register = function(name, callback) {
-            if (!store[name]) {
-                store[name] = [];
-            }
-            store[name].push(callback);
-        };
-        this.newPromise = function(name, arg) {
-            var deferred = $q.defer();
-            if (store[name]) {
-                angular.forEach(store[name], function(callback) {
-                    callback(deferred, arg);
-                });
-            }
-            return deferred.promise;
-        };
-    }
-    return {
-        addStore: function() {
-            return new Store();
-        }
-    };
-} ]);
-
 crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function($http, $q, basics, reduce) {
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     $http.defaults.transformRequest = jQuery.param;
@@ -303,6 +277,7 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                 if (error) {
                     return $q.reject(error);
                 }
+                return true;
             }, serverError);
         };
         this.setName = function(str) {
@@ -532,9 +507,20 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
 crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory", function($scope, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
+    $scope.highlight = [];
     $scope.prepare = function(project, name) {
         $scope.crw.setProject(project);
         $scope.load(name);
+    };
+    $scope.wordsToArray = function(words) {
+        var arr = [];
+        angular.forEach(words, function(item) {
+            arr.push(item);
+        });
+        return arr;
+    };
+    $scope.setHighlight = function(h) {
+        $scope.highlight = h;
     };
     $scope.load = function(name) {
         if (name) {
@@ -549,6 +535,15 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
             $scope.crw.loadDefault();
             $scope.crosswordData = $scope.crw.getCrosswordData();
         }
+    };
+    $scope.save = function() {
+        $scope.immediateStore.newPromise("saveCrossword");
+    };
+    $scope.randomize = function() {
+        $scope.crw.randomizeEmptyFields();
+    };
+    $scope.empty = function() {
+        $scope.crw.emptyAllFields();
     };
 } ]);
 
@@ -713,7 +708,6 @@ crwApp.directive("crwCatchDragging", [ "$document", function($document) {
                 scope.$apply(scope.stopMark());
             };
             element.bind("mousedown", tableMouseDown);
-            $document.bind("mouseup", tableMouseUp);
             element.on("$destroy", function() {
                 $document.unbind("mouseup", tableMouseUp);
             });
@@ -746,7 +740,6 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         if (mode === "build") {
             markers.redrawMarkers($scope.crosswordData.words);
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
-                console.log(newWords, oldWords);
                 var probe, shift_x = 0, shift_y = 0;
                 angular.forEach(oldWords, function(word, id) {
                     if (!newWords[id]) {
@@ -801,6 +794,9 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         currentMarking.color = mode === "build" ? $scope.crw.randomColor() : "grey";
     };
     $scope.stopMark = function() {
+        if (!isMarking) {
+            return;
+        }
         isMarking = false;
         if (!angular.equals(currentMarking.start, currentMarking.stop)) {
             if (mode === "build") {
@@ -892,6 +888,48 @@ crwApp.filter("joinWord", [ "reduce", function(reduce) {
     };
 } ]);
 
+crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($scope, $filter, basics) {
+    $scope.colors = basics.colors;
+    $scope.isHighlighted = function() {
+        for (var i = 0; i < $scope.highlight.length; i++) {
+            if ($scope.highlight[i] === $scope.word.ID) {
+                return true;
+            }
+        }
+        return false;
+    };
+    $scope.deleteWord = function(id) {
+        $scope.crw.deleteWord(id, "words");
+    };
+    $scope.localizeDirection = basics.localize;
+} ]);
+
+crwApp.factory("qStore", [ "$q", function($q) {
+    function Store() {
+        var store = {};
+        this.register = function(name, callback) {
+            if (!store[name]) {
+                store[name] = [];
+            }
+            store[name].push(callback);
+        };
+        this.newPromise = function(name, arg) {
+            var deferred = $q.defer();
+            if (store[name]) {
+                angular.forEach(store[name], function(callback) {
+                    callback(deferred, arg);
+                });
+            }
+            return deferred.promise;
+        };
+    }
+    return {
+        addStore: function() {
+            return new Store();
+        }
+    };
+} ]);
+
 crwApp.directive("crwSaneInput", [ "$sanitize", function($sanitize) {
     return {
         require: "ngModel",
@@ -912,75 +950,35 @@ crwApp.directive("crwSaneInput", [ "$sanitize", function($sanitize) {
     };
 } ]);
 
-crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($scope, $filter, basics) {
-    $scope.colors = basics.colors;
-    $scope.deleteWord = function(id) {
-        $scope.crw.deleteWord(id, "words");
-    };
-    $scope.localizeDirection = basics.localize;
-} ]);
-
-crwApp.controller("WordController", [ "$scope", function($scope) {
-    var deferred, highlight = [];
-    $scope.wordsToArray = function(words) {
-        var arr = [];
-        angular.forEach(words, function(item) {
-            arr.push(item);
-        });
-        return arr;
-    };
-    $scope.randomize = function() {
-        $scope.crw.randomizeEmptyFields();
-    };
-    $scope.empty = function() {
-        $scope.crw.emptyAllFields();
-    };
-    $scope.save = function() {
-        $scope.immediateStore.newPromise("saveCrossword").then(function() {
-            $scope.crosswordName = $scope.crosswordData.name;
-            $scope.immediate = null;
-        });
-    };
-    $scope.isHighlighted = function(id) {
-        for (var i = 0; i < highlight.length; i++) {
-            if (highlight[i] === id) {
-                return true;
-            }
+crwApp.controller("ImmediateController", [ "$scope", function($scope) {
+    var deferred;
+    $scope.immediate = null;
+    $scope.finish = function(resolution) {
+        $scope.setHighlight([]);
+        $scope.immediate = null;
+        if (resolution) {
+            deferred.resolve();
+        } else {
+            deferred.reject();
         }
-        return false;
     };
     $scope.immediateStore.register("invalidWords", function(invalidDeferred, critical) {
         deferred = invalidDeferred;
-        highlight = critical;
+        $scope.setHighlight(critical);
         $scope.invalidCount = critical.length;
         $scope.immediate = "invalidWords";
     });
-    $scope.deleteInvalid = function() {
-        $scope.immediate = null;
-        deferred.resolve();
-        highlight = [];
-    };
-    $scope.abortInvalid = function() {
-        $scope.immediate = null;
-        highlight = [];
-        deferred.reject();
-    };
     $scope.immediateStore.register("falseWord", function(falseDeferred, word) {
         deferred = falseDeferred;
-        highlight = [ word.ID ];
+        $scope.setHighlight([ word.ID ]);
         $scope.immediate = "falseWord";
     });
-    $scope.deleteFalse = function() {
-        $scope.immediate = null;
-        deferred.resolve();
-        highlight = [];
-    };
     $scope.immediateStore.register("saveCrossword", function(saveDeferred) {
         deferred = saveDeferred;
         $scope.immediate = "saveCrossword";
     });
     $scope.upload = function() {
-        $scope.crw.saveCrosswordData($scope.crosswordData.name).then(deferred.resolve, function(error) {
+        $scope.crw.saveCrosswordData($scope.crosswordData.name).then($scope.finish, function(error) {
             $scope.saveError = error.error;
             $scope.saveDebug = error.debug;
         });

@@ -163,6 +163,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                 if (error) {
                     return $q.reject(error);
                 }
+                return true;
             }, serverError);
         };
 

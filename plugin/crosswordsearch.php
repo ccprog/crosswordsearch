@@ -174,70 +174,91 @@ function crw_shortcode_handler( $atts, $content = null ) {
                     </td>
                 </tr>
             </table>
-        </div>
-    </div>
-    <div id="crw-controls" ng-controller="WordController" ng-switch on="immediate">';
-    // controls and output area
-    if ( 'build' == $mode ) {
-        // build mode: global editing and wordlist with color chooser and delete button
-        $html .= '
-        <p>Felder:
+        </div>';
+	    if ( 'build' == $mode ) {
+            $html .= '
+        <p>
             <button ng-click="randomize()" title="' . __('Fill all empty fields with random letters', 'crw-text') . '">' . __('Fill fields', 'crw-text') . '</button>
             <button ng-click="empty()" title="' . __('Empty all fields', 'crw-text') . '">' . __('Empty', 'crw-text') . '</button>
-            <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>
-        </p>
+        </p>';
+        }
+        $html .= '
+    </div>
+    <div class="crw-controls">';
+    // controls and output area
+    if ( 'build' == $mode ) {
+        // build mode: wordlist with color chooser and delete button
+        $html .= '
         <ul class="crw-word">
-            <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:\'ID\'" ng-controller="EntryController">
+            <li ng-class="{\'highlight\': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:\'ID\'" ng-controller="EntryController">
                 <dl class="cse" cse-select cse-options="colors" cse-model="word.color"></dl>';
                 /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
                 $html .= '<span>{{word.fields | joinWord}} (' . sprintf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') . ')</span>
                 <button ng-click="deleteWord(word.ID)">' . __('Delete', 'crw-text') . '</button>
             </li>
-        </ul>
-        <div class="crw-immediate" ng-if="immediate"></div>
-        <div ng-switch-when="invalidWords">
-            <p ng-pluralize count="invalidCount" when="{
-                \'one\': \'' . __('The marked word no longer fits into the crossword area. For a successfull resize this word must be deleted.', 'crw-text') . '\',
-                \'other\': \'' . __('The marked words no longer fit into the crossword area. For a successfull resize these words must be deleted.', 'crw-text') . '\'}"></p>
-            <p class="actions">
-                <button ng-click="deleteInvalid()">' . __('Delete', 'crw-text') . '</button>
-                <button ng-click="abortInvalid()">' . __('Abort', 'crw-text') . '</button>
-            </p>
-        </div>
-        <div ng-switch-when="saveCrossword">
-            <form name="uploader">
-                <p>' . __('To save it, the riddle must get a name: (at least 4 letters)', 'crw-text') . '</p>
-                <p class="actions">
-                    <input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-sane-input>
-                    <button ng-disabled="!uploader.crosswordName.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
-                </p>
-                <p class="error" ng-show="uploader.crosswordName.$error.required && !uploader.crosswordName.$error.sane">' . __('A name must be given!', 'crw-text') . '</p>
-                <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
-                <p class="error" ng-show="uploader.crosswordName.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</p>
-                <p class="error" ng-show="saveError">{{saveError}}</p>
-                <p class="error" ng-show="saveError">{{saveDebug}}</p>
-                <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</p>
-            </form>
-        </div>';
+        </ul>';
     } elseif ( 'solve' == $mode ) {
-        // solve mode: load/save functions and wordlist as solution display
+        // solve mode: wordlist as solution display
         $html .= '
-        <p>' . __('Riddle:', 'crw-text') . ' <button ng-click="load(\'test\', \'test\')" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button></p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
                 <img ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
-        </ul>
-        <div class="crw-immediate" ng-if="immediate"></div>
-        <div ng-switch-when="falseWord">
-            <p>' . __('The marked word is not part of the solution.', 'crw-text') . '</p>
-            <p class="actions">
-                <button ng-click="deleteFalse()">' . __('Delete', 'crw-text') . '</button>
-            </p>
-        </div>';
+        </ul>';
     }
     $html .= '
+        <p>' . __('Riddle:', 'crw-text') . '
+            <button ng-click="load(\'test\', \'test\')" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>';
+        if ( 'build' == $mode ) {
+            $html .= '
+            <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>';
+        }
+        $html .= '
+        </p>
+    </div>
+    <div class="crw-immediate" ng-controller="ImmediateController" ng-show="immediate" ng-switch on="immediate">
+        <div class="blocker"></div>
+        <div class="message">';
+    // modal area
+    if ( 'build' == $mode ) {
+        $html .= '
+            <div ng-switch-when="invalidWords">
+                <p ng-pluralize count="invalidCount" when="{
+                    \'one\': \'' . __('The marked word no longer fits into the crossword area. For a successfull resize this word must be deleted.', 'crw-text') . '\',
+                    \'other\': \'' . __('The marked words no longer fit into the crossword area. For a successfull resize these words must be deleted.', 'crw-text') . '\'}"></p>
+                <p class="actions">
+                    <button ng-click="finish(true)">' . __('Delete', 'crw-text') . '</button>
+                    <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
+                </p>
+            </div>
+            <div ng-switch-when="saveCrossword">
+                <form name="uploader">
+                    <p>' . __('To save it, the riddle must get a name: (at least 4 letters)', 'crw-text') . '<br />
+                    <input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-sane-input></p>
+                    <p class="error" ng-show="uploader.crosswordName.$error.required && !uploader.crosswordName.$error.sane">' . __('A name must be given!', 'crw-text') . '</p>
+                    <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
+                    <p class="error" ng-show="uploader.crosswordName.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</p>
+                    <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</p>
+                    <p class="actions">
+                        <button ng-disabled="!uploader.crosswordName.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
+                        <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
+                    </p>
+                    <p class="error" ng-show="saveError">{{saveError}}</p>
+                    <p class="error" ng-show="saveError">{{saveDebug}}</p>
+                </form>
+            </div>';
+    } elseif ( 'solve' == $mode ) {
+        $html .= '
+            <div ng-switch-when="falseWord">
+                <p>' . __('The marked word is not part of the solution.', 'crw-text') . '</p>
+                <p class="actions">
+                    <button ng-click="finish(true)">' . __('Delete', 'crw-text') . '</button>
+                </p>
+            </div>';
+    }
+    $html .= '
+        </div>
     </div>
 </div>';
 	return $html;

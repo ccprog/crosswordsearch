@@ -1,7 +1,11 @@
+.crw-wrapper {
+    position: relative;
+}
 .crw-label {
     padding-bottom: 0;
     margin-bottom: 0;
     font-style: italic;
+    font-weight: bold;
 }
 .crw-crossword {
     position: relative;
@@ -10,7 +14,10 @@
     margin: 10px;
 }
 .crw-crossword.wide {
-    margin: 72px;
+    margin: 72px 72px 0 72px;
+}
+.crw-crossword p {
+    margin: 10px 0 1em;
 }
 .crw-grid {
     -moz-box-sizing: content-box;
@@ -122,29 +129,50 @@ div.crw-marked.vertical { background-position: -124px -93px; }
 div.crw-marked.up-left { background-position: -62px -124px; }
 div.crw-marked.up { background-position: -124px -124px; }
 
-#crw-controls {
+.crw-controls {
     display: inline-block;
     width: 30em;
     margin: 10px;
 }
-#crw-controls p {
-    margin-top: 0;
+.crw-immediate>.blocker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
 }
-#crw-controls p.actions {
-    margin-bottom: 3px;
+.crw-immediate>.message {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 1001;
 }
-#crw-controls input {
+.crw-immediate>.message>div {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid black;
+}
+.crw-immediate p {
+    margin: 0;
+}
+.crw-immediate p.actions {
+    margin-top: 1em;
+}
+.crw-immediate input {
     box-shadow: none;
 }
-#crw-controls p.error, #crw-controls p.confirm {
-    margin-bottom: 3px;
+.crw-immediate p.error, .crw-immediate p.confirm {
+    margin: 3px 0;
     font-size: 0.7em;
     font-weight: bold;
 }
-#crw-controls p.error {
+.crw-immediate p.error {
     color: red;
 }
-#crw-controls p.confirm {
+.crw-immediate p.confirm {
     color: green;
 }
 ul.crw-word {
@@ -165,18 +193,4 @@ ul.crw-word>li>img {
 }
 ul.crw-word li.highlight {
     background-color: #ddd;
-}
-.crw-immediate {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-}
-.crw-immediate+div {
-    position: relative;
-    padding: 10px;
-    border: 1px solid black;
-    z-index: 1001;
 }

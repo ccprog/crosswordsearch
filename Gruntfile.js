@@ -63,7 +63,8 @@ module.exports = function(grunt) {
     srcdir + 'CrosswordController.js',
     srcdir + 'SizeController.js',
     srcdir + 'TableController.js',
-    srcdir + 'WordController.js'
+    srcdir + 'EntryController.js',
+    srcdir + 'ImmediateController.js'
   ];
 
   grunt.initConfig({
