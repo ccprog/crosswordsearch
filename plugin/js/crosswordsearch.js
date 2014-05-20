@@ -726,7 +726,7 @@ crwApp.directive("crwIndexChecker", function() {
 });
 
 crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", function($scope, basics, markerFactory) {
-    var isMarking = false, currentMarking, mode;
+    var isMarking = false, currentMarking, mode, lastName;
     var markers = markerFactory.getMarkers();
     function validMarking(newStop) {
         var dif_x = currentMarking.start.x - newStop.x, dif_y = currentMarking.start.y - newStop.y;
@@ -739,20 +739,26 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         };
         if (mode === "build") {
             markers.redrawMarkers($scope.crosswordData.words);
+            lastName = $scope.crosswordData.name;
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
                 var probe, shift_x = 0, shift_y = 0;
-                angular.forEach(oldWords, function(word, id) {
-                    if (!newWords[id]) {
-                        markers.deleteMarking(id);
-                    } else {
-                        probe = id;
-                    }
-                });
-                if (probe) {
-                    shift_x = newWords[probe].start.x - oldWords[probe].start.x;
-                    shift_y = newWords[probe].start.y - oldWords[probe].start.y;
-                    if (shift_x !== 0 || shift_y !== 0) {
-                        markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
+                if ($scope.crosswordData.name !== lastName) {
+                    markers.redrawMarkers(newWords);
+                    lastName = $scope.crosswordData.name;
+                } else {
+                    angular.forEach(oldWords, function(word, id) {
+                        if (!newWords[id]) {
+                            markers.deleteMarking(id);
+                        } else {
+                            probe = id;
+                        }
+                    });
+                    if (probe) {
+                        shift_x = newWords[probe].start.x - oldWords[probe].start.x;
+                        shift_y = newWords[probe].start.y - oldWords[probe].start.y;
+                        if (shift_x !== 0 || shift_y !== 0) {
+                            markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
+                        }
                     }
                 }
             }, true);

@@ -56,7 +56,7 @@ crwApp.directive('crwIndexChecker', function() {
 
 crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
         function ($scope, basics, markerFactory) {
-    var isMarking = false, currentMarking, mode;
+    var isMarking = false, currentMarking, mode, lastName;
     var markers = markerFactory.getMarkers();
 
     // test whether start and stop field are in a straight or diagonal relation
@@ -74,24 +74,32 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
         if (mode === 'build') { // build page
             // load existing markings
             markers.redrawMarkers($scope.crosswordData.words);
-            // remove marking for deleted words
+            lastName = $scope.crosswordData.name;
             $scope.$watch('crosswordData.words', function (newWords, oldWords) {
                 var probe, shift_x = 0, shift_y = 0;
-                angular.forEach(oldWords, function (word, id) {
-                    if (!newWords[id]) {
-                        markers.deleteMarking(id);
-                    } else {
-                        probe = id;
-                    }
-                });
-                if (probe) {
-                    // if there are other markings, test if words have shifted
-                    // due to table resize
-                    shift_x = newWords[probe].start.x - oldWords[probe].start.x;
-                    shift_y = newWords[probe].start.y - oldWords[probe].start.y;
-                    if(shift_x !== 0 || shift_y !== 0) {
-                        // shift markers the same as words have moved
-                        markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
+                // is this a new crossword?
+                if ($scope.crosswordData.name !== lastName) {
+                    // redraw all markers
+                    markers.redrawMarkers(newWords);
+                    lastName = $scope.crosswordData.name;
+                } else {
+                    // remove marking for deleted words
+                    angular.forEach(oldWords, function (word, id) {
+                        if (!newWords[id]) {
+                            markers.deleteMarking(id);
+                        } else {
+                            probe = id;
+                        }
+                    });
+                    if (probe) {
+                        // if there are other markings, test if words have shifted
+                        // due to table resize
+                        shift_x = newWords[probe].start.x - oldWords[probe].start.x;
+                        shift_y = newWords[probe].start.y - oldWords[probe].start.y;
+                        if(shift_x !== 0 || shift_y !== 0) {
+                            // shift markers the same as words have moved
+                            markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
+                        }
                     }
                 }
             }, true);
