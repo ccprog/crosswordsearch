@@ -132,7 +132,7 @@ module.exports = function(grunt) {
             ],
         },
         files:{
-            src:  [ 'plugin/**/*.php' ],
+            src:  [ 'plugin/*.php' ],
             expand: true,
         }
     },

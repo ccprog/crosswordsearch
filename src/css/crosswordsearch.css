@@ -1,6 +1,17 @@
 .crw-wrapper {
     position: relative;
 }
+.crw-wrapper p.error, .crw-immediate p.confirm {
+    margin: 3px 0;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+.crw-wrapper p.error {
+    color: red;
+}
+.crw-wrapper p.confirm {
+    color: green;
+}
 .crw-label {
     padding-bottom: 0;
     margin-bottom: 0;
@@ -163,17 +174,6 @@ div.crw-marked.up { background-position: -124px -124px; }
 }
 .crw-immediate input {
     box-shadow: none;
-}
-.crw-immediate p.error, .crw-immediate p.confirm {
-    margin: 3px 0;
-    font-size: 0.7em;
-    font-weight: bold;
-}
-.crw-immediate p.error {
-    color: red;
-}
-.crw-immediate p.confirm {
-    color: green;
 }
 ul.crw-word {
     list-style-type: none;

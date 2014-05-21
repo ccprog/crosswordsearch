@@ -6,8 +6,11 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
     $scope.highlight = [];
 
     // init crossword at page load time
-    $scope.prepare = function (project, name) {
+    $scope.prepare = function (project, name, namesList) {
         $scope.crw.setProject(project);
+        if (namesList) {
+            $scope.namesInProject = angular.fromJson(namesList);
+        }
         $scope.load(name);
     };
 
@@ -27,18 +30,26 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
 
     // load a crossword
     $scope.load = function (name) {
+        $scope.loadError = null;
         if (name) {
             $scope.crw.loadCrosswordData(name).then(function () {
+                $scope.loadedName = name;
                 $scope.crosswordData = $scope.crw.getCrosswordData();
             }, function (error) {
                 if (error) {
-                    alert(error.error);
+                    $scope.loadError = error;
                 }
             });
         } else {
             $scope.crw.loadDefault();
+            $scope.loadedName = name;
             $scope.crosswordData = $scope.crw.getCrosswordData();
         }
+    };
+
+    // load page only: restart the loaded riddle
+    $scope.restart = function () {
+        $scope.crosswordData.solution = {};
     };
 
     // build page only: open save user dialogue

@@ -508,8 +508,11 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
     $scope.highlight = [];
-    $scope.prepare = function(project, name) {
+    $scope.prepare = function(project, name, namesList) {
         $scope.crw.setProject(project);
+        if (namesList) {
+            $scope.namesInProject = angular.fromJson(namesList);
+        }
         $scope.load(name);
     };
     $scope.wordsToArray = function(words) {
@@ -523,18 +526,24 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
         $scope.highlight = h;
     };
     $scope.load = function(name) {
+        $scope.loadError = null;
         if (name) {
             $scope.crw.loadCrosswordData(name).then(function() {
+                $scope.loadedName = name;
                 $scope.crosswordData = $scope.crw.getCrosswordData();
             }, function(error) {
                 if (error) {
-                    alert(error.error);
+                    $scope.loadError = error;
                 }
             });
         } else {
             $scope.crw.loadDefault();
+            $scope.loadedName = name;
             $scope.crosswordData = $scope.crw.getCrosswordData();
         }
+    };
+    $scope.restart = function() {
+        $scope.crosswordData.solution = {};
     };
     $scope.save = function() {
         $scope.immediateStore.newPromise("saveCrossword");

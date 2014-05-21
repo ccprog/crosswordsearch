@@ -30,8 +30,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
 /* plugin installation */
-global $crw_db_version, $wpdb, $data_table_name;
-$crw_db_version = "0.1";
+define('CRW_DB_VERSION', '0.1');
+define('CRW_PROJECTS_OPTION', 'crw_projects');
+
+global $wpdb, $data_table_name;
+$wpdb->hide_errors();
 
 $data_table_name = $wpdb->prefix . "crw_crosswords";
 // WP_PLUGIN_DIR points to path in server fs, even if it traverses a symbolic link
@@ -40,9 +43,17 @@ $plugin_file = WP_PLUGIN_DIR . '/crosswordsearch/crosswordsearch.php';
 // plugin_dir_path( __FILE__ ) points to the source path
 // this is needed for include/require and file_get_contents
 
+function crw_add_project ($project) {
+    $project_list = get_option(CRW_PROJECTS_OPTION);
+
+    if ( !in_array($project, $project_list) ) {
+        array_push($project_list, $project);
+        update_option(CRW_PROJECTS_OPTION, $project_list);
+    }
+}
 
 function crw_install () {
-    global $wpdb, $charset_collate, $crw_db_version, $data_table_name;
+    global $wpdb, $charset_collate, $data_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
     $sql = "
@@ -54,13 +65,16 @@ CREATE TABLE IF NOT EXISTS $data_table_name (
 ) $charset_collate;\n";
     dbDelta( $sql );
 
-    add_option( "crw_db_version", $crw_db_version );
+    add_option(CRW_PROJECTS_OPTION, (array)NULL);
+    add_option( "crw_db_version", CRW_DB_VERSION );
 }
 register_activation_hook( $plugin_file, 'crw_install' );
 
 // temporary test data
 function crw_install_data () {
     global $wpdb, $data_table_name;
+
+    crw_add_project('test');
 
     $data_files = array(
         '../tests/testCrossword.json',
@@ -126,23 +140,93 @@ function crw_find_shortcode () {
 }
 add_action( 'get_header', 'crw_find_shortcode');
 
+function crw_test_shortcode ($atts, $names_list) {
+    $projects_list = get_option(CRW_PROJECTS_OPTION);
+    extract($atts);
+
+    $html = '<strong>' . __('The shortcode usage is faulty:', 'crw-text') . '</strong> ';
+
+    if ( !in_array( $mode, array('build', 'solve') ) ) {
+        /// translators: argument %1 will be the literal 'mode'
+        return $html . sprintf(__('Attribute %1$s needs to be set to one of "%2$s" or "%3$s".', 'crw-text'), '<em>mode</em>', 'build', 'solve');
+    }
+
+    if ( !in_array( $project, $projects_list ) ) {
+        /// translators: argument %1 will be the literal 'project'
+        return $html . sprintf(__('Attribute %1$s needs to be an existing project.', 'crw-text'), '<em>project</em>');
+    }
+
+    if ( 0 == count( $names_list ) ){
+        return $html . sprintf(__('There is no crossword in project %1$s.', 'crw-text'), $project);
+    }
+
+    if ( '' !== $name && !in_array($name, $names_list ) ) {
+        return $html . sprintf(__('There is no crossword with the name %1$s.', 'crw-text'), '<em>' . $name . '</em>');
+    }
+    return false;
+}
+
 /* load the crossword into a post */
 
 function crw_shortcode_handler( $atts, $content = null ) {
+    global $wpdb, $data_table_name;
+
     $plugin_url = plugins_url() . '/crosswordsearch/';
 
-	extract( shortcode_atts( array(
+    $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
         'project' => '',
         'name' => '',
-	), $atts ) );
+	), $atts, 'crosswordsearch' );
+	extract( $filtered_atts );
+
+    $names_list = $wpdb->get_col( $wpdb->prepare("
+        SELECT name
+        FROM $data_table_name
+        WHERE project = %s
+        ORDER BY name
+    ", $project) );
+
+    $shortcode_error = crw_test_shortcode($filtered_atts, $names_list);
+    if ( $shortcode_error ) {
+        return '<p>' . $shortcode_error . '</p>';
+    }
+
+    if ( $name && 'build' !== $mode ) {
+        $names_list = null;
+    }
+    if ( !$name && count($names_list) > 0 ) {
+        $name = $names_list[0];
+    }
+    $prep_1 = esc_js($project);
+    $prep_2 = esc_js($name);
+    $prep_3 = $names_list ? esc_js( json_encode($names_list) ) : '';
+
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
 
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . esc_js($project) . '\', \'' . esc_js($name) . '\')">
-    <p class="crw-label" ng-if="crosswordData.name !== \'\'">{{crosswordData.name}}</p>
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">
+    <p class="crw-label">
+        <span ng-if="!namesInProject">{{crosswordData.name}}</span>
+        <span ng-if="namesInProject">
+            <select ng-model="loadedName" ng-options="name for name in namesInProject"></select>
+            <button ng-click="load(loadedName)" ng-if="loadedName!=crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>';
+    if ( 'build' == $mode ) {
+        $html .= '
+            <button ng-click="load(loadedName)" ng-if="loadedName==crosswordData.name" title="' . __('Reset to the saved version', 'crw-text') . '">' . __('Reload', 'crw-text') . '</button>
+        </span>
+        <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>';
+    } else {
+        $html .= '
+            <button ng-click="restart()" ng-if="loadedName==crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>
+        </span>';
+    }
+	$html .= '
+    </p>
+    <p class="error" ng-if="loadError">{{loadError.error}}</p>
+    <p class="error" ng-if="loadError">{{loadError.debug}}</p>
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController" ng-if="crosswordData">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
@@ -207,20 +291,12 @@ function crw_shortcode_handler( $atts, $content = null ) {
             </li>
         </ul>';
     }
+    // modal area
     $html .= '
-        <p>' . __('Riddle:', 'crw-text') . '
-            <button ng-click="load(\'test\', \'test\')" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>';
-        if ( 'build' == $mode ) {
-            $html .= '
-            <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>';
-        }
-        $html .= '
-        </p>
     </div>
     <div class="crw-immediate" ng-controller="ImmediateController" ng-show="immediate" ng-switch on="immediate">
         <div class="blocker"></div>
         <div class="message">';
-    // modal area
     if ( 'build' == $mode ) {
         $html .= '
             <div ng-switch-when="invalidWords">
@@ -374,6 +450,9 @@ function crw_set_crossword() {
     if ( !$verification ) {
         $error = __('The crossword data sent are invalid.', 'crw-text');
         $debug = $msg;
+    } elseif (  !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
+        $error = __('The project does not exist.', 'crw-text');
+        $debug = $project;
     } else if ( $name !== $unsafe_name ) {
         $error = __('The name has forbidden content.', 'crw-text');
         $debug = $name;
