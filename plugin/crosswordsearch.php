@@ -52,6 +52,14 @@ function crw_add_project ($project) {
     }
 }
 
+function crw_get_locale_data () {
+    $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-'.get_locale().'.json';
+    if( !file_exists( $file ) ){
+        $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-en.json';
+    }
+    return json_decode( file_get_contents( $file ), true );
+}
+
 function crw_install () {
     global $wpdb, $charset_collate, $data_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -115,14 +123,14 @@ function add_crw_scripts () {
     if( !file_exists( $file ) ){
         $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-en.json';
     }
-    $locale = json_decode( file_get_contents( $file ), true );
+    $locale_data = (array)crw_get_locale_data();
 
 	if ( $crw_has_crossword ) {
         wp_enqueue_script('angular', $plugin_url . 'js/angular.min.js');
         wp_enqueue_script('angular-sanitize', $plugin_url . 'js/angular-sanitize.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', $plugin_url . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
         wp_enqueue_script('crw-js', $plugin_url . 'js/crosswordsearch.js', array( 'angular', 'angular-sanitize', 'quantic-stylemodel' ));
-        wp_localize_script('crw-js', 'crwBasics', array_merge((array)$locale, array(
+        wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
             'pluginPath' => $plugin_url,
             'ajaxUrl' => admin_url( 'admin-ajax.php' )
         )));
@@ -353,6 +361,9 @@ function crw_verify_json($json, &$msg) {
     $store = new SchemaStore();
     $store->add($url, $raw_schema);
     $schema = $store->get($url);
+
+    $locale_data = crw_get_locale_data();
+    $schema->definitions->word->properties->letter->pattern = $locale_data["letterRegEx"];
 
     // json string decoding
     try {
