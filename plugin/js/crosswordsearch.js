@@ -54,6 +54,15 @@ customSelectElement.directive("cseOutsideHide", [ "$document", function($documen
     };
 } ]);
 
+customSelectElement.directive("cseDefault", function() {
+    return {
+        scope: {
+            value: "="
+        },
+        template: "{{value}}"
+    };
+});
+
 customSelectElement.directive("cseSelect", function() {
     return {
         restrict: "A",
@@ -68,7 +77,8 @@ customSelectElement.directive("cseSelect", function() {
             };
         },
         template: function(tElement, tAttr) {
-            return '<dt cse-outside-hide ng-init="visible=false">' + '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + tAttr.cseTemplate + ' value="model">' + "</div></a></dt>" + '<dd ng-show="visible"><ul>' + '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" ' + tAttr.cseTemplate + ' value="opt">' + "</a></li>" + "</ul></dd>";
+            var templ = tAttr.cseTemplate || "cse-default";
+            return '<dt cse-outside-hide ng-init="visible=false">' + '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model">' + "</div></a></dt>" + '<dd ng-show="visible"><ul>' + '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" ' + templ + ' value="opt">' + "</a></li>" + "</ul></dd>";
         }
     };
 });

@@ -12,13 +12,19 @@
 .crw-wrapper p.confirm {
     color: green;
 }
-.crw-label {
+div.crw-label {
     padding-bottom: 0;
     margin-bottom: 0;
+}
+div.crw-label div {
+    display: inline-block;
 }
 .crw-label>span.name {
     font-style: italic;
     font-weight: bold;
+}
+.crw-label dl.cse dt a {
+    width: 200px;
 }
 .crw-crossword {
     position: relative;

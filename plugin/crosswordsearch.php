@@ -216,23 +216,23 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	// wrapper divs
 	$html = '
 <div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">
-    <p class="crw-label">
+    <div class="crw-label">
         <span class="name" ng-if="!namesInProject">{{crosswordData.name}}</span>
-        <span ng-if="namesInProject">
-            <select ng-model="loadedName" ng-options="name for name in namesInProject"></select>
+        <div ng-if="namesInProject">
+            <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
             <button ng-click="load(loadedName)" ng-if="loadedName!=crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>';
     if ( 'build' == $mode ) {
         $html .= '
             <button ng-click="load(loadedName)" ng-if="loadedName==crosswordData.name" title="' . __('Reset to the saved version', 'crw-text') . '">' . __('Reload', 'crw-text') . '</button>
-        </span>
+        </div>
         <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>';
     } else {
         $html .= '
             <button ng-click="restart()" ng-if="loadedName==crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>
-        </span>';
+        </div>';
     }
 	$html .= '
-    </p>
+    </div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-if="loadError">{{loadError.debug}}</p>
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController" ng-if="crosswordData">
