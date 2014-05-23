@@ -3,111 +3,73 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Editable [pseudo]select</title>
- <!--[if lte IE 7]>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/json3/3.3.0/json3.min.js"></script>
-<![endif]-->
 <script type="text/javascript" src="../plugin/js/angular.js"></script>
+<script type="text/javascript" src="../src/js/customSelectElement.js"></script>
 <script type="text/javascript">
-var app = angular.module('app', []);
+var app = angular.module('app', ['customSelectElement']);
 
-app.directive('crwOutsideHide', ["$document", function($document) {
+app.directive("myImage", function() {
     return {
-        link: function(scope, element, attrs) {
-            var elementEquals = function (el1, el2) {
-                return el1[0] === el2[0];
-            };
-            var elementHide = function (event) {
-                var clicked = angular.element(event.target);
-                do {
-                    if (elementEquals(clicked, element)) {
-                        return;
-                    }
-                    clicked = clicked.parent();
-                } while (clicked.length && !elementEquals($document, clicked));
-                scope.$apply('visible = false');
-            };
-
-            element.on('$destroy', function () {
-                $document.unbind('click', elementHide);
-            });
-            $document.bind('click', elementHide);
-        }
+        scope: { value: "=" },
+        template: '<img ng-src="../plugin/images/bullet-{{value}}.png">'
     };
-}]).directive("crwSelect", function() {
+});
+
+app.directive("myText", function() {
     return {
-        restrict: 'A',
-        scope: {
-            options: '=slcOptions',
-            model: '=slcModel'
-        },
-        link: function (scope, element, attrs) {
-            scope.select = function (opt) {
-                scope.model = opt;
-            };
-        },
-        template: '<dt crw-outside-hide ng-init="visible=false">' +
-            '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" slc-content value="model">' +
-            '</div></a></dt>' +
-            '<dd ng-show="visible"><ul>' +
-            '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" slc-content value="opt">' +
-            '</a></li>' +
-            '</ul></dd>'
+        scope: { value: "=" },
+        template: '{{value}}'
     };
 });
 
 app.controller("TestController", ["$scope", function ($scope) {
     $scope.colors = ["black", "red", "green", "blue", "orange", "violet", "aqua"];
-}]).directive('slcContent', function() {
-    return {
-        scope: {
-            value: "="
-        },
-        template: '<img src="../plugin/images/bullet-{{value}}.png">'
-    };
-});
+}]);
 
 </script>
+<!-- <link type="text/css" href="../src/cse.css" rel="stylesheet"> -->
 <style type="text/css">
-dl.slc, dl.slc * {
+dl.cse, dl.cse * {
     -moz-box-sizing: content-box;
     border-sizing: content-box;
+    vertical-align: middle;
 }
-.slc dt, .slc ul {
+.cse dd, .cse dt, .cse ul {
     margin:0px; padding:0px; 
 }
-dl.slc {
+dl.cse {
     display: inline-block;
     margin: 0 4px;
     padding:0px;
-    vertical-align:bottom;
 }
-.slc dd {
-    margin:0px;
-    padding:0px; 
+.cse dd, .cse dt, .cse ul, .cse li {
+    line-height: inherit;
+}
+.cse dd {
     position:relative; 
 }
-.slc a, .slc a:visited, .slc a:hover {
-    color:#000; 
+.cse a, .cse a:visited, .cse a:hover {
+    color:#000;
     text-decoration:none; 
     outline:none;
 }
-.slc dt a {
-    background:#fff no-repeat scroll right center;
+.cse dt a {
+    background: #fff no-repeat scroll right center;
     background-image: url(../plugin/images/arrow-passive.png);
-    display:block; 
-    padding-right:16px;
-    border:1px solid #666;
-    min-height: 22px;
-    min-width:20px;
+    display: block; 
+    padding-right: 16px;
+    border: 1px solid #666;
+    min-width: 20px;
+    min-height: 20px;
 }
-.slc dt a:hover {
+.cse dt a:hover {
     background-image: url(../plugin/images/arrow-active.png);
     border: 1px solid #000;
 }
-.slc dt a div {
-    padding: 2px 1px;
+.cse dt a div {
+    padding: 0px 2px;
 }
-.slc dd ul {
+.cse dd ul {
     background:#fff none repeat scroll 0 0;
     border:1px solid #666;
     color:#000;
@@ -120,27 +82,42 @@ dl.slc {
     min-width:36px;
     list-style:none;
 }
-.slc dd ul li a {
-    padding: 0px;
-    display:block;
-    line-height: 19px;
+.cse dd li {
+    margin: 0;
+    padding: 0;
 }
-.slc dd ul li a:hover {
+.cse dd ul li a {
+    padding: 0px 2px;
+    display:block;
+}
+.cse dd ul li a:hover {
     background-color: Highlight;
 }
-.slc dd ul li img {
+.cse dd ul li img {
     padding: 1px;
 }
-.slc img {
+.cse img {
     border:none;
-    vertical-align:middle;
+    box-shadow: none;
+    vertical-align: bottom;
+}
+
+ul.outer>li {
+    margin-bottom: 4px;
+}
+
+dl.bullet dt a {
+    width: 20px;
+}
+dl.text dt a {
+    width: 60px;
 }
 </style>
 </head>
 <body>
-<ul>
-<li ng-controller="TestController"><dl class="slc" crw-select="true" slc-options="colors" slc-model="color"><img src="../plugin/images/bullet-{{color}}.png"></dl> {{color}}</li>
-<li ng-controller="TestController" ng-init="color='black'"><dl class="slc" crw-select slc-options="colors" slc-model="color"><img src="../plugin/images/bullet-{{color}}.png"></dl>{{color}}</li>
+<ul class="outer">
+<li ng-controller="TestController"><dl class="cse bullet" cse-select cse-options="colors" cse-model="color" cse-template ="my-image"></dl> {{color}}</li>
+<li ng-controller="TestController" ng-init="color='black'"><dl class="cse text" cse-select cse-options="colors" cse-model="color"></dl> {{color}}</li>
 </ul>
 
 </body>

@@ -1,9 +1,7 @@
 // image to show in cse select element
-crwApp.directive('cseContent', ['basics', function(basics) {
+crwApp.directive('colorSelect', ['basics', function(basics) {
     return {
-        scope: {
-            value: "="
-        },
+        scope: { value: "=" },
         template: '<img ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
     };
 }]);

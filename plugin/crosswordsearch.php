@@ -217,7 +217,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	$html = '
 <div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">
     <p class="crw-label">
-        <span ng-if="!namesInProject">{{crosswordData.name}}</span>
+        <span class="name" ng-if="!namesInProject">{{crosswordData.name}}</span>
         <span ng-if="namesInProject">
             <select ng-model="loadedName" ng-options="name for name in namesInProject"></select>
             <button ng-click="load(loadedName)" ng-if="loadedName!=crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>';
@@ -283,7 +283,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $html .= '
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:\'ID\'" ng-controller="EntryController">
-                <dl class="cse" cse-select cse-options="colors" cse-model="word.color"></dl>';
+                <dl class="cse crw-color" cse-template ="color-select" cse-select cse-options="colors" cse-model="word.color"></dl>';
                 /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
                 $html .= '<span>{{word.fields | joinWord}} (' . sprintf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') . ')</span>
                 <button ng-click="deleteWord(word.ID)">' . __('Delete', 'crw-text') . '</button>

@@ -40,10 +40,16 @@ customSelectElement.directive("cseOutsideHide", [ "$document", function($documen
                 } while (clicked.length && !elementEquals($document, clicked));
                 scope.$apply("visible = false");
             };
+            scope.$watch("visible", function(newVisible) {
+                if (newVisible) {
+                    $document.bind("click", elementHide);
+                } else {
+                    $document.unbind("click", elementHide);
+                }
+            });
             element.on("$destroy", function() {
                 $document.unbind("click", elementHide);
             });
-            $document.bind("click", elementHide);
         }
     };
 } ]);
@@ -53,14 +59,17 @@ customSelectElement.directive("cseSelect", function() {
         restrict: "A",
         scope: {
             options: "=cseOptions",
-            model: "=cseModel"
+            model: "=cseModel",
+            cseTemplate: "="
         },
         link: function(scope, element, attrs) {
             scope.select = function(opt) {
                 scope.model = opt;
             };
         },
-        template: '<dt cse-outside-hide ng-init="visible=false">' + '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" cse-content value="model">' + "</div></a></dt>" + '<dd ng-show="visible"><ul>' + '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" cse-content value="opt">' + "</a></li>" + "</ul></dd>"
+        template: function(tElement, tAttr) {
+            return '<dt cse-outside-hide ng-init="visible=false">' + '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + tAttr.cseTemplate + ' value="model">' + "</div></a></dt>" + '<dd ng-show="visible"><ul>' + '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" ' + tAttr.cseTemplate + ' value="opt">' + "</a></li>" + "</ul></dd>";
+        }
     };
 });
 
@@ -886,7 +895,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
     };
 } ]);
 
-crwApp.directive("cseContent", [ "basics", function(basics) {
+crwApp.directive("colorSelect", [ "basics", function(basics) {
     return {
         scope: {
             value: "="

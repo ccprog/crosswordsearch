@@ -25,26 +25,42 @@ customSelectElement.directive('cseOutsideHide', ["$document", function($document
                 scope.$apply('visible = false');
             };
 
+            scope.$watch('visible', function(newVisible) {
+                if (newVisible) {
+                    $document.bind('click', elementHide);
+                } else {
+                    $document.unbind('click', elementHide);
+                }
+            });
+
             element.on('$destroy', function () {
                 $document.unbind('click', elementHide);
             });
-            $document.bind('click', elementHide);
         }
     };
 }]);
+/** Default template for element/option entries
+  */
+customSelectElement.directive('cseDefault', function() {
+    return {
+        scope: { value: "=" },
+        template: '{{value}}'
+    };
+});
 /** Select element template
   * Usage:
-  * <dl class="cse" cse-select cse-model="..." cse-options="...">
+  * <dl class="cse" cse-select cse-template="my-template" cse-model="..." cse-options="...">
   * cse-model: binds a data model to the element
   * cse-options: provide a list of options. Anything that ng-repeat can take is ok.
   * What will be shown both as options and as current selection depends on a template
   * in the form
-  * app.directive('cseContent', function() {
+  * app.directive('myTemplate', function() {
   *     return {
   *         scope: { value: "=" },
   *         template: '...{{value}}...'
   *     };
   * });
+  * Using cse-template is optional, if it is omitted, {{value}} will be shown directly
   * {{value}} is resolved to one entry in the options list.
   */
 customSelectElement.directive("cseSelect", function() {
@@ -52,19 +68,23 @@ customSelectElement.directive("cseSelect", function() {
         restrict: 'A',
         scope: {
             options: '=cseOptions',
-            model: '=cseModel'
+            model: '=cseModel',
+            cseTemplate: '='
         },
         link: function (scope, element, attrs) {
             scope.select = function (opt) {
                 scope.model = opt;
             };
         },
-        template: '<dt cse-outside-hide ng-init="visible=false">' +
-            '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" cse-content value="model">' +
-            '</div></a></dt>' +
-            '<dd ng-show="visible"><ul>' +
-            '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" cse-content value="opt">' +
-            '</a></li>' +
-            '</ul></dd>'
+        template: function (tElement, tAttr) {
+            var templ = tAttr.cseTemplate || 'cse-default';
+            return '<dt cse-outside-hide ng-init="visible=false">' +
+                '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model">' +
+                '</div></a></dt>' +
+                '<dd ng-show="visible"><ul>' +
+                '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" ' + templ + ' value="opt">' +
+                '</a></li>' +
+                '</ul></dd>';
+        }
     };
 });

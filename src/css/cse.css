@@ -2,6 +2,7 @@
 dl.cse, dl.cse * {
     -moz-box-sizing: content-box;
     border-sizing: content-box;
+    vertical-align: middle;
 }
 .cse dd, .cse dt, .cse ul {
     margin:0px; padding:0px; 
@@ -10,8 +11,6 @@ dl.cse {
     display: inline-block;
     margin: 0 4px;
     padding:0px;
-    line-height:19px;
-    vertical-align:bottom;
 }
 .cse dd, .cse dt, .cse ul, .cse li {
     line-height: inherit;
@@ -25,20 +24,20 @@ dl.cse {
     outline:none;
 }
 .cse dt a {
-    background:#fff no-repeat scroll right center;
+    background: #fff no-repeat scroll right center;
     background-image: url(../images/arrow-passive.png);
-    display:block; 
-    padding-right:16px;
-    border:1px solid #666;
-    min-width:20px;
-    min-height: 22px;
+    display: block;
+    padding-right: 16px;
+    border: 1px solid #666;
+    min-width: 20px;
+    min-height: 20px;
 }
 .cse dt a:hover {
     background-image: url(../images/arrow-active.png);
     border: 1px solid #000;
 }
 .cse dt a div {
-    padding: 0px 1px;
+    padding: 0px 2px;
 }
 .cse dd ul {
     background:#fff none repeat scroll 0 0;
@@ -58,17 +57,14 @@ dl.cse {
     padding: 0;
 }
 .cse dd ul li a {
-    padding: 0px;
+    padding: 0px 2px;
     display:block;
 }
 .cse dd ul li a:hover {
     background-color: Highlight;
 }
-.cse dd ul li img {
-    padding: 1px;
-}
 .cse img {
     border:none;
     box-shadow: none;
-    vertical-align:middle;
+    vertical-align: bottom;
 }
