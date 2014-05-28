@@ -16,15 +16,19 @@ div.crw-label {
     padding-bottom: 0;
     margin-bottom: 0;
 }
-div.crw-label div {
-    display: inline-block;
+.crw-label>.name {
+    margin: 10px 0 1em;
 }
-.crw-label>span.name {
+.crw-label>div.name > * {
+    vertical-align: middle;
+}
+.crw-label>p.name {
     font-style: italic;
     font-weight: bold;
 }
 .crw-label dl.cse dt a {
-    width: 200px;
+    width: 300px;
+    min-height: 1.5em;
 }
 .crw-crossword {
     position: relative;
@@ -34,9 +38,6 @@ div.crw-label div {
 }
 .crw-crossword.wide {
     margin: 72px 72px 0 72px;
-}
-.crw-crossword p {
-    margin: 10px 0 1em;
 }
 .crw-grid {
     -moz-box-sizing: content-box;

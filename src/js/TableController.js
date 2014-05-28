@@ -80,6 +80,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 // is this a new crossword?
                 if ($scope.crosswordData.name !== lastName) {
                     // redraw all markers
+                    markers.deleteAllMarking ();
                     markers.redrawMarkers(newWords);
                     lastName = $scope.crosswordData.name;
                 } else {

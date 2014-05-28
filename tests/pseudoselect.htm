@@ -15,15 +15,23 @@ app.directive("myImage", function() {
     };
 });
 
-app.directive("myText", function() {
+app.filter('plus', function () {
+    return function (input) {
+        return input || '<leer>';
+    };
+});
+
+app.directive("myTextPlus", function() {
     return {
         scope: { value: "=" },
-        template: '{{value}}'
+        template: '{{value | plus}}'
+
     };
 });
 
 app.controller("TestController", ["$scope", function ($scope) {
     $scope.colors = ["black", "red", "green", "blue", "orange", "violet", "aqua"];
+    $scope.colorsPlus = ["", "black", "red", "green", "blue", "orange", "violet", "aqua"];
 }]);
 
 </script>
@@ -35,7 +43,7 @@ dl.cse, dl.cse * {
     vertical-align: middle;
 }
 .cse dd, .cse dt, .cse ul {
-    margin:0px; padding:0px; 
+    margin:0px; padding:0px;
 }
 dl.cse {
     display: inline-block;
@@ -46,17 +54,17 @@ dl.cse {
     line-height: inherit;
 }
 .cse dd {
-    position:relative; 
+    position:relative;
 }
 .cse a, .cse a:visited, .cse a:hover {
     color:#000;
-    text-decoration:none; 
+    text-decoration:none;
     outline:none;
 }
 .cse dt a {
     background: #fff no-repeat scroll right center;
     background-image: url(../plugin/images/arrow-passive.png);
-    display: block; 
+    display: block;
     padding-right: 16px;
     border: 1px solid #666;
     min-width: 20px;
@@ -118,6 +126,7 @@ dl.text dt a {
 <ul class="outer">
 <li ng-controller="TestController"><dl class="cse bullet" cse-select cse-options="colors" cse-model="color" cse-template ="my-image"></dl> {{color}}</li>
 <li ng-controller="TestController" ng-init="color='black'"><dl class="cse text" cse-select cse-options="colors" cse-model="color"></dl> {{color}}</li>
+<li ng-controller="TestController"><dl class="cse text" cse-select cse-options="colorsPlus" cse-model="color" cse-template="my-text-plus"></dl> {{color}}</li>
 </ul>
 
 </body>

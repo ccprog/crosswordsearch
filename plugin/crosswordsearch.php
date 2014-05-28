@@ -174,11 +174,19 @@ function crw_test_shortcode ($atts, $names_list) {
     return false;
 }
 
+function crw_get_names_list ($project) {
+    global $wpdb, $data_table_name;
+
+    return $wpdb->get_col( $wpdb->prepare("
+        SELECT name
+        FROM $data_table_name
+        WHERE project = %s
+        ORDER BY name
+    ", $project) );
+}
 /* load the crossword into a post */
 
 function crw_shortcode_handler( $atts, $content = null ) {
-    global $wpdb, $data_table_name;
-
     $plugin_url = plugins_url() . '/crosswordsearch/';
 
     $filtered_atts = shortcode_atts( array(
@@ -188,48 +196,51 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	), $atts, 'crosswordsearch' );
 	extract( $filtered_atts );
 
-    $names_list = $wpdb->get_col( $wpdb->prepare("
-        SELECT name
-        FROM $data_table_name
-        WHERE project = %s
-        ORDER BY name
-    ", $project) );
+    $names_list = crw_get_names_list($project);
 
     $shortcode_error = crw_test_shortcode($filtered_atts, $names_list);
     if ( $shortcode_error ) {
         return '<p>' . $shortcode_error . '</p>';
     }
 
-    if ( $name && 'build' !== $mode ) {
-        $names_list = null;
-    }
     if ( !$name && count($names_list) > 0 ) {
-        $name = $names_list[0];
+        $selected_name = $names_list[0];
+    } else {
+        $selected_name = $name;
     }
     $prep_1 = esc_js($project);
-    $prep_2 = esc_js($name);
-    $prep_3 = $names_list ? esc_js( json_encode($names_list) ) : '';
+    $prep_2 = esc_js($selected_name);
 
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
 
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">
-    <div class="crw-label">
-        <span class="name" ng-if="!namesInProject">{{crosswordData.name}}</span>
-        <div ng-if="namesInProject">
-            <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
-            <button ng-click="load(loadedName)" ng-if="loadedName!=crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>';
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\')">
+    <div class="crw-label">';
     if ( 'build' == $mode ) {
+        // build mode always has a name selection, Reload loads from server
         $html .= '
-            <button ng-click="load(loadedName)" ng-if="loadedName==crosswordData.name" title="' . __('Reset to the saved version', 'crw-text') . '">' . __('Reload', 'crw-text') . '</button>
+        <div class="name">
+            <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
+            <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName==crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>
         </div>
-        <button ng-click="save()" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>';
-    } else {
+        <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName!=crosswordData.name" title="' . __('Reset to the saved version', 'crw-text') . '">' . __('Reload', 'crw-text') . '</button>
+        <button ng-click="load()" title="' . __('Start a completely new riddle', 'crw-text') . '">' . __('New', 'crw-text') . '</button>
+        <button ng-click="save()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>';
+    } else if ( !$name ) {
+        // multi-solve mode has a name selection, Restart only resets solution
         $html .= '
-            <button ng-click="restart()" ng-if="loadedName==crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>
-        </div>';
+        <div class="name">
+            <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
+            <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName==crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>
+        </div>
+        <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>';
+    } else {
+        // single-solve mode, Restart only resets solution
+        $html .= '
+        <p class="name">{{crosswordData.name}}</p>
+        <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>';
     }
 	$html .= '
     </div>
@@ -436,8 +447,10 @@ function crw_get_crossword() {
         WHERE project = %s AND name = %s
     ", $project, $name) );
 
+    $names_list = crw_get_names_list($project);
+
     if ($crossword) {
-        echo $crossword;
+        echo '{"crossword":' . $crossword . ',"namesList":' . json_encode($names_list) . '}';
         die();
     } else {
         $error = __('The crossword was not found.', 'crw-text');
@@ -476,7 +489,11 @@ function crw_set_crossword() {
             'project' => $project,
             'crossword' => $crossword,
         ));
-        if ($success === false) {
+        if ($success !== false) {
+            $names_list = crw_get_names_list($project);
+            echo '{"namesList":' . json_encode($names_list) . '}';
+            die();
+        } else {
             $error = __('The crossword could not be saved to the database.', 'crw-text');
             $debug = $wpdb->$last_error;
         }

@@ -10,7 +10,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
 
     function Crw () {
         // parent data object
-        var crossword = {};
+        var crossword = {}, namesList = [];
         // project key
         var project = '';
 
@@ -86,6 +86,11 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             return crossword;
         };
 
+        // return list of all named crosswords in project
+        this.getNamesList = function () {
+            return namesList;
+        };
+
         // web server error messages
         var serverError = function (response) {
             return $q.reject({
@@ -145,7 +150,8 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                     return $q.reject(error);
                 }
                 // do not exchange the top level object to make watching it possible
-                angular.extend(crossword, response.data);
+                angular.extend(crossword, response.data.crossword);
+                namesList = response.data.namesList;
             }, serverError);
         };
 
@@ -163,6 +169,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                 if (error) {
                     return $q.reject(error);
                 }
+                namesList = response.data.namesList;
                 return true;
             }, serverError);
         };

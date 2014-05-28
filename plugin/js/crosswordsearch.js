@@ -78,7 +78,7 @@ customSelectElement.directive("cseSelect", function() {
         },
         template: function(tElement, tAttr) {
             var templ = tAttr.cseTemplate || "cse-default";
-            return '<dt cse-outside-hide ng-init="visible=false">' + '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model">' + "</div></a></dt>" + '<dd ng-show="visible"><ul>' + '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" ' + templ + ' value="opt">' + "</a></li>" + "</ul></dd>";
+            return '<dt cse-outside-hide ng-init="visible=false" title="{{model}}">' + '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model">' + "</div></a></dt>" + '<dd ng-show="visible"><ul>' + '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" ' + templ + ' value="opt">' + "</a></li>" + "</ul></dd>";
         }
     };
 });
@@ -175,7 +175,7 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
         url: crwBasics.ajaxUrl
     };
     function Crw() {
-        var crossword = {};
+        var crossword = {}, namesList = [];
         var project = "";
         var addRows = function(number, top) {
             if (number > 0) {
@@ -235,6 +235,9 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
         this.getCrosswordData = function() {
             return crossword;
         };
+        this.getNamesList = function() {
+            return namesList;
+        };
         var serverError = function(response) {
             return $q.reject({
                 error: "server error",
@@ -280,7 +283,8 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                 if (error) {
                     return $q.reject(error);
                 }
-                angular.extend(crossword, response.data);
+                angular.extend(crossword, response.data.crossword);
+                namesList = response.data.namesList;
             }, serverError);
         };
         this.saveCrosswordData = function(name) {
@@ -296,6 +300,7 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                 if (error) {
                     return $q.reject(error);
                 }
+                namesList = response.data.namesList;
                 return true;
             }, serverError);
         };
@@ -527,11 +532,8 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
     $scope.highlight = [];
-    $scope.prepare = function(project, name, namesList) {
+    $scope.prepare = function(project, name) {
         $scope.crw.setProject(project);
-        if (namesList) {
-            $scope.namesInProject = angular.fromJson(namesList);
-        }
         $scope.load(name);
     };
     $scope.wordsToArray = function(words) {
@@ -550,6 +552,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
             $scope.crw.loadCrosswordData(name).then(function() {
                 $scope.loadedName = name;
                 $scope.crosswordData = $scope.crw.getCrosswordData();
+                $scope.namesInProject = $scope.crw.getNamesList();
             }, function(error) {
                 if (error) {
                     $scope.loadError = error;
@@ -565,7 +568,10 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
         $scope.crosswordData.solution = {};
     };
     $scope.save = function() {
-        $scope.immediateStore.newPromise("saveCrossword");
+        $scope.immediateStore.newPromise("saveCrossword").then(function() {
+            $scope.namesInProject = $scope.crw.getNamesList();
+            $scope.loadedName = $scope.crosswordData.name;
+        });
     };
     $scope.randomize = function() {
         $scope.crw.randomizeEmptyFields();
@@ -771,6 +777,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
                 var probe, shift_x = 0, shift_y = 0;
                 if ($scope.crosswordData.name !== lastName) {
+                    markers.deleteAllMarking();
                     markers.redrawMarkers(newWords);
                     lastName = $scope.crosswordData.name;
                 } else {

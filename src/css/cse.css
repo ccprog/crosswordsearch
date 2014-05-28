@@ -16,7 +16,8 @@ dl.cse {
     line-height: inherit;
 }
 .cse dd {
-    position:relative; 
+    position: relative;
+    z-index: 10000;
 }
 .cse a, .cse a:visited, .cse a:hover {
     color:#000;
@@ -38,6 +39,8 @@ dl.cse {
 }
 .cse dt a div {
     padding: 0px 2px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .cse dd ul {
     background:#fff none repeat scroll 0 0;

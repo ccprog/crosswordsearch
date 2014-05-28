@@ -6,11 +6,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
     $scope.highlight = [];
 
     // init crossword at page load time
-    $scope.prepare = function (project, name, namesList) {
+    $scope.prepare = function (project, name) {
         $scope.crw.setProject(project);
-        if (namesList) {
-            $scope.namesInProject = angular.fromJson(namesList);
-        }
         $scope.load(name);
     };
 
@@ -35,6 +32,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
             $scope.crw.loadCrosswordData(name).then(function () {
                 $scope.loadedName = name;
                 $scope.crosswordData = $scope.crw.getCrosswordData();
+                $scope.namesInProject = $scope.crw.getNamesList();
             }, function (error) {
                 if (error) {
                     $scope.loadError = error;
@@ -54,7 +52,10 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
 
     // build page only: open save user dialogue
     $scope.save = function () {
-        $scope.immediateStore.newPromise('saveCrossword');
+        $scope.immediateStore.newPromise('saveCrossword').then(function () {
+            $scope.namesInProject = $scope.crw.getNamesList();
+            $scope.loadedName = $scope.crosswordData.name;
+        });
     };
 
     // build page only: fill all empty fields with a random letter

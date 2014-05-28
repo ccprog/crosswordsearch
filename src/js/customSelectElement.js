@@ -78,7 +78,7 @@ customSelectElement.directive("cseSelect", function() {
         },
         template: function (tElement, tAttr) {
             var templ = tAttr.cseTemplate || 'cse-default';
-            return '<dt cse-outside-hide ng-init="visible=false">' +
+            return '<dt cse-outside-hide ng-init="visible=false" title="{{model}}">' +
                 '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model">' +
                 '</div></a></dt>' +
                 '<dd ng-show="visible"><ul>' +
