@@ -184,6 +184,7 @@ function crw_get_names_list ($project) {
         ORDER BY name
     ", $project) );
 }
+
 /* load the crossword into a post */
 
 function crw_shortcode_handler( $atts, $content = null ) {
@@ -251,7 +252,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	    // resize handles
 	    if ( 'build' == $mode ) {
 	        $html .=  '
-            <div ng-mousedown="startResize()">
+            <div crw-catch-mouse down="startResize" up="stopResize">
                 <div id="handle-left" transform-multi-style style-name="size-left" ng-style="modLeft.styleObject[\'handle-left\'].style"></div>
                 <div id="handle-top" transform-multi-style style-name="size-top" ng-style="modTop.styleObject[\'handle-top\'].style"></div>
                 <div id="handle-right" transform-multi-style style-name="size-right" ng-style="modRight.styleObject[\'handle-right\'].style"></div>
@@ -262,7 +263,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $html .= '
         </div>
         <div class="crw-mask" ng-style="styleGridSize()">
-            <table class="crw-table" ng-style="styleShift()" ng-controller="TableController" ng-Init="setMode(\'' . $mode . '\')" crw-catch-dragging>
+            <table class="crw-table" ng-style="styleShift()" ng-controller="TableController" ng-Init="setMode(\'' . $mode . '\')" crw-catch-mouse down="startMark" up="stopMark" prevent-default>
                 <tr ng-repeat="row in crosswordData.table" crw-index-checker="line">
                     <td class="crw-field" ng-repeat="field in row" crw-index-checker="column">
                         <div ';

@@ -73,6 +73,20 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
         }
     };
 
+    // deferred handler for blocking input during data download
+    // register
+    $scope.immediateStore.register('loadCrossword', function (loadDeferred, name) {
+        deferred = loadDeferred;
+        $scope.immediate = 'loadCrossword';
+        $scope.crw.loadCrosswordData(name).then(
+            $scope.finish,
+            function (error) {
+                $scope.immediate=null;
+                deferred.reject(error);
+            }
+        );
+    });
+
     // build page only: deferred handlers for user dialogue in case of
     // table size change
     // register
@@ -118,4 +132,6 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
         deferred = solvedDeferred;
         $scope.immediate = 'solvedCompletely';
     });
+
+    $scope.$emit('immediateReady');
 }]);

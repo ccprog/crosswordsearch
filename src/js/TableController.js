@@ -15,32 +15,6 @@ crwApp.directive('crwSetFocus', function() {
     };
 });
 
-// bind/unbind mousedown/mouseup events during letter marking
-crwApp.directive('crwCatchDragging', ['$document', function($document) {
-    return {
-        link: function(scope, element, attrs) {
-            // catch mouseup even outside of the table during marking
-            var tableMouseDown = function (event) {
-                event.preventDefault();
-                $document.bind('mouseup', tableMouseUp);
-                scope.startMark();
-            };
-
-            var tableMouseUp = function (event) {
-                event.preventDefault();
-                $document.unbind('mouseup', tableMouseUp);
-                // this is bound to a DOM event, therefore it must be $applied
-                scope.$apply(scope.stopMark());
-            };
-
-            element.bind('mousedown', tableMouseDown);
-            element.on('$destroy', function () {
-                $document.unbind('mouseup', tableMouseUp);
-            });
-        }
-    };
-}]);
-
 // keep the line/column values current when $index changes
 crwApp.directive('crwIndexChecker', function() {
     return {
@@ -79,9 +53,10 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 var probe, shift_x = 0, shift_y = 0;
                 // is this a new crossword?
                 if ($scope.crosswordData.name !== lastName) {
-                    // redraw all markers
+                    // redraw all markers and reset marking ids
                     markers.deleteAllMarking ();
                     markers.redrawMarkers(newWords);
+                    currentMarking = { ID: $scope.crw.getHighId() };
                     lastName = $scope.crosswordData.name;
                 } else {
                     // remove marking for deleted words

@@ -135,12 +135,10 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     // build page only: bind mouseup event handlers on mousedown
     $scope.startResize = function () {
         currentSize = abstractSize();
-        $document.on('$destroy', $document.unbind('mouseup', stopResize));
-        $document.bind('mouseup', stopResize);
     };
 
     // build page only: inspect size change on mouseup
-    var stopResize = function () {
+    $scope.stopResize = function () {
         var newSize = abstractSize();
         // test whether abstract size change results from dragging
         if (!angular.equals(currentSize, newSize)) {
@@ -163,10 +161,8 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
                 });
             } else {
                 // reset styles
-                $scope.$apply($scope.crw.changeSize(change, critical));
+                $scope.crw.changeSize(change, critical);
             }
         }
-        // finally unbind function from mouseup event
-        $document.unbind('mouseup', stopResize);
     };
 }]);

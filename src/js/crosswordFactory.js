@@ -152,6 +152,7 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                 // do not exchange the top level object to make watching it possible
                 angular.extend(crossword, response.data.crossword);
                 namesList = response.data.namesList;
+                return true;
             }, serverError);
         };
 
