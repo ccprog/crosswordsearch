@@ -4,6 +4,10 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
     $scope.crw = crosswordFactory.getCrw();
 	$scope.immediateStore = qStore.addStore();
     $scope.highlight = [];
+    $scope.count = {
+        words: 0,
+        solution: 0
+    };
 
     // init crossword at page load time
     $scope.prepare = function (project, name) {
@@ -20,6 +24,15 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
         });
         return arr;
     };
+    
+    // count words in words/solution object
+    var wordListLength = function (words) {
+        var length = 0;
+        angular.forEach(words, function() {
+            length++;
+        });
+        return length;
+    };
 
     $scope.setHighlight = function (h) {
         $scope.highlight = h;
@@ -33,22 +46,34 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
                 $scope.loadedName = name;
                 $scope.crosswordData = $scope.crw.getCrosswordData();
                 $scope.namesInProject = $scope.crw.getNamesList();
+                $scope.count.words = wordListLength($scope.crosswordData.words);
             }, function (error) {
                 if (error) {
                     $scope.loadError = error;
                 }
+                return;
             });
         } else {
             $scope.crw.loadDefault();
             $scope.loadedName = name;
             $scope.crosswordData = $scope.crw.getCrosswordData();
+            $scope.count.words = 0;
         }
+        $scope.count.solution = 0;
     };
 
-    // load page only: restart the loaded riddle
+    // solve page only: restart the loaded riddle
     $scope.restart = function () {
         $scope.crosswordData.solution = {};
+        $scope.count.solution = 0;
     };
+
+    // solve page only: notify on complete solution
+    $scope.$watch('count.solution', function(s) {
+        if (s > 0 && s === $scope.count.words) {
+            $scope.immediateStore.newPromise('solvedCompletely');
+        }
+    });
 
     // build page only: open save user dialogue
     $scope.save = function () {

@@ -303,6 +303,8 @@ function crw_shortcode_handler( $atts, $content = null ) {
     } elseif ( 'solve' == $mode ) {
         // solve mode: wordlist as solution display
         $html .= '
+        <p ng-if="count.solution<count.words">' . sprintf( __('%1$s of %2$s words found'), '{{count.solution}}', '{{count.words}}' ) . '</p>
+        <p ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!'), '{{count.words}}' ) . '</p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
                 <img ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
@@ -349,6 +351,12 @@ function crw_shortcode_handler( $atts, $content = null ) {
                 <p>' . __('The marked word is not part of the solution.', 'crw-text') . '</p>
                 <p class="actions">
                     <button ng-click="finish(true)">' . __('Delete', 'crw-text') . '</button>
+                </p>
+            </div>
+            <div ng-switch-when="solvedCompletely">
+                <p>' . __('Congratulation, the riddle is solved!', 'crw-text') . '</p>
+                <p class="actions">
+                    <button ng-click="finish(true)">' . __('OK', 'crw-text') . '</button>
                 </p>
             </div>';
     }

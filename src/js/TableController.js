@@ -168,7 +168,9 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
             } else {
                 // on solve page test if marking is a valid solution
                 var word = $scope.crw.probeWord(currentMarking);
-                if (!word.solved) {
+                if (word.solved) {
+                    $scope.count.solution++;
+                } else {
                     // if not, inform user and delete the marking on confirmation
                     $scope.immediateStore.newPromise('falseWord', word).then(function () {
                         $scope.crw.deleteWord(currentMarking.ID, 'solution');

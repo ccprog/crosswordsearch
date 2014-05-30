@@ -85,16 +85,6 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
         $scope.immediate = 'invalidWords';
     });
 
-    // solve page only: deferred handler for user dialogue in case of
-    // invalid solution
-    // register
-    $scope.immediateStore.register('falseWord', function (falseDeferred, word) {
-        deferred = falseDeferred;
-        // highlight invalid solution
-        $scope.setHighlight([word.ID]);
-        $scope.immediate = 'falseWord';
-    });
-
     // build page only: deferred handler for user dialogue on data upload
     // register
     $scope.immediateStore.register('saveCrossword', function (saveDeferred) {
@@ -111,4 +101,21 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
             }
         );
     };
+
+    // solve page only: deferred handler for user dialogue in case of
+    // invalid solution
+    // register
+    $scope.immediateStore.register('falseWord', function (falseDeferred, word) {
+        deferred = falseDeferred;
+        // highlight invalid solution
+        $scope.setHighlight([word.ID]);
+        $scope.immediate = 'falseWord';
+    });
+
+    // solve page only: deferred handler for user dialogue on completed solution
+    // register
+    $scope.immediateStore.register('solvedCompletely', function (solvedDeferred) {
+        deferred = solvedDeferred;
+        $scope.immediate = 'solvedCompletely';
+    });
 }]);
