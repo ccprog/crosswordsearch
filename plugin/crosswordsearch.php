@@ -226,9 +226,10 @@ function crw_shortcode_handler( $atts, $content = null ) {
             <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
             <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName==crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>
         </div>
-        <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName!=crosswordData.name" title="' . __('Reset to the saved version', 'crw-text') . '">' . __('Reload', 'crw-text') . '</button>
         <button ng-click="load()" title="' . __('Start a completely new riddle', 'crw-text') . '">' . __('New', 'crw-text') . '</button>
-        <button ng-click="save()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Save the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>';
+        <button ng-click="save(\'update\')" ng-disabled="loadedName!=crosswordData.name" title="' . __('Save your work on the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>
+        <button ng-click="save(\'insert\')" ng-disabled="loadedName!=crosswordData.name" title="' . __('Save as a new riddle with a seperate name', 'crw-text') . '">' . __('Save as...', 'crw-text') . '</button>
+        <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName!=crosswordData.name" title="' . __('Reset to the saved version', 'crw-text') . '">' . __('Reload', 'crw-text') . '</button>';
     } else if ( !$name ) {
         // multi-solve mode has a name selection, Restart only resets solution
         $html .= '
@@ -332,18 +333,23 @@ function crw_shortcode_handler( $atts, $content = null ) {
             </div>
             <div ng-switch-when="saveCrossword">
                 <form name="uploader">
-                    <p>' . __('To save it, the riddle must get a name: (at least 4 letters)', 'crw-text') . '<br />
-                    <input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-sane-input></p>
-                    <p class="error" ng-show="uploader.crosswordName.$error.required && !uploader.crosswordName.$error.sane">' . __('A name must be given!', 'crw-text') . '</p>
+                    <p ng-switch on="action">
+                        <span ng-switch-when="insert">' . __('To save it, the riddle must get a new name: (at least 4 letters)', 'crw-text') . '</span>
+                        <span ng-switch-when="update">' . __('The name of the riddle:', 'crw-text') . '</span>
+                        <br />
+                        <input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique">
+                    </p>
+                    <p class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)">' . __('A name must be given!', 'crw-text') . '</p>
                     <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
                     <p class="error" ng-show="uploader.crosswordName.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</p>
+                    <p class="error" ng-show="uploader.crosswordName.$error.unique">' . __('There is already another riddle with that name!', 'crw-text') . '</p>
                     <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</p>
                     <p class="actions">
-                        <button ng-disabled="!uploader.crosswordName.$valid" ng-click="upload()">' . __('Save', 'crw-text') . '</button>
+                        <input type="submit" ng-disabled="!uploader.crosswordName.$valid" ng-click="upload()" value="' . __('Save', 'crw-text') . '"></input>
                         <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
                     </p>
                     <p class="error" ng-show="saveError">{{saveError}}</p>
-                    <p class="error" ng-show="saveError">{{saveDebug}}</p>
+                    <p class="error" ng-show="saveError" ng-bind-html="saveDebug"></p>
                 </form>
             </div>';
     } elseif ( 'solve' == $mode ) {
@@ -371,6 +377,7 @@ add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
 /* ajax communication */
 
+// checks for json crossword data
 function crw_verify_json($json, &$msg) {
     include('schema/jsv4.php');
     include('schema/schema-store.php');
@@ -396,9 +403,9 @@ function crw_verify_json($json, &$msg) {
     // schema validation
     $answer = Jsv4::validate($crossword, $schema);
     if ( !$answer->valid ) {
-        $msg = 'schema error:\n';
+        $msg = 'schema error:<br />';
         foreach ( $answer->errors as $err ) {
-            $msg .= $err->dataPath ." ". $err->message ."\n";
+            $msg .= $err->dataPath ." ". $err->message ."<br />";
         }
         return false;
     }
@@ -435,21 +442,97 @@ function crw_verify_json($json, &$msg) {
     return $crossword->name;
 }
 
+// format and send errors as json
 function crw_send_error ( $error, $debug ) {
     $obj = array(
         'error' => $error
     );
+    // debug messages only for developers
     if ( WP_DEBUG && isset($debug) ) {
         $obj["debug"] = $debug;
     }
     wp_send_json($obj);
 }
 
+// common function for insert and update shares data testing tasks and error handling
+function crw_save_crossword ( $for_method ) {
+    global $wpdb, $data_table_name;
+    $error = '';
+    $debug = NULL;
+
+    // sanitize fields
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+    $unsafe_name = wp_unslash($_POST['name']);
+    $name = sanitize_text_field( $unsafe_name );
+    if ( 'update' == $for_method ) {
+        $unsafe_old_name = wp_unslash($_POST['old_name']);
+        $old_name = sanitize_text_field( $unsafe_old_name );
+    }
+
+    // verify crossword data
+    $crossword = wp_unslash( $_POST['crossword'] );
+    $verification = crw_verify_json( $crossword, $msg );
+
+    // set errors on inconsistencies
+    if ( !$verification ) {
+        $error = __('The crossword data sent are invalid.', 'crw-text');
+        $debug = $msg;
+    } elseif (  !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
+        $error = __('The project does not exist.', 'crw-text');
+        $debug = $project;
+    } else if ( $name !== $unsafe_name ) {
+        $error = __('The name has forbidden content.', 'crw-text');
+        $debug = $name;
+    } else if ( 'update' == $for_method && $old_name !== $unsafe_old_name ) {
+        $error = __('The name has forbidden content.', 'crw-text');
+        $debug = $old_name;
+    } else if ( $name !== $verification ) {
+        $error = __('The name sent is inconsistent with crossword data.', 'crw-text');
+        $debug = $name . ' / ' . $verification;
+    } else {
+        // if all data ar ok, call database depending on method
+        if ( 'update' == $for_method ) {
+            $success = $wpdb->update($data_table_name, array(
+                'name' => $name,
+                'crossword' => $crossword,
+            ), array(
+                'name' => $old_name,
+                'project' => $project
+            ));
+        } else if ( 'insert' == $for_method ) {
+            $success = $wpdb->insert($data_table_name, array(
+                'name' => $name,
+                'project' => $project,
+                'crossword' => $crossword,
+            ));
+        }
+
+        // check for database errors
+        if ($success !== false) {
+            // send updated list of names in project
+            $names_list = crw_get_names_list($project);
+            echo '{"namesList":' . json_encode($names_list) . '}';
+            die();
+        } else {
+            $error = __('The crossword could not be saved to the database.', 'crw-text');
+            $debug = $wpdb->last_error;
+        }
+    }
+
+    //send error message
+    crw_send_error($error, $debug);
+    die();
+
+}
+
+// select crossword data
 function crw_get_crossword() {
     global $wpdb, $data_table_name;
 
+    // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
+    // call database
     $crossword = $wpdb->get_var( $wpdb->prepare("
         SELECT crossword
         FROM $data_table_name
@@ -458,7 +541,9 @@ function crw_get_crossword() {
 
     $names_list = crw_get_names_list($project);
 
+    // check for database errors
     if ($crossword) {
+        // send crossword and list of names in project
         echo '{"crossword":' . $crossword . ',"namesList":' . json_encode($names_list) . '}';
         die();
     } else {
@@ -469,47 +554,16 @@ function crw_get_crossword() {
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
 add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
-function crw_set_crossword() {
-    global $wpdb, $data_table_name;
-    $error = '';
-    $debug = NULL;
-
-    $project = sanitize_text_field( wp_unslash($_POST['project']) );
-    $unsafe_name = wp_unslash($_POST['name']);
-    $name = sanitize_text_field( $unsafe_name );
-    $crossword = wp_unslash( $_POST['crossword'] );
-    $verification = crw_verify_json( $crossword, $msg );
-
-    if ( !$verification ) {
-        $error = __('The crossword data sent are invalid.', 'crw-text');
-        $debug = $msg;
-    } elseif (  !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
-        $error = __('The project does not exist.', 'crw-text');
-        $debug = $project;
-    } else if ( $name !== $unsafe_name ) {
-        $error = __('The name has forbidden content.', 'crw-text');
-        $debug = $name;
-    } else if ( $name !== $verification ) {
-        $error = __('The name sent is inconsistent with crossword data.', 'crw-text');
-        $debug = $name . ' / ' . $verification;
-    } else {
-        $success = $wpdb->insert($data_table_name, array(
-            'name' => $name,
-            'project' => $project,
-            'crossword' => $crossword,
-        ));
-        if ($success !== false) {
-            $names_list = crw_get_names_list($project);
-            echo '{"namesList":' . json_encode($names_list) . '}';
-            die();
-        } else {
-            $error = __('The crossword could not be saved to the database.', 'crw-text');
-            $debug = $wpdb->$last_error;
-        }
-    }
-
-    crw_send_error($error, $debug);
-    die();
+// insert crossword data
+function crw_insert_crossword() {
+    crw_save_crossword('insert');
 }
-add_action( 'wp_ajax_nopriv_set_crossword', 'crw_set_crossword' );
-add_action( 'wp_ajax_set_crossword', 'crw_set_crossword' );
+add_action( 'wp_ajax_nopriv_insert_crossword', 'crw_insert_crossword' );
+add_action( 'wp_ajax_insert_crossword', 'crw_insert_crossword' );
+
+// update crossword data
+function crw_update_crossword() {
+    crw_save_crossword('update');
+}
+add_action( 'wp_ajax_nopriv_update_crossword', 'crw_update_crossword' );
+add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );

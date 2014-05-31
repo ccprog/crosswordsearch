@@ -157,14 +157,20 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
         };
 
         // save a crossword
-        this.saveCrosswordData = function (name) {
+        this.saveCrosswordData = function (name, action) {
+            var content = {
+                action: action + '_crossword',
+                project: project,
+                crossword: angular.toJson(crossword)
+            };
+            if (action === 'update') {
+                content.old_name = name;
+                content.name = crossword.name;
+            } else {
+                content.name = name;
+            }
             return $http(angular.extend({
-                data: {
-                    action: 'set_crossword',
-                    name: name,
-                    project: project,
-                    crossword: angular.toJson(crossword)
-                }
+                data: content
             }, httpDefaults)).then(function(response) {
                 var error = phpError(response);
                 if (error) {

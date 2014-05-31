@@ -114,8 +114,12 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
     });
 
     // build page only: open save user dialogue
-    $scope.save = function () {
-        $scope.immediateStore.newPromise('saveCrossword').then(function () {
+    $scope.save = function (action) {
+        // redirect to insert if no name yet exists
+        if (!$scope.crosswordData.name) {
+            action = 'insert';
+        }
+        $scope.immediateStore.newPromise('saveCrossword', action).then(function () {
             $scope.namesInProject = $scope.crw.getNamesList();
             $scope.loadedName = $scope.crosswordData.name;
         });

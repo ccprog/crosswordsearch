@@ -288,14 +288,20 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                 return true;
             }, serverError);
         };
-        this.saveCrosswordData = function(name) {
+        this.saveCrosswordData = function(name, action) {
+            var content = {
+                action: action + "_crossword",
+                project: project,
+                crossword: angular.toJson(crossword)
+            };
+            if (action === "update") {
+                content.old_name = name;
+                content.name = crossword.name;
+            } else {
+                content.name = name;
+            }
             return $http(angular.extend({
-                data: {
-                    action: "set_crossword",
-                    name: name,
-                    project: project,
-                    crossword: angular.toJson(crossword)
-                }
+                data: content
             }, httpDefaults)).then(function(response) {
                 var error = phpError(response);
                 if (error) {
@@ -614,8 +620,11 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
             $scope.immediateStore.newPromise("solvedCompletely");
         }
     });
-    $scope.save = function() {
-        $scope.immediateStore.newPromise("saveCrossword").then(function() {
+    $scope.save = function(action) {
+        if (!$scope.crosswordData.name) {
+            action = "insert";
+        }
+        $scope.immediateStore.newPromise("saveCrossword", action).then(function() {
             $scope.namesInProject = $scope.crw.getNamesList();
             $scope.loadedName = $scope.crosswordData.name;
         });
@@ -999,22 +1008,37 @@ crwApp.factory("qStore", [ "$q", function($q) {
     };
 } ]);
 
-crwApp.directive("crwSaneInput", [ "$sanitize", function($sanitize) {
+crwApp.directive("crwAddParsers", [ "$sanitize", function($sanitize) {
     return {
         require: "ngModel",
         link: function(scope, element, attrs, ctrl) {
-            ctrl.$parsers.unshift(function(viewValue) {
-                viewValue = viewValue.replace(/\s+/, " ");
-                var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, "");
-                sanitized = $sanitize(sanitized);
-                if (sanitized === viewValue) {
-                    ctrl.$setValidity("sane", true);
-                    return viewValue;
-                } else {
-                    ctrl.$setValidity("sane", false);
-                    return undefined;
-                }
-            });
+            var space = /\s+/;
+            var parsers = attrs.crwAddParsers.split(space);
+            if (parsers.indexOf("unique") >= 0) {
+                ctrl.$parsers.unshift(function(viewValue) {
+                    if (scope.loadedName === viewValue || scope.namesInProject.indexOf(viewValue) < 0) {
+                        ctrl.$setValidity("unique", true);
+                        return viewValue;
+                    } else {
+                        ctrl.$setValidity("unique", false);
+                        return undefined;
+                    }
+                });
+            }
+            if (parsers.indexOf("sane") >= 0) {
+                ctrl.$parsers.unshift(function(viewValue) {
+                    viewValue = viewValue.replace(space, " ");
+                    var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, "");
+                    sanitized = $sanitize(sanitized);
+                    if (sanitized === viewValue) {
+                        ctrl.$setValidity("sane", true);
+                        return viewValue;
+                    } else {
+                        ctrl.$setValidity("sane", false);
+                        return undefined;
+                    }
+                });
+            }
         }
     };
 } ]);
@@ -1024,6 +1048,8 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
     $scope.immediate = null;
     $scope.finish = function(resolution) {
         $scope.setHighlight([]);
+        $scope.saveError = undefined;
+        $scope.saveDebug = undefined;
         $scope.immediate = null;
         if (resolution) {
             deferred.resolve();
@@ -1045,12 +1071,13 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
         $scope.invalidCount = critical.length;
         $scope.immediate = "invalidWords";
     });
-    $scope.immediateStore.register("saveCrossword", function(saveDeferred) {
+    $scope.immediateStore.register("saveCrossword", function(saveDeferred, action) {
         deferred = saveDeferred;
         $scope.immediate = "saveCrossword";
+        $scope.action = action;
     });
     $scope.upload = function() {
-        $scope.crw.saveCrosswordData($scope.crosswordData.name).then($scope.finish, function(error) {
+        $scope.crw.saveCrosswordData($scope.action === "update" ? $scope.loadedName : $scope.crosswordData.name, $scope.loadedName === $scope.crosswordData.name ? "update" : $scope.action).then($scope.finish, function(error) {
             $scope.saveError = error.error;
             $scope.saveDebug = error.debug;
         });

@@ -34,25 +34,42 @@ crwApp.factory('qStore', ['$q', function ($q) {
 	};
 }]);
 
-// sanitize input field more or less the same way WordPress
-// does on receiving the data
-crwApp.directive('crwSaneInput', ["$sanitize", function ($sanitize) {
+/* input validity parsers for upload form */
+crwApp.directive('crwAddParsers', ["$sanitize", function ($sanitize) {
     return {
         require: 'ngModel',
         link: function (scope, element, attrs, ctrl) {
-            ctrl.$parsers.unshift(function(viewValue) {
-                // the first two mimic WordPress sanitize_text_field()
-                viewValue = viewValue.replace(/\s+/, ' ');
-                var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, '');
-                sanitized = $sanitize(sanitized);
-                if (sanitized === viewValue) {
-                    ctrl.$setValidity('sane', true);
-                    return viewValue;
-                } else {
-                    ctrl.$setValidity('sane', false);
-                    return undefined;
-                }
-            });
+            var space = /\s+/;
+            var parsers = attrs.crwAddParsers.split(space);
+            if (parsers.indexOf('unique') >= 0) {
+                // test if a crossword name is unique
+                ctrl.$parsers.unshift(function(viewValue) {
+                    if (scope.loadedName === viewValue || scope.namesInProject.indexOf(viewValue) < 0) {
+                        ctrl.$setValidity('unique', true);
+                        return viewValue;
+                    } else {
+                        ctrl.$setValidity('unique', false);
+                        return undefined;
+                    }
+                });
+            }
+            if (parsers.indexOf('sane') >= 0) {
+                // sanitize input field more or less the same way WordPress
+                // does on receiving the data
+                ctrl.$parsers.unshift(function(viewValue) {
+                    // the first two mimic WordPress sanitize_text_field()
+                    viewValue = viewValue.replace(space, ' ');
+                    var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, '');
+                    sanitized = $sanitize(sanitized);
+                    if (sanitized === viewValue) {
+                        ctrl.$setValidity('sane', true);
+                        return viewValue;
+                    } else {
+                        ctrl.$setValidity('sane', false);
+                        return undefined;
+                    }
+                });
+            }
         }
     };
 }]);
@@ -65,6 +82,8 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
     // button event handler
     $scope.finish = function (resolution) {
         $scope.setHighlight([]);
+        $scope.saveError = undefined;
+        $scope.saveDebug = undefined;
         $scope.immediate=null;
         if (resolution) {
             deferred.resolve();
@@ -101,13 +120,19 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
 
     // build page only: deferred handler for user dialogue on data upload
     // register
-    $scope.immediateStore.register('saveCrossword', function (saveDeferred) {
+    $scope.immediateStore.register('saveCrossword', function (saveDeferred, action) {
         deferred = saveDeferred;
         $scope.immediate = 'saveCrossword';
+        $scope.action = action;
     });
     // event handler for "upload" button
     $scope.upload = function () {
-        $scope.crw.saveCrosswordData($scope.crosswordData.name).then(
+        $scope.crw.saveCrosswordData(
+            // for update, the loadedName is the old name
+            $scope.action === 'update' ? $scope.loadedName : $scope.crosswordData.name,
+            // if the loadedName has not been altered, it's allways an update
+            $scope.loadedName === $scope.crosswordData.name ? 'update' : $scope.action
+        ).then(
             $scope.finish,
             function (error) {
                 $scope.saveError = error.error;
