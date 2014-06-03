@@ -24,9 +24,62 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 var customSelectElement = angular.module("customSelectElement", []);
 
-customSelectElement.directive("cseOutsideHide", [ "$document", function($document) {
+customSelectElement.directive("cseDefault", [ "$compile", function($compile) {
     return {
+        scope: {
+            value: "="
+        },
+        template: "{{value.value || value}}"
+    };
+} ]);
+
+customSelectElement.directive("cseOption", [ "$compile", function($compile) {
+    return {
+        scope: {
+            value: "=",
+            isMenu: "=",
+            templ: "="
+        },
         link: function(scope, element, attrs) {
+            scope.select = function(value) {
+                scope.$emit("select", value);
+            };
+            attrs.$observe("value", function() {
+                var html;
+                if (angular.isObject(scope.value) && scope.value.group) {
+                    html = '<dl class="cse text" cse-select cse-options="value.group" ' + 'cse-model="head" ' + 'cse-template="' + attrs.templ + '"';
+                    if (angular.isDefined(scope.isMenu)) {
+                        html += ' cse-is-menu ng-init="head=value"';
+                    }
+                    html += "></dl>";
+                    element.html(html);
+                } else {
+                    html = "<div ng-click=";
+                    if (angular.isObject(scope.value) && angular.isDefined(scope.value.value)) {
+                        html += '"select(value.value)" ';
+                    } else {
+                        html += '"select(value)" ';
+                    }
+                    html += attrs.templ + ' value="value"></div>';
+                    element.html(html);
+                }
+                $compile(element.contents())(scope);
+            });
+        }
+    };
+} ]);
+
+customSelectElement.directive("cseSelect", [ "$document", function($document) {
+    return {
+        restrict: "A",
+        scope: {
+            options: "=cseOptions",
+            model: "=cseModel",
+            isMenu: "=cseIsMenu",
+            cseTemplate: "="
+        },
+        link: function(scope, element, attrs) {
+            scope.setModel = !angular.isDefined(attrs.cseIsMenu);
             var elementEquals = function(el1, el2) {
                 return el1[0] === el2[0];
             };
@@ -40,6 +93,7 @@ customSelectElement.directive("cseOutsideHide", [ "$document", function($documen
                 } while (clicked.length && !elementEquals($document, clicked));
                 scope.$apply("visible = false");
             };
+            scope.visible = false;
             scope.$watch("visible", function(newVisible) {
                 if (newVisible) {
                     $document.bind("click", elementHide);
@@ -50,38 +104,24 @@ customSelectElement.directive("cseOutsideHide", [ "$document", function($documen
             element.on("$destroy", function() {
                 $document.unbind("click", elementHide);
             });
+            scope.$on("select", function(event, opt) {
+                scope.visible = false;
+                if (scope.setModel) {
+                    scope.model = opt;
+                }
+            });
+        },
+        template: function(tElement, tAttr) {
+            var templ = tAttr.cseTemplate || "cse-default", menu = "";
+            var html = '<dt ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model"></div></dt>' + '<dd ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option value="opt" templ="' + templ + '"';
+            if (angular.isDefined(tAttr.cseIsMenu)) {
+                html += ' is-menu="1"';
+            }
+            html += "></li></ul></dd>";
+            return html;
         }
     };
 } ]);
-
-customSelectElement.directive("cseDefault", function() {
-    return {
-        scope: {
-            value: "="
-        },
-        template: "{{value}}"
-    };
-});
-
-customSelectElement.directive("cseSelect", function() {
-    return {
-        restrict: "A",
-        scope: {
-            options: "=cseOptions",
-            model: "=cseModel",
-            cseTemplate: "="
-        },
-        link: function(scope, element, attrs) {
-            scope.select = function(opt) {
-                scope.model = opt;
-            };
-        },
-        template: function(tElement, tAttr) {
-            var templ = tAttr.cseTemplate || "cse-default";
-            return '<dt cse-outside-hide ng-init="visible=false" title="{{model}}">' + '<a href="" ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model">' + "</div></a></dt>" + '<dd ng-show="visible"><ul>' + '<li ng-repeat="opt in options"><a href="" ng-click="select(opt)" ' + templ + ' value="opt">' + "</a></li>" + "</ul></dd>";
-        }
-    };
-});
 
 var crwApp = angular.module("crwApp", [ "ngSanitize", "qantic.angularjs.stylemodel", "customSelectElement" ]);
 
@@ -561,7 +601,21 @@ crwApp.directive("crwCatchMouse", [ "$document", function($document) {
     };
 } ]);
 
-crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory", function($scope, qStore, crosswordFactory) {
+crwApp.directive("crwMenu", [ "$compile", function($compile) {
+    return {
+        scope: {
+            value: "="
+        },
+        link: function(scope, element, attrs) {
+            scope.$watch("value", function(val) {
+                element.attr("title", scope.value.title);
+            });
+        },
+        template: "{{value.display || value}}"
+    };
+} ]);
+
+crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crosswordFactory", function($scope, qStore, basics, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
     $scope.highlight = [];
@@ -569,6 +623,35 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
         words: 0,
         solution: 0
     };
+    function updateLoadList(names) {
+        jQuery.grep($scope.commandList, function(command) {
+            return command.value === "load";
+        })[0].group = names;
+    }
+    $scope.commands = {
+        "new": "load()",
+        load: "group",
+        update: 'save("update")',
+        insert: 'save("insert")',
+        reload: "load(loadedName)"
+    };
+    $scope.commandList = jQuery.map($scope.commands, function(value, command) {
+        var obj = basics.localize(command, "action");
+        obj.value = command;
+        if (command === "load") {
+            obj.group = [];
+        }
+        return obj;
+    });
+    $scope.$on("select", function(event, entry) {
+        var task;
+        if ($scope.namesInProject.indexOf(entry) < 0) {
+            task = $scope.commands[entry];
+        } else {
+            task = 'load("' + entry + '")';
+        }
+        $scope.$evalAsync(task);
+    });
     $scope.prepare = function(project, name) {
         $scope.crw.setProject(project);
         var deregister = $scope.$on("immediateReady", function() {
@@ -593,6 +676,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
     var updateModel = function() {
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.namesInProject = $scope.crw.getNamesList();
+        updateLoadList($scope.namesInProject);
         $scope.loadedName = $scope.crosswordData.name;
         $scope.count.words = wordListLength($scope.crosswordData.words);
         $scope.count.solution = 0;
@@ -626,6 +710,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "crosswordFactory
         }
         $scope.immediateStore.newPromise("saveCrossword", action).then(function() {
             $scope.namesInProject = $scope.crw.getNamesList();
+            updateLoadList($scope.namesInProject);
             $scope.loadedName = $scope.crosswordData.name;
         });
     };
@@ -980,6 +1065,9 @@ crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($
         $scope.crw.deleteWord(id, "words");
     };
     $scope.localizeDirection = basics.localize;
+    $scope.$on("select", function(event) {
+        event.stopPropagation();
+    });
 } ]);
 
 crwApp.factory("qStore", [ "$q", function($q) {

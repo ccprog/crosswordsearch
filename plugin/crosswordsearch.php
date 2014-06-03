@@ -222,20 +222,14 @@ function crw_shortcode_handler( $atts, $content = null ) {
     if ( 'build' == $mode ) {
         // build mode always has a name selection, Reload loads from server
         $html .= '
-        <div class="name">
-            <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
-            <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName==crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>
-        </div>
-        <button ng-click="load()" title="' . __('Start a completely new riddle', 'crw-text') . '">' . __('New', 'crw-text') . '</button>
-        <button ng-click="save(\'update\')" ng-disabled="loadedName!=crosswordData.name" title="' . __('Save your work on the riddle', 'crw-text') . '">' . __('Save', 'crw-text') . '</button>
-        <button ng-click="save(\'insert\')" ng-disabled="loadedName!=crosswordData.name" title="' . __('Save as a new riddle with a seperate name', 'crw-text') . '">' . __('Save as...', 'crw-text') . '</button>
-        <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName!=crosswordData.name" title="' . __('Reset to the saved version', 'crw-text') . '">' . __('Reload', 'crw-text') . '</button>';
+        <p class="name">{{crosswordData.name}}</p>
+        <dl class="cse" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Action...', 'crw-text') . '\'"></dl>';
     } else if ( !$name ) {
         // multi-solve mode has a name selection, Restart only resets solution
         $html .= '
         <div class="name">
             <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
-            <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName==crosswordData.name" title="' . __('Load a new riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>
+            <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName==crosswordData.name" title="' . __('Load another riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>
         </div>
         <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>';
     } else {
@@ -296,7 +290,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $html .= '
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:\'ID\'" ng-controller="EntryController">
-                <dl class="cse crw-color" cse-template ="color-select" cse-select cse-options="colors" cse-model="word.color"></dl>';
+                <dl class="cse crw-color" title="{{word.color}}" cse-template ="color-select" cse-select cse-options="colors" cse-model="word.color"></dl>';
                 /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
                 $html .= '<span>{{word.fields | joinWord}} (' . sprintf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') . ')</span>
                 <button ng-click="deleteWord(word.ID)">' . __('Delete', 'crw-text') . '</button>
@@ -309,7 +303,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         <p ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!'), '{{count.words}}' ) . '</p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
-                <img ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
+                <img title="{{word.color}}" ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>';

@@ -38,4 +38,9 @@ crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
 
     //build page only: localize direction string
     $scope.localizeDirection = basics.localize;
+
+    // color selection goes no further
+    $scope.$on('select', function(event) {
+        event.stopPropagation();
+    });
 }]);

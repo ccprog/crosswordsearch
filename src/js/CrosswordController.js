@@ -32,9 +32,22 @@ crwApp.directive('crwCatchMouse', ['$document', function($document) {
     };
 }]);
 
+// command menu data binding directive
+crwApp.directive("crwMenu", ["$compile", function($compile) {
+    return {
+        scope: { value: "=" },
+        link: function (scope, element, attrs) {
+            scope.$watch('value', function(val) {
+                element.attr('title', scope.value.title);
+            });
+        },
+        template: '{{value.display || value}}'
+    };
+}]);
+
 /* wrapper controller for single crossword instance */
-crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory',
-		function ($scope, qStore, crosswordFactory) {
+crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswordFactory',
+		function ($scope, qStore, basics, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
 	$scope.immediateStore = qStore.addStore();
     $scope.highlight = [];
@@ -42,6 +55,43 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
         words: 0,
         solution: 0
     };
+
+    // build page only: data object for command menu
+    // move the namesIn Project list into the command sub-menu
+    function updateLoadList (names) {
+        jQuery.grep($scope.commandList, function(command) {
+            return command.value === 'load';
+        })[0].group = names;
+    }
+    // mapping of command names to command expressions
+    $scope.commands = {
+        'new': 'load()',
+        'load': 'group',
+        'update': 'save("update")',
+        'insert': 'save("insert")',
+        'reload': 'load(loadedName)'
+    };
+    // init commant data object
+    $scope.commandList = jQuery.map($scope.commands, function (value, command) {
+        var obj = basics.localize(command, 'action');
+        obj.value = command;
+        if (command === 'load') {
+            obj.group = [];
+        }
+        return obj;
+    });
+    // execute command on menu selection
+    $scope.$on('select', function(event, entry) {
+        var task;
+        if ($scope.namesInProject.indexOf(entry) < 0) {
+            // named command
+            task = $scope.commands[entry];
+        } else {
+            // load by name command
+            task = 'load("' + entry + '")';
+        }
+        $scope.$evalAsync(task);
+    });
 
     // init crossword at page load time
     $scope.prepare = function (project, name) {
@@ -75,6 +125,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
     var updateModel = function () {
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.namesInProject = $scope.crw.getNamesList();
+        updateLoadList($scope.namesInProject);
         $scope.loadedName = $scope.crosswordData.name;
         $scope.count.words = wordListLength($scope.crosswordData.words);
         $scope.count.solution = 0;
@@ -121,6 +172,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'crosswordFactory'
         }
         $scope.immediateStore.newPromise('saveCrossword', action).then(function () {
             $scope.namesInProject = $scope.crw.getNamesList();
+            updateLoadList($scope.namesInProject);
             $scope.loadedName = $scope.crosswordData.name;
         });
     };

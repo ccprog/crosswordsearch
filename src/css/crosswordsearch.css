@@ -26,8 +26,8 @@ div.crw-label {
     font-style: italic;
     font-weight: bold;
 }
-.crw-label dl.cse dt a {
-    width: 300px;
+.crw-label dl.cse dt {
+    width: 200px;
     min-height: 1.5em;
 }
 .crw-crossword {
@@ -202,6 +202,9 @@ ul.crw-word>li>img {
 }
 ul.crw-word li.highlight {
     background-color: #ddd;
+}
+dl.crw-color {
+    line-height: 1.2;
 }
 dl.crw-color dt a {
     width: 20px;

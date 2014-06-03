@@ -7,7 +7,27 @@
     "down": "down",
     "up": "up",
     "right": "to the right",
-    "left": "to the left"
+    "left": "to the left",
+    "new": {
+        "display": "New",
+        "title": "Start a completely new riddle"
+    },
+    "load": {
+        "display": "Load",
+        "title": "Load an existing riddle"
+    },
+    "update": {
+        "display": "Save...",
+        "title": "Save your work on the riddle"
+    },
+    "insert": {
+        "display": "Save as...",
+        "title": "Save as a new riddle with a seperate name"
+    },
+    "reload": {
+        "display": "Reload",
+        "title": "Reset to the saved version"
+    }
   },
   "letterDist": {"A": 8, "B": 1, "C": 3, "D": 4, "E": 12, "F": 2, "G": 2, "H": 6, "I": 7, "J": 1, "K": 1, "L": 4, "M": 2, "N": 6, "O": 7, "P": 2, "Q": 1, "R": 6, "S": 6, "T": 9, "U": 3, "V": 1, "W": 2, "X": 1, "Y": 2, "Z": 1},
   "letterRegEx": "[a-zA-Z]"
