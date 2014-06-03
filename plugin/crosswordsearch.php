@@ -52,14 +52,6 @@ function crw_add_project ($project) {
     }
 }
 
-function crw_get_locale_data () {
-    $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-'.get_locale().'.json';
-    if( !file_exists( $file ) ){
-        $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-en.json';
-    }
-    return json_decode( file_get_contents( $file ), true );
-}
-
 function crw_install () {
     global $wpdb, $charset_collate, $data_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -116,14 +108,11 @@ function crw_add_angular_attribute ($attributes) {
 }
 
 function add_crw_scripts () {
-	global $crw_has_crossword;
+	require_once 'l10n.php';
+    global $crw_has_crossword;
     $plugin_url = plugins_url() . '/crosswordsearch/';
 
-    $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-'.get_locale().'.json';
-    if( !file_exists( $file ) ){
-        $file = plugin_dir_path( __FILE__ ) . 'languages/crw-text-js-en.json';
-    }
-    $locale_data = (array)crw_get_locale_data();
+    $locale_data = crw_get_locale_data();
 
 	if ( $crw_has_crossword ) {
         wp_enqueue_script('angular', $plugin_url . 'js/angular.min.js');
