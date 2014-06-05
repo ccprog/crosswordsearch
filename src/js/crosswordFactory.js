@@ -13,6 +13,8 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
         var crossword = {}, namesList = [];
         // project key
         var project = '';
+        // save nonce
+        var nonce = '';
 
         // add or delete the given number of rows
         // if number is negative, rows will be removed
@@ -113,8 +115,9 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
         };
 
         // set the project key
-        this.setProject = function (p) {
+        this.setProject = function (p, n) {
             project = p;
+            nonce = n;
         };
 
         // default empty crossword object
@@ -152,16 +155,20 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                 // do not exchange the top level object to make watching it possible
                 angular.extend(crossword, response.data.crossword);
                 namesList = response.data.namesList;
+                nonce = response.data.nonce;
                 return true;
             }, serverError);
         };
 
         // save a crossword
-        this.saveCrosswordData = function (name, action) {
+        this.saveCrosswordData = function (name, action, username, password) {
             var content = {
                 action: action + '_crossword',
                 project: project,
-                crossword: angular.toJson(crossword)
+                crossword: angular.toJson(crossword),
+                username: username,
+                password: password,
+                _crwnonce: nonce
             };
             if (action === 'update') {
                 content.old_name = name;

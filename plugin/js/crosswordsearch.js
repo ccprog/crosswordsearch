@@ -217,6 +217,7 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
     function Crw() {
         var crossword = {}, namesList = [];
         var project = "";
+        var nonce = "";
         var addRows = function(number, top) {
             if (number > 0) {
                 for (var i = 0; i < number; i++) {
@@ -295,8 +296,9 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
             }
             return false;
         };
-        this.setProject = function(p) {
+        this.setProject = function(p, n) {
             project = p;
+            nonce = n;
         };
         this.loadDefault = function() {
             angular.extend(crossword, {
@@ -325,14 +327,18 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                 }
                 angular.extend(crossword, response.data.crossword);
                 namesList = response.data.namesList;
+                nonce = response.data.nonce;
                 return true;
             }, serverError);
         };
-        this.saveCrosswordData = function(name, action) {
+        this.saveCrosswordData = function(name, action, username, password) {
             var content = {
                 action: action + "_crossword",
                 project: project,
-                crossword: angular.toJson(crossword)
+                crossword: angular.toJson(crossword),
+                username: username,
+                password: password,
+                _crwnonce: nonce
             };
             if (action === "update") {
                 content.old_name = name;
@@ -636,7 +642,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         reload: "load(loadedName)"
     };
     $scope.commandList = jQuery.map($scope.commands, function(value, command) {
-        var obj = basics.localize(command, "action");
+        var obj = basics.localize(command);
         obj.value = command;
         if (command === "load") {
             obj.group = [];
@@ -652,8 +658,8 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         }
         $scope.$evalAsync(task);
     });
-    $scope.prepare = function(project, name) {
-        $scope.crw.setProject(project);
+    $scope.prepare = function(project, nonce, name) {
+        $scope.crw.setProject(project, nonce);
         var deregister = $scope.$on("immediateReady", function() {
             $scope.load(name);
             deregister();
@@ -1104,7 +1110,7 @@ crwApp.directive("crwAddParsers", [ "$sanitize", function($sanitize) {
             var parsers = attrs.crwAddParsers.split(space);
             if (parsers.indexOf("unique") >= 0) {
                 ctrl.$parsers.unshift(function(viewValue) {
-                    if (scope.loadedName === viewValue || scope.namesInProject.indexOf(viewValue) < 0) {
+                    if (scope.namesInProject.indexOf(viewValue) < 0 && !scope.commands.hasOwnProperty(viewValue)) {
                         ctrl.$setValidity("unique", true);
                         return viewValue;
                     } else {
@@ -1164,8 +1170,8 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
         $scope.immediate = "saveCrossword";
         $scope.action = action;
     });
-    $scope.upload = function() {
-        $scope.crw.saveCrosswordData($scope.action === "update" ? $scope.loadedName : $scope.crosswordData.name, $scope.loadedName === $scope.crosswordData.name ? "update" : $scope.action).then($scope.finish, function(error) {
+    $scope.upload = function(username, password) {
+        $scope.crw.saveCrosswordData($scope.action === "update" ? $scope.loadedName : $scope.crosswordData.name, $scope.loadedName === $scope.crosswordData.name ? "update" : $scope.action, username, password).then($scope.finish, function(error) {
             $scope.saveError = error.error;
             $scope.saveDebug = error.debug;
         });

@@ -32,6 +32,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 /* plugin installation */
 define('CRW_DB_VERSION', '0.1');
 define('CRW_PROJECTS_OPTION', 'crw_projects');
+define('CRW_NONCE_NAME', '_crwnonce');
 
 global $wpdb, $data_table_name;
 $wpdb->hide_errors();
@@ -199,26 +200,29 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $selected_name = $name;
     }
     $prep_1 = esc_js($project);
-    $prep_2 = esc_js($selected_name);
+    $prep_2 = wp_create_nonce( 'crw_save_'.$project );
+    $prep_3 = esc_js($selected_name);
+
+    $current_user = wp_get_current_user();
+    $is_auth = get_current_user_id() > 0 && user_can($current_user, 'edit_posts');
 
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
 
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\')">
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">
     <div class="crw-label">';
     if ( 'build' == $mode ) {
         // build mode always has a name selection, Reload loads from server
         $html .= '
         <p class="name">{{crosswordData.name}}</p>
-        <dl class="cse" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Action...', 'crw-text') . '\'"></dl>';
+        <dl class="cse" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Riddle...', 'crw-text') . '\'"></dl>';
     } else if ( !$name ) {
         // multi-solve mode has a name selection, Restart only resets solution
         $html .= '
         <div class="name">
             <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
-            <button ng-click="load(loadedName)" ng-disabled="!loadedName || loadedName==crosswordData.name" title="' . __('Load another riddle', 'crw-text') . '">' . __('Load', 'crw-text') . '</button>
         </div>
         <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>';
     } else {
@@ -288,8 +292,8 @@ function crw_shortcode_handler( $atts, $content = null ) {
     } elseif ( 'solve' == $mode ) {
         // solve mode: wordlist as solution display
         $html .= '
-        <p ng-if="count.solution<count.words">' . sprintf( __('%1$s of %2$s words found'), '{{count.solution}}', '{{count.words}}' ) . '</p>
-        <p ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!'), '{{count.words}}' ) . '</p>
+        <p ng-if="count.solution<count.words">' . sprintf( __('%1$s of %2$s words found', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) . '</p>
+        <p ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!', 'crw-text'), '{{count.words}}' ) . '</p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
                 <img title="{{word.color}}" ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
@@ -307,8 +311,8 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $html .= '
             <div ng-switch-when="invalidWords">
                 <p ng-pluralize count="invalidCount" when="{
-                    \'one\': \'' . __('The marked word no longer fits into the crossword area. For a successfull resize this word must be deleted.', 'crw-text') . '\',
-                    \'other\': \'' . __('The marked words no longer fit into the crossword area. For a successfull resize these words must be deleted.', 'crw-text') . '\'}"></p>
+                    \'one\': \'' . __('The marked word no longer fits into the crossword area. For a successful resize this word must be deleted.', 'crw-text') . '\',
+                    \'other\': \'' . __('The marked words no longer fit into the crossword area. For a successful resize these words must be deleted.', 'crw-text') . '\'}"></p>
                 <p class="actions">
                     <button ng-click="finish(true)">' . __('Delete', 'crw-text') . '</button>
                     <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
@@ -317,18 +321,44 @@ function crw_shortcode_handler( $atts, $content = null ) {
             <div ng-switch-when="saveCrossword">
                 <form name="uploader">
                     <p ng-switch on="action">
-                        <span ng-switch-when="insert">' . __('To save it, the riddle must get a new name: (at least 4 letters)', 'crw-text') . '</span>
-                        <span ng-switch-when="update">' . __('The name of the riddle:', 'crw-text') . '</span>
-                        <br />
-                        <input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique">
+                        <span ng-switch-when="insert">' . __('To save it, the riddle must get a new name.', 'crw-text') . '</span>
+                        <span ng-switch-when="update">' . __('You can change the additional informations that are saved about the riddle.', 'crw-text') . '</span>
                     </p>
-                    <p class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)">' . __('A name must be given!', 'crw-text') . '</p>
-                    <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
-                    <p class="error" ng-show="uploader.crosswordName.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</p>
-                    <p class="error" ng-show="uploader.crosswordName.$error.unique">' . __('There is already another riddle with that name!', 'crw-text') . '</p>
-                    <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</p>
+                    <table>
+                        <tr>
+                            <td><label for ="crosswordName">' . __('Name:', 'crw-text') . '</label></td>
+                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <span class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)">' . __('A name must be given!', 'crw-text') . '</span>
+                                <span class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</span>
+                                <span class="error" ng-show="uploader.crosswordName.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</span>
+                                <span class="error" ng-show="uploader.crosswordName.$error.unique">' . __('There is already another riddle with that name!', 'crw-text') . '</span>
+                                <span class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</span>
+                            </td>
+                        </tr>';
+                if (!$is_auth) {
+                    $html .= '
+                        <tr>
+                            <td><label for="username">' . __('Username:', 'crw-text') . '</label></td>
+                            <td><input type="text" name="username" required="" ng-model="username"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="password">' . __('Password:', 'crw-text') . '</label></td>
+                            <td><input type="password" name="password" required="" ng-model="password"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <span class="error" ng-show="uploader.username.$error.required || uploader.password.$error.required">' . __('A username and password is required for saving!', 'crw-text') . '</span>
+                                <span class="confirm" ng-show="uploader.username.$valid && uploader.password.$valid">&nbsp;</span>
+                            </td>
+                        </tr>
+                    </table>';
+                }
+                $html .= '
                     <p class="actions">
-                        <input type="submit" ng-disabled="!uploader.crosswordName.$valid" ng-click="upload()" value="' . __('Save', 'crw-text') . '"></input>
+                        <input type="submit" ng-disabled="!uploader.crosswordName.$valid" ng-click="upload(username, password)" value="' . __('Save', 'crw-text') . '"></input>
                         <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
                     </p>
                     <p class="error" ng-show="saveError">{{saveError}}</p>
@@ -351,6 +381,9 @@ function crw_shortcode_handler( $atts, $content = null ) {
             </div>';
     }
     $html .= '
+            <div ng-switch-when="loadCrossword">
+                <p>' . __('Please be patient for the crossword being loaded.', 'crw-text') . '</p>
+            </div>
         </div>
     </div>
 </div>';
@@ -364,6 +397,7 @@ add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 function crw_verify_json($json, &$msg) {
     include('schema/jsv4.php');
     include('schema/schema-store.php');
+    include('l10n.php');
 
     //schema loading
     $raw_schema = json_decode( file_get_contents(plugin_dir_path( __FILE__ ) . 'schema/schema.json') );
@@ -438,9 +472,9 @@ function crw_send_error ( $error, $debug ) {
 }
 
 // common function for insert and update shares data testing tasks and error handling
-function crw_save_crossword ( $for_method ) {
+function crw_save_crossword ( $for_method, $user ) {
     global $wpdb, $data_table_name;
-    $error = '';
+    $error = __('You are not allowed to save the crossword.', 'crw-text');
     $debug = NULL;
 
     // sanitize fields
@@ -452,12 +486,23 @@ function crw_save_crossword ( $for_method ) {
         $old_name = sanitize_text_field( $unsafe_old_name );
     }
 
+    // authenticate on nopriv action
+    if ( !$user ) {
+        $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
+    }
+
     // verify crossword data
     $crossword = wp_unslash( $_POST['crossword'] );
     $verification = crw_verify_json( $crossword, $msg );
 
-    // set errors on inconsistencies
-    if ( !$verification ) {
+    // set errors on failing authentication or inconsistencies
+    if ( is_wp_error($user) ) {
+        $debug = implode('<br />', $user->get_error_messages());
+    } elseif ( !user_can($user, 'edit_posts') ) {
+        $debug = $username . ': no edit capability';
+    } elseif ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], 'crw_save_'.$project ) ) {
+        $debug = 'nonce not verified for '. 'crw_save_'.$project;
+    } elseif ( !$verification ) {
         $error = __('The crossword data sent are invalid.', 'crw-text');
         $debug = $msg;
     } elseif (  !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
@@ -526,8 +571,11 @@ function crw_get_crossword() {
 
     // check for database errors
     if ($crossword) {
-        // send crossword and list of names in project
-        echo '{"crossword":' . $crossword . ',"namesList":' . json_encode($names_list) . '}';
+        // send crossword, list of names in project and save nonce
+        echo '{"crossword":' . $crossword .
+            ',"namesList":' . json_encode($names_list) .
+            ',"nonce": "' . wp_create_nonce( 'crw_save_'.$project ) .
+            '"}';
         die();
     } else {
         $error = __('The crossword was not found.', 'crw-text');
@@ -538,15 +586,21 @@ add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
 add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 // insert crossword data
-function crw_insert_crossword() {
-    crw_save_crossword('insert');
+function crw_insert_crossword_nopriv() {
+    crw_save_crossword('insert', false);
 }
-add_action( 'wp_ajax_nopriv_insert_crossword', 'crw_insert_crossword' );
+add_action( 'wp_ajax_nopriv_insert_crossword', 'crw_insert_crossword_nopriv' );
+function crw_insert_crossword() {
+    crw_save_crossword( 'insert', wp_get_current_user() );
+}
 add_action( 'wp_ajax_insert_crossword', 'crw_insert_crossword' );
 
 // update crossword data
-function crw_update_crossword() {
-    crw_save_crossword('update');
+function crw_update_crossword_nopriv() {
+    crw_save_crossword('update', false);
 }
-add_action( 'wp_ajax_nopriv_update_crossword', 'crw_update_crossword' );
+add_action( 'wp_ajax_nopriv_update_crossword', 'crw_update_crossword_nopriv' );
+function crw_update_crossword() {
+    crw_save_crossword( 'update', wp_get_current_user() );
+}
 add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );

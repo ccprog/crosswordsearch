@@ -71,9 +71,9 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         'insert': 'save("insert")',
         'reload': 'load(loadedName)'
     };
-    // init commant data object
+    // init command data object
     $scope.commandList = jQuery.map($scope.commands, function (value, command) {
-        var obj = basics.localize(command, 'action');
+        var obj = basics.localize(command);
         obj.value = command;
         if (command === 'load') {
             obj.group = [];
@@ -94,8 +94,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     });
 
     // init crossword at page load time
-    $scope.prepare = function (project, name) {
-        $scope.crw.setProject(project);
+    $scope.prepare = function (project, nonce, name) {
+        $scope.crw.setProject(project, nonce);
         var deregister = $scope.$on('immediateReady', function () {
             $scope.load(name);
             deregister();

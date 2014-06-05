@@ -42,9 +42,10 @@ crwApp.directive('crwAddParsers', ["$sanitize", function ($sanitize) {
             var space = /\s+/;
             var parsers = attrs.crwAddParsers.split(space);
             if (parsers.indexOf('unique') >= 0) {
-                // test if a crossword name is unique
+                // test if a crossword name is unique and exclude reserved words
                 ctrl.$parsers.unshift(function(viewValue) {
-                    if (scope.loadedName === viewValue || scope.namesInProject.indexOf(viewValue) < 0) {
+                    if (scope.namesInProject.indexOf(viewValue) < 0 &&
+                            !scope.commands.hasOwnProperty(viewValue)) {
                         ctrl.$setValidity('unique', true);
                         return viewValue;
                     } else {
@@ -126,12 +127,14 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
         $scope.action = action;
     });
     // event handler for "upload" button
-    $scope.upload = function () {
+    $scope.upload = function (username, password) {
         $scope.crw.saveCrosswordData(
             // for update, the loadedName is the old name
             $scope.action === 'update' ? $scope.loadedName : $scope.crosswordData.name,
-            // if the loadedName has not been altered, it's allways an update
-            $scope.loadedName === $scope.crosswordData.name ? 'update' : $scope.action
+            // if the loadedName has not been altered, it's always an update
+            $scope.loadedName === $scope.crosswordData.name ? 'update' : $scope.action,
+            // username and password are empty for logged-in editors
+            username, password
         ).then(
             $scope.finish,
             function (error) {
