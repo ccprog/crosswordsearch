@@ -650,7 +650,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     });
     $scope.$on("select", function(event, entry) {
         var task;
-        if ($scope.namesInProject.indexOf(entry) < 0) {
+        if (jQuery.inArray(entry, $scope.namesInProject) < 0) {
             task = $scope.commands[entry];
         } else {
             task = 'load("' + entry + '")';
@@ -1107,9 +1107,9 @@ crwApp.directive("crwAddParsers", function() {
         link: function(scope, element, attrs, ctrl) {
             var space = /\s+/;
             var parsers = attrs.crwAddParsers.split(space);
-            if (parsers.indexOf("unique") >= 0) {
+            if (jQuery.inArray("unique", parsers) >= 0) {
                 ctrl.$parsers.unshift(function(viewValue) {
-                    if (scope.namesInProject.indexOf(viewValue) < 0 && !scope.commands.hasOwnProperty(viewValue)) {
+                    if (jQuery.inArray(viewValue, scope.namesInProject) < 0 && !scope.commands.hasOwnProperty(viewValue)) {
                         ctrl.$setValidity("unique", true);
                         return viewValue;
                     } else {
@@ -1118,7 +1118,7 @@ crwApp.directive("crwAddParsers", function() {
                     }
                 });
             }
-            if (parsers.indexOf("sane") >= 0) {
+            if (jQuery.inArray("sane", parsers) >= 0) {
                 ctrl.$parsers.unshift(function(viewValue) {
                     viewValue = viewValue.replace(space, " ");
                     var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, "");

@@ -83,7 +83,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // execute command on menu selection
     $scope.$on('select', function(event, entry) {
         var task;
-        if ($scope.namesInProject.indexOf(entry) < 0) {
+        if (jQuery.inArray(entry, $scope.namesInProject) < 0) {
             // named command
             task = $scope.commands[entry];
         } else {

@@ -41,10 +41,10 @@ crwApp.directive('crwAddParsers', function () {
         link: function (scope, element, attrs, ctrl) {
             var space = /\s+/;
             var parsers = attrs.crwAddParsers.split(space);
-            if (parsers.indexOf('unique') >= 0) {
+            if (jQuery.inArray('unique', parsers) >= 0) {
                 // test if a crossword name is unique and exclude reserved words
                 ctrl.$parsers.unshift(function(viewValue) {
-                    if (scope.namesInProject.indexOf(viewValue) < 0 &&
+                    if (jQuery.inArray(viewValue, scope.namesInProject) < 0 &&
                             !scope.commands.hasOwnProperty(viewValue)) {
                         ctrl.$setValidity('unique', true);
                         return viewValue;
@@ -54,7 +54,7 @@ crwApp.directive('crwAddParsers', function () {
                     }
                 });
             }
-            if (parsers.indexOf('sane') >= 0) {
+            if (jQuery.inArray('sane', parsers) >= 0) {
                 // sanitize input field more or less the same way WordPress
                 // does on receiving the data
                 ctrl.$parsers.unshift(function(viewValue) {

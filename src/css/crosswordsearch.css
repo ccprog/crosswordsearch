@@ -163,7 +163,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     position: fixed;
     top: 100px;
     left: auto;
-    width: 400px;
+    background-color: #fff;
     background-color: rgba(255, 255, 255, 0.9);
     z-index: 1001;
 }
@@ -175,6 +175,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     -ms-hyphens: none;
     -moz-hyphens: none;
     hyphens: none;
+    width: 24em;
 }
 .crw-immediate table, .crw-immediate p, .crw-immediate td {
     margin: 0;
@@ -182,8 +183,8 @@ div.crw-marked.up { background-position: -124px -124px; }
     border: none;
     font-size: 100%;
 }
-.crw-immediate table {
-    width: 100%;
+.crw-immediate td:first-child {
+    width: 8em;
 }
 .crw-immediate label {
     margin-right: 5px;
@@ -195,6 +196,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     box-shadow: none;
     width: 15em;
     margin-top: 4px;
+    vertical-align: baseline;
 }
 .crw-immediate input.authenticate {
     width: 10em;
@@ -202,6 +204,7 @@ div.crw-marked.up { background-position: -124px -124px; }
 .crw-immediate textarea {
     width: 15em;
     height: 6em;
+    vertical-align: text-top;
 }
 ul.crw-word {
     list-style-type: none;
