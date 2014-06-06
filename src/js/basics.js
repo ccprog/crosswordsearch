@@ -1,5 +1,5 @@
 /* crwApp setup */
-var crwApp = angular.module('crwApp', ['ngSanitize', 'qantic.angularjs.stylemodel', 'customSelectElement']);
+var crwApp = angular.module('crwApp', ['qantic.angularjs.stylemodel', 'customSelectElement']);
 
 /* reduce implementation */
 crwApp.factory('reduce', function () {

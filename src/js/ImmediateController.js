@@ -35,7 +35,7 @@ crwApp.factory('qStore', ['$q', function ($q) {
 }]);
 
 /* input validity parsers for upload form */
-crwApp.directive('crwAddParsers', ["$sanitize", function ($sanitize) {
+crwApp.directive('crwAddParsers', function () {
     return {
         require: 'ngModel',
         link: function (scope, element, attrs, ctrl) {
@@ -58,10 +58,8 @@ crwApp.directive('crwAddParsers', ["$sanitize", function ($sanitize) {
                 // sanitize input field more or less the same way WordPress
                 // does on receiving the data
                 ctrl.$parsers.unshift(function(viewValue) {
-                    // the first two mimic WordPress sanitize_text_field()
                     viewValue = viewValue.replace(space, ' ');
                     var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, '');
-                    sanitized = $sanitize(sanitized);
                     if (sanitized === viewValue) {
                         ctrl.$setValidity('sane', true);
                         return viewValue;
@@ -73,7 +71,7 @@ crwApp.directive('crwAddParsers', ["$sanitize", function ($sanitize) {
             }
         }
     };
-}]);
+});
 
 /* controller for modal area */
 crwApp.controller("ImmediateController", ['$scope', function ($scope) {
