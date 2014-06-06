@@ -124,6 +124,8 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
         this.loadDefault = function () {
             angular.extend(crossword, {
                 'name': '',
+                'description': '',
+                'author': '',
                 size: {
                     width: 10,
                     height: 10
@@ -186,11 +188,6 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
                 namesList = response.data.namesList;
                 return true;
             }, serverError);
-        };
-
-        // set a name for a crossword
-        this.setName = function (str) {
-            crossword.name = str;
         };
 
         // return the highest id used for words

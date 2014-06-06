@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-05 14:34+0200\n"
+"POT-Creation-Date: 2014-06-06 12:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,161 +43,181 @@ msgstr ""
 msgid "There is no crossword with the name %1$s."
 msgstr ""
 
-#: plugin/crosswordsearch.php:220
+#: plugin/crosswordsearch.php:218
 msgid "Riddle..."
 msgstr ""
 
-#: plugin/crosswordsearch.php:227 plugin/crosswordsearch.php:232
-msgid "Restart solving the riddle"
+#: plugin/crosswordsearch.php:222 plugin/crosswordsearch.php:236
+msgid "Find these words in the riddle:"
 msgstr ""
 
-#: plugin/crosswordsearch.php:227 plugin/crosswordsearch.php:232
-msgid "Restart"
+#: plugin/crosswordsearch.php:231
+msgid "Select a riddle"
 msgstr ""
 
-#: plugin/crosswordsearch.php:273
+#: plugin/crosswordsearch.php:274
 msgid "Fill all empty fields with random letters"
 msgstr ""
 
-#: plugin/crosswordsearch.php:273
+#: plugin/crosswordsearch.php:274
 msgid "Fill fields"
 msgstr ""
 
-#: plugin/crosswordsearch.php:274
+#: plugin/crosswordsearch.php:275
 msgid "Empty all fields"
 msgstr ""
 
-#: plugin/crosswordsearch.php:274
+#: plugin/crosswordsearch.php:275
 msgid "Empty"
 msgstr ""
 
 #. / translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
-#: plugin/crosswordsearch.php:288
+#: plugin/crosswordsearch.php:289
 #, php-format
 msgid "from line %1$s, column %2$s %3$s"
 msgstr ""
 
-#: plugin/crosswordsearch.php:289 plugin/crosswordsearch.php:317
-#: plugin/crosswordsearch.php:373
+#: plugin/crosswordsearch.php:290 plugin/crosswordsearch.php:322
+#: plugin/crosswordsearch.php:386
 msgid "Delete"
 msgstr ""
 
-#: plugin/crosswordsearch.php:295
+#: plugin/crosswordsearch.php:297
 #, php-format
 msgid "%1$s of %2$s words found"
 msgstr ""
 
-#: plugin/crosswordsearch.php:296
+#: plugin/crosswordsearch.php:298
 #, php-format
 msgid "All %1$s words found!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:314
+#: plugin/crosswordsearch.php:299
+msgid "Restart solving the riddle"
+msgstr ""
+
+#: plugin/crosswordsearch.php:299
+msgid "Restart"
+msgstr ""
+
+#: plugin/crosswordsearch.php:311
+msgid "Authored by"
+msgstr ""
+
+#: plugin/crosswordsearch.php:319
 msgid ""
 "The marked word no longer fits into the crossword area. For a successful "
 "resize this word must be deleted."
 msgstr ""
 
-#: plugin/crosswordsearch.php:315
+#: plugin/crosswordsearch.php:320
 msgid ""
 "The marked words no longer fit into the crossword area. For a successful "
 "resize these words must be deleted."
 msgstr ""
 
-#: plugin/crosswordsearch.php:318 plugin/crosswordsearch.php:362
+#: plugin/crosswordsearch.php:323 plugin/crosswordsearch.php:375
 msgid "Abort"
 msgstr ""
 
-#: plugin/crosswordsearch.php:324
+#: plugin/crosswordsearch.php:329
 msgid "To save it, the riddle must get a new name."
 msgstr ""
 
-#: plugin/crosswordsearch.php:325
+#: plugin/crosswordsearch.php:330
 msgid ""
 "You can change the additional informations that are saved about the riddle."
 msgstr ""
 
-#: plugin/crosswordsearch.php:329
+#: plugin/crosswordsearch.php:334
 msgid "Name:"
 msgstr ""
 
-#: plugin/crosswordsearch.php:334
+#: plugin/crosswordsearch.php:339
 msgid "A name must be given!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:335
+#: plugin/crosswordsearch.php:340
 msgid "The name is too short!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:336
-msgid "Dont't try to be clever!"
-msgstr ""
-
-#: plugin/crosswordsearch.php:337
+#: plugin/crosswordsearch.php:341
 msgid "There is already another riddle with that name!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:338
+#: plugin/crosswordsearch.php:342
 msgid "That looks good!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:344
+#: plugin/crosswordsearch.php:346
+msgid "Give a hint which words should be found:"
+msgstr ""
+
+#: plugin/crosswordsearch.php:350
+msgid "Author:"
+msgstr ""
+
+#: plugin/crosswordsearch.php:356
 msgid "Username:"
 msgstr ""
 
-#: plugin/crosswordsearch.php:348
+#: plugin/crosswordsearch.php:360
 msgid "Password:"
 msgstr ""
 
-#: plugin/crosswordsearch.php:353
+#: plugin/crosswordsearch.php:365
 msgid "A username and password is required for saving!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:361
+#: plugin/crosswordsearch.php:372
+msgid "Dont't try to be clever!"
+msgstr ""
+
+#: plugin/crosswordsearch.php:374
 msgid "Save"
 msgstr ""
 
-#: plugin/crosswordsearch.php:371
+#: plugin/crosswordsearch.php:384
 msgid "The marked word is not part of the solution."
 msgstr ""
 
-#: plugin/crosswordsearch.php:377
+#: plugin/crosswordsearch.php:390
 msgid "Congratulation, the riddle is solved!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:379
+#: plugin/crosswordsearch.php:392
 msgid "OK"
 msgstr ""
 
-#: plugin/crosswordsearch.php:385
+#: plugin/crosswordsearch.php:398
 msgid "Please be patient for the crossword being loaded."
 msgstr ""
 
-#: plugin/crosswordsearch.php:477
+#: plugin/crosswordsearch.php:490
 msgid "You are not allowed to save the crossword."
 msgstr ""
 
-#: plugin/crosswordsearch.php:506
+#: plugin/crosswordsearch.php:519
 msgid "The crossword data sent are invalid."
 msgstr ""
 
-#: plugin/crosswordsearch.php:509
+#: plugin/crosswordsearch.php:522
 msgid "The project does not exist."
 msgstr ""
 
-#: plugin/crosswordsearch.php:512 plugin/crosswordsearch.php:515
+#: plugin/crosswordsearch.php:525 plugin/crosswordsearch.php:528
 msgid "The name has forbidden content."
 msgstr ""
 
-#: plugin/crosswordsearch.php:518
+#: plugin/crosswordsearch.php:531
 msgid "The name sent is inconsistent with crossword data."
 msgstr ""
 
-#: plugin/crosswordsearch.php:545
+#: plugin/crosswordsearch.php:558
 msgid "The crossword could not be saved to the database."
 msgstr ""
 
-#: plugin/crosswordsearch.php:581
+#: plugin/crosswordsearch.php:594
 msgid "The crossword was not found."
 msgstr ""
 

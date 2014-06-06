@@ -211,30 +211,31 @@ function crw_shortcode_handler( $atts, $content = null ) {
 
 	// wrapper divs
 	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">
-    <div class="crw-label">';
+<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">';
     if ( 'build' == $mode ) {
-        // build mode always has a name selection, Reload loads from server
+        // build mode has an action menu including a name selection for server reload
         $html .= '
-        <p class="name">{{crosswordData.name}}</p>
-        <dl class="cse" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Riddle...', 'crw-text') . '\'"></dl>';
-    } else if ( !$name ) {
-        // multi-solve mode has a name selection, Restart only resets solution
-        $html .= '
-        <div class="name">
-            <dl class="cse" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
-        </div>
-        <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>';
-    } else {
-        // single-solve mode, Restart only resets solution
-        $html .= '
-        <p class="name">{{crosswordData.name}}</p>
-        <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>';
-    }
-	$html .= '
-    </div>
+    <dl class="cse menu" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Riddle...', 'crw-text') . '\'"></dl>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-if="loadError">{{loadError.debug}}</p>
+    <p class="name">{{crosswordData.name}}</p>
+    <p class="description" ng-show="crosswordData.description"><em>' . __('Find these words in the riddle:', 'crw-text') . '</em> {{crosswordData.description}}</p>';
+    } else {
+        if ( $name || count($names_list) <= 1 ) {
+            // single solve only shows the name
+            $html .= '
+    <p class="name">{{crosswordData.name}}</p>';
+        } else {
+            // multi solve has a name selection
+            $html .= '
+    <dl class="cse name" title="' . __('Select a riddle', 'crw-text') . '" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
+    <p class="error" ng-if="loadError">{{loadError.error}}</p>
+    <p class="error" ng-if="loadError">{{loadError.debug}}</p>';
+        }
+        $html .= '
+    <p class="description" ng-show="crosswordData.description"><em>' . __('Find these words in the riddle:', 'crw-text') . '</em> {{crosswordData.description}}</p>';
+    }
+	$html .= '
     <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController" ng-if="crosswordData">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
@@ -290,10 +291,13 @@ function crw_shortcode_handler( $atts, $content = null ) {
             </li>
         </ul>';
     } elseif ( 'solve' == $mode ) {
-        // solve mode: wordlist as solution display
+        // solve mode: solution status and restart button, wordlist as solution display
         $html .= '
-        <p ng-if="count.solution<count.words">' . sprintf( __('%1$s of %2$s words found', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) . '</p>
-        <p ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!', 'crw-text'), '{{count.words}}' ) . '</p>
+        <p ng-show="crosswordData.name">
+            <span ng-if="count.solution<count.words">' . sprintf( __('%1$s of %2$s words found', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) . '</span>
+            <span ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!', 'crw-text'), '{{count.words}}' ) . '</span>
+            <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>
+        </p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
                 <img title="{{word.color}}" ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
@@ -304,6 +308,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     // modal area
     $html .= '
     </div>
+    <p ng-show="crosswordData.author" class="copyright">' . __('Authored by', 'crw-text') . ' {{crosswordData.author}}</p>
     <div class="crw-immediate" ng-controller="ImmediateController" ng-show="immediate" ng-switch on="immediate">
         <div class="blocker"></div>
         <div class="message">';
@@ -330,35 +335,43 @@ function crw_shortcode_handler( $atts, $content = null ) {
                             <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique"></td>
                         </tr>
                         <tr>
-                            <td colspan="2">
-                                <span class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)">' . __('A name must be given!', 'crw-text') . '</span>
-                                <span class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</span>
-                                <span class="error" ng-show="uploader.crosswordName.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</span>
-                                <span class="error" ng-show="uploader.crosswordName.$error.unique">' . __('There is already another riddle with that name!', 'crw-text') . '</span>
-                                <span class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</span>
+                            <td></td><td>
+                                <p class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)">' . __('A name must be given!', 'crw-text') . '</p>
+                                <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
+                                <p class="error" ng-show="uploader.crosswordName.$error.unique">' . __('There is already another riddle with that name!', 'crw-text') . '</p>
+                                <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</p>
                             </td>
+                        </tr>
+                        <tr>
+                            <td><label for ="description">' . __('Give a hint which words should be found:', 'crw-text') . '</label></td>
+                            <td><textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td><label for ="author">' . __('Author:', 'crw-text') . '</label></td>
+                            <td><input type="text" ng-model="crosswordData.author" name="author" crw-add-parsers="sane"></td>
                         </tr>';
                 if (!$is_auth) {
                     $html .= '
                         <tr>
                             <td><label for="username">' . __('Username:', 'crw-text') . '</label></td>
-                            <td><input type="text" name="username" required="" ng-model="username"></td>
+                            <td><input type="text" name="username" class="authenticate" required="" ng-model="username"></td>
                         </tr>
                         <tr>
                             <td><label for="password">' . __('Password:', 'crw-text') . '</label></td>
-                            <td><input type="password" name="password" required="" ng-model="password"></td>
+                            <td><input type="password" name="password" class="authenticate" required="" ng-model="password"></td>
                         </tr>
                         <tr>
-                            <td colspan="2">
-                                <span class="error" ng-show="uploader.username.$error.required || uploader.password.$error.required">' . __('A username and password is required for saving!', 'crw-text') . '</span>
-                                <span class="confirm" ng-show="uploader.username.$valid && uploader.password.$valid">&nbsp;</span>
+                            <td></td><td>
+                                <p class="error" ng-show="uploader.username.$error.required || uploader.password.$error.required">' . __('A username and password is required for saving!', 'crw-text') . '</p>
+                                <p class="confirm" ng-show="uploader.username.$valid && uploader.password.$valid">&nbsp;</p>
                             </td>
-                        </tr>
-                    </table>';
+                        </tr>';
                 }
                 $html .= '
+                    </table>
+                    <p class="error" ng-show="uploader.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</p>
                     <p class="actions">
-                        <input type="submit" ng-disabled="!uploader.crosswordName.$valid" ng-click="upload(username, password)" value="' . __('Save', 'crw-text') . '"></input>
+                        <input type="submit" ng-disabled="!uploader.$valid" ng-click="upload(username, password)" value="' . __('Save', 'crw-text') . '"></input>
                         <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
                     </p>
                     <p class="error" ng-show="saveError">{{saveError}}</p>

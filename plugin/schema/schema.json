@@ -1,13 +1,19 @@
 {
   "id": "http://example.com/schema",
   "type": "object",
-  "required": [ "name", "size", "table", "words", "solution" ],
+  "required": [ "name", "description", "author", "size", "table", "words", "solution" ],
   "additionalProperties": false,
   "properties": {
     "name": {
       "type": "string",
       "minLength": 4,
       "maxLength": 255
+    },
+    "description": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
     },
     "size": {
       "required": [ "width", "height" ],

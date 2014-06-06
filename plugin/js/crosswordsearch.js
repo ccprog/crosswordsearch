@@ -123,7 +123,7 @@ customSelectElement.directive("cseSelect", [ "$document", function($document) {
     };
 } ]);
 
-var crwApp = angular.module("crwApp", [ "ngSanitize", "qantic.angularjs.stylemodel", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "qantic.angularjs.stylemodel", "customSelectElement" ]);
 
 crwApp.factory("reduce", function() {
     return function(array, initial, func) {
@@ -303,6 +303,8 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
         this.loadDefault = function() {
             angular.extend(crossword, {
                 name: "",
+                description: "",
+                author: "",
                 size: {
                     width: 10,
                     height: 10
@@ -356,9 +358,6 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
                 namesList = response.data.namesList;
                 return true;
             }, serverError);
-        };
-        this.setName = function(str) {
-            crossword.name = str;
         };
         this.getHighId = function() {
             return reduce(crossword.words, 0, function(result, word) {
@@ -1102,7 +1101,7 @@ crwApp.factory("qStore", [ "$q", function($q) {
     };
 } ]);
 
-crwApp.directive("crwAddParsers", [ "$sanitize", function($sanitize) {
+crwApp.directive("crwAddParsers", function() {
     return {
         require: "ngModel",
         link: function(scope, element, attrs, ctrl) {
@@ -1123,7 +1122,6 @@ crwApp.directive("crwAddParsers", [ "$sanitize", function($sanitize) {
                 ctrl.$parsers.unshift(function(viewValue) {
                     viewValue = viewValue.replace(space, " ");
                     var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, "");
-                    sanitized = $sanitize(sanitized);
                     if (sanitized === viewValue) {
                         ctrl.$setValidity("sane", true);
                         return viewValue;
@@ -1135,7 +1133,7 @@ crwApp.directive("crwAddParsers", [ "$sanitize", function($sanitize) {
             }
         }
     };
-} ]);
+});
 
 crwApp.controller("ImmediateController", [ "$scope", function($scope) {
     var deferred;

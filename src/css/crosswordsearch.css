@@ -1,10 +1,13 @@
 .crw-wrapper {
     position: relative;
 }
-.crw-wrapper .error, .crw-immediate .confirm {
+.crw-wrapper p, .crw-wrapper>dl.cse {
+    margin: 10px 0 0;
+}
+.crw-wrapper .error, .crw-immediate .confirm, .crw-wrapper .copyright {
     font-size: 0.7em;
     font-weight: bold;
-    margin: 4px 0;
+    margin: 3px 0 5px;
 }
 .crw-wrapper .error {
     color: red;
@@ -12,23 +15,17 @@
 .crw-wrapper .confirm {
     color: green;
 }
-div.crw-label {
-    padding-bottom: 0;
-    margin-bottom: 0;
-}
-.crw-label>.name {
-    margin: 10px 0 1em;
-}
-.crw-label>p.name {
+.crw-wrapper p.name {
     font-style: italic;
     font-weight: bold;
 }
-.crw-label dl.cse dt {
+.crw-wrapper dl.cse.menu dt {
     width: 200px;
     min-height: 1.5em;
 }
-.crw-label .name dl.cse dt {
+.crw-wrapper dl.cse.name dt {
     width: 300px;
+    min-height: 1.5em;
 }
 .crw-crossword {
     position: relative;
@@ -186,7 +183,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     font-size: 100%;
 }
 .crw-immediate table {
-    width: auto;
+    width: 100%;
 }
 .crw-immediate label {
     margin-right: 5px;
@@ -196,11 +193,15 @@ div.crw-marked.up { background-position: -124px -124px; }
 }
 .crw-immediate input {
     box-shadow: none;
-    width: 10em;
+    width: 15em;
     margin-top: 4px;
 }
-.crw-immediate input[name="crosswordName"] {
+.crw-immediate input.authenticate {
+    width: 10em;
+}
+.crw-immediate textarea {
     width: 15em;
+    height: 6em;
 }
 ul.crw-word {
     list-style-type: none;
