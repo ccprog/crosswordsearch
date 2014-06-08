@@ -121,7 +121,7 @@ customSelectElement.directive("cseSelect", ['$document', function($document) {
             });
         },
         template: function (tElement, tAttr) {
-            var templ = tAttr.cseTemplate || 'cse-default', menu = '';
+            var templ = tAttr.cseTemplate || 'cse-default';
             var html = '<dt ng-click="visible=!visible"><div ng-show="!!(model)" ' +
                 templ + ' value="model"></div></dt>' +
                 '<dd ng-show="visible"><ul>' +

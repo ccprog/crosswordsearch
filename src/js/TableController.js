@@ -50,7 +50,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
             markers.redrawMarkers($scope.crosswordData.words);
             lastName = $scope.crosswordData.name;
             $scope.$watch('crosswordData.words', function (newWords, oldWords) {
-                var probe, shift_x = 0, shift_y = 0;
+                var probe;
                 // is this a new crossword?
                 if ($scope.crosswordData.name !== lastName) {
                     // redraw all markers and reset marking ids
@@ -64,18 +64,12 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                         if (!newWords[id]) {
                             markers.deleteMarking(id);
                         } else {
-                            probe = id;
+                            probe = true;
                         }
                     });
+                    // if there are other markings, redraw to catch word shifts
                     if (probe) {
-                        // if there are other markings, test if words have shifted
-                        // due to table resize
-                        shift_x = newWords[probe].start.x - oldWords[probe].start.x;
-                        shift_y = newWords[probe].start.y - oldWords[probe].start.y;
-                        if(shift_x !== 0 || shift_y !== 0) {
-                            // shift markers the same as words have moved
-                            markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
-                        }
+                        markers.redrawMarkers($scope.crosswordData.words);
                     }
                 }
             }, true);

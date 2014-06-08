@@ -112,7 +112,7 @@ customSelectElement.directive("cseSelect", [ "$document", function($document) {
             });
         },
         template: function(tElement, tAttr) {
-            var templ = tAttr.cseTemplate || "cse-default", menu = "";
+            var templ = tAttr.cseTemplate || "cse-default";
             var html = '<dt ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model"></div></dt>' + '<dd ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option value="opt" templ="' + templ + '"';
             if (angular.isDefined(tAttr.cseIsMenu)) {
                 html += ' is-menu="1"';
@@ -544,14 +544,19 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
                 markers[field.x][field.y][id].marking.color = color;
             });
         };
-        this.redrawMarkers = function(markings, shift_x, shift_y) {
+        this.redrawMarkers = function(markings) {
             angular.forEach(markings, function(marking) {
+                var shift_x = 0, shift_y = 0;
                 var from = marking.start, to = marking.stop;
                 var swap = to.x < from.x || to.x === from.x && to.y < from.y;
                 this.deleteMarking(marking.ID);
+                if (marking.fields.length) {
+                    shift_x = from.x - marking.fields[0].x;
+                    shift_y = from.y - marking.fields[0].y;
+                }
                 angular.forEach(marking.fields, function(field) {
-                    field.x += shift_x || 0;
-                    field.y += shift_y || 0;
+                    field.x += shift_x;
+                    field.y += shift_y;
                 });
                 setMarkers(marking, swap);
             }, this);
@@ -671,19 +676,16 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         });
         return arr;
     };
-    var wordListLength = function(words) {
-        var length = 0;
-        angular.forEach(words, function() {
-            length++;
-        });
-        return length;
-    };
     var updateModel = function() {
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.namesInProject = $scope.crw.getNamesList();
         updateLoadList($scope.namesInProject);
         $scope.loadedName = $scope.crosswordData.name;
-        $scope.count.words = wordListLength($scope.crosswordData.words);
+        $scope.count.words = 0;
+        angular.forEach($scope.crosswordData.words, function(word) {
+            $scope.count.words++;
+            $scope.crw.setWord(word);
+        });
         $scope.count.solution = 0;
     };
     $scope.setHighlight = function(h) {
@@ -911,7 +913,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
             markers.redrawMarkers($scope.crosswordData.words);
             lastName = $scope.crosswordData.name;
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
-                var probe, shift_x = 0, shift_y = 0;
+                var probe;
                 if ($scope.crosswordData.name !== lastName) {
                     markers.deleteAllMarking();
                     markers.redrawMarkers(newWords);
@@ -924,15 +926,11 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                         if (!newWords[id]) {
                             markers.deleteMarking(id);
                         } else {
-                            probe = id;
+                            probe = true;
                         }
                     });
                     if (probe) {
-                        shift_x = newWords[probe].start.x - oldWords[probe].start.x;
-                        shift_y = newWords[probe].start.y - oldWords[probe].start.y;
-                        if (shift_x !== 0 || shift_y !== 0) {
-                            markers.redrawMarkers($scope.crosswordData.words, shift_x, shift_y);
-                        }
+                        markers.redrawMarkers($scope.crosswordData.words);
                     }
                 }
             }, true);

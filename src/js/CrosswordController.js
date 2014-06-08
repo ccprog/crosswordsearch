@@ -112,22 +112,19 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         return arr;
     };
 
-    // count words in words/solution object
-    var wordListLength = function (words) {
-        var length = 0;
-        angular.forEach(words, function() {
-            length++;
-        });
-        return length;
-    };
-
     // get model data up to speed after loading
     var updateModel = function () {
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.namesInProject = $scope.crw.getNamesList();
         updateLoadList($scope.namesInProject);
         $scope.loadedName = $scope.crosswordData.name;
-        $scope.count.words = wordListLength($scope.crosswordData.words);
+        $scope.count.words = 0;
+        angular.forEach($scope.crosswordData.words, function(word) {
+            // count words in words/solution object
+            $scope.count.words++;
+            // refresh data binding for word objects
+            $scope.crw.setWord(word);
+        });
         $scope.count.solution = 0;
     };
 
