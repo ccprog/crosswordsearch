@@ -1,13 +1,20 @@
 .crw-wrapper {
     position: relative;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    -moz-hyphens: none;
+    hyphens: none;
 }
-.crw-wrapper p, .crw-wrapper>dl.cse {
-    margin: 10px 0 0;
+.crw-wrapper>* {
+    margin: 10px 10px 0;
+}
+.crw-wrapper .cse dt, .crw-wrapper .cse ul {
+    border-radius: 2px;
 }
 .crw-wrapper .error, .crw-immediate .confirm, .crw-wrapper .copyright {
     font-size: 0.7em;
     font-weight: bold;
-    margin: 3px 0 5px;
+    margin: 3px 10px 5px;
 }
 .crw-wrapper .error {
     color: red;
@@ -31,10 +38,12 @@
     position: relative;
     float: left;
     min-width: 320px;
-    margin: 10px;
+}
+.crw-crossword>* {
+    position: absolute;
 }
 .crw-crossword.wide {
-    margin: 72px 72px 0 72px;
+    margin: 72px;
 }
 .crw-grid {
     -moz-box-sizing: content-box;
@@ -48,9 +57,11 @@
 }
 .crw-grid #handle-left {
     cursor: w-resize;
+    background-position: left center;
 }
 .crw-grid #handle-right {
     cursor: e-resize;
+    background-position: right center;
 }
 .crw-grid #handle-left,
 .crw-grid #handle-right {
@@ -58,13 +69,20 @@
    z-index: 10;
    top: 15px;
    bottom: 15px;
-/*   background-color: red;*/
+   background-image: url(../images/handle-vertical-passive.png);
+   background-repeat: no-repeat;
+}
+.crw-grid #handle-left:hover,
+.crw-grid #handle-right:hover {
+   background-image: url(../images/handle-vertical-active.png);
 }
 .crw-grid #handle-top {
     cursor: n-resize;
+    background-position: center top;
 }
 .crw-grid #handle-bottom {
     cursor: s-resize;
+    background-position: center bottom;
 }
 .crw-grid #handle-top,
 .crw-grid #handle-bottom {
@@ -72,10 +90,14 @@
    z-index: 10;
    left: 15px;
    right: 15px;
-/*   background-color: red;*/
+   background-image: url(../images/handle-horizontal-passive.png);
+   background-repeat: no-repeat;
+}
+.crw-grid #handle-top:hover,
+.crw-grid #handle-bottom:hover {
+   background-image: url(../images/handle-horizontal-active.png);
 }
 .crw-mask {
-    position: absolute;
     overflow: hidden;
 }
 table.crw-table {
@@ -145,11 +167,51 @@ div.crw-marked.corner-down-left { background-position: -62px -93px; }
 div.crw-marked.vertical { background-position: -124px -93px; }
 div.crw-marked.up-left { background-position: -62px -124px; }
 div.crw-marked.up { background-position: -124px -124px; }
-
+.crw-crossword button {
+    margin: 0;
+    padding: 0;
+    width: 31px;
+    height:31px;
+    border: none;
+    background-color: transparent;
+    background-image: url(../images/controls.png);
+}
+.crw-crossword button.fill {
+    background-position: 0px -31px;
+}
+.crw-crossword button.fill:hover {
+    background-position: 0px 0px;
+}
+.crw-crossword button.empty {
+    background-position: -31px -31px;
+}
+.crw-crossword button.empty:hover {
+    background-position: -31px 0px;
+}
+.crw-controls button {
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 31px;
+    height:23px;
+    background-color: transparent;
+    background-image: url(../images/controls.png);
+}
+.crw-controls button.trash {
+    background-position: -62px -35px;
+}
+.crw-controls button.trash:hover {
+    background-position: -62px -4px;
+}
+.crw-controls button.restart {
+    background-position: -93px -35px;
+}
+.crw-controls button.restart:hover {
+    background-position: -93px -4px;
+}
 .crw-controls {
     display: inline-block;
     width: 30em;
-    margin: 10px;
 }
 .crw-immediate>.blocker {
     position: fixed;
@@ -171,10 +233,6 @@ div.crw-marked.up { background-position: -124px -124px; }
     margin: 10px;
     padding: 10px;
     border: 1px solid black;
-    -webkit-hyphens: none;
-    -ms-hyphens: none;
-    -moz-hyphens: none;
-    hyphens: none;
     width: 24em;
 }
 .crw-immediate table, .crw-immediate p, .crw-immediate td {
@@ -192,7 +250,7 @@ div.crw-marked.up { background-position: -124px -124px; }
 .crw-immediate p.actions {
     margin-top: 1em;
 }
-.crw-immediate input {
+.crw-immediate input[type="text"], .crw-immediate input[type="password"] {
     box-shadow: none;
     width: 15em;
     margin-top: 4px;

@@ -4,7 +4,7 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     // one-letter sizes are pixel positions as they result from dragging,
     // -g sizes are adjusted to multiples of the grid size
     var size = basics.fieldSize,
-        t, b, l, r, lg, tg, wg, hg;
+        t, b, l, r, lg, tg, wg, hg, fwg, fhg;
 
     // after each drag operation, irrespective of their success,
     // handles and left/top positioning of the table must be reset
@@ -13,8 +13,8 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
         r = (cols * size)+1;
         b = (rows * size)+1;
         lg = tg = 0;
-        wg = cols * size;
-        hg = rows * size;
+        wg = fwg = cols * size;
+        hg = fhg = rows * size;
         $scope.modLeft.transform(l, 0);
         $scope.modTop.transform(0, t);
         $scope.modRight.transform(r, 0);
@@ -50,7 +50,7 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     // style for left handle
     $scope.modLeft.addStyle('handle-left', function (x, y) {
         return {
-            'left': (l - lg - 6) + 'px',
+            'left': (l - lg - 8) + 'px',
             'width': (lg - l + 12) + 'px'
         };
     });
@@ -67,7 +67,7 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     // style for top handle
     $scope.modTop.addStyle('handle-top', function (x, y) {
         return {
-            'top': (t - tg - 6) + 'px',
+            'top': (t - tg - 8) + 'px',
             'height': (tg - t + 12) + 'px'
         };
     });
@@ -83,7 +83,7 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     // style for right handle
     $scope.modRight.addStyle('handle-right', function (x, y) {
         return {
-            'right': (lg + wg - r - 6) + 'px',
+            'right': (lg + wg - r - 8) + 'px',
             'width': (r - lg - wg + 12) + 'px'
         };
     });
@@ -99,12 +99,20 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     // style for bottom handle
     $scope.modBottom.addStyle('handle-bottom', function (x, y) {
         return {
-            'bottom': (tg + hg - b - 6) + 'px',
+            'bottom': (tg + hg - b - 8) + 'px',
             'height': (b - tg - hg + 12) + 'px'
         };
     });
 
-    // style for background grid size spans multiple style models
+    // styles spanning multiple style models
+    // table/grid wrapper changes only after stopResize
+    $scope.styleCrossword = function () {
+        return {
+            'width': fwg + 'px',
+            'height': (fhg + 40) + 'px'
+        };
+    };
+    //background grid size spans changes during resize
     $scope.styleGridSize = function () {
         return {
             'left': lg + 'px',
@@ -113,11 +121,18 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
             'height': hg + 'px'
         };
     };
-    // style for table and grid position spans multiple style models
+    // table and grid position changes during resize
     $scope.styleShift = function () {
         return {
             'left': -lg + 'px',
             'top': -tg + 'px'
+        };
+    };
+    // fill/empty button position changes during resize
+    $scope.styleExtras = function () {
+        return {
+            'left': lg + 'px',
+            'top': (tg + hg + 8) + 'px'
         };
     };
 
@@ -141,7 +156,9 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     $scope.stopResize = function () {
         var newSize = abstractSize();
         // test whether abstract size change results from dragging
-        if (!angular.equals(currentSize, newSize)) {
+        if (angular.equals(currentSize, newSize)) {
+            resetSizes(currentSize.right + currentSize.left, currentSize.bottom + currentSize.top);
+        } else {
             var change = {
                 left: newSize.left - currentSize.left,
                 right: newSize.right - currentSize.right,

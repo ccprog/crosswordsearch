@@ -13,6 +13,9 @@ dl.cse {
     padding:0px;
     cursor: pointer;
 }
+dl.cse:first-child {
+    margin-left: 0;
+}
 .cse dd, .cse dt, .cse ul, .cse li {
     line-height: inherit;
 }

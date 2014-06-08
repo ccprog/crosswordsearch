@@ -215,7 +215,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     if ( 'build' == $mode ) {
         // build mode has an action menu including a name selection for server reload
         $html .= '
-    <dl class="cse menu" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Riddle...', 'crw-text') . '\'"></dl>
+    <div><dl class="cse menu" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Riddle...', 'crw-text') . '\'"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-if="loadError">{{loadError.debug}}</p>
     <p class="name">{{crosswordData.name}}</p>
@@ -228,7 +228,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         } else {
             // multi solve has a name selection
             $html .= '
-    <dl class="cse name" title="' . __('Select a riddle', 'crw-text') . '" cse-select cse-options="namesInProject" cse-model="loadedName"></dl>
+    <div><dl class="cse name" title="' . __('Select a riddle', 'crw-text') . '" cse-select cse-options="namesInProject" cse-model="loadedName"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-if="loadError">{{loadError.debug}}</p>';
         }
@@ -236,7 +236,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     <p class="description" ng-show="crosswordData.description"><em>' . __('Find these words in the riddle:', 'crw-text') . '</em> {{crosswordData.description}}</p>';
     }
 	$html .= '
-    <div class="crw-crossword' . ( 'build' == $mode ? ' wide' : '' ) . '" ng-controller="SizeController" ng-if="crosswordData">
+    <div class="crw-crossword' . ( 'build' == $mode ? ' wide" ng-style="styleCrossword()' : '' ) . '" ng-controller="SizeController" ng-if="crosswordData">
         <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
 	    // resize handles
 	    if ( 'build' == $mode ) {
@@ -270,9 +270,8 @@ function crw_shortcode_handler( $atts, $content = null ) {
         </div>';
 	    if ( 'build' == $mode ) {
             $html .= '
-        <p>
-            <button ng-click="randomize()" title="' . __('Fill all empty fields with random letters', 'crw-text') . '">' . __('Fill fields', 'crw-text') . '</button>
-            <button ng-click="empty()" title="' . __('Empty all fields', 'crw-text') . '">' . __('Empty', 'crw-text') . '</button>
+        <p ng-style="styleExtras()">
+            <button class="fill" ng-click="randomize()" title="' . __('Fill all empty fields with random letters', 'crw-text') . '" alt="' . __('Fill fields', 'crw-text') . '"></button><button class="empty" ng-click="empty()" title="' . __('Empty all fields', 'crw-text') . '" alt="' . __('Empty', 'crw-text') . '"></button>
         </p>';
         }
         $html .= '
@@ -287,7 +286,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
                 <dl class="cse crw-color" title="{{word.color}}" cse-template ="color-select" cse-select cse-options="colors" cse-model="word.color"></dl>';
                 /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
                 $html .= '<span>{{word.fields | joinWord}} (' . sprintf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') . ')</span>
-                <button ng-click="deleteWord(word.ID)">' . __('Delete', 'crw-text') . '</button>
+                <button class="trash" ng-click="deleteWord(word.ID)" title="' . __('Delete', 'crw-text') . '"></button>
             </li>
         </ul>';
     } elseif ( 'solve' == $mode ) {
@@ -296,7 +295,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         <p ng-show="crosswordData.name">
             <span ng-if="count.solution<count.words">' . sprintf( __('%1$s of %2$s words found', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) . '</span>
             <span ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!', 'crw-text'), '{{count.words}}' ) . '</span>
-            <button ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '">' . __('Restart', 'crw-text') . '</button>
+            <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '" alt="' . __('Restart', 'crw-text') . '"></button>
         </p>
         <ul class="crw-word">
             <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
