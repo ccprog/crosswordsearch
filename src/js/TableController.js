@@ -171,7 +171,43 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
         }
     };
 
-    // event handler on keypress
+    // event handler on keydown catches arrow keys and deletion
+    $scope.move = function (event) {
+        // extract the letter from event data the best way you can
+        var key = event.charCode || event.keyCode || event.which;
+        switch (key) {
+        case 0x08: //backspace
+        case 0x2E: //delete
+            this.field.letter = null;
+            event.preventDefault();
+            break;
+        case 0x25: //left
+            if (this.column > 0) {
+                this.activate(this.line,this.column-1);
+            }
+            event.preventDefault();
+            break;
+        case 0x26: //up
+            if (this.line > 0) {
+                this.activate(this.line-1,this.column);
+            }
+            event.preventDefault();
+            break;
+        case 0x27: //right
+            if (this.column < this.row.length - 1) {
+                this.activate(this.line,this.column+1);
+            }
+            event.preventDefault();
+            break;
+        case 0x28: //down
+            if (this.line < this.crosswordData.table.length - 1) {
+                this.activate(this.line+1,this.column);
+            }
+            event.preventDefault();
+            break;
+        }
+    };
+    // event handler on keypress catches letters
     // beware of the weirdness:
     // test everything here, including basics.letterRegEx(lang)
     // for compatibility with browsers, OS and hardware
@@ -184,34 +220,6 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
         // if it is an allowed letter, enter into field
         if (basics.letterRegEx.test(keychar)) {
             this.field.letter = keychar.toUpperCase();
-        } else switch (key) {
-        // else catch special keys:
-        // delete letter
-        case 0x08: //backspace
-        case 0x2E: //delete
-            this.field.letter = null;
-            break;
-        // move focus
-        case 0x25: //left
-            if (this.column > 0) {
-                this.activate(this.line,this.column-1);
-            }
-            break;
-        case 0x26: //up
-            if (this.line > 0) {
-                this.activate(this.line-1,this.column);
-            }
-            break;
-        case 0x27: //right
-            if (this.column < this.row.length - 1) {
-                this.activate(this.line,this.column+1);
-            }
-            break;
-        case 0x28: //down
-            if (this.line < this.crosswordData.table.length - 1) {
-                this.activate(this.line+1,this.column);
-            }
-            break;
         }
     };
 }]);

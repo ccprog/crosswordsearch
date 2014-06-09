@@ -1012,41 +1012,50 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
             markers.setNewMarkers(currentMarking);
         }
     };
-    $scope.type = function(event) {
-        event.preventDefault();
+    $scope.move = function(event) {
         var key = event.charCode || event.keyCode || event.which;
-        var keychar = String.fromCharCode(key);
-        if (basics.letterRegEx.test(keychar)) {
-            this.field.letter = keychar.toUpperCase();
-        } else switch (key) {
+        switch (key) {
           case 8:
           case 46:
             this.field.letter = null;
+            event.preventDefault();
             break;
 
           case 37:
             if (this.column > 0) {
                 this.activate(this.line, this.column - 1);
             }
+            event.preventDefault();
             break;
 
           case 38:
             if (this.line > 0) {
                 this.activate(this.line - 1, this.column);
             }
+            event.preventDefault();
             break;
 
           case 39:
             if (this.column < this.row.length - 1) {
                 this.activate(this.line, this.column + 1);
             }
+            event.preventDefault();
             break;
 
           case 40:
             if (this.line < this.crosswordData.table.length - 1) {
                 this.activate(this.line + 1, this.column);
             }
+            event.preventDefault();
             break;
+        }
+    };
+    $scope.type = function(event) {
+        event.preventDefault();
+        var key = event.charCode || event.keyCode || event.which;
+        var keychar = String.fromCharCode(key);
+        if (basics.letterRegEx.test(keychar)) {
+            this.field.letter = keychar.toUpperCase();
         }
     };
 } ]);

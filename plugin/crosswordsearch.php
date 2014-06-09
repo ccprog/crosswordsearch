@@ -261,7 +261,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
                             $html .= 'ng-click="activate(line, column)" ';
                         }
                         $html .= 'ng-mouseenter="intoField(line, column)" ng-mouseleave="outofField(line, column)">
-                            <button tabindex="-1" unselectable="on" ng-keypress="type($event)" crw-set-focus>{{field.letter}}</button>
+                            <button tabindex="-1" unselectable="on" ng-keydown="move($event)" ng-keypress="type($event)" crw-set-focus>{{field.letter}}</button>
                             <div unselectable="on" ng-repeat="marker in getMarks(line, column)" class="crw-marked" ng-class ="getImgClass(marker)"></div>
                         </div>
                     </td>

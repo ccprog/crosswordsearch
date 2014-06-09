@@ -41,6 +41,7 @@
 }
 .crw-crossword>* {
     position: absolute;
+    width: 100%;
 }
 .crw-crossword.wide {
     margin: 72px;
@@ -109,6 +110,7 @@ table.crw-table {
 td.crw-field {
     height: 30px;
     width: 30px;
+    min-width:30px;
     border: 1px solid transparent;
     padding: 0;
     vertical-align: middle;
