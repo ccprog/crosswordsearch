@@ -72,6 +72,7 @@ angular.module('qantic.angularjs.stylemodel', []).provider('StyleModelContainer'
           $document.bind('mouseup', detachTransform);
         });
         function trasformStyle(event) {
+          event.preventDefault();
           px = event.clientX - dx;
           py = event.clientY - dy;
           scope.$apply(styleModel.transform(px, py));
