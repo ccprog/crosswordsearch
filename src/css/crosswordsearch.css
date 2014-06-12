@@ -11,12 +11,12 @@
 .crw-wrapper .cse dt, .crw-wrapper .cse ul {
     border-radius: 2px;
 }
-.crw-wrapper .error, .crw-immediate .confirm, .crw-wrapper .copyright {
+.crw-wrapper .error, .crw-immediate .confirm, .crw-wrapper .copyright, .crw-editors .error {
     font-size: 0.7em;
     font-weight: bold;
     margin: 3px 10px 5px;
 }
-.crw-wrapper .error {
+.crw-wrapper .error, .crw-editors .error {
     color: red;
 }
 .crw-wrapper .confirm {
@@ -176,6 +176,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     height:31px;
     border: none;
     background-color: transparent;
+    background-repeat: no-repeat;
     background-image: url(../images/controls.png);
 }
 .crw-crossword button.fill {
@@ -293,4 +294,27 @@ dl.crw-color dt a {
 }
 dl.crw-color img {
     padding: 2px 0;
+}
+.crw-editors th.between, .crw-editors td.between {
+    width: 5em;
+    max-width: 5em;
+    text-align: center;
+}
+.crw-editors select {
+    height: 186px;
+}
+.crw-editors select.project {
+    width: 20em;
+}
+.crw-editors input.project {
+    width: 16em;
+}
+.crw-editors select {
+    width: 10em;
+}
+.crw-editors button {
+    width: 36px;
+}
+.crw-editors button.text {
+    width: auto;
 }

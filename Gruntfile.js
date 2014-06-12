@@ -60,6 +60,7 @@ module.exports = function(grunt) {
     srcdir + 'basics.js',
     srcdir + 'crosswordFactory.js',
     srcdir + 'markerFactory.js',
+    srcdir + 'AdminController.js',
     srcdir + 'CrosswordController.js',
     srcdir + 'SizeController.js',
     srcdir + 'TableController.js',
@@ -160,6 +161,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-pot');
   grunt.loadNpmTasks('grunt-po2mo');
 
-  grunt.registerTask('default', ['uglify', 'cssmin']);
+  grunt.registerTask('default', ['jshint', 'uglify', 'cssmin']);
   grunt.registerTask('msgupdate', ['pot', 'msgmerge']);
 };

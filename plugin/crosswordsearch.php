@@ -108,18 +108,17 @@ function crw_add_angular_attribute ($attributes) {
     return $attributes . ' xmlns:ng="http://angularjs.org" id="ng-app" ng-app="crwApp"';
 }
 
-function add_crw_scripts () {
-	require_once 'l10n.php';
+function add_crw_scripts ( $hook ) {
+    require_once 'l10n.php';
     global $crw_has_crossword;
     $plugin_url = plugins_url() . '/crosswordsearch/';
 
     $locale_data = crw_get_locale_data();
 
-	if ( $crw_has_crossword ) {
+	if ( $crw_has_crossword || 'settings_page_crw_options' == $hook ) {
         wp_enqueue_script('angular', $plugin_url . 'js/angular.min.js');
-        wp_enqueue_script('angular-sanitize', $plugin_url . 'js/angular-sanitize.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', $plugin_url . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
-        wp_enqueue_script('crw-js', $plugin_url . 'js/crosswordsearch.js', array( 'angular', 'angular-sanitize', 'quantic-stylemodel' ));
+        wp_enqueue_script('crw-js', $plugin_url . 'js/crosswordsearch.js', array( 'angular', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
             'pluginPath' => $plugin_url,
             'ajaxUrl' => admin_url( 'admin-ajax.php' )
@@ -127,7 +126,7 @@ function add_crw_scripts () {
 	}
 }
 
-function crw_find_shortcode () {
+function crw_set_header () {
 	global $post, $crw_has_crossword;
 
 	if ( has_shortcode( $post->post_content, 'crosswordsearch') ) {
@@ -136,7 +135,16 @@ function crw_find_shortcode () {
         add_action( 'wp_enqueue_scripts', 'add_crw_scripts');
     }
 }
-add_action( 'get_header', 'crw_find_shortcode');
+add_action( 'get_header', 'crw_set_header');
+
+function crw_set_admin_header () {
+    $plugin_url = plugins_url() . '/crosswordsearch/';
+
+    add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
+    add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
+    wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
+}
+add_action( 'load-settings_page_crw_options', 'crw_set_admin_header');
 
 function crw_test_shortcode ($atts, $names_list) {
     $projects_list = get_option(CRW_PROJECTS_OPTION);
@@ -331,7 +339,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
                     <table>
                         <tr>
                             <td><label for ="crosswordName">' . __('Name:', 'crw-text') . '</label></td>
-                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique"></td>
+                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique" crw-unique="namesInProject commands"></td>
                         </tr>
                         <tr>
                             <td></td><td>
@@ -616,3 +624,14 @@ function crw_update_crossword() {
     crw_save_crossword( 'update', wp_get_current_user() );
 }
 add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );
+
+function crw_admin_menu () {
+    add_options_page( 'Crosswordsearch', 'Crosswordsearch', 'edit_posts', 'crw_options', 'crw_show_options' );
+};
+add_action('admin_menu', 'crw_admin_menu');
+function crw_show_options() {
+	if ( !current_user_can( 'edit_posts' ) )  {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+	include(WP_PLUGIN_DIR . '/crosswordsearch/options.php');
+}

@@ -43,15 +43,24 @@ crwApp.directive('crwAddParsers', function () {
             var parsers = attrs.crwAddParsers.split(space);
             if (jQuery.inArray('unique', parsers) >= 0) {
                 // test if a crossword name is unique and exclude reserved words
+                var uniques = attrs.crwUnique.split(space);
                 ctrl.$parsers.unshift(function(viewValue) {
-                    if (jQuery.inArray(viewValue, scope.namesInProject) < 0 &&
-                            !scope.commands.hasOwnProperty(viewValue)) {
-                        ctrl.$setValidity('unique', true);
-                        return viewValue;
-                    } else {
-                        ctrl.$setValidity('unique', false);
-                        return undefined;
+                    var blacklist, i, result = viewValue;
+                    for (i = 0; i < uniques.length; i++) {
+                        blacklist = scope.$eval(uniques[i]);
+                        if (jQuery.isArray(blacklist) && jQuery.inArray(viewValue, blacklist) >= 0) {
+                            result = undefined;
+                            break;
+                        } else if (typeof blacklist === 'object' && blacklist.hasOwnProperty(viewValue)) {
+                            result = undefined;
+                            break;
+                        } else if (typeof blacklist === 'string' && blacklist === viewValue) {
+                            result = undefined;
+                            break;
+                        }
                     }
+                    ctrl.$setValidity('unique', !!result);
+                    return result;
                 });
             }
             if (jQuery.inArray('sane', parsers) >= 0) {
