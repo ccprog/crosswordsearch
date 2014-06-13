@@ -591,12 +591,21 @@ crwApp.controller("AdminController", [ "$scope", function($scope) {
 } ]);
 
 crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
+    var showLoaded = function(admin, selected) {
+        $scope.admin = admin;
+        if (selected) {
+            $scope.selectedProject = jQuery.grep($scope.admin.projects, function(project) {
+                return project.name === selected;
+            })[0];
+        } else {
+            $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
+        }
+        $scope.newProject = null;
+        $scope.addingProject = false;
+    };
     ajaxFactory.http({
         action: "get_admin_data"
-    }).then(function(admin) {
-        $scope.admin = admin;
-        $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
-    }, function(error) {
+    }).then(showLoaded, function(error) {
         $scope.loadError = error;
     });
     $scope.filtered_users = [];
@@ -619,6 +628,8 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         });
         $scope.selectedEditor = $filter("orderBy")($scope.current_users, $scope.getUserName)[0];
         $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
+        $scope.loadError = null;
+        $scope.projectSaveError = null;
     };
     var addUser = function(user) {
         $scope.current_users.push(user.user_id);
@@ -657,18 +668,27 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         $scope.selectedUser = selected;
     };
     $scope.saveProject = function() {
-        var project = {
-            name: $scope.newProject,
-            editors: []
-        };
-        $scope.admin.projects.push(project);
-        $scope.selectedProject = project;
+        ajaxFactory.http({
+            action: "add_project",
+            project: $scope.newProject
+        }).then(function(data) {
+            showLoaded(data, $scope.newProject);
+        }, function(error) {
+            $scope.projectSaveError = error;
+        });
+    };
+    $scope.abortProject = function() {
+        $scope.newProject = null;
+        $scope.projectSaveError = null;
         $scope.addingProject = false;
     };
     $scope.deleteProject = function() {
-        var index = jQuery.inArray($scope.admin.projects, $scope.selectedProject);
-        $scope.admin.projects.splice(index, 1);
-        $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
+        ajaxFactory.http({
+            action: "remove_project",
+            project: $scope.selectedProject.name
+        }).then(showLoaded, function(error) {
+            $scope.projectSaveError = error;
+        });
     };
 } ]);
 

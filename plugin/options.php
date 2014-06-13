@@ -39,13 +39,15 @@
                     <button title="<?php _e('Add a new project', 'crw-text') ?>" ng-click="addingProject=true" ng-disabled="addingProject">+</button><br />
                     <input class="project" type="text" name="name" ng-show="addingProject" ng-model="newProject" ng-minlength="4" required="" crw-add-parsers="sane unique" crw-unique="getProjectList()"></input>
                     <button class="text" title="<?php _e('Save the new project name', 'crw-text') ?>" ng-click="saveProject()" ng-show="addingProject" ng-disabled="!projectModify.$valid"><?php _e('Save', 'crw-text') ?></button>
-                    <button class="text" title="<?php _e('Abort Saving', 'crw-text') ?>" ng-click="addingProject=false" ng-show="addingProject"><?php _e('Abort', 'crw-text') ?></button><br />
+                    <button class="text" title="<?php _e('Abort Saving', 'crw-text') ?>" ng-click="abortProject()" ng-show="addingProject"><?php _e('Abort', 'crw-text') ?></button><br />
                     <p class="error" ng-show="addingProject">
                         <span ng-show="projectModify.$error.required && !(projectModify.$error.sane || projectModify.$error.unique)"><?php _e('A name must be given!', 'crw-text') ?></span>
                         <span ng-show="projectModify.$error.minlength"><?php _e('The name is too short!', 'crw-text') ?></span>
                         <span ng-show="projectModify.$error.unique"><?php _e('There is already another project with that name!', 'crw-text') ?></span>
                         <span ng-show="projectModify.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></span>
                     </p>
+                    <p class="error" ng-if="projectSaveError">{{projectSaveError.error}}</p>
+                    <p class="error" ng-repeat="msg in projectSaveError.debug">{{msg}}</p>
                     </form>
                 </td>
             </tr>

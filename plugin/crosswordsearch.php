@@ -30,7 +30,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
 /* plugin installation */
-define('CRW_DB_VERSION', '0.1');
+define('CRW_DB_VERSION', '0.2');
 define('CRW_PROJECTS_OPTION', 'crw_projects');
 define('CRW_NONCE_NAME', '_crwnonce');
 
@@ -45,27 +45,42 @@ $plugin_file = WP_PLUGIN_DIR . '/crosswordsearch/crosswordsearch.php';
 // plugin_dir_path( __FILE__ ) points to the source path
 // this is needed for include/require and file_get_contents
 
-function crw_add_project ($project) {
+function crw_change_project_list ( $project, $action ) {
     $project_list = get_option(CRW_PROJECTS_OPTION);
 
-    if ( !in_array($project, $project_list) ) {
+    if ( 'add' == $action ) {
+        if ( in_array($project, $project_list) ) {
+            return false;
+        }
         array_push($project_list, $project);
-        update_option(CRW_PROJECTS_OPTION, $project_list);
+    } elseif ( 'remove' == $action ) {
+        $key = array_search($project, $project_list);
+        if ( false === $key ) {
+            return false;
+        }
+        unset($project_list[$key]);
     }
+
+    return update_option(CRW_PROJECTS_OPTION, $project_list);
 }
 
 function crw_install () {
-    global $wpdb, $charset_collate, $data_table_name;
+    global $wpdb, $charset_collate, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-    $sql = "
+    dbDelta( "
 CREATE TABLE IF NOT EXISTS $data_table_name (
   project varchar(255) NOT NULL,
   name varchar(255) NOT NULL,
   crossword text NOT NULL,
   PRIMARY KEY  (project, name)
-) $charset_collate;\n";
-    dbDelta( $sql );
+) $charset_collate;\n
+CREATE TABLE IF NOT EXISTS $editors_table_name (
+  project varchar(255) NOT NULL,
+  user_id bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (project, user_id)
+) $charset_collate;\n"
+    );
 
     add_option(CRW_PROJECTS_OPTION, (array)NULL);
     add_option( "crw_db_version", CRW_DB_VERSION );
@@ -76,7 +91,7 @@ register_activation_hook( $plugin_file, 'crw_install' );
 function crw_install_data () {
     global $wpdb, $data_table_name;
 
-    crw_add_project('test');
+    crw_change_project_list('test', 'add');
 
     $data_files = array(
         '../tests/testCrossword.json',
@@ -495,7 +510,7 @@ function crw_send_error ( $error, $debug ) {
     wp_send_json($obj);
 }
 
-function crw_get_admin_data () {
+function crw_send_admin_data () {
     global $wpdb, $editors_table_name;
 
     $projects = get_option(CRW_PROJECTS_OPTION);
@@ -536,7 +551,57 @@ function crw_get_admin_data () {
         'all_users' => $users_list
     ) );
 }
-add_action( 'wp_ajax_get_admin_data', 'crw_get_admin_data' );
+add_action( 'wp_ajax_get_admin_data', 'crw_send_admin_data' );
+
+// add a project
+function crw_add_project () {
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+
+    $success = crw_change_project_list( $project, 'add' );
+    if ( $success ) {
+        crw_send_admin_data();
+    } else {
+        $error = __('The project name already exists.', 'crw-text');
+        $debug = $project;
+        crw_send_error($error, $debug);
+    }
+}
+add_action( 'wp_ajax_add_project', 'crw_add_project' );
+
+// remove a project
+function crw_remove_project () {
+    global $wpdb, $data_table_name, $editors_table_name;
+    $error = __('The project could not be removed.', 'crw-text');
+
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+
+    $name_count = $wpdb->get_var( $wpdb->prepare("
+        SELECT count(*)
+        FROM $data_table_name
+        WHERE project = %s
+    ", $project) );
+    if ( $name_count > 0 ) {
+        $error = __('There are still riddles saved for that project. You need to delete them before you can remove the project.', 'crw-text');
+        $debug = $project . ': ' . $name_count . ' entries';
+        crw_send_error($error, $debug);
+    }
+
+    $success = crw_change_project_list( $project, 'remove' );
+    if ( $success ) {
+        $deleted = $wpdb->delete( $editors_table_name, array( 'project' => $project ), array( '%s' ) );
+        if ( false === $deleted ) {
+            // not really a substitute for rollback, but should do
+            crw_change_project_list( $project, 'add' );
+            $debug = $wpdb->last_error;
+            crw_send_error($error, $debug);
+        }
+        crw_send_admin_data();
+    } else {
+        $debug = 'Not in options: ' . $project;
+        crw_send_error($error, $debug);
+    }
+}
+add_action( 'wp_ajax_remove_project', 'crw_remove_project' );
 
 // common function for insert and update shares data testing tasks and error handling
 function crw_save_crossword ( $for_method, $user ) {
@@ -616,8 +681,6 @@ function crw_save_crossword ( $for_method, $user ) {
 
     //send error message
     crw_send_error($error, $debug);
-    die();
-
 }
 
 // select crossword data
@@ -671,6 +734,8 @@ function crw_update_crossword() {
     crw_save_crossword( 'update', wp_get_current_user() );
 }
 add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );
+
+/* settings page load routines */
 
 function crw_admin_menu () {
     add_options_page( 'Crosswordsearch', 'Crosswordsearch', 'edit_posts', 'crw_options', 'crw_show_options' );
