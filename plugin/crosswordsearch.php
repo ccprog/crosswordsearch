@@ -34,10 +34,11 @@ define('CRW_DB_VERSION', '0.1');
 define('CRW_PROJECTS_OPTION', 'crw_projects');
 define('CRW_NONCE_NAME', '_crwnonce');
 
-global $wpdb, $data_table_name;
+global $wpdb, $data_table_name, $editors_table_name;
 $wpdb->hide_errors();
 
 $data_table_name = $wpdb->prefix . "crw_crosswords";
+$editors_table_name = $wpdb->prefix . "crw_editors";
 // WP_PLUGIN_DIR points to path in server fs, even if it traverses a symbolic link
 // this form is needed for register_activation_hook (call to plugin_basename()),
 $plugin_file = WP_PLUGIN_DIR . '/crosswordsearch/crosswordsearch.php';
@@ -225,7 +226,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $html .= '
     <div><dl class="cse menu" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Riddle...', 'crw-text') . '\'"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
-    <p class="error" ng-if="loadError">{{loadError.debug}}</p>
+    <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="name">{{crosswordData.name}}</p>
     <p class="description" ng-show="crosswordData.description"><em>' . __('Find these words in the riddle:', 'crw-text') . '</em> {{crosswordData.description}}</p>';
     } else {
@@ -238,7 +239,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
             $html .= '
     <div><dl class="cse name" title="' . __('Select a riddle', 'crw-text') . '" cse-select cse-options="namesInProject" cse-model="loadedName"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
-    <p class="error" ng-if="loadError">{{loadError.debug}}</p>';
+    <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>';
         }
         $html .= '
     <p class="description" ng-show="crosswordData.description"><em>' . __('Find these words in the riddle:', 'crw-text') . '</em> {{crosswordData.description}}</p>';
@@ -382,7 +383,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
                         <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
                     </p>
                     <p class="error" ng-show="saveError">{{saveError}}</p>
-                    <p class="error" ng-show="saveError" ng-bind-html="saveDebug"></p>
+                    <p class="error" ng-repeat="msg in saveDebug">{{msg}}</p>
                 </form>
             </div>';
     } elseif ( 'solve' == $mode ) {
@@ -440,9 +441,9 @@ function crw_verify_json($json, &$msg) {
     // schema validation
     $answer = Jsv4::validate($crossword, $schema);
     if ( !$answer->valid ) {
-        $msg = 'schema error:<br />';
+        $msg = array('schema error:');
         foreach ( $answer->errors as $err ) {
-            $msg .= $err->dataPath ." ". $err->message ."<br />";
+            array_push($msg, $err->dataPath ." ". $err->message);
         }
         return false;
     }
@@ -486,10 +487,56 @@ function crw_send_error ( $error, $debug ) {
     );
     // debug messages only for developers
     if ( WP_DEBUG && isset($debug) ) {
+        if ( is_string($debug) ) {
+            $debug = array($debug);
+        }
         $obj["debug"] = $debug;
     }
     wp_send_json($obj);
 }
+
+function crw_get_admin_data () {
+    global $wpdb, $editors_table_name;
+
+    $projects = get_option(CRW_PROJECTS_OPTION);
+    $editors_list = $wpdb->get_results("
+        SELECT *
+        FROM $editors_table_name
+    ");
+
+    $projects_list = array_map( function ($project) use (&$editors_list) {
+        $editors = array();
+        array_walk( $editors_list, function ($entry) use ($project, &$editors) {
+            if ( $entry->project === $project ) {
+                array_push( $editors, $entry->user_id );
+            }
+        } );
+        return array(
+            'name' => $project,
+            'editors' => $editors
+        );
+    }, $projects );
+
+    $user_query = new WP_User_Query( array(
+        'who' => 'authors',
+        'fields' => array( 'ID', 'display_name' )
+    ) );
+    $users_list = array();
+    array_walk( $user_query->results, function ($user) use (&$users_list) {
+        if ( user_can($user->ID, 'edit_posts') ) {
+            array_push($users_list, array(
+                'user_id' => $user->ID,
+                'user_name' => $user->display_name
+            ));
+        }
+    } );
+
+    wp_send_json( array(
+        'projects' => $projects_list,
+        'all_users' => $users_list
+    ) );
+}
+add_action( 'wp_ajax_get_admin_data', 'crw_get_admin_data' );
 
 // common function for insert and update shares data testing tasks and error handling
 function crw_save_crossword ( $for_method, $user ) {
@@ -517,7 +564,7 @@ function crw_save_crossword ( $for_method, $user ) {
 
     // set errors on failing authentication or inconsistencies
     if ( is_wp_error($user) ) {
-        $debug = implode('<br />', $user->get_error_messages());
+        $debug = $user->get_error_messages();
     } elseif ( !user_can($user, 'edit_posts') ) {
         $debug = $username . ': no edit capability';
     } elseif ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], 'crw_save_'.$project ) ) {

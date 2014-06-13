@@ -1,36 +1,36 @@
+/* wrapper controler for settings page */
 crwApp.controller("AdminController", ['$scope', function ($scope) {
     $scope.activeTab = 'editor';
 }]);
 
-crwApp.controller("EditorController", ['$scope', '$filter',
-		function ($scope, $filter) {
-    $scope.admin = {
-        projects: [
-            {
-                name: 'test_project_1',
-                editors: [ 1, 2 ]
-            },
-            {
-                name: 'test_project_2',
-                editors: [ 3 ]
-            }
-        ],
-        all_users: [
-            {user_id: 1, user_name: 'Hans'},
-            {user_id: 2, user_name: 'Margarete'},
-            {user_id: 3, user_name: 'Die Hexe'},
-            {user_id: 4, user_name: 'Gebrüder Grimm'}
-        ]
-    };
-    $scope.filtered_users = [];
-    $scope.current_users = [];
-    $scope.selectedProject = $filter('orderBy')($scope.admin.projects, 'name')[0];
-
-    $scope.$watch('selectedProject', function (newSel) {
-        $scope.current_users = newSel.editors || [];
-        update_filtered();
+/* controller for administrative tab: adding/deleting projects, managing users */
+crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
+		function ($scope, $filter, ajaxFactory) {
+    // initial load
+    ajaxFactory.http({
+        action: 'get_admin_data'
+    }).then(function (admin) {
+        $scope.admin = admin;
+        $scope.selectedProject = $filter('orderBy')($scope.admin.projects, 'name')[0];
+    }, function (error) {
+        $scope.loadError = error;
     });
 
+    // users not enabled for the selected project (contains user objects)
+    $scope.filtered_users = [];
+    // users enabled for the selected project (contains user ids)
+    $scope.current_users = [];
+
+    $scope.$watch('selectedProject', function (newSel) {
+        if (newSel) {
+            $scope.current_users = newSel.editors || [];
+            update_filtered();
+        } else {
+            $scope.current_users = [];
+        }
+    });
+
+    // get user lists and their model data up to speed
     var update_filtered = function () {
         $scope.filtered_users = jQuery.grep($scope.admin.all_users, function (user) {
             if ($scope.selectedProject) {
@@ -47,27 +47,32 @@ crwApp.controller("EditorController", ['$scope', '$filter',
         $scope.current_users.push(user.user_id);
     };
 
+    // fetch a user object by id
     var getUser = function (id) {
         return jQuery.grep($scope.admin.all_users, function (user) {
             return user.user_id === id;
         })[0];
     };
 
+    // fetch a user name by id
     $scope.getUserName = function (id) {
         return getUser(id).user_name;
     };
 
+    // extract the list of project names from the admin object
     $scope.getProjectList = function () {
         return jQuery.map($scope.admin.projects, function (project) {
             return project.name;
         });
     };
 
+    // enable all users for the current project
     $scope.addAll = function () {
         angular.forEach($scope.filtered_users, addUser);
         update_filtered();
     };
 
+    // enable a user for the current project
     $scope.addOne = function () {
         var selected = $scope.selectedUser.user_id;
         addUser($scope.selectedUser);
@@ -75,11 +80,13 @@ crwApp.controller("EditorController", ['$scope', '$filter',
         $scope.selectedEditor = selected;
     };
 
+    // disable all users for the current project
     $scope.removeAll = function () {
         $scope.current_users.splice(0);
         update_filtered();
     };
 
+    // disnable a user for the current project
     $scope.removeOne = function () {
         var index = jQuery.inArray($scope.selectedEditor, $scope.current_users),
             selected = getUser($scope.selectedEditor);
@@ -88,6 +95,7 @@ crwApp.controller("EditorController", ['$scope', '$filter',
         $scope.selectedUser = selected;
     };
 
+    // add a new project to the local admin object
     $scope.saveProject = function () {
         var project = {
             name: $scope.newProject,
@@ -98,6 +106,7 @@ crwApp.controller("EditorController", ['$scope', '$filter',
         $scope.addingProject = false;
     };
 
+    // remove a project from the local admin object
     $scope.deleteProject = function () {
         var index = jQuery.inArray($scope.admin.projects, $scope.selectedProject);
         $scope.admin.projects.splice(index, 1);

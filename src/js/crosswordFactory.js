@@ -1,13 +1,6 @@
 /* crossword data object contructor */
-crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
-        function ($http, $q, basics, reduce) {
-    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    $http.defaults.transformRequest = jQuery.param;
-    var httpDefaults = {
-        method: 'POST',
-        url: crwBasics.ajaxUrl
-    };
-
+crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
+        function (basics, reduce, ajaxFactory) {
     function Crw () {
         // parent data object
         var crossword = {}, namesList = [];
@@ -93,27 +86,6 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             return namesList;
         };
 
-        // web server error messages
-        var serverError = function (response) {
-            return $q.reject({
-                error: 'server error',
-                debug: 'status ' + response.status
-            });
-        };
-
-        // php error messages
-        var phpError = function (response) {
-            // look for admin-ajax.php errors
-            if (typeof response.data !== 'object') {
-                return {error: 'malformed request'};
-            }
-            // look for php execution errors
-            if(response.data.error) {
-                return response.data;
-            }
-            return false;
-        };
-
         // set the project key
         this.setProject = function (p, n) {
             project = p;
@@ -140,26 +112,18 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             });
             addRows(crossword.size.height, false);
         };
-
         // load a crossword
         this.loadCrosswordData = function (name) {
-            return $http(angular.extend({
-                data: {
+            return ajaxFactory.http({
                     action: 'get_crossword',
                     project: project,
                     name: name
-                }
-            }, httpDefaults)).then(function(response) {
-                var error = phpError(response);
-                if (error) {
-                    return $q.reject(error);
-                }
-                // do not exchange the top level object to make watching it possible
-                angular.extend(crossword, response.data.crossword);
-                namesList = response.data.namesList;
-                nonce = response.data.nonce;
+            }).then(function(data) {
+                angular.extend(crossword, data.crossword);
+                namesList = data.namesList;
+                nonce = data.nonce;
                 return true;
-            }, serverError);
+            });
         };
 
         // save a crossword
@@ -178,16 +142,10 @@ crwApp.factory('crosswordFactory', ['$http', '$q', 'basics', 'reduce',
             } else {
                 content.name = name;
             }
-            return $http(angular.extend({
-                data: content
-            }, httpDefaults)).then(function(response) {
-                var error = phpError(response);
-                if (error) {
-                    return $q.reject(error);
-                }
-                namesList = response.data.namesList;
+            return ajaxFactory.http(content).then(function(data) {
+                namesList = data.namesList;
                 return true;
-            }, serverError);
+            });
         };
 
         // return the highest id used for words

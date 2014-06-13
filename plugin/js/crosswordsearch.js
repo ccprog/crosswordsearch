@@ -207,13 +207,43 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
     };
 } ]);
 
-crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function($http, $q, basics, reduce) {
+crwApp.factory("ajaxFactory", [ "$http", "$q", function($http, $q) {
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     $http.defaults.transformRequest = jQuery.param;
     var httpDefaults = {
         method: "POST",
         url: crwBasics.ajaxUrl
     };
+    var serverError = function(response) {
+        return $q.reject({
+            error: "server error",
+            debug: "status " + response.status
+        });
+    };
+    var inspectResponse = function(response) {
+        var error = false;
+        if (typeof response.data !== "object") {
+            error = {
+                error: "malformed request"
+            };
+        } else if (response.data.error) {
+            error = response.data;
+        }
+        if (error) {
+            return $q.reject(error);
+        }
+        return response.data;
+    };
+    return {
+        http: function(data) {
+            return $http(angular.extend({
+                data: data
+            }, httpDefaults)).then(inspectResponse, serverError);
+        }
+    };
+} ]);
+
+crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function(basics, reduce, ajaxFactory) {
     function Crw() {
         var crossword = {}, namesList = [];
         var project = "";
@@ -279,23 +309,6 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
         this.getNamesList = function() {
             return namesList;
         };
-        var serverError = function(response) {
-            return $q.reject({
-                error: "server error",
-                debug: "status " + response.status
-            });
-        };
-        var phpError = function(response) {
-            if (typeof response.data !== "object") {
-                return {
-                    error: "malformed request"
-                };
-            }
-            if (response.data.error) {
-                return response.data;
-            }
-            return false;
-        };
         this.setProject = function(p, n) {
             project = p;
             nonce = n;
@@ -316,22 +329,16 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
             addRows(crossword.size.height, false);
         };
         this.loadCrosswordData = function(name) {
-            return $http(angular.extend({
-                data: {
-                    action: "get_crossword",
-                    project: project,
-                    name: name
-                }
-            }, httpDefaults)).then(function(response) {
-                var error = phpError(response);
-                if (error) {
-                    return $q.reject(error);
-                }
-                angular.extend(crossword, response.data.crossword);
-                namesList = response.data.namesList;
-                nonce = response.data.nonce;
+            return ajaxFactory.http({
+                action: "get_crossword",
+                project: project,
+                name: name
+            }).then(function(data) {
+                angular.extend(crossword, data.crossword);
+                namesList = data.namesList;
+                nonce = data.nonce;
                 return true;
-            }, serverError);
+            });
         };
         this.saveCrosswordData = function(name, action, username, password) {
             var content = {
@@ -348,16 +355,10 @@ crwApp.factory("crosswordFactory", [ "$http", "$q", "basics", "reduce", function
             } else {
                 content.name = name;
             }
-            return $http(angular.extend({
-                data: content
-            }, httpDefaults)).then(function(response) {
-                var error = phpError(response);
-                if (error) {
-                    return $q.reject(error);
-                }
-                namesList = response.data.namesList;
+            return ajaxFactory.http(content).then(function(data) {
+                namesList = data.namesList;
                 return true;
-            }, serverError);
+            });
         };
         this.getHighId = function() {
             return reduce(crossword.words, 0, function(result, word) {
@@ -589,35 +590,24 @@ crwApp.controller("AdminController", [ "$scope", function($scope) {
     $scope.activeTab = "editor";
 } ]);
 
-crwApp.controller("EditorController", [ "$scope", "$filter", function($scope, $filter) {
-    $scope.admin = {
-        projects: [ {
-            name: "test_project_1",
-            editors: [ 1, 2 ]
-        }, {
-            name: "test_project_2",
-            editors: [ 3 ]
-        } ],
-        all_users: [ {
-            user_id: 1,
-            user_name: "Hans"
-        }, {
-            user_id: 2,
-            user_name: "Margarete"
-        }, {
-            user_id: 3,
-            user_name: "Die Hexe"
-        }, {
-            user_id: 4,
-            user_name: "Gebrüder Grimm"
-        } ]
-    };
+crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
+    ajaxFactory.http({
+        action: "get_admin_data"
+    }).then(function(admin) {
+        $scope.admin = admin;
+        $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
+    }, function(error) {
+        $scope.loadError = error;
+    });
     $scope.filtered_users = [];
     $scope.current_users = [];
-    $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
     $scope.$watch("selectedProject", function(newSel) {
-        $scope.current_users = newSel.editors || [];
-        update_filtered();
+        if (newSel) {
+            $scope.current_users = newSel.editors || [];
+            update_filtered();
+        } else {
+            $scope.current_users = [];
+        }
     });
     var update_filtered = function() {
         $scope.filtered_users = jQuery.grep($scope.admin.all_users, function(user) {

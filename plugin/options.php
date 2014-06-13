@@ -23,10 +23,10 @@
                     <select class="username" size="10" ng-model="selectedEditor" ng-options="getUserName(id) for id in current_users | orderBy:getUserName"></select>
                 </td>
                 <td class="between">
-                    <button title="<?php _e('Add all users to the editors of the marked project', 'crw-text') ?>" ng-click="addAll()" ng-disabled="!selectedProject">&lt;&lt;</button><br />
-                    <button title="<?php _e('Add the marked user to the editors of the marked project', 'crw-text') ?>" ng-click="addOne()" ng-disabled="!selectedProject">&lt;</button><br />
-                    <button title="<?php _e('Remove the marked user from the editors of the marked project', 'crw-text') ?>" ng-click="removeOne()" ng-disabled="!selectedProject">&gt;</button><br />
-                    <button title="<?php _e('Remove all users from the editors of the marked project', 'crw-text') ?>" ng-click="removeAll()" ng-disabled="!selectedProject">&gt;&gt;</button>
+                    <button title="<?php _e('Add all users to the editors of the marked project', 'crw-text') ?>" ng-click="addAll()" ng-disabled="!selectedProject || !filtered_users.length">&lt;&lt;</button><br />
+                    <button title="<?php _e('Add the marked user to the editors of the marked project', 'crw-text') ?>" ng-click="addOne()" ng-disabled="!selectedProject || !filtered_users.length">&lt;</button><br />
+                    <button title="<?php _e('Remove the marked user from the editors of the marked project', 'crw-text') ?>" ng-click="removeOne()" ng-disabled="!selectedProject || !current_users.length">&gt;</button><br />
+                    <button title="<?php _e('Remove all users from the editors of the marked project', 'crw-text') ?>" ng-click="removeAll()" ng-disabled="!selectedProject || !current_users.length">&gt;&gt;</button>
                 </td>
                 <td>
                     <select class="username" size="10" ng-model="selectedUser" ng-options="user.user_name for user in filtered_users | orderBy:'user_name'"></select>
@@ -50,6 +50,8 @@
                 </td>
             </tr>
         </table>
+        <p class="error" ng-if="loadError">{{loadError.error}}</p>
+        <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
         <!--submit-Button?-->
     </div>
 

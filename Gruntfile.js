@@ -58,6 +58,7 @@ module.exports = function(grunt) {
   var jslist = [
     srcdir + 'customSelectElement.js',
     srcdir + 'basics.js',
+    srcdir + 'ajaxFactory.js',
     srcdir + 'crosswordFactory.js',
     srcdir + 'markerFactory.js',
     srcdir + 'AdminController.js',
