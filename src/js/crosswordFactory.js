@@ -2,12 +2,11 @@
 crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         function (basics, reduce, ajaxFactory) {
     function Crw () {
+        var nonceGroup = 'crossword';
         // parent data object
         var crossword = {}, namesList = [];
         // project key
         var project = '';
-        // save nonce
-        var nonce = '';
 
         // add or delete the given number of rows
         // if number is negative, rows will be removed
@@ -89,7 +88,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // set the project key
         this.setProject = function (p, n) {
             project = p;
-            nonce = n;
+            ajaxFactory.setNonce(n, nonceGroup);
         };
 
         // default empty crossword object
@@ -118,10 +117,9 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                     action: 'get_crossword',
                     project: project,
                     name: name
-            }).then(function(data) {
+            }, nonceGroup).then(function(data) {
                 angular.extend(crossword, data.crossword);
                 namesList = data.namesList;
-                nonce = data.nonce;
                 return true;
             });
         };
@@ -133,8 +131,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 project: project,
                 crossword: angular.toJson(crossword),
                 username: username,
-                password: password,
-                _crwnonce: nonce
+                password: password
             };
             if (action === 'update') {
                 content.old_name = name;
@@ -142,7 +139,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             } else {
                 content.name = name;
             }
-            return ajaxFactory.http(content).then(function(data) {
+            return ajaxFactory.http(content, nonceGroup).then(function(data) {
                 namesList = data.namesList;
                 return true;
             });

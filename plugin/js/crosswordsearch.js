@@ -214,13 +214,14 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", function($http, $q) {
         method: "POST",
         url: crwBasics.ajaxUrl
     };
+    var nonces = {};
     var serverError = function(response) {
         return $q.reject({
             error: "server error",
             debug: "status " + response.status
         });
     };
-    var inspectResponse = function(response) {
+    var inspectResponse = function(response, nonceGroup) {
         var error = false;
         if (typeof response.data !== "object") {
             error = {
@@ -232,22 +233,32 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", function($http, $q) {
         if (error) {
             return $q.reject(error);
         }
+        if (response.data.nonce) {
+            nonces[nonceGroup] = response.data.nonce;
+        }
         return response.data;
     };
     return {
-        http: function(data) {
+        setNonce: function(nonce, nonceGroup) {
+            nonces[nonceGroup] = nonce;
+        },
+        http: function(data, nonceGroup) {
             return $http(angular.extend({
-                data: data
-            }, httpDefaults)).then(inspectResponse, serverError);
+                data: angular.extend({
+                    _crwnonce: nonces[nonceGroup]
+                }, data)
+            }, httpDefaults)).then(function(response) {
+                return inspectResponse(response, nonceGroup);
+            }, serverError);
         }
     };
 } ]);
 
 crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function(basics, reduce, ajaxFactory) {
     function Crw() {
+        var nonceGroup = "crossword";
         var crossword = {}, namesList = [];
         var project = "";
-        var nonce = "";
         var addRows = function(number, top) {
             if (number > 0) {
                 for (var i = 0; i < number; i++) {
@@ -311,7 +322,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         };
         this.setProject = function(p, n) {
             project = p;
-            nonce = n;
+            ajaxFactory.setNonce(n, nonceGroup);
         };
         this.loadDefault = function() {
             angular.extend(crossword, {
@@ -333,10 +344,9 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 action: "get_crossword",
                 project: project,
                 name: name
-            }).then(function(data) {
+            }, nonceGroup).then(function(data) {
                 angular.extend(crossword, data.crossword);
                 namesList = data.namesList;
-                nonce = data.nonce;
                 return true;
             });
         };
@@ -346,8 +356,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 project: project,
                 crossword: angular.toJson(crossword),
                 username: username,
-                password: password,
-                _crwnonce: nonce
+                password: password
             };
             if (action === "update") {
                 content.old_name = name;
@@ -355,7 +364,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             } else {
                 content.name = name;
             }
-            return ajaxFactory.http(content).then(function(data) {
+            return ajaxFactory.http(content, nonceGroup).then(function(data) {
                 namesList = data.namesList;
                 return true;
             });
@@ -591,6 +600,7 @@ crwApp.controller("AdminController", [ "$scope", function($scope) {
 } ]);
 
 crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
+    var nonceGroup = "admin";
     var showLoaded = function(admin, selected) {
         $scope.admin = admin;
         if (selected) {
@@ -603,11 +613,14 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         $scope.newProject = null;
         $scope.addingProject = false;
     };
-    ajaxFactory.http({
-        action: "get_admin_data"
-    }).then(showLoaded, function(error) {
-        $scope.loadError = error;
-    });
+    $scope.prepare = function(nonce) {
+        ajaxFactory.setNonce(nonce, nonceGroup);
+        ajaxFactory.http({
+            action: "get_admin_data"
+        }, nonceGroup).then(showLoaded, function(error) {
+            $scope.loadError = error;
+        });
+    };
     $scope.filtered_users = [];
     $scope.current_users = [];
     $scope.$watch("selectedProject", function(newSel) {
@@ -671,7 +684,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         ajaxFactory.http({
             action: "add_project",
             project: $scope.newProject
-        }).then(function(data) {
+        }, nonceGroup).then(function(data) {
             showLoaded(data, $scope.newProject);
         }, function(error) {
             $scope.projectSaveError = error;
@@ -686,7 +699,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         ajaxFactory.http({
             action: "remove_project",
             project: $scope.selectedProject.name
-        }).then(showLoaded, function(error) {
+        }, nonceGroup).then(showLoaded, function(error) {
             $scope.projectSaveError = error;
         });
     };

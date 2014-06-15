@@ -5,7 +5,7 @@
         <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='project'}" href="#" ng-click="activeTab='project'"><?php _e('Review projects', 'crw-text') ?></a>
     </h3>
 
-    <div class="crw-editors" ng-switch-when="editor" ng-controller="EditorController">
+    <div class="crw-editors" ng-switch-when="editor" ng-controller="EditorController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_ADMIN); ?>')">
         <table>
             <tr>
                 <th><?php _e('Projects', 'crw-text') ?></th>

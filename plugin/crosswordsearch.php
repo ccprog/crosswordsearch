@@ -33,6 +33,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 define('CRW_DB_VERSION', '0.2');
 define('CRW_PROJECTS_OPTION', 'crw_projects');
 define('CRW_NONCE_NAME', '_crwnonce');
+define('NONCE_CROSSWORD', 'crw_crossword_');
+define('NONCE_ADMIN', 'crw_admin_');
 
 global $wpdb, $data_table_name, $editors_table_name;
 $wpdb->hide_errors();
@@ -224,7 +226,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
         $selected_name = $name;
     }
     $prep_1 = esc_js($project);
-    $prep_2 = wp_create_nonce( 'crw_save_'.$project );
+    $prep_2 = wp_create_nonce( NONCE_CROSSWORD . $project );
     $prep_3 = esc_js($selected_name);
 
     $current_user = wp_get_current_user();
@@ -513,6 +515,12 @@ function crw_send_error ( $error, $debug ) {
 function crw_send_admin_data () {
     global $wpdb, $editors_table_name;
 
+    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_ADMIN ) ) {
+        $error = __('The data could not be sent.', 'crw-text');
+        $debug = 'nonce not verified for ' . NONCE_ADMIN;
+        crw_send_error($error, $debug);
+    }
+
     $projects = get_option(CRW_PROJECTS_OPTION);
     $editors_list = $wpdb->get_results("
         SELECT *
@@ -548,13 +556,20 @@ function crw_send_admin_data () {
 
     wp_send_json( array(
         'projects' => $projects_list,
-        'all_users' => $users_list
+        'all_users' => $users_list,
+        CRW_NONCE_NAME => wp_create_nonce(NONCE_ADMIN)
     ) );
 }
 add_action( 'wp_ajax_get_admin_data', 'crw_send_admin_data' );
 
 // add a project
 function crw_add_project () {
+    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_ADMIN ) ) {
+        $error = __('The project could not be added.', 'crw-text');
+        $debug = 'nonce not verified for ' . NONCE_ADMIN;
+        crw_send_error($error, $debug);
+    }
+
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
 
     $success = crw_change_project_list( $project, 'add' );
@@ -572,6 +587,11 @@ add_action( 'wp_ajax_add_project', 'crw_add_project' );
 function crw_remove_project () {
     global $wpdb, $data_table_name, $editors_table_name;
     $error = __('The project could not be removed.', 'crw-text');
+
+    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_ADMIN ) ) {
+        $debug = 'nonce not verified for ' . NONCE_ADMIN;
+        crw_send_error($error, $debug);
+    }
 
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
 
@@ -632,8 +652,8 @@ function crw_save_crossword ( $for_method, $user ) {
         $debug = $user->get_error_messages();
     } elseif ( !user_can($user, 'edit_posts') ) {
         $debug = $username . ': no edit capability';
-    } elseif ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], 'crw_save_'.$project ) ) {
-        $debug = 'nonce not verified for '. 'crw_save_'.$project;
+    } elseif ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_CROSSWORD . $project ) ) {
+        $debug = 'nonce not verified for ' . NONCE_CROSSWORD . $project;
     } elseif ( !$verification ) {
         $error = __('The crossword data sent are invalid.', 'crw-text');
         $debug = $msg;
@@ -671,8 +691,10 @@ function crw_save_crossword ( $for_method, $user ) {
         if ($success !== false) {
             // send updated list of names in project
             $names_list = crw_get_names_list($project);
-            echo '{"namesList":' . json_encode($names_list) . '}';
-            die();
+            wp_send_json( array(
+                'namesList' => $names_list,
+                CRW_NONCE_NAME => wp_create_nonce( NONCE_CROSSWORD . $project )
+            ) );
         } else {
             $error = __('The crossword could not be saved to the database.', 'crw-text');
             $debug = $wpdb->last_error;
@@ -686,10 +708,16 @@ function crw_save_crossword ( $for_method, $user ) {
 // select crossword data
 function crw_get_crossword() {
     global $wpdb, $data_table_name;
+    $error = __('The crossword could not be retrieved.', 'crw-text');
 
     // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
+
+    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_CROSSWORD . $project ) ) {
+        $debug = 'nonce not verified for ' . NONCE_CROSSWORD . $project;
+        crw_send_error($error, $debug);
+    }
     // call database
     $crossword = $wpdb->get_var( $wpdb->prepare("
         SELECT crossword
@@ -704,11 +732,10 @@ function crw_get_crossword() {
         // send crossword, list of names in project and save nonce
         echo '{"crossword":' . $crossword .
             ',"namesList":' . json_encode($names_list) .
-            ',"nonce": "' . wp_create_nonce( 'crw_save_'.$project ) .
+            ',"' . CRW_NONCE_NAME . '": "' . wp_create_nonce( NONCE_CROSSWORD . $project ) .
             '"}';
         die();
     } else {
-        $error = __('The crossword was not found.', 'crw-text');
         crw_send_error($error, $wpdb->last_error);
     }
 }
