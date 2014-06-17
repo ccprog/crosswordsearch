@@ -723,6 +723,34 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     };
 } ]);
 
+crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
+    var nonceGroup = "review";
+    var showLoaded = function(data, selected) {
+        $scope.projects = data.projects;
+        if (selected) {
+            $scope.selectedProject = selected;
+        } else {
+            $scope.selectedProject = $filter("orderBy")($scope.projects, "name")[0].crosswords;
+        }
+        $scope.loadError = null;
+        $scope.deleteError = null;
+    };
+    $scope.prepare = function(nonce) {
+        ajaxFactory.setNonce(nonce, nonceGroup);
+        ajaxFactory.http({
+            action: "list_projects_and_riddles"
+        }, nonceGroup).then(showLoaded, function(error) {
+            $scope.loadError = error;
+        });
+    };
+    $scope.$watch("selectedProject", function(newSel) {
+        if (newSel) {
+            $scope.selectedCrossword = $filter("orderBy")(newSel, "toString()")[0];
+        }
+        $scope.deleteError = null;
+    });
+} ]);
+
 crwApp.directive("crwCatchMouse", [ "$document", function($document) {
     return {
         link: function(scope, element, attrs) {

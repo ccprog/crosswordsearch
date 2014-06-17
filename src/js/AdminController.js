@@ -164,3 +164,38 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         $scope.selectedProject.pristine = true;
     };
 }]);
+
+/* controller for administrative tab: adding/deleting projects, managing users */
+crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
+		function ($scope, $filter, ajaxFactory) {
+    var nonceGroup = 'review';
+
+    // load data freshly received from the server
+    var showLoaded = function (data, selected) {
+        $scope.projects = data.projects;
+        if (selected) {
+            $scope.selectedProject = selected;
+        } else {
+            $scope.selectedProject = $filter('orderBy')($scope.projects, 'name')[0].crosswords;
+        }
+        $scope.loadError = null;
+        $scope.deleteError = null;
+    };
+
+    // initial load after the nonce has been processed
+    $scope.prepare = function (nonce) {
+        ajaxFactory.setNonce(nonce, nonceGroup);
+        ajaxFactory.http({
+            action: 'list_projects_and_riddles'
+        }, nonceGroup).then(showLoaded, function (error) {
+            $scope.loadError = error;
+        });
+    };
+
+    $scope.$watch('selectedProject', function (newSel) {
+        if (newSel) {
+            $scope.selectedCrossword = $filter('orderBy')(newSel, 'toString()')[0];
+        }
+        $scope.deleteError = null;
+    });
+}]);

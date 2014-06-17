@@ -309,6 +309,9 @@ dl.crw-color img {
 .crw-editors select.project, .crw-editors input.project {
     width: 18em;
 }
+.crw-editors select.crosswordname {
+    width: 24em;
+}
 .crw-editors select {
     width: 12em;
 }

@@ -1,11 +1,11 @@
-<div class="wrap" ng-switch="activeTab" ng-init="activeTab=<?php echo (current_user_can('edit_users') ? "'admin'" : "'project'") ?>">
+<div class="wrap" ng-switch="activeTab" ng-init="activeTab=<?php echo (current_user_can('edit_users') ? "'admin'" : "'review'") ?>">
     <h2><?php _e('Crosswordsearch Administration', 'crw-text') ?></h2>
     <h3 class="nav-tab-wrapper">
 <?php if ( current_user_can('edit_users') ) { ?>
     <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='admin'}" href="#" ng-click="activeTab='admin'"><?php _e('Assign projects and editors', 'crw-text') ?></a>
 <?php }
 if ( current_user_can(CRW_CAPABILITY) ) { ?>
-        <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='project'}" href="#" ng-click="activeTab='project'"><?php _e('Review riddles in projects', 'crw-text') ?></a>
+        <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='review'}" href="#" ng-click="activeTab='review'"><?php _e('Review riddles in projects', 'crw-text') ?></a>
 <?php } ?>
     </h3>
 
@@ -67,11 +67,38 @@ if ( current_user_can(CRW_CAPABILITY) ) { ?>
         </table>
         <p class="error" ng-if="loadError">{{loadError.error}}</p>
         <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
-        <!--submit-Button?-->
     </div>
 <?php }
 if ( current_user_can(CRW_CAPABILITY) ) { ?>
-    <div ng-switch-when="project" ng-controller="EditorController">
+    <div class="crw-editors" ng-switch-when="review" ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_REVIEW ); ?>')">
+        <table>
+            <tr>
+                <th><?php _e('Projects', 'crw-text') ?></th>
+                <th class="between"></th>
+                <th><?php _e('Crosswords', 'crw-text') ?></th>
+            </tr>
+            <tr>
+                <td>
+                    <select class="project" size="10" ng-model="selectedProject" ng-options="project.crosswords as project.name for project in projects | orderBy:'name'"></select>
+                </td>
+                <td class="between"></td>
+                <td>
+                    <select class="crosswordname" size="10" ng-model="selectedCrossword" ng-options="name for name in selectedProject | orderBy:'toString()'"></select>
+                </td>
+            </tr>
+            <tr class="actions">
+                <td></td>
+                <td class="between"></td>
+                <td>
+                    <button class="text" title="<?php _e('Show a preview of the selected crossword', 'crw-text') ?>" ng-click="showCrossword()" ng-disabled="!selectedCrossword"><?php _e('Preview', 'crw-text') ?></button>
+                    <button class="text" title="<?php _e('Delete the selected crossword', 'crw-text') ?>" ng-click="deleteCrossword()" ng-disabled="!selectedCrossword"><?php _e('Delete', 'crw-text') ?></button>
+                    <p class="error" ng-if="deleteError">{{deleteError.error}}</p>
+                    <p class="error" ng-repeat="msg in deleteError.debug">{{msg}}</p>
+                </td>
+            </tr>
+        </table>
+        <p class="error" ng-if="loadError">{{loadError.error}}</p>
+        <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     </div>
 <?php } ?>
 </div>

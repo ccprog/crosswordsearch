@@ -35,6 +35,7 @@ define('CRW_PROJECTS_OPTION', 'crw_projects');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
 define('NONCE_ADMIN', 'crw_admin_');
+define('NONCE_REVIEW', 'crw_review_');
 define('CRW_CAPABILITY', 'edit_crossword');
 define('CRW_ROLE', 'subscriber');
 
@@ -191,7 +192,7 @@ function crw_test_shortcode ($atts, $names_list) {
         return $html . sprintf(__('Attribute %1$s needs to be an existing project.', 'crw-text'), '<em>project</em>');
     }
 
-    if ( 0 == count( $names_list ) ){
+    if ( 0 == count( $names_list ) && 'solve' == $mode ){
         return $html . sprintf(__('There is no crossword in project %1$s.', 'crw-text'), $project);
     }
 
@@ -534,20 +535,24 @@ function crw_test_permission ( $user, $for, $project=null ) {
 
     switch ( $for ) {
     case 'admin':
-        $is_editor = true;
         $nonce_group = NONCE_ADMIN;
         $capability = 'edit_users';
         break;
     case 'edit':
-        $is_editor = $wpdb->get_var( $wpdb->prepare("
-            SELECT count(*)
-            FROM $editors_table_name
-            WHERE user_id = $user->ID AND project = %s
-        ", $project) );
         $nonce_group = NONCE_CROSSWORD . $project;
         $capability = CRW_CAPABILITY;
         break;
+    case 'review':
+        $nonce_group = NONCE_REVIEW;
+        $capability = CRW_CAPABILITY;
+        break;
     }
+    $is_editor = ('edit' !== $for) || $wpdb->get_var( $wpdb->prepare("
+        SELECT count(*)
+        FROM $editors_table_name
+        WHERE user_id = $user->ID AND project = %s
+    ", $project) );
+
     if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], $nonce_group ) ) {
         $debug = 'nonce not verified for ' . $nonce_group;
         crw_send_error($error, $debug);
@@ -708,6 +713,37 @@ function crw_update_editors () {
     crw_send_admin_data();
 }
 add_action( 'wp_ajax_update_editors', 'crw_update_editors' );
+
+function crw_list_projects_and_riddles () {
+    global $wpdb, $data_table_name, $editors_table_name;
+
+    $user = wp_get_current_user();
+    crw_test_permission($user , 'review' );
+
+    $crosswords_list = $wpdb->get_results("
+        SELECT dt.project, dt.name
+        FROM $data_table_name AS dt
+        INNER JOIN $editors_table_name AS et ON dt.project = et.project
+        WHERE et.user_id = $user->ID
+    ");
+
+    $projects_list = array();
+    array_walk($crosswords_list, function ($entry) use (&$projects_list) {
+        if ( !array_key_exists($entry->project, $projects_list) ) {
+            $projects_list[$entry->project] = array(
+                'name' => $entry->project,
+                'crosswords' => array()
+            );
+        }
+        array_push( $projects_list[$entry->project]['crosswords'], $entry->name );
+    } );
+
+    wp_send_json( array(
+        'projects' => array_values($projects_list),
+        CRW_NONCE_NAME => wp_create_nonce(NONCE_REVIEW)
+    ) );
+}
+add_action( 'wp_ajax_list_projects_and_riddles', 'crw_list_projects_and_riddles' );
 
 // common function for insert and update shares data testing tasks and error handling
 function crw_save_crossword ( $for_method, $user ) {
