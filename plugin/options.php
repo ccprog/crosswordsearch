@@ -1,15 +1,31 @@
 <div class="wrap" ng-switch="activeTab" ng-init="activeTab=<?php echo (current_user_can('edit_users') ? "'admin'" : "'review'") ?>">
     <h2><?php _e('Crosswordsearch Administration', 'crw-text') ?></h2>
     <h3 class="nav-tab-wrapper">
-<?php if ( current_user_can('edit_users') ) { ?>
-    <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='admin'}" href="#" ng-click="activeTab='admin'"><?php _e('Assign projects and editors', 'crw-text') ?></a>
-<?php }
-if ( current_user_can(CRW_CAPABILITY) ) { ?>
-        <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='review'}" href="#" ng-click="activeTab='review'"><?php _e('Review riddles in projects', 'crw-text') ?></a>
-<?php } ?>
-    </h3>
+<?php
 
-<?php if ( current_user_can('edit_users') ) { ?>
+if ( current_user_can('edit_users') ) {
+
+?>
+    <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='admin'}" href="#" ng-click="activeTab='admin'"><?php _e('Assign projects and editors', 'crw-text') ?></a>
+<?php
+
+}
+
+if ( current_user_can(CRW_CAPABILITY) ) {
+
+?>
+        <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='review'}" href="#" ng-click="activeTab='review'"><?php _e('Review riddles in projects', 'crw-text') ?></a>
+<?php
+
+}
+
+?>
+    </h3>
+<?php
+
+if ( current_user_can('edit_users') ) {
+
+?>
     <div class="crw-editors" ng-switch-when="admin" ng-controller="EditorController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_ADMIN); ?>')">
         <table>
             <tr>
@@ -68,8 +84,13 @@ if ( current_user_can(CRW_CAPABILITY) ) { ?>
         <p class="error" ng-if="loadError">{{loadError.error}}</p>
         <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     </div>
-<?php }
-if ( current_user_can(CRW_CAPABILITY) ) { ?>
+<?php
+
+}
+
+if ( current_user_can(CRW_CAPABILITY) ) {
+
+?>
     <div class="crw-editors" ng-switch-when="review" ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_REVIEW ); ?>')">
         <table>
             <tr>
@@ -100,5 +121,9 @@ if ( current_user_can(CRW_CAPABILITY) ) { ?>
         <p class="error" ng-if="loadError">{{loadError.error}}</p>
         <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     </div>
-<?php } ?>
+<?php
+
+}
+
+?>
 </div>

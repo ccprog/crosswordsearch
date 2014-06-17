@@ -44,6 +44,7 @@ $wpdb->hide_errors();
 
 $data_table_name = $wpdb->prefix . "crw_crosswords";
 $editors_table_name = $wpdb->prefix . "crw_editors";
+$plugin_url = plugins_url() . '/crosswordsearch/';
 // WP_PLUGIN_DIR points to path in server fs, even if it traverses a symbolic link
 // this form is needed for register_activation_hook (call to plugin_basename()),
 $plugin_file = WP_PLUGIN_DIR . '/crosswordsearch/crosswordsearch.php';
@@ -140,8 +141,7 @@ function crw_add_angular_attribute ($attributes) {
 
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $crw_has_crossword;
-    $plugin_url = plugins_url() . '/crosswordsearch/';
+    global $crw_has_crossword, $plugin_url;
 
     $locale_data = crw_get_locale_data();
 
@@ -168,7 +168,7 @@ function crw_set_header () {
 add_action( 'get_header', 'crw_set_header');
 
 function crw_set_admin_header () {
-    $plugin_url = plugins_url() . '/crosswordsearch/';
+    global $plugin_url;
 
     add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
     add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
@@ -216,7 +216,7 @@ function crw_get_names_list ($project) {
 /* load the crossword into a post */
 
 function crw_shortcode_handler( $atts, $content = null ) {
-    $plugin_url = plugins_url() . '/crosswordsearch/';
+    global $plugin_url;
 
     $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
@@ -232,10 +232,14 @@ function crw_shortcode_handler( $atts, $content = null ) {
         return '<p>' . $shortcode_error . '</p>';
     }
 
+    $is_single = false;
     if ( !$name && count($names_list) > 0 ) {
         $selected_name = $names_list[0];
     } else {
         $selected_name = $name;
+        if ('solve' == $mode) {
+            $is_single = true;
+        }
     }
     $prep_1 = esc_js($project);
     $prep_2 = wp_create_nonce( NONCE_CROSSWORD . $project );
@@ -247,197 +251,11 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
 
-	// wrapper divs
-	$html = '
-<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">';
-    if ( 'build' == $mode ) {
-        // build mode has an action menu including a name selection for server reload
-        $html .= '
-    <div><dl class="cse menu" cse-select cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry=\'' . __('Riddle...', 'crw-text') . '\'"></dl></div>
-    <p class="error" ng-if="loadError">{{loadError.error}}</p>
-    <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
-    <p class="name">{{crosswordData.name}}</p>
-    <p class="description" ng-show="crosswordData.description"><em>' . __('Find these words in the riddle:', 'crw-text') . '</em> {{crosswordData.description}}</p>';
-    } else {
-        if ( $name || count($names_list) <= 1 ) {
-            // single solve only shows the name
-            $html .= '
-    <p class="name">{{crosswordData.name}}</p>';
-        } else {
-            // multi solve has a name selection
-            $html .= '
-    <div><dl class="cse name" title="' . __('Select a riddle', 'crw-text') . '" cse-select cse-options="namesInProject" cse-model="loadedName"></dl></div>
-    <p class="error" ng-if="loadError">{{loadError.error}}</p>
-    <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>';
-        }
-        $html .= '
-    <p class="description" ng-show="crosswordData.description"><em>' . __('Find these words in the riddle:', 'crw-text') . '</em> {{crosswordData.description}}</p>';
-    }
-	$html .= '
-    <div class="crw-crossword' . ( 'build' == $mode ? ' wide" ng-style="styleCrossword()' : '' ) . '" ng-controller="SizeController" ng-if="crosswordData">
-        <div ng-style="styleGridSize()" class="crw-grid' . ( 'build' == $mode ? ' divider' : '' ) . '">';
-	    // resize handles
-	    if ( 'build' == $mode ) {
-	        $html .=  '
-            <div crw-catch-mouse down="startResize" up="stopResize">
-                <div id="handle-left" transform-multi-style style-name="size-left" ng-style="modLeft.styleObject[\'handle-left\'].style"></div>
-                <div id="handle-top" transform-multi-style style-name="size-top" ng-style="modTop.styleObject[\'handle-top\'].style"></div>
-                <div id="handle-right" transform-multi-style style-name="size-right" ng-style="modRight.styleObject[\'handle-right\'].style"></div>
-                <div id="handle-bottom" transform-multi-style style-name="size-bottom" ng-style="modBottom.styleObject[\'handle-bottom\'].style"></div>
-            </div>';
-	    }
-	    // crossword table
-        $html .= '
-        </div>
-        <div class="crw-mask" ng-style="styleGridSize()">
-            <table class="crw-table" ng-style="styleShift()" ng-controller="TableController" ng-Init="setMode(\'' . $mode . '\')" crw-catch-mouse down="startMark" up="stopMark" prevent-default>
-                <tr ng-repeat="row in crosswordData.table" crw-index-checker="line">
-                    <td class="crw-field" ng-repeat="field in row" crw-index-checker="column">
-                        <div ';
-                        // button clicking only for build mode
-                        if ( 'build' == $mode ) {
-                            $html .= 'ng-click="activate(line, column)" ';
-                        }
-                        $html .= 'ng-mouseenter="intoField(line, column)" ng-mouseleave="outofField(line, column)">
-                            <button tabindex="-1" unselectable="on" ng-keydown="move($event)" ng-keypress="type($event)" crw-set-focus>{{field.letter}}</button>
-                            <div unselectable="on" ng-repeat="marker in getMarks(line, column)" class="crw-marked" ng-class ="getImgClass(marker)"></div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>';
-	    if ( 'build' == $mode ) {
-            $html .= '
-        <p ng-style="styleExtras()">
-            <button class="fill" ng-click="randomize()" title="' . __('Fill all empty fields with random letters', 'crw-text') . '" alt="' . __('Fill fields', 'crw-text') . '"></button><button class="empty" ng-click="empty()" title="' . __('Empty all fields', 'crw-text') . '" alt="' . __('Empty', 'crw-text') . '"></button>
-        </p>';
-        }
-        $html .= '
-    </div>
-    <div class="crw-controls">';
-    // controls and output area
-    if ( 'build' == $mode ) {
-        // build mode: wordlist with color chooser and delete button
-        $html .= '
-        <ul class="crw-word">
-            <li ng-class="{\'highlight\': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:\'ID\'" ng-controller="EntryController">
-                <dl class="cse crw-color" title="{{word.color}}" cse-template ="color-select" cse-select cse-options="colors" cse-model="word.color"></dl>';
-                /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
-                $html .= '<span>{{word.fields | joinWord}} (' . sprintf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') . ')</span>
-                <button class="trash" ng-click="deleteWord(word.ID)" title="' . __('Delete', 'crw-text') . '"></button>
-            </li>
-        </ul>';
-    } elseif ( 'solve' == $mode ) {
-        // solve mode: solution status and restart button, wordlist as solution display
-        $html .= '
-        <p ng-show="crosswordData.name">
-            <span ng-if="count.solution<count.words">' . sprintf( __('%1$s of %2$s words found', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) . '</span>
-            <span ng-if="count.solution===count.words">' . sprintf( __('All %1$s words found!', 'crw-text'), '{{count.words}}' ) . '</span>
-            <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="' . __('Restart solving the riddle', 'crw-text') . '" alt="' . __('Restart', 'crw-text') . '"></button>
-        </p>
-        <ul class="crw-word">
-            <li ng-class="{\'highlight\': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:\'ID\'" ng-controller="EntryController">
-                <img title="{{word.color}}" ng-src="' . $plugin_url . 'images/bullet-{{word.color}}.png">
-                <span>{{word.fields | joinWord}}</span>
-            </li>
-        </ul>';
-    }
-    // modal area
-    $html .= '
-    </div>
-    <p ng-show="crosswordData.author" class="copyright">' . __('Authored by', 'crw-text') . ' {{crosswordData.author}}</p>
-    <div class="crw-immediate" ng-controller="ImmediateController" ng-show="immediate" ng-switch on="immediate">
-        <div class="blocker"></div>
-        <div class="message">';
-    if ( 'build' == $mode ) {
-        $html .= '
-            <div ng-switch-when="invalidWords">
-                <p ng-pluralize count="invalidCount" when="{
-                    \'one\': \'' . __('The marked word no longer fits into the crossword area. For a successful resize this word must be deleted.', 'crw-text') . '\',
-                    \'other\': \'' . __('The marked words no longer fit into the crossword area. For a successful resize these words must be deleted.', 'crw-text') . '\'}"></p>
-                <p class="actions">
-                    <button ng-click="finish(true)">' . __('Delete', 'crw-text') . '</button>
-                    <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
-                </p>
-            </div>
-            <div ng-switch-when="saveCrossword">
-                <form name="uploader">
-                    <p ng-switch on="action">
-                        <span ng-switch-when="insert">' . __('To save it, the riddle must get a new name.', 'crw-text') . '</span>
-                        <span ng-switch-when="update">' . __('You can change the additional informations that are saved about the riddle.', 'crw-text') . '</span>
-                    </p>
-                    <table>
-                        <tr>
-                            <td><label for ="crosswordName">' . __('Name:', 'crw-text') . '</label></td>
-                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique" crw-unique="namesInProject commands"></td>
-                        </tr>
-                        <tr>
-                            <td></td><td>
-                                <p class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)">' . __('A name must be given!', 'crw-text') . '</p>
-                                <p class="error" ng-show="uploader.crosswordName.$error.minlength">' . __('The name is too short!', 'crw-text') . '</p>
-                                <p class="error" ng-show="uploader.crosswordName.$error.unique">' . __('There is already another riddle with that name!', 'crw-text') . '</p>
-                                <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError">' . __('That looks good!', 'crw-text') . '</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label for ="description">' . __('Give a hint which words should be found:', 'crw-text') . '</label></td>
-                            <td><textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea></td>
-                        </tr>
-                        <tr>
-                            <td><label for ="author">' . __('Author:', 'crw-text') . '</label></td>
-                            <td><input type="text" ng-model="crosswordData.author" name="author" crw-add-parsers="sane"></td>
-                        </tr>';
-                if (!$is_auth) {
-                    $html .= '
-                        <tr>
-                            <td><label for="username">' . __('Username:', 'crw-text') . '</label></td>
-                            <td><input type="text" name="username" class="authenticate" required="" ng-model="username"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="password">' . __('Password:', 'crw-text') . '</label></td>
-                            <td><input type="password" name="password" class="authenticate" required="" ng-model="password"></td>
-                        </tr>
-                        <tr>
-                            <td></td><td>
-                                <p class="error" ng-show="uploader.username.$error.required || uploader.password.$error.required">' . __('A username and password is required for saving!', 'crw-text') . '</p>
-                                <p class="confirm" ng-show="uploader.username.$valid && uploader.password.$valid">&nbsp;</p>
-                            </td>
-                        </tr>';
-                }
-                $html .= '
-                    </table>
-                    <p class="error" ng-show="uploader.$error.sane">' . __('Dont\'t try to be clever!', 'crw-text') . '</p>
-                    <p class="actions">
-                        <input type="submit" ng-disabled="!uploader.$valid" ng-click="upload(username, password)" value="' . __('Save', 'crw-text') . '"></input>
-                        <button ng-click="finish(false)">' . __('Abort', 'crw-text') . '</button>
-                    </p>
-                    <p class="error" ng-show="saveError">{{saveError}}</p>
-                    <p class="error" ng-repeat="msg in saveDebug">{{msg}}</p>
-                </form>
-            </div>';
-    } elseif ( 'solve' == $mode ) {
-        $html .= '
-            <div ng-switch-when="falseWord">
-                <p>' . __('The marked word is not part of the solution.', 'crw-text') . '</p>
-                <p class="actions">
-                    <button ng-click="finish(true)">' . __('Delete', 'crw-text') . '</button>
-                </p>
-            </div>
-            <div ng-switch-when="solvedCompletely">
-                <p>' . __('Congratulation, the riddle is solved!', 'crw-text') . '</p>
-                <p class="actions">
-                    <button ng-click="finish(true)">' . __('OK', 'crw-text') . '</button>
-                </p>
-            </div>';
-    }
-    $html .= '
-            <div ng-switch-when="loadCrossword">
-                <p>' . __('Please be patient for the crossword being loaded.', 'crw-text') . '</p>
-            </div>
-        </div>
-    </div>
-</div>';
-	return $html;
+    ob_start();
+    include 'app.php';
+    $app_code = ob_get_clean();
+
+	return '<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\')">' . $app_code . '</div>';
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
