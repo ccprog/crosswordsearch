@@ -35,6 +35,8 @@ define('CRW_PROJECTS_OPTION', 'crw_projects');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
 define('NONCE_ADMIN', 'crw_admin_');
+define('CRW_CAPABILITY', 'edit_crossword');
+define('CRW_ROLE', 'subscriber');
 
 global $wpdb, $data_table_name, $editors_table_name;
 $wpdb->hide_errors();
@@ -70,6 +72,9 @@ function crw_install () {
     global $wpdb, $charset_collate, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
+    get_role( 'administrator' )->add_cap( CRW_CAPABILITY, true );
+    get_role( CRW_ROLE )->add_cap( CRW_CAPABILITY );
+
     dbDelta( "
 CREATE TABLE IF NOT EXISTS $data_table_name (
   project varchar(255) NOT NULL,
@@ -88,6 +93,12 @@ CREATE TABLE IF NOT EXISTS $editors_table_name (
     add_option( "crw_db_version", CRW_DB_VERSION );
 }
 register_activation_hook( $plugin_file, 'crw_install' );
+
+function crw_deactivate () {
+    get_role( 'administrator' )->remove_cap( CRW_CAPABILITY );
+    get_role( CRW_ROLE )->remove_cap( CRW_CAPABILITY );
+}
+register_deactivation_hook( $plugin_file, 'crw_deactivate' );
 
 // temporary test data
 function crw_install_data () {
@@ -230,7 +241,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $prep_3 = esc_js($selected_name);
 
     $current_user = wp_get_current_user();
-    $is_auth = get_current_user_id() > 0 && user_can($current_user, 'edit_posts');
+    $is_auth = get_current_user_id() > 0 && user_can($current_user, CRW_CAPABILITY);
 
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
@@ -512,14 +523,47 @@ function crw_send_error ( $error, $debug ) {
     wp_send_json($obj);
 }
 
+function crw_test_permission ( $user, $for, $project=null ) {
+    global $wpdb, $editors_table_name;
+    $error = __('You do not have permission.', 'crw-text');
+
+    if ( is_wp_error($user) ) {
+        $debug = $user->get_error_messages();
+        crw_send_error($error, $debug);
+    }
+
+    switch ( $for ) {
+    case 'admin':
+        $is_editor = true;
+        $nonce_group = NONCE_ADMIN;
+        $capability = 'edit_users';
+        break;
+    case 'edit':
+        $is_editor = $wpdb->get_var( $wpdb->prepare("
+            SELECT count(*)
+            FROM $editors_table_name
+            WHERE user_id = $user->ID AND project = %s
+        ", $project) );
+        $nonce_group = NONCE_CROSSWORD . $project;
+        $capability = CRW_CAPABILITY;
+        break;
+    }
+    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], $nonce_group ) ) {
+        $debug = 'nonce not verified for ' . $nonce_group;
+        crw_send_error($error, $debug);
+    } elseif ( !user_can($user, $capability) ) {
+        $debug = 'no ' . $capability . ' permission for user';
+        crw_send_error($error, $debug);
+    } elseif ( !$is_editor ) {
+        $debug = 'no permission for user in project ' . $project;
+        crw_send_error($error, $debug);
+    }
+}
+
 function crw_send_admin_data () {
     global $wpdb, $editors_table_name;
 
-    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_ADMIN ) ) {
-        $error = __('The data could not be sent.', 'crw-text');
-        $debug = 'nonce not verified for ' . NONCE_ADMIN;
-        crw_send_error($error, $debug);
-    }
+    crw_test_permission( wp_get_current_user(), 'admin' );
 
     $projects = get_option(CRW_PROJECTS_OPTION);
     $editors_list = $wpdb->get_results("
@@ -540,19 +584,21 @@ function crw_send_admin_data () {
         );
     }, $projects );
 
-    $user_query = new WP_User_Query( array(
-        'who' => 'authors',
-        'fields' => array( 'ID', 'display_name' )
-    ) );
     $users_list = array();
-    array_walk( $user_query->results, function ($user) use (&$users_list) {
-        if ( user_can($user->ID, 'edit_posts') ) {
-            array_push($users_list, array(
-                'user_id' => $user->ID,
-                'user_name' => $user->display_name
-            ));
-        }
-    } );
+    foreach ( array( 'administrator', CRW_ROLE ) as $role ) {
+        $user_query = new WP_User_Query( array(
+            'role' => $role,
+            'fields' => array( 'ID', 'display_name' )
+        ) );
+        array_walk( $user_query->results, function ($user) use (&$users_list) {
+            if ( user_can($user->ID, CRW_CAPABILITY) ) {
+                array_push($users_list, array(
+                    'user_id' => $user->ID,
+                    'user_name' => $user->display_name
+                ));
+            }
+        } );
+    }
 
     wp_send_json( array(
         'projects' => $projects_list,
@@ -564,11 +610,7 @@ add_action( 'wp_ajax_get_admin_data', 'crw_send_admin_data' );
 
 // add a project
 function crw_add_project () {
-    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_ADMIN ) ) {
-        $error = __('The project could not be added.', 'crw-text');
-        $debug = 'nonce not verified for ' . NONCE_ADMIN;
-        crw_send_error($error, $debug);
-    }
+    crw_test_permission( wp_get_current_user(), 'admin' );
 
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
 
@@ -588,10 +630,7 @@ function crw_remove_project () {
     global $wpdb, $data_table_name, $editors_table_name;
     $error = __('The project could not be removed.', 'crw-text');
 
-    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_ADMIN ) ) {
-        $debug = 'nonce not verified for ' . NONCE_ADMIN;
-        crw_send_error($error, $debug);
-    }
+    crw_test_permission( wp_get_current_user(), 'admin' );
 
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
 
@@ -623,6 +662,53 @@ function crw_remove_project () {
 }
 add_action( 'wp_ajax_remove_project', 'crw_remove_project' );
 
+// update editors list
+function crw_update_editors () {
+    global $wpdb, $editors_table_name;
+    $error = __('The editors could not be updated.', 'crw-text');
+
+    crw_test_permission( wp_get_current_user(), 'admin' );
+
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+    $esc_project = esc_sql($project);
+    $editors = json_decode( wp_unslash( $_POST['editors'] ) );
+
+    if ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
+        $debug = 'invalid project name: ' . $project;
+        crw_send_error($error, $debug);
+    } elseif ( !is_array($editors) ) {
+        $debug = 'invalid data: no array';
+        crw_send_error($error, $debug);
+    }
+    $insertion = array_map( function ($id) use ($esc_project, $error) {
+        if ( (string)(integer)$id !== $id ) {
+            $debug = 'invalid data: no integer';
+            crw_send_error($error, $debug);
+        }
+        $user = get_userdata($id);
+        if ( !( $user && user_can($user, CRW_CAPABILITY) ) ) {
+            $debug = 'invalid user id: ' . $id;
+            crw_send_error($error, $debug);
+        }
+
+        return "('" . $esc_project . "', $id)";
+    }, $editors );
+
+    $success = $wpdb->delete( $editors_table_name, array( 'project' => $project ) );
+    if ( false !== $success && count($insertion) ) {
+        $success = $wpdb->query( "
+            INSERT INTO $editors_table_name (project, user_id)
+            VALUES " . implode( ",", $insertion )
+        );
+    }
+    if (false === $success) {
+        $debug = $wpdb->last_error;
+        crw_send_error($error, $debug);
+    }
+    crw_send_admin_data();
+}
+add_action( 'wp_ajax_update_editors', 'crw_update_editors' );
+
 // common function for insert and update shares data testing tasks and error handling
 function crw_save_crossword ( $for_method, $user ) {
     global $wpdb, $data_table_name;
@@ -642,22 +728,17 @@ function crw_save_crossword ( $for_method, $user ) {
     if ( !$user ) {
         $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
     }
+    crw_test_permission( $user, 'edit', $project );
 
     // verify crossword data
     $crossword = wp_unslash( $_POST['crossword'] );
     $verification = crw_verify_json( $crossword, $msg );
 
-    // set errors on failing authentication or inconsistencies
-    if ( is_wp_error($user) ) {
-        $debug = $user->get_error_messages();
-    } elseif ( !user_can($user, 'edit_posts') ) {
-        $debug = $username . ': no edit capability';
-    } elseif ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_CROSSWORD . $project ) ) {
-        $debug = 'nonce not verified for ' . NONCE_CROSSWORD . $project;
-    } elseif ( !$verification ) {
+    // set errors on inconsistencies
+    if ( !$verification ) {
         $error = __('The crossword data sent are invalid.', 'crw-text');
         $debug = $msg;
-    } elseif (  !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
+    } elseif ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
         $error = __('The project does not exist.', 'crw-text');
         $debug = $project;
     } else if ( $name !== $unsafe_name ) {
@@ -765,11 +846,11 @@ add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );
 /* settings page load routines */
 
 function crw_admin_menu () {
-    add_options_page( 'Crosswordsearch', 'Crosswordsearch', 'edit_posts', 'crw_options', 'crw_show_options' );
+    add_options_page( 'Crosswordsearch', 'Crosswordsearch', CRW_CAPABILITY, 'crw_options', 'crw_show_options' );
 };
 add_action('admin_menu', 'crw_admin_menu');
 function crw_show_options() {
-	if ( !current_user_can( 'edit_posts' ) )  {
+	if ( !current_user_can( CRW_CAPABILITY ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
 	include(WP_PLUGIN_DIR . '/crosswordsearch/options.php');

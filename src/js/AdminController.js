@@ -1,15 +1,15 @@
-/* wrapper controler for settings page */
-crwApp.controller("AdminController", ['$scope', function ($scope) {
-    $scope.activeTab = 'editor';
-}]);
-
 /* controller for administrative tab: adding/deleting projects, managing users */
 crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 		function ($scope, $filter, ajaxFactory) {
     var nonceGroup = 'admin';
 
+    // load data freshly received from the server
     var showLoaded = function (admin, selected) {
         $scope.admin = admin;
+        // flag for unsaved editor entries
+        angular.forEach($scope.admin.projects, function (project) {
+            project.pristine = true;
+        });
         if (selected) {
             $scope.selectedProject = jQuery.grep($scope.admin.projects, function (project) {
                 return project.name === selected;
@@ -19,6 +19,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         }
         $scope.newProject = null;
         $scope.addingProject = false;
+        $scope.editorsSaveError = null;
     };
 
     // initial load after the nonce has been processed
@@ -38,15 +39,17 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 
     $scope.$watch('selectedProject', function (newSel) {
         if (newSel) {
-            $scope.current_users = newSel.editors || [];
-            update_filtered();
+            $scope.current_users = angular.copy(newSel.editors) || [];
         } else {
-            $scope.current_users = [];
+            $scope.current_users = null;
         }
     });
 
     // get user lists and their model data up to speed
-    var update_filtered = function () {
+    $scope.$watchCollection('current_users', function () {
+        if (!$scope.admin) {
+            return;
+        }
         $scope.filtered_users = jQuery.grep($scope.admin.all_users, function (user) {
             if ($scope.selectedProject) {
                 return jQuery.inArray(user.user_id, $scope.current_users) < 0;
@@ -58,7 +61,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         $scope.selectedUser = $filter('orderBy')($scope.filtered_users, 'user_name')[0];
         $scope.loadError = null;
         $scope.projectSaveError = null;
-    };
+    });
 
     var addUser = function (user) {
         $scope.current_users.push(user.user_id);
@@ -86,33 +89,33 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     // enable all users for the current project
     $scope.addAll = function () {
         angular.forEach($scope.filtered_users, addUser);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
     };
 
     // enable a user for the current project
     $scope.addOne = function () {
         var selected = $scope.selectedUser.user_id;
         addUser($scope.selectedUser);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
         $scope.selectedEditor = selected;
     };
 
     // disable all users for the current project
     $scope.removeAll = function () {
         $scope.current_users.splice(0);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
     };
 
-    // disnable a user for the current project
+    // disable a user for the current project
     $scope.removeOne = function () {
         var index = jQuery.inArray($scope.selectedEditor, $scope.current_users),
             selected = getUser($scope.selectedEditor);
         $scope.current_users.splice(index, 1);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
         $scope.selectedUser = selected;
     };
 
-    // add a new project to the local admin object
+    // add a new project to the server
     $scope.saveProject = function () {
         ajaxFactory.http({
             action: 'add_project',
@@ -124,13 +127,14 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         });
     };
 
+    // reset project column
     $scope.abortProject = function () {
         $scope.newProject = null;
         $scope.projectSaveError = null;
         $scope.addingProject = false;
     };
 
-    // remove a project from the local admin object
+    // remove a project from the server
     $scope.deleteProject = function () {
         ajaxFactory.http({
             action: 'remove_project',
@@ -138,5 +142,25 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         }, nonceGroup).then(showLoaded, function (error) {
             $scope.projectSaveError = error;
         });
+    };
+
+    // update editors list for current project on the server
+    $scope.saveEditors = function () {
+        ajaxFactory.http({
+            action: 'update_editors',
+            project: $scope.selectedProject.name,
+            editors: angular.toJson($scope.current_users)
+        }, nonceGroup).then(function (data) {
+            showLoaded(data, $scope.selectedProject.name);
+        }, function (error) {
+            $scope.editorsSaveError = error;
+        });
+    };
+
+    // reset editors column
+    $scope.abortEditors = function () {
+        $scope.current_users = angular.copy($scope.selectedProject.editors);
+        $scope.editorsSaveError = null;
+        $scope.selectedProject.pristine = true;
     };
 }]);

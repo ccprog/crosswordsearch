@@ -300,17 +300,17 @@ dl.crw-color img {
     max-width: 5em;
     text-align: center;
 }
+.crw-editors tr.actions {
+    vertical-align: top;
+}
 .crw-editors select {
     height: 186px;
 }
-.crw-editors select.project {
-    width: 20em;
-}
-.crw-editors input.project {
-    width: 16em;
+.crw-editors select.project, .crw-editors input.project {
+    width: 18em;
 }
 .crw-editors select {
-    width: 10em;
+    width: 12em;
 }
 .crw-editors button {
     width: 36px;

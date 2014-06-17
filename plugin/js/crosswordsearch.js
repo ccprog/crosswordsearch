@@ -595,14 +595,13 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
     };
 } ]);
 
-crwApp.controller("AdminController", [ "$scope", function($scope) {
-    $scope.activeTab = "editor";
-} ]);
-
 crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
     var nonceGroup = "admin";
     var showLoaded = function(admin, selected) {
         $scope.admin = admin;
+        angular.forEach($scope.admin.projects, function(project) {
+            project.pristine = true;
+        });
         if (selected) {
             $scope.selectedProject = jQuery.grep($scope.admin.projects, function(project) {
                 return project.name === selected;
@@ -612,6 +611,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         }
         $scope.newProject = null;
         $scope.addingProject = false;
+        $scope.editorsSaveError = null;
     };
     $scope.prepare = function(nonce) {
         ajaxFactory.setNonce(nonce, nonceGroup);
@@ -625,13 +625,15 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     $scope.current_users = [];
     $scope.$watch("selectedProject", function(newSel) {
         if (newSel) {
-            $scope.current_users = newSel.editors || [];
-            update_filtered();
+            $scope.current_users = angular.copy(newSel.editors) || [];
         } else {
-            $scope.current_users = [];
+            $scope.current_users = null;
         }
     });
-    var update_filtered = function() {
+    $scope.$watchCollection("current_users", function() {
+        if (!$scope.admin) {
+            return;
+        }
         $scope.filtered_users = jQuery.grep($scope.admin.all_users, function(user) {
             if ($scope.selectedProject) {
                 return jQuery.inArray(user.user_id, $scope.current_users) < 0;
@@ -643,7 +645,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
         $scope.loadError = null;
         $scope.projectSaveError = null;
-    };
+    });
     var addUser = function(user) {
         $scope.current_users.push(user.user_id);
     };
@@ -662,22 +664,22 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     };
     $scope.addAll = function() {
         angular.forEach($scope.filtered_users, addUser);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
     };
     $scope.addOne = function() {
         var selected = $scope.selectedUser.user_id;
         addUser($scope.selectedUser);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
         $scope.selectedEditor = selected;
     };
     $scope.removeAll = function() {
         $scope.current_users.splice(0);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
     };
     $scope.removeOne = function() {
         var index = jQuery.inArray($scope.selectedEditor, $scope.current_users), selected = getUser($scope.selectedEditor);
         $scope.current_users.splice(index, 1);
-        update_filtered();
+        $scope.selectedProject.pristine = false;
         $scope.selectedUser = selected;
     };
     $scope.saveProject = function() {
@@ -702,6 +704,22 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         }, nonceGroup).then(showLoaded, function(error) {
             $scope.projectSaveError = error;
         });
+    };
+    $scope.saveEditors = function() {
+        ajaxFactory.http({
+            action: "update_editors",
+            project: $scope.selectedProject.name,
+            editors: angular.toJson($scope.current_users)
+        }, nonceGroup).then(function(data) {
+            showLoaded(data, $scope.selectedProject.name);
+        }, function(error) {
+            $scope.editorsSaveError = error;
+        });
+    };
+    $scope.abortEditors = function() {
+        $scope.current_users = angular.copy($scope.selectedProject.editors);
+        $scope.editorsSaveError = null;
+        $scope.selectedProject.pristine = true;
     };
 } ]);
 
