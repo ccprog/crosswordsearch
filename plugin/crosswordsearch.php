@@ -532,11 +532,8 @@ function crw_update_editors () {
 }
 add_action( 'wp_ajax_update_editors', 'crw_update_editors' );
 
-function crw_list_projects_and_riddles () {
+function crw_send_projects_and_riddles ($user) {
     global $wpdb, $data_table_name, $editors_table_name;
-
-    $user = wp_get_current_user();
-    crw_test_permission($user , 'review' );
 
     $crosswords_list = $wpdb->get_results("
         SELECT dt.project, dt.name
@@ -560,6 +557,13 @@ function crw_list_projects_and_riddles () {
         'projects' => array_values($projects_list),
         CRW_NONCE_NAME => wp_create_nonce(NONCE_REVIEW)
     ) );
+}
+
+function crw_list_projects_and_riddles () {
+    $user = wp_get_current_user();
+    crw_test_permission($user , 'review' );
+
+    crw_send_projects_and_riddles($user);
 }
 add_action( 'wp_ajax_list_projects_and_riddles', 'crw_list_projects_and_riddles' );
 
@@ -672,6 +676,32 @@ function crw_get_crossword() {
 }
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
 add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
+
+function crw_delete_crossword() {
+    global $wpdb, $data_table_name;
+    $error = __('The crossword could not be retrieved.', 'crw-text');
+
+    // sanitize fields
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+    $name = sanitize_text_field( wp_unslash($_POST['name']) );
+
+    $user = wp_get_current_user();
+    crw_test_permission($user , 'review' );
+
+    // call database
+    $success = $wpdb->delete( $data_table_name, array(
+        'project' => $project,
+        'name' => $name
+    ) );
+
+    // check for database errors
+    if (false !== $success) {
+        crw_send_projects_and_riddles($user);
+    } else {
+        crw_send_error($error, $wpdb->last_error);
+    }
+}
+add_action( 'wp_ajax_delete_crossword', 'crw_delete_crossword' );
 
 // insert crossword data
 function crw_insert_crossword_nopriv() {

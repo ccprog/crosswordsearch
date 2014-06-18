@@ -112,7 +112,7 @@ if ( current_user_can(CRW_CAPABILITY) ) {
                 <td class="between"></td>
                 <td>
                     <input type="checkbox" title="<?php _e('Show a preview of the selected crossword', 'crw-text') ?>" ng-model="preview"><?php _e('Preview', 'crw-text') ?></input>
-                    <button class="text" title="<?php _e('Delete the selected crossword', 'crw-text') ?>" ng-click="deleteCrossword()" ng-disabled="!selectedCrossword"><?php _e('Delete', 'crw-text') ?></button>
+                    <button title="<?php _e('Delete the selected crossword', 'crw-text') ?>" ng-click="deleteCrossword()" ng-disabled="!selectedCrossword">−</button>
                     <p class="error" ng-if="deleteError">{{deleteError.error}}</p>
                     <p class="error" ng-repeat="msg in deleteError.debug">{{msg}}</p>
                 </td>

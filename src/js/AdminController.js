@@ -172,9 +172,15 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 
     // load data freshly received from the server
     var showLoaded = function (data, selected) {
+        var newSelected;
         $scope.projects = data.projects;
         if (selected) {
-            $scope.selectedProject = selected;
+            newSelected = jQuery.grep($scope.projects, function (project) {
+                return project.name === selected;
+            })[0];
+        }
+        if (newSelected) {
+            $scope.selectedProject = newSelected;
         } else {
             $scope.selectedProject = $filter('orderBy')($scope.projects, 'name')[0];
         }
@@ -189,6 +195,18 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
             action: 'list_projects_and_riddles'
         }, nonceGroup).then(showLoaded, function (error) {
             $scope.loadError = error;
+        });
+    };
+
+    $scope.deleteCrossword = function () {
+        ajaxFactory.http({
+            action: 'delete_crossword',
+            project: $scope.selectedProject.name,
+            name: $scope.selectedCrossword
+        }, nonceGroup).then(function (data) {
+            showLoaded(data, $scope.selectedProject.name);
+        }, function (error) {
+            $scope.deleteError = error;
         });
     };
 
