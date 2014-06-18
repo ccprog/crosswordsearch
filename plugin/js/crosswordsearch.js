@@ -730,7 +730,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
         if (selected) {
             $scope.selectedProject = selected;
         } else {
-            $scope.selectedProject = $filter("orderBy")($scope.projects, "name")[0].crosswords;
+            $scope.selectedProject = $filter("orderBy")($scope.projects, "name")[0];
         }
         $scope.loadError = null;
         $scope.deleteError = null;
@@ -745,9 +745,25 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
     };
     $scope.$watch("selectedProject", function(newSel) {
         if (newSel) {
-            $scope.selectedCrossword = $filter("orderBy")(newSel, "toString()")[0];
+            if ($scope.preview) {
+                $scope.$broadcast("previewProject", newSel.name);
+            }
+            $scope.selectedCrossword = $filter("orderBy")(newSel.crosswords, "toString()")[0];
         }
         $scope.deleteError = null;
+    });
+    $scope.$watch("selectedCrossword", function(newName) {
+        if (newName && $scope.preview) {
+            $scope.$broadcast("previewCrossword", newName);
+        }
+    });
+    $scope.$watch("preview", function(newPre) {
+        if (newPre && $scope.selectedProject) {
+            $scope.$evalAsync(function(scope) {
+                scope.$broadcast("previewProject", scope.selectedProject.name);
+                scope.$broadcast("previewCrossword", scope.selectedCrossword);
+            });
+        }
     });
 } ]);
 
@@ -835,6 +851,9 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             deregister();
         });
     };
+    $scope.$on("previewProject", function(event, project) {
+        $scope.crw.setProject(project, null);
+    });
     $scope.wordsToArray = function(words) {
         var arr = [];
         angular.forEach(words, function(item) {
@@ -868,6 +887,9 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             updateModel();
         }
     };
+    $scope.$on("previewCrossword", function(event, name) {
+        $scope.load(name);
+    });
     $scope.restart = function() {
         $scope.crosswordData.solution = {};
         $scope.count.solution = 0;
@@ -1100,6 +1122,12 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                     }
                 }
             }, true);
+        }
+        if (mode === "preview") {
+            $scope.$watch("crosswordData.words", function(newWords) {
+                markers.deleteAllMarking();
+                markers.redrawMarkers(newWords);
+            });
         }
         if (mode === "solve") {
             $scope.$watch("crosswordData.solution", function(newWords, oldWords) {

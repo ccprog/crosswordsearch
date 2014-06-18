@@ -27,7 +27,7 @@ if ( current_user_can('edit_users') ) {
 
 ?>
     <div class="crw-editors" ng-switch-when="admin" ng-controller="EditorController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_ADMIN); ?>')">
-        <table>
+        <table class="crw-options">
             <tr>
                 <th><?php _e('Projects', 'crw-text') ?></th>
                 <th class="between"></th>
@@ -36,12 +36,12 @@ if ( current_user_can('edit_users') ) {
                 <th><?php _e('Other users', 'crw-text') ?></th>
             </tr>
             <tr>
-                <td>
-                    <select class="project" size="10" ng-model="selectedProject" ng-options="project.name for project in admin.projects | orderBy:'name'" ng-disabled="!selectedProject.pristine"></select>
+                <td class="project">
+                    <select size="10" ng-model="selectedProject" ng-options="project.name for project in admin.projects | orderBy:'name'" ng-disabled="!selectedProject.pristine"></select>
                 </td>
                 <td class="between"><?php _e('can be used by', 'crw-text') ?></td>
-                <td>
-                    <select class="username" size="10" ng-model="selectedEditor" ng-options="getUserName(id) for id in current_users | orderBy:getUserName"></select>
+                <td class="username">
+                    <select size="10" ng-model="selectedEditor" ng-options="getUserName(id) for id in current_users | orderBy:getUserName"></select>
                 </td>
                 <td class="between">
                     <button title="<?php _e('Add all users to the editors of the marked project', 'crw-text') ?>" ng-click="addAll()" ng-disabled="!selectedProject || addingProject || !filtered_users.length">&lt;&lt;</button><br />
@@ -49,8 +49,8 @@ if ( current_user_can('edit_users') ) {
                     <button title="<?php _e('Remove the marked user from the editors of the marked project', 'crw-text') ?>" ng-click="removeOne()" ng-disabled="!selectedProject || addingProject || !current_users.length">&gt;</button><br />
                     <button title="<?php _e('Remove all users from the editors of the marked project', 'crw-text') ?>" ng-click="removeAll()" ng-disabled="!selectedProject || addingProject || !current_users.length">&gt;&gt;</button>
                 </td>
-                <td>
-                    <select class="username" size="10" ng-model="selectedUser" ng-options="user.user_name for user in filtered_users | orderBy:'user_name'"></select>
+                <td class="username">
+                    <select size="10" ng-model="selectedUser" ng-options="user.user_name for user in filtered_users | orderBy:'user_name'"></select>
                 </td>
             </tr>
             <tr class="actions">
@@ -92,26 +92,26 @@ if ( current_user_can(CRW_CAPABILITY) ) {
 
 ?>
     <div class="crw-editors" ng-switch-when="review" ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_REVIEW ); ?>')">
-        <table>
+        <table class="crw-options">
             <tr>
                 <th><?php _e('Projects', 'crw-text') ?></th>
                 <th class="between"></th>
                 <th><?php _e('Crosswords', 'crw-text') ?></th>
             </tr>
             <tr>
-                <td>
-                    <select class="project" size="10" ng-model="selectedProject" ng-options="project.crosswords as project.name for project in projects | orderBy:'name'"></select>
+                <td class="project">
+                    <select size="10" ng-model="selectedProject" ng-options="project as project.name for project in projects | orderBy:'name'"></select>
                 </td>
                 <td class="between"></td>
-                <td>
-                    <select class="crosswordname" size="10" ng-model="selectedCrossword" ng-options="name for name in selectedProject | orderBy:'toString()'"></select>
+                <td class="crosswordname">
+                    <select size="10" ng-model="selectedCrossword" ng-options="name for name in selectedProject.crosswords | orderBy:'toString()'"></select>
                 </td>
             </tr>
             <tr class="actions">
                 <td></td>
                 <td class="between"></td>
                 <td>
-                    <button class="text" title="<?php _e('Show a preview of the selected crossword', 'crw-text') ?>" ng-click="showCrossword()" ng-disabled="!selectedCrossword"><?php _e('Preview', 'crw-text') ?></button>
+                    <input type="checkbox" title="<?php _e('Show a preview of the selected crossword', 'crw-text') ?>" ng-model="preview"><?php _e('Preview', 'crw-text') ?></input>
                     <button class="text" title="<?php _e('Delete the selected crossword', 'crw-text') ?>" ng-click="deleteCrossword()" ng-disabled="!selectedCrossword"><?php _e('Delete', 'crw-text') ?></button>
                     <p class="error" ng-if="deleteError">{{deleteError.error}}</p>
                     <p class="error" ng-repeat="msg in deleteError.debug">{{msg}}</p>
@@ -120,6 +120,15 @@ if ( current_user_can(CRW_CAPABILITY) ) {
         </table>
         <p class="error" ng-if="loadError">{{loadError.error}}</p>
         <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
+        <div ng-if="preview" class="crw-wrapper" ng-controller="CrosswordController">
+<?php
+
+    $mode = 'preview';
+    $is_single = true;
+    include 'app.php';
+
+?>
+        </div>
     </div>
 <?php
 

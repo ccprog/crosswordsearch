@@ -27,7 +27,7 @@ if ( 'build' == $mode ) {
 }
 
 ?>
-    <p class="description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crw-text') ?></em> {{crosswordData.description}}</p>
+    <p class="crw-description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crw-text') ?></em> {{crosswordData.description}}</p>
     <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide" ng-style="styleCrossword()' : '' ) ?>" ng-controller="SizeController" ng-if="crosswordData">
         <div ng-style="styleGridSize()" class="crw-grid<?php if ( 'build' == $mode ) echo ' divider' ?>">
 <?php // resize handles
@@ -54,10 +54,9 @@ if ( 'preview' == $mode ) {
 
 ?>
             <table class="crw-table" ng-style="styleShift()" ng-controller="TableController" ng-Init="setMode('<?php echo $mode ?>')">
-                <tr ng-repeat="row in crosswordData.table">
-                    <td class="crw-field" ng-repeat="field in row">
-                        <div>
-                            <button tabindex="-1" unselectable="on">{{field.letter}}</button>
+                <tr ng-repeat="row in crosswordData.table" crw-index-checker="line">
+                    <td class="crw-field" ng-repeat="field in row" crw-index-checker="column">
+                        <div><span>{{field.letter}}</span>
 <?php
 
 } else {
@@ -142,17 +141,10 @@ if ( 'build' == $mode ) {
 ?>
     </div>
     <p ng-show="crosswordData.author" class="copyright"><?php _e('Authored by', 'crw-text') ?> {{crosswordData.author}}</p>
-<?php // modal area
-
-if ( 'preview' != $mode ) {
-
-?>
     <div class="crw-immediate" ng-controller="ImmediateController" ng-show="immediate" ng-switch on="immediate">
         <div class="blocker"></div>
         <div class="message">
-<?php
-
-}
+<?php // modal area
 
 if ( 'build' == $mode ) {
 
@@ -249,15 +241,9 @@ if ( 'build' == $mode ) {
 
 }
 
-if ( 'preview' != $mode ) {
-
 ?>
             <div ng-switch-when="loadCrossword">
                 <p><?php _e('Please be patient for the crossword being loaded.', 'crw-text') ?></p>
             </div>
         </div>
     </div>
-<?php
-
-}
-

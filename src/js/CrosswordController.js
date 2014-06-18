@@ -101,6 +101,9 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             deregister();
         });
     };
+    $scope.$on('previewProject', function (event, project) {
+        $scope.crw.setProject(project, null);
+    });
 
     // tweak: since ordering on object entries seems not to really work,
     // map them into an Array
@@ -147,6 +150,9 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             updateModel();
         }
     };
+    $scope.$on('previewCrossword', function (event, name) {
+        $scope.load(name);
+    });
 
     // solve page only: restart the loaded riddle
     $scope.restart = function () {

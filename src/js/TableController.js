@@ -54,7 +54,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 // is this a new crossword?
                 if ($scope.crosswordData.name !== lastName) {
                     // redraw all markers and reset marking ids
-                    markers.deleteAllMarking ();
+                    markers.deleteAllMarking();
                     markers.redrawMarkers(newWords);
                     currentMarking = { ID: $scope.crw.getHighId() };
                     lastName = $scope.crosswordData.name;
@@ -73,6 +73,13 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                     }
                 }
             }, true);
+        }
+        if (mode === 'preview') { // preview page
+            // load existing markings on data change
+            $scope.$watch('crosswordData.words', function (newWords) {
+                markers.deleteAllMarking();
+                markers.redrawMarkers(newWords);
+            });
         }
         if (mode === 'solve') { // solve page
             // remove marking for deleted solutions and colorize valid solutions

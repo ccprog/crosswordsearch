@@ -649,10 +649,6 @@ function crw_get_crossword() {
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
 
-    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], NONCE_CROSSWORD . $project ) ) {
-        $debug = 'nonce not verified for ' . NONCE_CROSSWORD . $project;
-        crw_send_error($error, $debug);
-    }
     // call database
     $crossword = $wpdb->get_var( $wpdb->prepare("
         SELECT crossword
@@ -704,6 +700,8 @@ function crw_admin_menu () {
 };
 add_action('admin_menu', 'crw_admin_menu');
 function crw_show_options() {
+    global $plugin_url;
+
 	if ( !current_user_can( CRW_CAPABILITY ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}

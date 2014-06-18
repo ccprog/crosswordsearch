@@ -176,7 +176,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
         if (selected) {
             $scope.selectedProject = selected;
         } else {
-            $scope.selectedProject = $filter('orderBy')($scope.projects, 'name')[0].crosswords;
+            $scope.selectedProject = $filter('orderBy')($scope.projects, 'name')[0];
         }
         $scope.loadError = null;
         $scope.deleteError = null;
@@ -194,8 +194,26 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 
     $scope.$watch('selectedProject', function (newSel) {
         if (newSel) {
-            $scope.selectedCrossword = $filter('orderBy')(newSel, 'toString()')[0];
+             if ($scope.preview) {
+                $scope.$broadcast('previewProject', newSel.name);
+            }
+           $scope.selectedCrossword = $filter('orderBy')(newSel.crosswords, 'toString()')[0];
         }
         $scope.deleteError = null;
+    });
+
+    $scope.$watch('selectedCrossword', function (newName) {
+        if (newName && $scope.preview) {
+            $scope.$broadcast('previewCrossword', newName);
+        }
+    });
+
+    $scope.$watch('preview', function (newPre) {
+        if (newPre && $scope.selectedProject) {
+            $scope.$evalAsync(function (scope) {
+                scope.$broadcast('previewProject', scope.selectedProject.name);
+                scope.$broadcast('previewCrossword', scope.selectedCrossword);
+            });
+        }
     });
 }]);

@@ -11,12 +11,18 @@
 .crw-wrapper .cse dt, .crw-wrapper .cse ul {
     border-radius: 2px;
 }
-.crw-wrapper .error, .crw-immediate .confirm, .crw-wrapper .copyright, .crw-editors .error {
-    font-size: 0.7em;
+.crw-editors .error {
+    font-size: 10px;
+    font-weight: bold;
+    margin: 3px 0px 5px;
+    color: red;
+}
+.crw-wrapper .error, .crw-immediate .confirm, .crw-wrapper .copyright {
+    font-size: 10px;
     font-weight: bold;
     margin: 3px 10px 5px;
 }
-.crw-wrapper .error, .crw-editors .error {
+.crw-wrapper .error {
     color: red;
 }
 .crw-wrapper .confirm {
@@ -25,6 +31,9 @@
 .crw-wrapper p.name {
     font-style: italic;
     font-weight: bold;
+}
+.crw-wrapper p.crw-description em {
+    margin-right: 0.5em;
 }
 .crw-wrapper dl.cse.menu dt {
     width: 200px;
@@ -129,6 +138,15 @@ td.crw-field button {
     background-color: transparent;
     background-image: none;
     color: black;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: default;
+}
+td.crw-field span {
+    height: 30px;
+    width: 30px;
+    display: table-cell;
+    vertical-align: middle;
     font-weight: bold;
     font-size: 18px;
     cursor: default;
@@ -271,6 +289,8 @@ ul.crw-word {
     list-style-type: none;
     padding-left: 0;
     margin-left: 0;
+    padding-top: 0;
+    margin-top: 0;
     font-size: 14px;
 }
 ul.crw-word>li {
@@ -295,29 +315,44 @@ dl.crw-color dt a {
 dl.crw-color img {
     padding: 2px 0;
 }
-.crw-editors th.between, .crw-editors td.between {
+.crw-options th.between, .crw-editors td.between {
     width: 5em;
     max-width: 5em;
     text-align: center;
 }
-.crw-editors tr.actions {
+.crw-options tr.actions {
     vertical-align: top;
 }
-.crw-editors select {
+.crw-options select {
     height: 186px;
 }
-.crw-editors select.project, .crw-editors input.project {
-    width: 18em;
+.crw-options td {
+    padding: 1px;
 }
-.crw-editors select.crosswordname {
-    width: 24em;
+.crw-options td.project {
+    max-width: 252px;
 }
-.crw-editors select {
-    width: 12em;
+.crw-options .project select, .crw-options .project input {
+    width: 250px;
 }
-.crw-editors button {
+.crw-options td.crosswordname {
+    max-width: 322px;
+}
+.crw-options .crosswordname select {
+    width: 320px;
+}
+.crw-options td {
+    max-width: 162px;
+}
+.crw-options select {
+    width: 160px;
+}
+.crw-options button {
     width: 36px;
 }
-.crw-editors button.text {
+.crw-options button.text {
     width: auto;
+}
+.crw-options input[type="checkbox"]+button {
+    margin-left: 0.5em;
 }
