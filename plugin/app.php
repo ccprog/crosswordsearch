@@ -36,10 +36,10 @@ if ( 'build' == $mode ) {
 
 ?>
             <div crw-catch-mouse down="startResize" up="stopResize">
-                <div id="handle-left" transform-multi-style style-name="size-left" ng-style="modLeft.styleObject['handle-left'].style"></div>
-                <div id="handle-top" transform-multi-style style-name="size-top" ng-style="modTop.styleObject['handle-top'].style"></div>
-                <div id="handle-right" transform-multi-style style-name="size-right" ng-style="modRight.styleObject['handle-right'].style"></div>
-                <div id="handle-bottom" transform-multi-style style-name="size-bottom" ng-style="modBottom.styleObject['handle-bottom'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-left" transform-multi-style style-name="size-left" ng-style="modLeft.styleObject['handle-left'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-top" transform-multi-style style-name="size-top" ng-style="modTop.styleObject['handle-top'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-right" transform-multi-style style-name="size-right" ng-style="modRight.styleObject['handle-right'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-bottom" transform-multi-style style-name="size-bottom" ng-style="modBottom.styleObject['handle-bottom'].style"></div>
             </div>
 <?php
 
@@ -102,7 +102,7 @@ if ( 'build' == $mode ) {
             <li ng-class="{'highlight': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
                 <dl class="cse crw-color" title="{{word.color}}" cse-template ="color-select" cse-select cse-options="colors" cse-model="word.color"></dl>
                 <span>{{word.fields | joinWord}} (<?php
-                /// translators: first two pars are line/column numbers, third is a direction like "to the right" or "down"
+                /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
                 printf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') ?>)</span>
                 <button class="trash" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crw-text') ?>"></button>
             </li>
@@ -124,8 +124,8 @@ if ( 'build' == $mode ) {
 
 ?>
         <p ng-show="crosswordData.name">
-            <span ng-if="count.solution<count.words"><?php printf( __('%1$s of %2$s words found', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) ?></span>
-            <span ng-if="count.solution===count.words"><?php printf( __('All %1$s words found!', 'crw-text'), '{{count.words}}' ) ?></span>
+            <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) ?></span>
+            <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crw-text'), '{{count.words}}' ) ?></span>
             <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="<?php _e('Restart solving the riddle', 'crw-text') ?>" alt="<?php _e('Restart', 'crw-text') ?>"></button>
         </p>
         <ul class="crw-word">
@@ -151,8 +151,8 @@ if ( 'build' == $mode ) {
 ?>
             <div ng-switch-when="invalidWords">
                 <p ng-pluralize count="invalidCount" when="{
-                    'one': '<?php _e('The marked word no longer fits into the crossword area. For a successful resize this word must be deleted.', 'crw-text') ?>',
-                    'other': '<?php _e('The marked words no longer fit into the crossword area. For a successful resize these words must be deleted.', 'crw-text') ?>'}"></p>
+                    'one': '<?php _e('The marked word no longer fits into the crossword area. For a successful resize you must delete this word.', 'crw-text') ?>',
+                    'other': '<?php _e('The marked words no longer fit into the crossword area. For a successful resize you must delete these word.', 'crw-text') ?>'}"></p>
                 <p class="actions">
                     <button ng-click="finish(true)"><?php _e('Delete', 'crw-text') ?></button>
                     <button ng-click="finish(false)"><?php _e('Abort', 'crw-text') ?></button>
@@ -161,7 +161,7 @@ if ( 'build' == $mode ) {
             <div ng-switch-when="saveCrossword">
                 <form name="uploader">
                     <p ng-switch on="action">
-                        <span ng-switch-when="insert"><?php _e('To save it, the riddle must get a new name.', 'crw-text') ?></span>
+                        <span ng-switch-when="insert"><?php _e('To save it, you must give the riddle a new name.', 'crw-text') ?></span>
                         <span ng-switch-when="update"><?php _e('You can change the additional informations that are saved about the riddle.', 'crw-text') ?></span>
                     </p>
                     <table>
@@ -172,7 +172,7 @@ if ( 'build' == $mode ) {
                         <tr>
                             <td></td>
                             <td>
-                                <p class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)"><?php _e('A name must be given!', 'crw-text') ?></p>
+                                <p class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)"><?php _e('You must give a name!', 'crw-text') ?></p>
                                 <p class="error" ng-show="uploader.crosswordName.$error.minlength"><?php _e('The name is too short!', 'crw-text') ?></p>
                                 <p class="error" ng-show="uploader.crosswordName.$error.unique"><?php _e('There is already another riddle with that name!', 'crw-text') ?></p>
                                 <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError"><?php _e('That looks good!', 'crw-text') ?></p>
@@ -232,7 +232,7 @@ if ( 'build' == $mode ) {
                 </p>
             </div>
             <div ng-switch-when="solvedCompletely">
-                <p><?php _e('Congratulation, the riddle is solved!', 'crw-text') ?></p>
+                <p><?php _e('Congratulation, you have solved the riddle!', 'crw-text') ?></p>
                 <p class="actions">
                     <button ng-click="finish(true)"><?php _e('OK', 'crw-text') ?></button>
                 </p>
