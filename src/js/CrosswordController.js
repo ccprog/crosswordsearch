@@ -101,6 +101,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             deregister();
         });
     };
+
+    // preview page only: set current project on message sent by PreviewController
     $scope.$on('previewProject', function (event, project) {
         $scope.crw.setProject(project, null);
     });
@@ -120,7 +122,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.namesInProject = $scope.crw.getNamesList();
         updateLoadList($scope.namesInProject);
-        $scope.loadedName = $scope.crosswordData.name;
+        $scope.loadedName = $scope.crosswordData.name || undefined;
         $scope.count.words = 0;
         angular.forEach($scope.crosswordData.words, function(word) {
             // count words in words/solution object
@@ -138,7 +140,9 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // load a crossword
     $scope.load = function (name) {
         $scope.loadError = null;
-        if (name) {
+        // if the page shortcode explicitely sets name='', it will be routed
+        // through by $scope.prepare. In this case, the namesList must be retrieved.
+        if (name || typeof name === 'string' ) {
             $scope.immediateStore.newPromise('loadCrossword', name).then(
                 updateModel,
                 function (error) {
@@ -150,6 +154,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             updateModel();
         }
     };
+
+    // preview page only: load crossword on message sent by PreviewController
     $scope.$on('previewCrossword', function (event, name) {
         $scope.load(name);
     });

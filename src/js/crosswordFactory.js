@@ -8,6 +8,27 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // project key
         var project = '';
 
+        // default empty crossword object
+        var _loadDefault = function () {
+            angular.extend(crossword, {
+                'name': '',
+                'description': '',
+                'author': '',
+                size: {
+                    width: 10,
+                    height: 10
+                },
+                // crossword table containing the letters
+                table: [],
+                // all letter sequences that have been saved as solution words
+                words: {},
+                // letter sequences that have been marked on the solve page,
+                // irrespective of their status as a valid solution
+                solution: {}
+            });
+            addRows(crossword.size.height, false);
+        };
+
         // add or delete the given number of rows
         // if number is negative, rows will be removed
         // top == true at the top of the table, false at the bottom
@@ -92,25 +113,8 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         };
 
         // default empty crossword object
-        this.loadDefault = function () {
-            angular.extend(crossword, {
-                'name': '',
-                'description': '',
-                'author': '',
-                size: {
-                    width: 10,
-                    height: 10
-                },
-                // crossword table containing the letters
-                table: [],
-                // all letter sequences that have been saved as solution words
-                words: {},
-                // letter sequences that have been marked on the solve page,
-                // irrespective of their status as a valid solution
-                solution: {}
-            });
-            addRows(crossword.size.height, false);
-        };
+        this.loadDefault = _loadDefault;
+
         // load a crossword
         this.loadCrosswordData = function (name) {
             return ajaxFactory.http({
@@ -118,7 +122,12 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                     project: project,
                     name: name
             }, nonceGroup).then(function(data) {
-                angular.extend(crossword, data.crossword);
+                // if an empty string is sent for name, no object is returned
+                if (angular.isObject(data.crossword)) {
+                    angular.extend(crossword, data.crossword);
+                } else {
+                    _loadDefault();
+                }
                 namesList = data.namesList;
                 return true;
             });

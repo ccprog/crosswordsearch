@@ -259,6 +259,21 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         var nonceGroup = "crossword";
         var crossword = {}, namesList = [];
         var project = "";
+        var _loadDefault = function() {
+            angular.extend(crossword, {
+                name: "",
+                description: "",
+                author: "",
+                size: {
+                    width: 10,
+                    height: 10
+                },
+                table: [],
+                words: {},
+                solution: {}
+            });
+            addRows(crossword.size.height, false);
+        };
         var addRows = function(number, top) {
             if (number > 0) {
                 for (var i = 0; i < number; i++) {
@@ -324,28 +339,18 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             project = p;
             ajaxFactory.setNonce(n, nonceGroup);
         };
-        this.loadDefault = function() {
-            angular.extend(crossword, {
-                name: "",
-                description: "",
-                author: "",
-                size: {
-                    width: 10,
-                    height: 10
-                },
-                table: [],
-                words: {},
-                solution: {}
-            });
-            addRows(crossword.size.height, false);
-        };
+        this.loadDefault = _loadDefault;
         this.loadCrosswordData = function(name) {
             return ajaxFactory.http({
                 action: "get_crossword",
                 project: project,
                 name: name
             }, nonceGroup).then(function(data) {
-                angular.extend(crossword, data.crossword);
+                if (angular.isObject(data.crossword)) {
+                    angular.extend(crossword, data.crossword);
+                } else {
+                    _loadDefault();
+                }
                 namesList = data.namesList;
                 return true;
             });
@@ -882,7 +887,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.namesInProject = $scope.crw.getNamesList();
         updateLoadList($scope.namesInProject);
-        $scope.loadedName = $scope.crosswordData.name;
+        $scope.loadedName = $scope.crosswordData.name || undefined;
         $scope.count.words = 0;
         angular.forEach($scope.crosswordData.words, function(word) {
             $scope.count.words++;
@@ -895,7 +900,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
     $scope.load = function(name) {
         $scope.loadError = null;
-        if (name) {
+        if (name || typeof name === "string") {
             $scope.immediateStore.newPromise("loadCrossword", name).then(updateModel, function(error) {
                 $scope.loadError = error;
             });

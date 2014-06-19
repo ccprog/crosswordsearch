@@ -196,7 +196,7 @@ function crw_test_shortcode ($atts, $names_list) {
         return $html . sprintf(__('There is no crossword in project %1$s.', 'crw-text'), $project);
     }
 
-    if ( '' !== $name && !in_array($name, $names_list ) ) {
+    if ( $name && !in_array($name, $names_list ) ) {
         return $html . sprintf(__('There is no crossword with the name %1$s.', 'crw-text'), '<em>' . $name . '</em>');
     }
     return false;
@@ -221,7 +221,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
         'project' => '',
-        'name' => '',
+        'name' => false,
 	), $atts, 'crosswordsearch' );
 	extract( $filtered_atts );
 
@@ -233,7 +233,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     }
 
     $is_single = false;
-    if ( !$name && count($names_list) > 0 ) {
+    if ( $name === false && count($names_list) > 0 ) {
         $selected_name = $names_list[0];
     } else {
         $selected_name = $name;
@@ -246,7 +246,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $prep_3 = esc_js($selected_name);
 
     $current_user = wp_get_current_user();
-    $is_auth = get_current_user_id() > 0 && user_can($current_user, CRW_CAPABILITY);
+    $is_auth = get_current_user_id() > 0 && user_can($current_user, CRW_CAPABILITY) && crw_is_editor($current_user, $project);
 
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
@@ -342,8 +342,17 @@ function crw_send_error ( $error, $debug ) {
     wp_send_json($obj);
 }
 
-function crw_test_permission ( $user, $for, $project=null ) {
+function crw_is_editor ( $user, $project ) {
     global $wpdb, $editors_table_name;
+
+    return (bool)$wpdb->get_var( $wpdb->prepare("
+        SELECT count(*)
+        FROM $editors_table_name
+        WHERE user_id = $user->ID AND project = %s
+    ", $project) );
+}
+
+function crw_test_permission ( $user, $for, $project=null ) {
     $error = __('You do not have permission.', 'crw-text');
 
     if ( is_wp_error($user) ) {
@@ -365,11 +374,7 @@ function crw_test_permission ( $user, $for, $project=null ) {
         $capability = CRW_CAPABILITY;
         break;
     }
-    $is_editor = ('edit' !== $for) || $wpdb->get_var( $wpdb->prepare("
-        SELECT count(*)
-        FROM $editors_table_name
-        WHERE user_id = $user->ID AND project = %s
-    ", $project) );
+    $is_editor = ('edit' !== $for) || crw_is_editor( $user, $project );
 
     if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], $nonce_group ) ) {
         $debug = 'nonce not verified for ' . $nonce_group;
@@ -389,10 +394,15 @@ function crw_send_admin_data () {
     crw_test_permission( wp_get_current_user(), 'admin' );
 
     $projects = get_option(CRW_PROJECTS_OPTION);
-    $editors_list = $wpdb->get_results("
-        SELECT *
-        FROM $editors_table_name
-    ");
+    // rule out deleted users
+    $editors_list = array_filter( $wpdb->get_results("
+        SELECT et.*
+        FROM $editors_table_name AS et
+        INNER JOIN $wpdb->users as wpu ON wpu.ID = et.user_id
+    "), function ($entry) {
+        // rule out users whos editor capability was revoked
+        return user_can( get_user_by('id', $entry->user_id), CRW_CAPABILITY );
+    } );
 
     $projects_list = array_map( function ($project) use (&$editors_list) {
         $editors = array();
@@ -424,7 +434,7 @@ function crw_send_admin_data () {
     }
 
     wp_send_json( array(
-        'projects' => $projects_list,
+        'projects' => array_values($projects_list),
         'all_users' => $users_list,
         CRW_NONCE_NAME => wp_create_nonce(NONCE_ADMIN)
     ) );
@@ -654,11 +664,15 @@ function crw_get_crossword() {
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
 
     // call database
-    $crossword = $wpdb->get_var( $wpdb->prepare("
-        SELECT crossword
-        FROM $data_table_name
-        WHERE project = %s AND name = %s
-    ", $project, $name) );
+    if ( $name === '' ) {
+        $crossword = true;
+    } else {
+        $crossword = $wpdb->get_var( $wpdb->prepare("
+            SELECT crossword
+            FROM $data_table_name
+            WHERE project = %s AND name = %s
+        ", $project, $name) );
+    }
 
     $names_list = crw_get_names_list($project);
 
@@ -709,7 +723,9 @@ function crw_insert_crossword_nopriv() {
 }
 add_action( 'wp_ajax_nopriv_insert_crossword', 'crw_insert_crossword_nopriv' );
 function crw_insert_crossword() {
-    crw_save_crossword( 'insert', wp_get_current_user() );
+    // if a username is sent, use it for authentication
+    $user = $_POST['username'] ? false : wp_get_current_user();
+    crw_save_crossword( 'insert', $user );
 }
 add_action( 'wp_ajax_insert_crossword', 'crw_insert_crossword' );
 
@@ -719,7 +735,8 @@ function crw_update_crossword_nopriv() {
 }
 add_action( 'wp_ajax_nopriv_update_crossword', 'crw_update_crossword_nopriv' );
 function crw_update_crossword() {
-    crw_save_crossword( 'update', wp_get_current_user() );
+    $user = $_POST['username'] ? false : wp_get_current_user();
+    crw_save_crossword( 'update', $user );
 }
 add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );
 
