@@ -114,7 +114,7 @@ if ( 'build' == $mode ) {
 ?>
         <ul class="crw-word">
             <li ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
-                <img title="{{word.color}}" ng-src="<?php echo $plugin_url ?>images/bullet-{{word.color}}.png">
+                <img title="{{word.color}}" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-{{word.color}}.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>
@@ -130,7 +130,7 @@ if ( 'build' == $mode ) {
         </p>
         <ul class="crw-word">
             <li ng-class="{'highlight': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:'ID'" ng-controller="EntryController">
-                <img title="{{word.color}}" ng-src="<?php echo $plugin_url ?>images/bullet-{{word.color}}.png">
+                <img title="{{word.color}}" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-{{word.color}}.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>

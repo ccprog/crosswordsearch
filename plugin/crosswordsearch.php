@@ -39,17 +39,15 @@ define('NONCE_REVIEW', 'crw_review_');
 define('CRW_CAPABILITY', 'edit_crossword');
 define('CRW_ROLE', 'subscriber');
 
+define('CRW_PLUGIN_URL', plugins_url( 'crosswordsearch/' ));
+define('CRW_PLUGIN_FILE', WP_PLUGIN_DIR . '/crosswordsearch/' . basename(__FILE__));
+define('CRW_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
+
 global $wpdb, $data_table_name, $editors_table_name;
 $wpdb->hide_errors();
 
 $data_table_name = $wpdb->prefix . "crw_crosswords";
 $editors_table_name = $wpdb->prefix . "crw_editors";
-$plugin_url = plugins_url() . '/crosswordsearch/';
-// WP_PLUGIN_DIR points to path in server fs, even if it traverses a symbolic link
-// this form is needed for register_activation_hook (call to plugin_basename()),
-$plugin_file = WP_PLUGIN_DIR . '/crosswordsearch/crosswordsearch.php';
-// plugin_dir_path( __FILE__ ) points to the source path
-// this is needed for include/require and file_get_contents
 
 function crw_change_project_list ( $project, $action ) {
     $project_list = get_option(CRW_PROJECTS_OPTION);
@@ -74,6 +72,9 @@ function crw_install () {
     global $wpdb, $charset_collate, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
+    add_option(CRW_PROJECTS_OPTION, (array)NULL);
+    add_option( "crw_db_version", CRW_DB_VERSION );
+
     get_role( 'administrator' )->add_cap( CRW_CAPABILITY, true );
     get_role( CRW_ROLE )->add_cap( CRW_CAPABILITY );
 
@@ -83,48 +84,49 @@ CREATE TABLE IF NOT EXISTS $data_table_name (
   name varchar(255) NOT NULL,
   crossword text NOT NULL,
   PRIMARY KEY  (project, name)
-) $charset_collate;\n
+) $charset_collate;\n"
+    );
+
+    dbDelta( "
 CREATE TABLE IF NOT EXISTS $editors_table_name (
   project varchar(255) NOT NULL,
   user_id bigint(20) unsigned NOT NULL,
   PRIMARY KEY (project, user_id)
 ) $charset_collate;\n"
     );
-
-    add_option(CRW_PROJECTS_OPTION, (array)NULL);
-    add_option( "crw_db_version", CRW_DB_VERSION );
 }
-register_activation_hook( $plugin_file, 'crw_install' );
+register_activation_hook( CRW_PLUGIN_FILE, 'crw_install' );
 
 function crw_deactivate () {
     get_role( 'administrator' )->remove_cap( CRW_CAPABILITY );
     get_role( CRW_ROLE )->remove_cap( CRW_CAPABILITY );
 }
-register_deactivation_hook( $plugin_file, 'crw_deactivate' );
+register_deactivation_hook( CRW_PLUGIN_FILE, 'crw_deactivate' );
 
-// temporary test data
+// test data
 function crw_install_data () {
     global $wpdb, $data_table_name;
 
+    if (!WP_DEBUG) {
+        return;
+    }
+
     crw_change_project_list('test', 'add');
 
-    $data_files = array(
-        '../tests/testCrossword.json',
-        '../tests/chaimae.json'
-    );
+    $data_files = glob(CRW_PLUGIN_DIR . '../tests/*.json');
 
     foreach( $data_files as $file) {
-        $json = file_get_contents(plugin_dir_path( __FILE__ ) . $file);
+        $json = file_get_contents( realpath($file) );
         $data = json_decode( $json );
 
-        $rows_affected = $wpdb->replace($data_table_name, array(
+        $wpdb->replace($data_table_name, array(
             'project' => 'test',
             'name' => $data->name,
             'crossword' => $json,
         ));
     }
 }
-register_activation_hook( $plugin_file, 'crw_install_data' );
+register_activation_hook( CRW_PLUGIN_FILE, 'crw_install_data' );
 
 /* plugin load routines */
 
@@ -141,16 +143,16 @@ function crw_add_angular_attribute ($attributes) {
 
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $crw_has_crossword, $plugin_url;
+    global $crw_has_crossword;
 
     $locale_data = crw_get_locale_data();
 
 	if ( $crw_has_crossword || 'settings_page_crw_options' == $hook ) {
-        wp_enqueue_script('angular', $plugin_url . 'js/angular.min.js');
-        wp_enqueue_script('quantic-stylemodel', $plugin_url . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
-        wp_enqueue_script('crw-js', $plugin_url . 'js/crosswordsearch.js', array( 'angular', 'quantic-stylemodel' ));
+        wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js');
+        wp_enqueue_script('quantic-stylemodel', CRW_PLUGIN_URL . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
+        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch.js', array( 'angular', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
-            'pluginPath' => $plugin_url,
+            'pluginPath' => CRW_PLUGIN_URL,
             'ajaxUrl' => admin_url( 'admin-ajax.php' )
         )));
 	}
@@ -168,11 +170,9 @@ function crw_set_header () {
 add_action( 'get_header', 'crw_set_header');
 
 function crw_set_admin_header () {
-    global $plugin_url;
-
     add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
     add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
-    wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
+    wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
 }
 add_action( 'load-settings_page_crw_options', 'crw_set_admin_header');
 
@@ -216,8 +216,6 @@ function crw_get_names_list ($project) {
 /* load the crossword into a post */
 
 function crw_shortcode_handler( $atts, $content = null ) {
-    global $plugin_url;
-
     $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
         'project' => '',
@@ -249,7 +247,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $is_auth = get_current_user_id() > 0 && user_can($current_user, CRW_CAPABILITY) && crw_is_editor($current_user, $project);
 
 	// load stylesheet into page bottom to get it past theming
-    wp_enqueue_style('crw-css', $plugin_url . 'css/crosswordsearch.css');
+    wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
 
     ob_start();
     include 'app.php';
@@ -268,7 +266,7 @@ function crw_verify_json($json, &$msg) {
     include('l10n.php');
 
     //schema loading
-    $raw_schema = json_decode( file_get_contents(plugin_dir_path( __FILE__ ) . 'schema/schema.json') );
+    $raw_schema = json_decode( file_get_contents(CRW_PLUGIN_DIR . 'schema/schema.json') );
     $url = $raw_schema->id;
     $store = new SchemaStore();
     $store->add($url, $raw_schema);
@@ -747,7 +745,6 @@ function crw_admin_menu () {
 };
 add_action('admin_menu', 'crw_admin_menu');
 function crw_show_options() {
-    global $plugin_url;
 
 	if ( !current_user_can( CRW_CAPABILITY ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
