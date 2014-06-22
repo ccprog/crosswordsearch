@@ -50,7 +50,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
             markers.redrawMarkers($scope.crosswordData.words);
             lastName = $scope.crosswordData.name;
             $scope.$watch('crosswordData.words', function (newWords, oldWords) {
-                var probe;
+                var probe, len = 0;
                 // is this a new crossword?
                 if ($scope.crosswordData.name !== lastName) {
                     // redraw all markers and reset marking ids
@@ -61,6 +61,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 } else {
                     // remove marking for deleted words
                     angular.forEach(oldWords, function (word, id) {
+                        len++;
                         if (!newWords[id]) {
                             markers.deleteMarking(id);
                         } else {
@@ -68,7 +69,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                         }
                     });
                     // if there are other markings, redraw to catch word shifts
-                    if (probe) {
+                    if (probe || len === 0) {
                         markers.redrawMarkers($scope.crosswordData.words);
                     }
                 }

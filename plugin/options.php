@@ -57,7 +57,7 @@ if ( current_user_can('edit_users') ) {
                 <td>
                     <form name="projectModify">
                     <button title="<?php _e('Delete the selected project', 'crw-text') ?>" ng-click="deleteProject()" ng-disabled="addingProject || !selectedProject || !selectedProject.pristine">−</button>
-                    <button title="<?php _e('Add a new project', 'crw-text') ?>" ng-click="addingProject=true" ng-disabled="addingProject || !selectedProject.pristine">+</button><br />
+                    <button title="<?php _e('Add a new project', 'crw-text') ?>" ng-click="addingProject=true" ng-disabled="addingProject || (selectedProject && !selectedProject.pristine)">+</button><br />
                     <input class="project" type="text" name="name" ng-show="addingProject" ng-model="newProject" ng-minlength="4" required="" crw-add-parsers="sane unique" crw-unique="getProjectList()"></input>
                     <p class="error" ng-show="addingProject">
                         <span ng-show="projectModify.$error.required && !(projectModify.$error.sane || projectModify.$error.unique)"><?php _e('You must give a name!', 'crw-text') ?></span>
@@ -74,8 +74,8 @@ if ( current_user_can('edit_users') ) {
                 </td>
                 <td class="between"></td>
                 <td>
-                    <button class="text" title="<?php _e('Save the editor list for this project', 'crw-text') ?>" ng-click="saveEditors()" ng-disabled="selectedProject.pristine || addingProject"><?php _e('Save', 'crw-text') ?></button>
-                    <button class="text" title="<?php _e('Abort saving the editor list', 'crw-text') ?>" ng-click="abortEditors()" ng-disabled="selectedProject.pristine || addingProject"><?php _e('Abort', 'crw-text') ?></button>
+                    <button class="text" title="<?php _e('Save the editor list for this project', 'crw-text') ?>" ng-click="saveEditors()" ng-disabled="(selectedProject && selectedProject.pristine) || addingProject"><?php _e('Save', 'crw-text') ?></button>
+                    <button class="text" title="<?php _e('Abort saving the editor list', 'crw-text') ?>" ng-click="abortEditors()" ng-disabled="(selectedProject && selectedProject.pristine) || addingProject"><?php _e('Abort', 'crw-text') ?></button>
                     <p class="error" ng-if="editorsSaveError">{{editorsSaveError.error}}</p>
                     <p class="error" ng-repeat="msg in editorsSaveError.debug">{{msg}}</p>
                 </td>

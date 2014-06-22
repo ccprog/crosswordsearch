@@ -1123,7 +1123,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
             markers.redrawMarkers($scope.crosswordData.words);
             lastName = $scope.crosswordData.name;
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
-                var probe;
+                var probe, len = 0;
                 if ($scope.crosswordData.name !== lastName) {
                     markers.deleteAllMarking();
                     markers.redrawMarkers(newWords);
@@ -1133,13 +1133,14 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                     lastName = $scope.crosswordData.name;
                 } else {
                     angular.forEach(oldWords, function(word, id) {
+                        len++;
                         if (!newWords[id]) {
                             markers.deleteMarking(id);
                         } else {
                             probe = true;
                         }
                     });
-                    if (probe) {
+                    if (probe || len === 0) {
                         markers.redrawMarkers($scope.crosswordData.words);
                     }
                 }
