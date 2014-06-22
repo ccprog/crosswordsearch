@@ -148,7 +148,7 @@ function add_crw_scripts ( $hook ) {
     $locale_data = crw_get_locale_data();
 
 	if ( $crw_has_crossword || 'settings_page_crw_options' == $hook ) {
-        wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js');
+        wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js', array( 'jquery' ));
         wp_enqueue_script('quantic-stylemodel', CRW_PLUGIN_URL . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
         wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch.js', array( 'angular', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(

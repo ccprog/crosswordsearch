@@ -12,17 +12,23 @@ Website, I'd ask you to wait until it shows up in
 
 Only releases will be in a consistent state.
 
+Crosswordsearch is compatible with Worpress 3.6 and above.
+
 ### Installation in Wordpress
 
 I recommend to create a softlink under the name `crosswordsearch` in your wordpress plugin
 directory pointing at the `plugin` directory. Copying and renaming the directory will work also,
-with the exception of the test data install. 
+with the exception of the test data install.
 
 Activating the plugin from the Wordpress administrative interface will
 + install two additional database tables `wp_crw_editors` and `wp_crw_crosswords`
 + give the Administrator and Contributer roles a specialized capability `edit_crossword`
 
-If your WP installation is in debug mode, additionally some test data will be added to `wp_crw_crosswords`.
+If your WP installation is in debug mode, additionally some test data will be added to
+`wp_crw_crosswords`. *(Debug mode will break if you use a WP version &lt; 3.8 together with PHP 5.5.
+This is actually a general issue with class $wpdb. Read
+[this Blog post](http://make.wordpress.org/core/2014/04/07/mysql-in-wordpress-3-9/) for more
+information.)*
 
 On plugin deactivation, the special role will be removed, but the data tables are left in place.
 
