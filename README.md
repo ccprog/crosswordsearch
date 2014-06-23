@@ -10,7 +10,7 @@ Website, I'd ask you to wait until it shows up in
 
 ## For developers
 
-Only releases will be in a consistent state.
+Only releases will be in a consistent state. Latest: [![GitHub version](https://badge.fury.io/gh/ccprog%2Fcrosswordsearch.png)](http://badge.fury.io/gh/ccprog%2Fcrosswordsearch)
 
 Crosswordsearch is compatible with Worpress 3.6 and above.
 
