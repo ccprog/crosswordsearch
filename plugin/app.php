@@ -159,7 +159,7 @@ if ( 'build' == $mode ) {
                 </p>
             </div>
             <div ng-switch-when="saveCrossword">
-                <form name="uploader">
+                <form name="uploader" crw-has-password>
                     <p ng-switch on="action">
                         <span ng-switch-when="insert"><?php _e('To save it, you must give the riddle a new name.', 'crw-text') ?></span>
                         <span ng-switch-when="update"><?php _e('You can change the additional informations that are saved about the riddle.', 'crw-text') ?></span>

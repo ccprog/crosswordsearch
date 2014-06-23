@@ -82,6 +82,16 @@ crwApp.directive('crwAddParsers', function () {
     };
 });
 
+crwApp.directive('crwHasPassword', function () {
+    return {
+        link: function (scope, element, attrs, ctrl) {
+            element.find("input[type=submit]").on('click', function () {
+                scope.password = null;
+            });
+        }
+    };
+});
+
 /* controller for modal area */
 crwApp.controller("ImmediateController", ['$scope', function ($scope) {
     var deferred;

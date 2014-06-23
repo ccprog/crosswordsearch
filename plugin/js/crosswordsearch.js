@@ -1,7 +1,7 @@
 /*
 crosswordsearch.js v0.1.0
 
-crosswordsearch Wordpress plugin
+crosswordsearch Wordpress plugin v0.1.0
 Copyright Claus Colloseus 2014 for RadiJojo.de
 
 This program is free software: Redistribution and use, with or
@@ -1379,6 +1379,16 @@ crwApp.directive("crwAddParsers", function() {
                     }
                 });
             }
+        }
+    };
+});
+
+crwApp.directive("crwHasPassword", function() {
+    return {
+        link: function(scope, element, attrs, ctrl) {
+            element.find("input[type=submit]").on("click", function() {
+                scope.password = null;
+            });
         }
     };
 });
