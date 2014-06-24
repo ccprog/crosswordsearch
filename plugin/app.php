@@ -167,13 +167,14 @@ if ( 'build' == $mode ) {
                     <table>
                         <tr>
                             <td><label for ="crosswordName"><?php _e('Name:', 'crw-text') ?></label></td>
-                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" crw-add-parsers="sane unique" crw-unique="namesInProject commands"></td>
+                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" ng-maxlength="255" crw-add-parsers="sane unique" crw-unique="namesInProject commands"></td>
                         </tr>
                         <tr>
                             <td></td>
                             <td>
                                 <p class="error" ng-show="uploader.crosswordName.$error.required && !(uploader.crosswordName.$error.sane || uploader.crosswordName.$error.unique)"><?php _e('You must give a name!', 'crw-text') ?></p>
                                 <p class="error" ng-show="uploader.crosswordName.$error.minlength"><?php _e('The name is too short!', 'crw-text') ?></p>
+                                <p class="error" ng-show="uploader.crosswordName.$error.maxlength"><?php _e('You have exceeded the maximum length for a name!', 'crw-text') ?></p>
                                 <p class="error" ng-show="uploader.crosswordName.$error.unique"><?php _e('There is already another riddle with that name!', 'crw-text') ?></p>
                                 <p class="confirm" ng-show="uploader.crosswordName.$valid && !saveError"><?php _e('That looks good!', 'crw-text') ?></p>
                             </td>

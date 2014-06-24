@@ -58,10 +58,11 @@ if ( current_user_can('edit_users') ) {
                     <form name="projectModify">
                     <button title="<?php _e('Delete the selected project', 'crw-text') ?>" ng-click="deleteProject()" ng-disabled="addingProject || !selectedProject || !selectedProject.pristine">−</button>
                     <button title="<?php _e('Add a new project', 'crw-text') ?>" ng-click="addingProject=true" ng-disabled="addingProject || (selectedProject && !selectedProject.pristine)">+</button><br />
-                    <input class="project" type="text" name="name" ng-show="addingProject" ng-model="newProject" ng-minlength="4" required="" crw-add-parsers="sane unique" crw-unique="getProjectList()"></input>
+                    <input class="project" type="text" name="name" ng-show="addingProject" ng-model="newProject" ng-minlength="4" ng-maxlength="255" required="" crw-add-parsers="sane unique" crw-unique="getProjectList()"></input>
                     <p class="error" ng-show="addingProject">
                         <span ng-show="projectModify.$error.required && !(projectModify.$error.sane || projectModify.$error.unique)"><?php _e('You must give a name!', 'crw-text') ?></span>
                         <span ng-show="projectModify.$error.minlength"><?php _e('The name is too short!', 'crw-text') ?></span>
+                        <span ng-show="projectModify.$error.maxlength"><?php _e('You have exceeded the maximum length for a name!', 'crw-text') ?></span>
                         <span ng-show="projectModify.$error.unique"><?php _e('There is already another project with that name!', 'crw-text') ?></span>
                         <span ng-show="projectModify.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></span>
                         <span ng-show="projectModify.$valid">&nbsp;</span>

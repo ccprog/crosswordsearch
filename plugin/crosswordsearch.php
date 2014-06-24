@@ -53,7 +53,9 @@ function crw_change_project_list ( $project, $action ) {
     $project_list = get_option(CRW_PROJECTS_OPTION);
 
     if ( 'add' == $action ) {
-        if ( in_array($project, $project_list) ) {
+        if ( mb_strlen($project, 'UTF-8') > 255 ) {
+            crw_send_error( __('You have exceeded the maximum length for a name!', 'crw-text'), $project );
+        } elseif ( in_array($project, $project_list) ) {
             return false;
         }
         array_push($project_list, $project);

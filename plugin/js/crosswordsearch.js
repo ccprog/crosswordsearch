@@ -1348,21 +1348,28 @@ crwApp.directive("crwAddParsers", function() {
             if (jQuery.inArray("unique", parsers) >= 0) {
                 var uniques = attrs.crwUnique.split(space);
                 ctrl.$parsers.unshift(function(viewValue) {
+                    if (viewValue === undefined) {
+                        return viewValue;
+                    }
                     var blacklist, i, result = viewValue;
                     for (i = 0; i < uniques.length; i++) {
                         blacklist = scope.$eval(uniques[i]);
-                        if (jQuery.isArray(blacklist) && jQuery.inArray(viewValue, blacklist) >= 0) {
-                            result = undefined;
+                        if (jQuery.isArray(blacklist)) {
+                            if (jQuery.inArray(viewValue, blacklist) >= 0) {
+                                result = undefined;
+                            }
                             break;
-                        } else if (typeof blacklist === "object" && blacklist.hasOwnProperty(viewValue)) {
-                            result = undefined;
+                        } else if (typeof blacklist === "object") {
+                            if (blacklist.hasOwnProperty(viewValue)) {
+                                result = undefined;
+                            }
                             break;
                         } else if (typeof blacklist === "string" && blacklist === viewValue) {
                             result = undefined;
                             break;
                         }
                     }
-                    ctrl.$setValidity("unique", !!result);
+                    ctrl.$setValidity("unique", result !== undefined);
                     return result;
                 });
             }
