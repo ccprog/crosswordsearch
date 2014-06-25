@@ -74,7 +74,7 @@ module.exports = function(grunt) {
     licence: grunt.file.read('./LICENCE'),
     uglify: {
       options: {
-        banner: '/*\n<%= pkg.name %>.js v<%= pkg.version %>\n\n<%= licence %>*/\n'
+        banner: '/*\n<%= licence %>*/\n'
       },
       readable: {
           options: {

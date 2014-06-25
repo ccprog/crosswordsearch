@@ -2,7 +2,7 @@
 /*
 Plugin Name: crosswordsearch
 Plugin URI: https://github.com/ccprog/crosswordseach
-Version: 0.1.0
+Version: 0.1.1
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
 Text Domain: crw-text

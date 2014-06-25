@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-24 11:28+0200\n"
+"POT-Creation-Date: 2014-06-25 12:35+0200\n"
 "PO-Revision-Date: 2014-05-11 13:36+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
@@ -125,7 +125,7 @@ msgstr "Du musst einen Namen angeben!"
 msgid "The name is too short!"
 msgstr "Der Name ist zu kurz!"
 
-#: plugin/app.php:177 plugin/crosswordsearch.php:57 plugin/options.php:65
+#: plugin/app.php:177 plugin/crosswordsearch.php:58 plugin/options.php:65
 msgid "You have exceeded the maximum length for a name!"
 msgstr "Du hast die maximale Länge für einen Namen überschritten!"
 
@@ -181,45 +181,45 @@ msgstr "OK"
 msgid "Please be patient for the crossword being loaded."
 msgstr "Bitte habe Geduld, bis das Kreuzworträtsel geladen ist."
 
-#: plugin/crosswordsearch.php:185
+#: plugin/crosswordsearch.php:186
 msgid "The shortcode usage is faulty:"
 msgstr "Die Shortcode-Verwendung ist fehlerhaft:"
 
 #. / translators: argument %1 will be the literal 'mode'
-#: plugin/crosswordsearch.php:189
+#: plugin/crosswordsearch.php:190
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
 msgstr "Das Attribut %1$s muss entweder \"%2$s\" oder \"%3$s\" lauten."
 
 #. / translators: argument %1 will be the literal 'project'
-#: plugin/crosswordsearch.php:194
+#: plugin/crosswordsearch.php:195
 #, php-format
 msgid "Attribute %1$s needs to be an existing project."
 msgstr "Das Attribut %1$s muss ein existierendes Projekt benennen."
 
-#: plugin/crosswordsearch.php:198
+#: plugin/crosswordsearch.php:199
 #, php-format
 msgid "There is no crossword in project %1$s."
 msgstr "In Projekt %1$s gibt es keine Rätsel."
 
-#: plugin/crosswordsearch.php:202
+#: plugin/crosswordsearch.php:203
 #, php-format
 msgid "There is no crossword with the name %1$s."
 msgstr "Es gibt kein Rätsel mit dem Namen %1$s."
 
-#: plugin/crosswordsearch.php:356
+#: plugin/crosswordsearch.php:358
 msgid "You do not have permission."
 msgstr "Du hast keine Erlaubnis."
 
-#: plugin/crosswordsearch.php:454
+#: plugin/crosswordsearch.php:459
 msgid "The project name already exists."
 msgstr "Dieser Projektname existiert bereits."
 
-#: plugin/crosswordsearch.php:464
+#: plugin/crosswordsearch.php:469
 msgid "The project could not be removed."
 msgstr "Das Projekt konnte nicht gelöscht werden."
 
-#: plugin/crosswordsearch.php:476
+#: plugin/crosswordsearch.php:481
 msgid ""
 "There are still riddles saved for that project. You need to delete them "
 "before you can remove the project."
@@ -227,39 +227,39 @@ msgstr ""
 "Für dieses Projekt sind noch Rätsel gespeichert. Du musst sie löschen, bevor "
 "Du das Projekt entfernen kannst."
 
-#: plugin/crosswordsearch.php:501
+#: plugin/crosswordsearch.php:506
 msgid "The editors could not be updated."
 msgstr "Die Bearbeiter konnten nicht aktualisiert werden."
 
-#: plugin/crosswordsearch.php:583
+#: plugin/crosswordsearch.php:588
 msgid "You are not allowed to save the crossword."
 msgstr "Du darfst das Kreuzworträtsel nicht speichern."
 
-#: plugin/crosswordsearch.php:607
+#: plugin/crosswordsearch.php:612
 msgid "The crossword data sent are invalid."
 msgstr "Die Rätseldaten sind ungültig."
 
-#: plugin/crosswordsearch.php:610
+#: plugin/crosswordsearch.php:615
 msgid "The project does not exist."
 msgstr "Das Projekt existiert nicht."
 
-#: plugin/crosswordsearch.php:613 plugin/crosswordsearch.php:616
+#: plugin/crosswordsearch.php:618 plugin/crosswordsearch.php:621
 msgid "The name has forbidden content."
 msgstr "Der Name enthält nicht zulässige Bestandteile."
 
-#: plugin/crosswordsearch.php:619
+#: plugin/crosswordsearch.php:624
 msgid "The name sent is inconsistent with crossword data."
 msgstr "Der Name passt nicht zu den Rätseldaten."
 
-#: plugin/crosswordsearch.php:648
+#: plugin/crosswordsearch.php:653
 msgid "The crossword could not be saved to the database."
 msgstr "Das Rätsel konnte nicht in der Datenbank gespeichert werden."
 
-#: plugin/crosswordsearch.php:660 plugin/crosswordsearch.php:696
+#: plugin/crosswordsearch.php:665 plugin/crosswordsearch.php:703
 msgid "The crossword could not be retrieved."
 msgstr "Das Rätsel konnte nicht herunter geladen werden."
 
-#: plugin/crosswordsearch.php:752
+#: plugin/crosswordsearch.php:759
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
