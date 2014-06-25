@@ -92,7 +92,7 @@ if ( current_user_can('edit_users') ) {
 if ( current_user_can(CRW_CAPABILITY) ) {
 
 ?>
-    <div class="crw-editors" ng-switch-when="review" ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_REVIEW ); ?>')">
+    <div class="crw-editors" ng-switch-when="review" ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_CROSSWORD ) . "','" . wp_create_nonce( NONCE_REVIEW ); ?>')">
         <table class="crw-options">
             <tr>
                 <th><?php _e('Projects', 'crw-text') ?></th>

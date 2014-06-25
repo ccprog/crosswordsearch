@@ -20,7 +20,7 @@ crwApp.factory('ajaxFactory', ['$http', '$q', function ($http, $q) {
 
     // look for error messages received from server
     // or return the data object
-    var inspectResponse = function (response, nonceGroup) {
+    var inspectResponse = function (response, context) {
         var error = false;
         // look for admin-ajax.php errors
         if (typeof response.data !== 'object') {
@@ -33,25 +33,25 @@ crwApp.factory('ajaxFactory', ['$http', '$q', function ($http, $q) {
             return $q.reject(error);
         }
         if (response.data.nonce) {
-            nonces[nonceGroup] = response.data.nonce;
+            nonces[context] = response.data.nonce;
         }
         return response.data;
     };
 
     return {
         // for initial nonces transmitted with html code
-        setNonce: function (nonce, nonceGroup) {
-            nonces[nonceGroup] = nonce;
+        setNonce: function (nonce, context) {
+            nonces[context] = nonce;
         },
 
         // data must be an object and at least contain data.action
-        http: function (data, nonceGroup) {
+        http: function (data, context) {
             return $http(angular.extend({
                 data: angular.extend({
-                    _crwnonce: nonces[nonceGroup]
+                    _crwnonce: nonces[context]
                 }, data)
             }, httpDefaults)).then(function (response) {
-                return inspectResponse(response, nonceGroup);
+                return inspectResponse(response, context);
             }, serverError);
         }
     };

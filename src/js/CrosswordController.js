@@ -94,8 +94,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     });
 
     // init crossword at page load time
-    $scope.prepare = function (project, nonce, name) {
-        $scope.crw.setProject(project, nonce);
+    $scope.prepare = function (project, nonceCrossword, nonceEdit, name) {
+        $scope.crw.setProject(project, nonceCrossword, nonceEdit);
         var deregister = $scope.$on('immediateReady', function () {
             $scope.load(name);
             deregister();
@@ -104,7 +104,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
 
     // preview page only: set current project on message sent by PreviewController
     $scope.$on('previewProject', function (event, project) {
-        $scope.crw.setProject(project, null);
+        $scope.crw.setProject(project);
     });
 
     // tweak: since ordering on object entries seems not to really work,

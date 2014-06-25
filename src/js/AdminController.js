@@ -1,7 +1,7 @@
 /* controller for administrative tab: adding/deleting projects, managing users */
 crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 		function ($scope, $filter, ajaxFactory) {
-    var nonceGroup = 'admin';
+    var adminContext = 'admin';
 
     // load data freshly received from the server
     var showLoaded = function (admin, selected) {
@@ -24,10 +24,10 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 
     // initial load after the nonce has been processed
     $scope.prepare = function (nonce) {
-        ajaxFactory.setNonce(nonce, nonceGroup);
+        ajaxFactory.setNonce(nonce, adminContext);
         ajaxFactory.http({
             action: 'get_admin_data'
-        }, nonceGroup).then(showLoaded, function (error) {
+        }, adminContext).then(showLoaded, function (error) {
             $scope.loadError = error;
         });
     };
@@ -120,7 +120,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         ajaxFactory.http({
             action: 'add_project',
             project: $scope.newProject
-        }, nonceGroup).then(function (data) {
+        }, adminContext).then(function (data) {
             showLoaded(data, $scope.newProject);
         }, function (error) {
             $scope.projectSaveError = error;
@@ -139,7 +139,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         ajaxFactory.http({
             action: 'remove_project',
             project: $scope.selectedProject.name
-        }, nonceGroup).then(showLoaded, function (error) {
+        }, adminContext).then(showLoaded, function (error) {
             $scope.projectSaveError = error;
         });
     };
@@ -150,7 +150,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
             action: 'update_editors',
             project: $scope.selectedProject.name,
             editors: angular.toJson($scope.current_users)
-        }, nonceGroup).then(function (data) {
+        }, adminContext).then(function (data) {
             showLoaded(data, $scope.selectedProject.name);
         }, function (error) {
             $scope.editorsSaveError = error;
@@ -168,7 +168,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 /* controller for administrative tab: adding/deleting projects, managing users */
 crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 		function ($scope, $filter, ajaxFactory) {
-    var nonceGroup = 'review';
+    var reviewContext = 'review';
 
     // load data freshly received from the server
     var showLoaded = function (data, selected) {
@@ -189,11 +189,12 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
     };
 
     // initial load after the nonce has been processed
-    $scope.prepare = function (nonce) {
-        ajaxFactory.setNonce(nonce, nonceGroup);
+    $scope.prepare = function (nonceCrossword, nonceReview) {
+        ajaxFactory.setNonce(nonceCrossword, 'crossword');
+        ajaxFactory.setNonce(nonceReview, reviewContext);
         ajaxFactory.http({
             action: 'list_projects_and_riddles'
-        }, nonceGroup).then(showLoaded, function (error) {
+        }, reviewContext).then(showLoaded, function (error) {
             $scope.loadError = error;
         });
     };
@@ -203,7 +204,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
             action: 'delete_crossword',
             project: $scope.selectedProject.name,
             name: $scope.selectedCrossword
-        }, nonceGroup).then(function (data) {
+        }, reviewContext).then(function (data) {
             showLoaded(data, $scope.selectedProject.name);
         }, function (error) {
             $scope.deleteError = error;

@@ -2,7 +2,7 @@
 crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         function (basics, reduce, ajaxFactory) {
     function Crw () {
-        var nonceGroup = 'crossword';
+        var crwContext = 'crossword', editContext = 'edit';
         // parent data object
         var crossword = {}, namesList = [];
         // project key
@@ -106,10 +106,15 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             return namesList;
         };
 
-        // set the project key
-        this.setProject = function (p, n) {
+        // set the project key, previewController will not set nonces
+        this.setProject = function (p, nc, ne) {
             project = p;
-            ajaxFactory.setNonce(n, nonceGroup);
+            if (nc) {
+                ajaxFactory.setNonce(nc, crwContext);
+            }
+            if (ne) {
+                ajaxFactory.setNonce(ne, editContext);
+            }
         };
 
         // default empty crossword object
@@ -121,7 +126,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                     action: 'get_crossword',
                     project: project,
                     name: name
-            }, nonceGroup).then(function(data) {
+            }, crwContext).then(function(data) {
                 // if an empty string is sent for name, no object is returned
                 if (angular.isObject(data.crossword)) {
                     angular.extend(crossword, data.crossword);
@@ -148,7 +153,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             } else {
                 content.name = name;
             }
-            return ajaxFactory.http(content, nonceGroup).then(function(data) {
+            return ajaxFactory.http(content, editContext).then(function(data) {
                 namesList = data.namesList;
                 return true;
             });
