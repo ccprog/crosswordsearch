@@ -32,13 +32,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 /* plugin installation */
 define('CRW_DB_VERSION', '0.2');
 define('CRW_PROJECTS_OPTION', 'crw_projects');
+define('CRW_ROLES_OPTION', 'crw_roles_caps');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
 define('NONCE_EDIT', 'crw_edit_');
 define('NONCE_ADMIN', 'crw_admin_');
+define('NONCE_CAP', 'crw_cap_');
 define('NONCE_REVIEW', 'crw_review_');
-define('CRW_CAPABILITY', 'edit_crossword');
-define('CRW_ROLE', 'subscriber');
+define('CRW_CAP_CONFIRMED', 'edit_crossword');
+define('CRW_CAP_UNCONFIRMED', 'push_crossword');
 
 define('CRW_PLUGIN_URL', plugins_url( 'crosswordsearch/' ));
 define('CRW_PLUGIN_FILE', WP_PLUGIN_DIR . '/crosswordsearch/' . basename(__FILE__));
@@ -72,14 +74,23 @@ function crw_change_project_list ( $project, $action ) {
 }
 
 function crw_install () {
-    global $wpdb, $charset_collate, $data_table_name, $editors_table_name;
+    global $wp_roles, $wpdb, $charset_collate, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-    add_option(CRW_PROJECTS_OPTION, (array)NULL);
+    add_option( CRW_PROJECTS_OPTION, (array)NULL );
     add_option( "crw_db_version", CRW_DB_VERSION );
-
-    get_role( 'administrator' )->add_cap( CRW_CAPABILITY, true );
-    get_role( CRW_ROLE )->add_cap( CRW_CAPABILITY );
+    $roles_caps = array();
+    foreach ( $wp_roles->role_objects as $name => $role ) {
+        if ( $role->has_cap('moderate_comments') ) {
+            $roles_caps[$name] = CRW_CAP_CONFIRMED;
+        } elseif ( 'subscriber' === $name ) {
+            $roles_caps[$name] = CRW_CAP_UNCONFIRMED;
+        }
+    };
+    add_option( CRW_ROLES_OPTION, $roles_caps );
+    foreach ( get_option(CRW_ROLES_OPTION) as $role => $cap ) {
+        get_role( $role )->add_cap( $cap );
+    }
 
     dbDelta( "
 CREATE TABLE IF NOT EXISTS $data_table_name (
@@ -101,8 +112,12 @@ CREATE TABLE IF NOT EXISTS $editors_table_name (
 register_activation_hook( CRW_PLUGIN_FILE, 'crw_install' );
 
 function crw_deactivate () {
-    get_role( 'administrator' )->remove_cap( CRW_CAPABILITY );
-    get_role( CRW_ROLE )->remove_cap( CRW_CAPABILITY );
+    global $wp_roles;
+
+    foreach ( $wp_roles->role_objects as $name => $role ) {
+        $role->remove_cap( CRW_CAP_CONFIRMED );
+        $role->remove_cap( CRW_CAP_UNCONFIRMED );
+    }
 }
 register_deactivation_hook( CRW_PLUGIN_FILE, 'crw_deactivate' );
 
@@ -248,7 +263,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $prep_4 = esc_js($selected_name);
 
     $current_user = wp_get_current_user();
-    $is_auth = get_current_user_id() > 0 && user_can($current_user, CRW_CAPABILITY) && crw_is_editor($current_user, $project);
+    $is_auth = get_current_user_id() > 0 && user_can($current_user, CRW_CAP_CONFIRMED) && crw_is_editor($current_user, $project);
 
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
@@ -366,17 +381,21 @@ function crw_test_permission ( $for, $user, $project=null ) {
     case 'crossword':
         $nonce_source = NONCE_CROSSWORD;
         break;
+    case 'cap':
+        $nonce_source = NONCE_CAP;
+        $capability = 'edit_users';
+        break;
     case 'admin':
         $nonce_source = NONCE_ADMIN;
         $capability = 'edit_users';
         break;
     case 'edit':
         $nonce_source = NONCE_EDIT . $project;
-        $capability = CRW_CAPABILITY;
+        $capability = CRW_CAP_CONFIRMED;
         break;
     case 'review':
         $nonce_source = NONCE_REVIEW;
-        $capability = CRW_CAPABILITY;
+        $capability = CRW_CAP_CONFIRMED;
         break;
     }
     $is_editor = ('edit' !== $for) || crw_is_editor( $user, $project );
@@ -393,6 +412,72 @@ function crw_test_permission ( $for, $user, $project=null ) {
     }
 }
 
+function crw_send_capabilities () {
+    global $wp_roles;
+
+    crw_test_permission( 'cap', wp_get_current_user() );
+
+    $roles_caps = get_option(CRW_ROLES_OPTION);
+    $capabilities = array();
+    foreach ( $wp_roles->get_names() as $name => $role ) {
+        array_push($capabilities, array(
+            'name' => $name,
+            'local' => translate_user_role( $role ),
+            'cap' => isset($roles_caps[$name]) ? $roles_caps[$name] : ''
+        ) );
+    };
+
+    wp_send_json( array(
+        'capabilities' => $capabilities,
+        CRW_NONCE_NAME => wp_create_nonce(NONCE_CAP)
+    ) );
+}
+add_action( 'wp_ajax_get_crw_capabilities', 'crw_send_capabilities' );
+
+function crw_update_capabilities () {
+    global $wp_roles;
+    $error = __('Editing rights could not be updated.', 'crw-text');
+
+    crw_test_permission( 'cap', wp_get_current_user() );
+
+    $capabilities = json_decode( wp_unslash( $_POST['capabilities'] ) );
+    if ( !is_array($capabilities) ) {
+        $debug = 'invalid data: no array';
+        crw_send_error($error, $debug);
+    }
+
+    $allowed = array(CRW_CAP_CONFIRMED, CRW_CAP_UNCONFIRMED, '');
+    $roles_caps = array();
+    foreach ( $wp_roles->role_objects as $name => $role ) {
+        $list = array_filter($capabilities, function ($entry) use ($name) {
+            return is_object($entry) && $entry->name === $name;
+        } );
+        $cap_obj = current( $list );
+        if ( !$cap_obj ) {
+            $debug = 'role missing: ' . $name;
+            crw_send_error($error, $debug);
+        } elseif ( !in_array( $cap_obj->cap, $allowed, true ) ) {
+            $debug = 'corrupt role: ' . $name . ', ' . $cap_obj->cap;
+            crw_send_error($error, $debug);
+        }
+        if ('' !== $cap_obj->cap) {
+            $roles_caps[$name] = $cap_obj->cap;
+        }
+    };
+
+    update_option(CRW_ROLES_OPTION, $roles_caps);
+    foreach ( $wp_roles->role_objects as $name => $role ) {
+        $role->remove_cap( CRW_CAP_CONFIRMED );
+        $role->remove_cap( CRW_CAP_UNCONFIRMED );
+        if ( array_key_exists($name, $roles_caps) ) {
+            $role->add_cap( $roles_caps[$name] );
+        }
+    }
+
+    crw_send_capabilities();
+}
+add_action( 'wp_ajax_update_crw_capabilities', 'crw_update_capabilities' );
+
 function crw_send_admin_data () {
     global $wpdb, $editors_table_name;
 
@@ -406,7 +491,7 @@ function crw_send_admin_data () {
         INNER JOIN $wpdb->users as wpu ON wpu.ID = et.user_id
     "), function ($entry) {
         // rule out users whos editor capability was revoked
-        return user_can( get_user_by('id', $entry->user_id), CRW_CAPABILITY );
+        return user_can( get_user_by('id', $entry->user_id), CRW_CAP_CONFIRMED );
     } );
 
     $projects_list = array_map( function ($project) use (&$editors_list) {
@@ -423,24 +508,22 @@ function crw_send_admin_data () {
     }, $projects );
 
     $users_list = array();
-    foreach ( array( 'administrator', CRW_ROLE ) as $role ) {
-        $user_query = new WP_User_Query( array(
-            'role' => $role,
-            'fields' => array( 'ID', 'display_name' )
-        ) );
-        array_walk( $user_query->results, function ($user) use (&$users_list) {
-            if ( user_can($user->ID, CRW_CAPABILITY) ) {
-                array_push($users_list, array(
-                    'user_id' => $user->ID,
-                    'user_name' => $user->display_name
-                ));
-            }
-        } );
-    }
+    $user_query = new WP_User_Query( array(
+        'fields' => array( 'ID', 'display_name' )
+    ) );
+    array_walk( $user_query->results, function ($user) use (&$users_list) {
+        if ( user_can($user->ID, CRW_CAP_CONFIRMED) ) {
+            array_push($users_list, array(
+                'user_id' => $user->ID,
+                'user_name' => $user->display_name
+            ));
+        }
+    } );
 
     wp_send_json( array(
         'projects' => array_values($projects_list),
         'all_users' => $users_list,
+        'capabilities' => get_option(CRW_ROLES_OPTION),
         CRW_NONCE_NAME => wp_create_nonce(NONCE_ADMIN)
     ) );
 }
@@ -524,7 +607,7 @@ function crw_update_editors () {
             crw_send_error($error, $debug);
         }
         $user = get_userdata($id);
-        if ( !( $user && user_can($user, CRW_CAPABILITY) ) ) {
+        if ( !( $user && user_can($user, CRW_CAP_CONFIRMED) ) ) {
             $debug = 'invalid user id: ' . $id;
             crw_send_error($error, $debug);
         }
@@ -750,12 +833,12 @@ add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );
 /* settings page load routines */
 
 function crw_admin_menu () {
-    add_options_page( 'Crosswordsearch', 'Crosswordsearch', CRW_CAPABILITY, 'crw_options', 'crw_show_options' );
+    add_options_page( 'Crosswordsearch', 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
 };
 add_action('admin_menu', 'crw_admin_menu');
 function crw_show_options() {
 
-	if ( !current_user_can( CRW_CAPABILITY ) )  {
+	if ( !current_user_can( CRW_CAP_CONFIRMED ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
 	include(WP_PLUGIN_DIR . '/crosswordsearch/options.php');

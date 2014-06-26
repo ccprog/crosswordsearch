@@ -4,14 +4,14 @@
 <?php
 
 if ( current_user_can('edit_users') ) {
-
 ?>
+    <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='capabilities'}" href="#" ng-click="activeTab='capabilities'"><?php _e('Options', 'crw-text') ?></a>
     <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='admin'}" href="#" ng-click="activeTab='admin'"><?php _e('Assign projects and editors', 'crw-text') ?></a>
 <?php
 
 }
 
-if ( current_user_can(CRW_CAPABILITY) ) {
+if ( current_user_can(CRW_CAP_CONFIRMED) ) {
 
 ?>
         <a class="nav-tab" ng-class="{'nav-tab-active':activeTab==='review'}" href="#" ng-click="activeTab='review'"><?php _e('Review riddles in projects', 'crw-text') ?></a>
@@ -26,12 +26,41 @@ if ( current_user_can(CRW_CAPABILITY) ) {
 if ( current_user_can('edit_users') ) {
 
 ?>
+    <div class="crw-editors" ng-switch-when="capabilities" ng-controller="OptionsController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_CAP); ?>')">
+        <p><?php _e('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crw-text') ?></p>
+        <form name="capsEdit">
+        <table class="widefat">
+            <thead>
+            <tr>
+                <th rowspan="2"><?php _e('Roles') ?></th>
+                <th colspan="3"><?php _e('Editing rights', 'crw-text') ?></th>
+            </tr>
+            <tr>
+                <th class="radiocol"><?php _e('none', 'crw-text') ?></th>
+                <th class="radiocol"><?php _e('restricted', 'crw-text') ?></th>
+                <th class="radiocol"><?php _e('full', 'crw-text') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="role in capabilities">
+                <td>{{role.local}}</td>
+                <td class="radiocol"><input type="radio" name="{{role.name}}" ng-model="role.cap" value=""></input></td>
+                <td class="radiocol"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_UNCONFIRMED ?>"></input></td>
+                <td class="radiocol"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_CONFIRMED ?>"></input></td>
+            </tr>
+            </tbody>
+        </table>
+        <p><button class="text" title="<?php _e('Save the updated assignment of editing capabilities', 'crw-text') ?>" ng-click="updateCaps()" ng-disabled="(capsEdit.$pristine)"><?php _e('Save', 'crw-text') ?></button>
+        <p class="error" ng-if="capError">{{capError.error}}</p>
+        <p class="error" ng-repeat="msg in capError.debug">{{msg}}</p>
+        </form>
+    </div>
     <div class="crw-editors" ng-switch-when="admin" ng-controller="EditorController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_ADMIN); ?>')">
         <table class="crw-options">
             <tr>
                 <th><?php _e('Projects', 'crw-text') ?></th>
                 <th class="between"></th>
-                <th><?php _e('Project editors', 'crw-text') ?></th>
+                <th><?php _e('Full project editors', 'crw-text') ?></th>
                 <th class="between"></th>
                 <th><?php _e('Other registered users', 'crw-text') ?></th>
             </tr>
@@ -89,7 +118,7 @@ if ( current_user_can('edit_users') ) {
 
 }
 
-if ( current_user_can(CRW_CAPABILITY) ) {
+if ( current_user_can(CRW_CAP_CONFIRMED) ) {
 
 ?>
     <div class="crw-editors" ng-switch-when="review" ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_CROSSWORD ) . "','" . wp_create_nonce( NONCE_REVIEW ); ?>')">

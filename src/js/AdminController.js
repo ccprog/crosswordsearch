@@ -165,6 +165,37 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     };
 }]);
 
+/* controller for Options tab: assign capabilities to roles */
+crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
+		function ($scope, ajaxFactory) {
+    var capContext = 'cap';
+
+    // initial load after the nonce has been processed
+    $scope.prepare = function (nonce) {
+        ajaxFactory.setNonce(nonce, capContext);
+        ajaxFactory.http({
+            action: 'get_crw_capabilities'
+        }, capContext).then(function (data) {
+            $scope.capabilities = data.capabilities;
+        }, function (error) {
+            $scope.capError = error;
+        });
+    };
+
+    $scope.updateCaps = function () {
+        ajaxFactory.http({
+            action: 'update_crw_capabilities',
+            capabilities: angular.toJson($scope.capabilities)
+        }, capContext).then(function (data) {
+            $scope.capError = null;
+            $scope.capsEdit.$setPristine();
+            $scope.capabilities = data.capabilities;
+        }, function (error) {
+            $scope.capError = error;
+        });
+    };
+}]);
+
 /* controller for administrative tab: adding/deleting projects, managing users */
 crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 		function ($scope, $filter, ajaxFactory) {

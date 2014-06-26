@@ -315,6 +315,15 @@ dl.crw-color dt a {
 dl.crw-color img {
     padding: 2px 0;
 }
+.crw-editors table.widefat {
+    width: 24em;
+}
+.crw-editors table.widefat th, .crw-editors table.widefat td {
+    padding: 3px 10px;
+}
+.crw-editors table.widefat .radiocol {
+    text-align: center;
+}
 .crw-options th.between, .crw-editors td.between {
     width: 5em;
     max-width: 5em;
