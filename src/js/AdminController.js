@@ -1,3 +1,34 @@
+/* controller for Options tab: assign capabilities to roles */
+crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
+		function ($scope, ajaxFactory) {
+    var capContext = 'cap';
+
+    // initial load after the nonce has been processed
+    $scope.prepare = function (nonce) {
+        ajaxFactory.setNonce(nonce, capContext);
+        ajaxFactory.http({
+            action: 'get_crw_capabilities'
+        }, capContext).then(function (data) {
+            $scope.capabilities = data.capabilities;
+        }, function (error) {
+            $scope.capError = error;
+        });
+    };
+
+    $scope.updateCaps = function () {
+        ajaxFactory.http({
+            action: 'update_crw_capabilities',
+            capabilities: angular.toJson($scope.capabilities)
+        }, capContext).then(function (data) {
+            $scope.capError = null;
+            $scope.capsEdit.$setPristine();
+            $scope.capabilities = data.capabilities;
+        }, function (error) {
+            $scope.capError = error;
+        });
+    };
+}]);
+
 /* controller for administrative tab: adding/deleting projects, managing users */
 crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 		function ($scope, $filter, ajaxFactory) {
@@ -165,41 +196,25 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     };
 }]);
 
-/* controller for Options tab: assign capabilities to roles */
-crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
-		function ($scope, ajaxFactory) {
-    var capContext = 'cap';
-
-    // initial load after the nonce has been processed
-    $scope.prepare = function (nonce) {
-        ajaxFactory.setNonce(nonce, capContext);
-        ajaxFactory.http({
-            action: 'get_crw_capabilities'
-        }, capContext).then(function (data) {
-            $scope.capabilities = data.capabilities;
-        }, function (error) {
-            $scope.capError = error;
-        });
+// catch group selection at option level, i. e. after crossword selection
+crwApp.directive('crwOptionClick', function () {
+    return {
+        link: function (scope, element, attrs) {
+            element.on('click', 'option', function () {
+                scope.$apply(function () {
+                    scope.activateGroup(attrs.crwOptionClick);
+                });
+            });
+        }
     };
+});
 
-    $scope.updateCaps = function () {
-        ajaxFactory.http({
-            action: 'update_crw_capabilities',
-            capabilities: angular.toJson($scope.capabilities)
-        }, capContext).then(function (data) {
-            $scope.capError = null;
-            $scope.capsEdit.$setPristine();
-            $scope.capabilities = data.capabilities;
-        }, function (error) {
-            $scope.capError = error;
-        });
-    };
-}]);
-
-/* controller for administrative tab: adding/deleting projects, managing users */
+/* controller for Review tab: review, approve or delete crosswords */
 crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 		function ($scope, $filter, ajaxFactory) {
     var reviewContext = 'review';
+    $scope.selectedCrossword = { confirmed: null, pending: null };
+    $scope.activeGroup = 'confirmed';
 
     // load data freshly received from the server
     var showLoaded = function (data, selected) {
@@ -215,8 +230,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
         } else {
             $scope.selectedProject = $filter('orderBy')($scope.projects, 'name')[0];
         }
-        $scope.loadError = null;
-        $scope.deleteError = null;
+        $scope.reviewError = null;
     };
 
     // initial load after the nonce has been processed
@@ -226,44 +240,83 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
         ajaxFactory.http({
             action: 'list_projects_and_riddles'
         }, reviewContext).then(showLoaded, function (error) {
-            $scope.loadError = error;
+            $scope.reviewError = error;
         });
     };
 
-    $scope.deleteCrossword = function () {
+    // delete a crossword from its group
+    $scope.deleteCrossword = function (group) {
         ajaxFactory.http({
             action: 'delete_crossword',
             project: $scope.selectedProject.name,
-            name: $scope.selectedCrossword
+            name: $scope.selectedCrossword[group]
         }, reviewContext).then(function (data) {
             showLoaded(data, $scope.selectedProject.name);
         }, function (error) {
-            $scope.deleteError = error;
+            $scope.reviewError = error;
         });
     };
 
+    // move a crossword from pending to confirmed group
+    $scope.confirm = function () {
+        var name = $scope.selectedCrossword.pending;
+        ajaxFactory.http({
+            action: 'approve_crossword',
+            project: $scope.selectedProject.name,
+            name: name
+        }, reviewContext).then(function (data) {
+            showLoaded(data, $scope.selectedProject.name);
+            $scope.selectedCrossword.confirmed = name;
+            $scope.selectedCrossword.pending = $filter('orderBy')($scope.selectedProject.pending, 'toString()')[0];
+            $scope.activateGroup('confirmed');
+        }, function (error) {
+            $scope.reviewError = error;
+        });
+    };
+
+    // adjust previewCrossword on group change
+    $scope.activateGroup = function (group) {
+        $scope.activeGroup = group;
+        $scope.previewCrossword = $scope.selectedCrossword[group];
+    };
+
+    // on project selection:
     $scope.$watch('selectedProject', function (newSel) {
         if (newSel) {
-             if ($scope.preview) {
+            // alert preview CrosswordController of new project
+            if ($scope.preview) {
                 $scope.$broadcast('previewProject', newSel.name);
             }
-           $scope.selectedCrossword = $filter('orderBy')(newSel.crosswords, 'toString()')[0];
-        }
-        $scope.deleteError = null;
-    });
-
-    $scope.$watch('selectedCrossword', function (newName) {
-        if (newName && $scope.preview) {
-            $scope.$broadcast('previewCrossword', newName);
+            // adjust crossword selection
+            angular.forEach($scope.selectedCrossword, function (name, group) {
+                if (!name || !jQuery.inArray(name, newSel[group])) {
+                    $scope.selectedCrossword[group] = $filter('orderBy')(newSel[group], 'toString()')[0];
+                }
+            });
         }
     });
 
+    // init preview CrosswordController
     $scope.$watch('preview', function (newPre) {
         if (newPre && $scope.selectedProject) {
             $scope.$evalAsync(function (scope) {
-                scope.$broadcast('previewProject', scope.selectedProject.name);
-                scope.$broadcast('previewCrossword', scope.selectedCrossword);
+                $scope.$broadcast('previewProject', $scope.selectedProject.name);
+                $scope.previewCrossword = $scope.selectedCrossword[$scope.activeGroup];
+                $scope.$broadcast('previewCrossword', $scope.previewCrossword);
             });
+        }
+    });
+
+    // adjust previewCrossword on groupwise selection change
+    $scope.$watchCollection('selectedCrossword', function (newSc) {
+        $scope.previewCrossword = newSc[$scope.activeGroup];
+    });
+
+    // pass previewCrossword on to CrosswordController only
+    // on real data change
+    $scope.$watch('previewCrossword', function (newName) {
+        if ($scope.preview) {
+            $scope.$broadcast('previewCrossword', newName);
         }
     });
 }]);

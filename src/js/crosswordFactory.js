@@ -7,6 +7,8 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         var crossword = {}, namesList = [];
         // project key
         var project = '';
+        // restriction context
+        var restricted = false;
 
         // default empty crossword object
         var _loadDefault = function () {
@@ -107,8 +109,9 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         };
 
         // set the project key, previewController will not set nonces
-        this.setProject = function (p, nc, ne) {
+        this.setProject = function (p, nc, ne, r) {
             project = p;
+            restricted = r;
             if (nc) {
                 ajaxFactory.setNonce(nc, crwContext);
             }
@@ -141,8 +144,10 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // save a crossword
         this.saveCrosswordData = function (name, action, username, password) {
             var content = {
-                action: action + '_crossword',
+                action: 'save_crossword',
+                method: action,
                 project: project,
+                restricted: restricted,
                 crossword: angular.toJson(crossword),
                 username: username,
                 password: password

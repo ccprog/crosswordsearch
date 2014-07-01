@@ -30,12 +30,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
 /* plugin installation */
-define('CRW_DB_VERSION', '0.2');
+define('CRW_DB_VERSION', '0.3');
 define('CRW_PROJECTS_OPTION', 'crw_projects');
 define('CRW_ROLES_OPTION', 'crw_roles_caps');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
 define('NONCE_EDIT', 'crw_edit_');
+define('NONCE_PUSH', 'crw_push_');
 define('NONCE_ADMIN', 'crw_admin_');
 define('NONCE_CAP', 'crw_cap_');
 define('NONCE_REVIEW', 'crw_review_');
@@ -78,7 +79,7 @@ function crw_install () {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
     add_option( CRW_PROJECTS_OPTION, (array)NULL );
-    add_option( "crw_db_version", CRW_DB_VERSION );
+    update_option( "crw_db_version", CRW_DB_VERSION );
     $roles_caps = array();
     foreach ( $wp_roles->role_objects as $name => $role ) {
         if ( $role->has_cap('moderate_comments') ) {
@@ -97,6 +98,9 @@ CREATE TABLE IF NOT EXISTS $data_table_name (
   project varchar(255) NOT NULL,
   name varchar(255) NOT NULL,
   crossword text NOT NULL,
+  first_user bigint(20) unsigned NOT NULL,
+  last_user bigint(20) unsigned NOT NULL,
+  pending boolean NOT NULL DEFAULT FALSE,
   PRIMARY KEY  (project, name)
 ) $charset_collate;\n"
     );
@@ -205,6 +209,10 @@ function crw_test_shortcode ($atts, $names_list) {
         return $html . sprintf(__('Attribute %1$s needs to be set to one of "%2$s" or "%3$s".', 'crw-text'), '<em>mode</em>', 'build', 'solve');
     }
 
+    if ( $restricted && $name ) {
+        return $html . __('If attribute <em>restricted</em> is set, attribute <em>name</em> must be omitted.', 'crw-text');
+    }
+
     if ( !in_array( $project, $projects_list ) ) {
         /// translators: argument %1 will be the literal 'project'
         return $html . sprintf(__('Attribute %1$s needs to be an existing project.', 'crw-text'), '<em>project</em>');
@@ -226,7 +234,7 @@ function crw_get_names_list ($project) {
     return $wpdb->get_col( $wpdb->prepare("
         SELECT name
         FROM $data_table_name
-        WHERE project = %s
+        WHERE project = %s AND NOT pending
         ORDER BY name
     ", $project) );
 }
@@ -236,9 +244,11 @@ function crw_get_names_list ($project) {
 function crw_shortcode_handler( $atts, $content = null ) {
     $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
+        'restricted' => 0,
         'project' => '',
         'name' => false,
 	), $atts, 'crosswordsearch' );
+    $filtered_atts['restricted'] = (int)$filtered_atts['restricted'];
 	extract( $filtered_atts );
 
     $names_list = crw_get_names_list($project);
@@ -249,7 +259,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     }
 
     $is_single = false;
-    if ( $name === false && count($names_list) > 0 ) {
+    if ( $name === false && count($names_list) > 0 && !$restricted ) {
         $selected_name = $names_list[0];
     } else {
         $selected_name = $name;
@@ -259,11 +269,16 @@ function crw_shortcode_handler( $atts, $content = null ) {
     }
     $prep_1 = esc_js($project);
     $prep_2 = wp_create_nonce( NONCE_CROSSWORD );
-    $prep_3 = wp_create_nonce( NONCE_EDIT . $project );
+    $prep_3 = wp_create_nonce( ($restricted ? NONCE_PUSH : NONCE_EDIT) . $project );
     $prep_4 = esc_js($selected_name);
 
     $current_user = wp_get_current_user();
-    $is_auth = get_current_user_id() > 0 && user_can($current_user, CRW_CAP_CONFIRMED) && crw_is_editor($current_user, $project);
+    $is_auth = get_current_user_id() > 0;
+    if ($restricted) {
+        $is_auth &= user_can($current_user, CRW_CAP_UNCONFIRMED);
+    } else {
+        $is_auth &= user_can($current_user, CRW_CAP_CONFIRMED) && crw_is_editor($current_user, $project);
+    }
 
 	// load stylesheet into page bottom to get it past theming
     wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
@@ -272,7 +287,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     include 'app.php';
     $app_code = ob_get_clean();
 
-	return '<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\')">' . $app_code . '</div>';
+	return '<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', ' . $restricted . ')">' . $app_code . '</div>';
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
@@ -369,6 +384,10 @@ function crw_is_editor ( $user, $project ) {
     ", $project) );
 }
 
+// three-part permission test:
+// 1. correct nonce for action?
+// 2. correct capability for user and action?
+// 3. for editing, editing rights in project for user?
 function crw_test_permission ( $for, $user, $project=null ) {
     $error = __('You do not have permission.', 'crw-text');
 
@@ -377,8 +396,17 @@ function crw_test_permission ( $for, $user, $project=null ) {
         crw_send_error($error, $debug);
     }
 
+    $restricted = false;
+    $for_project = true;
     switch ( $for ) {
     case 'crossword':
+        // can the logged in user review unconfirmed crosswords?
+        if ( is_user_logged_in() ) {
+            $user = wp_get_current_user();
+            $restricted = !user_can( $user, CRW_CAP_CONFIRMED ) || !crw_is_editor( $user, $project );
+        } else {
+            $restricted = true;
+        }
         $nonce_source = NONCE_CROSSWORD;
         break;
     case 'cap':
@@ -389,16 +417,27 @@ function crw_test_permission ( $for, $user, $project=null ) {
         $nonce_source = NONCE_ADMIN;
         $capability = 'edit_users';
         break;
+    case 'push':
+        // can the user push unconfirmed crosswords?
+        $restricted = user_can($user, CRW_CAP_UNCONFIRMED);
+        if ( $restricted ) {
+            $capability = CRW_CAP_UNCONFIRMED;
+        } else {
+            $capability = CRW_CAP_CONFIRMED;
+            $for_project = crw_is_editor( $user, $project );
+        }
+        $nonce_source = NONCE_PUSH . $project;
+        break;
     case 'edit':
-        $nonce_source = NONCE_EDIT . $project;
+        $for_project = crw_is_editor( $user, $project );
         $capability = CRW_CAP_CONFIRMED;
+        $nonce_source = NONCE_EDIT . $project;
         break;
     case 'review':
         $nonce_source = NONCE_REVIEW;
         $capability = CRW_CAP_CONFIRMED;
         break;
     }
-    $is_editor = ('edit' !== $for) || crw_is_editor( $user, $project );
 
     if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], $nonce_source ) ) {
         $debug = 'nonce not verified for ' . $nonce_source;
@@ -406,12 +445,15 @@ function crw_test_permission ( $for, $user, $project=null ) {
     } elseif ( 'crossword' !== $for && !user_can($user, $capability) ) {
         $debug = 'no ' . $capability . ' permission for user';
         crw_send_error($error, $debug);
-    } elseif ( !$is_editor ) {
+    } elseif ( !$for_project ) {
         $debug = 'no permission for user in project ' . $project;
         crw_send_error($error, $debug);
     }
+
+    return $restricted;
 }
 
+// data for Settings->Options tab
 function crw_send_capabilities () {
     global $wp_roles;
 
@@ -434,6 +476,7 @@ function crw_send_capabilities () {
 }
 add_action( 'wp_ajax_get_crw_capabilities', 'crw_send_capabilities' );
 
+// update capabilities list in (backup) option entry and in live role data
 function crw_update_capabilities () {
     global $wp_roles;
     $error = __('Editing rights could not be updated.', 'crw-text');
@@ -478,6 +521,7 @@ function crw_update_capabilities () {
 }
 add_action( 'wp_ajax_update_crw_capabilities', 'crw_update_capabilities' );
 
+// data for Settings->Projects tab
 function crw_send_admin_data () {
     global $wpdb, $editors_table_name;
 
@@ -630,11 +674,12 @@ function crw_update_editors () {
 }
 add_action( 'wp_ajax_update_editors', 'crw_update_editors' );
 
+// data for Settings->Review tab
 function crw_send_projects_and_riddles ($user) {
     global $wpdb, $data_table_name, $editors_table_name;
 
     $crosswords_list = $wpdb->get_results("
-        SELECT dt.project, dt.name
+        SELECT dt.project, dt.name, dt.pending
         FROM $data_table_name AS dt
         INNER JOIN $editors_table_name AS et ON dt.project = et.project
         WHERE et.user_id = $user->ID
@@ -645,10 +690,12 @@ function crw_send_projects_and_riddles ($user) {
         if ( !array_key_exists($entry->project, $projects_list) ) {
             $projects_list[$entry->project] = array(
                 'name' => $entry->project,
-                'crosswords' => array()
-            );
+                'confirmed' => array(),
+                'pending' => array()
+                );
         }
-        array_push( $projects_list[$entry->project]['crosswords'], $entry->name );
+        $target = $entry->pending ? 'pending' : 'confirmed';
+        array_push( $projects_list[$entry->project][$target], $entry->name );
     } );
 
     wp_send_json( array(
@@ -665,125 +712,10 @@ function crw_list_projects_and_riddles () {
 }
 add_action( 'wp_ajax_list_projects_and_riddles', 'crw_list_projects_and_riddles' );
 
-// common function for insert and update shares data testing tasks and error handling
-function crw_save_crossword ( $for_method, $user ) {
-    global $wpdb, $data_table_name;
-    $error = __('You are not allowed to save the crossword.', 'crw-text');
-    $debug = NULL;
-
-    // sanitize fields
-    $project = sanitize_text_field( wp_unslash($_POST['project']) );
-    $unsafe_name = wp_unslash($_POST['name']);
-    $name = sanitize_text_field( $unsafe_name );
-    if ( 'update' == $for_method ) {
-        $unsafe_old_name = wp_unslash($_POST['old_name']);
-        $old_name = sanitize_text_field( $unsafe_old_name );
-    }
-
-    // authenticate on nopriv action
-    if ( !$user ) {
-        $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
-    }
-    crw_test_permission( 'edit', $user, $project );
-
-    // verify crossword data
-    $crossword = wp_unslash( $_POST['crossword'] );
-    $verification = crw_verify_json( $crossword, $msg );
-
-    // set errors on inconsistencies
-    if ( !$verification ) {
-        $error = __('The crossword data sent are invalid.', 'crw-text');
-        $debug = $msg;
-    } elseif ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
-        $error = __('The project does not exist.', 'crw-text');
-        $debug = $project;
-    } else if ( $name !== $unsafe_name ) {
-        $error = __('The name has forbidden content.', 'crw-text');
-        $debug = $name;
-    } else if ( 'update' == $for_method && $old_name !== $unsafe_old_name ) {
-        $error = __('The name has forbidden content.', 'crw-text');
-        $debug = $old_name;
-    } else if ( $name !== $verification ) {
-        $error = __('The name sent is inconsistent with crossword data.', 'crw-text');
-        $debug = $name . ' / ' . $verification;
-    } else {
-        // if all data ar ok, call database depending on method
-        if ( 'update' == $for_method ) {
-            $success = $wpdb->update($data_table_name, array(
-                'name' => $name,
-                'crossword' => $crossword,
-            ), array(
-                'name' => $old_name,
-                'project' => $project
-            ));
-        } else if ( 'insert' == $for_method ) {
-            $success = $wpdb->insert($data_table_name, array(
-                'name' => $name,
-                'project' => $project,
-                'crossword' => $crossword,
-            ));
-        }
-
-        // check for database errors
-        if ($success !== false) {
-            // send updated list of names in project
-            $names_list = crw_get_names_list($project);
-            wp_send_json( array(
-                'namesList' => $names_list,
-                CRW_NONCE_NAME => wp_create_nonce( NONCE_EDIT . $project )
-            ) );
-        } else {
-            $error = __('The crossword could not be saved to the database.', 'crw-text');
-            $debug = $wpdb->last_error;
-        }
-    }
-
-    //send error message
-    crw_send_error($error, $debug);
-}
-
-// select crossword data
-function crw_get_crossword() {
-    global $wpdb, $data_table_name;
-    $error = __('The crossword could not be retrieved.', 'crw-text');
-
-    // sanitize fields
-    $project = sanitize_text_field( wp_unslash($_POST['project']) );
-    $name = sanitize_text_field( wp_unslash($_POST['name']) );
-
-    crw_test_permission( 'crossword', null );
-
-    // call database
-    if ( $name === '' ) {
-        $crossword = true;
-    } else {
-        $crossword = $wpdb->get_var( $wpdb->prepare("
-            SELECT crossword
-            FROM $data_table_name
-            WHERE project = %s AND name = %s
-        ", $project, $name) );
-    }
-
-    $names_list = crw_get_names_list($project);
-
-    // check for database errors
-    if ($crossword) {
-        // send crossword, list of names in project and save nonce
-        echo '{"crossword":' . $crossword .
-            ',"namesList":' . json_encode($names_list) .
-            ',"' . CRW_NONCE_NAME . '": "' . wp_create_nonce( NONCE_CROSSWORD ) .
-            '"}';
-        die();
-    } else {
-        crw_send_error($error, $wpdb->last_error);
-    }
-}
-add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
-add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
-
+// delete a crossword
 function crw_delete_crossword() {
     global $wpdb, $data_table_name;
-    $error = __('The crossword could not be retrieved.', 'crw-text');
+    $error = __('The crossword could not be deleted.', 'crw-text');
 
     // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
@@ -807,28 +739,178 @@ function crw_delete_crossword() {
 }
 add_action( 'wp_ajax_delete_crossword', 'crw_delete_crossword' );
 
-// insert crossword data
-function crw_insert_crossword_nopriv() {
-    crw_save_crossword('insert', false);
-}
-add_action( 'wp_ajax_nopriv_insert_crossword', 'crw_insert_crossword_nopriv' );
-function crw_insert_crossword() {
-    // if a username is sent, use it for authentication
-    $user = $_POST['username'] ? false : wp_get_current_user();
-    crw_save_crossword( 'insert', $user );
-}
-add_action( 'wp_ajax_insert_crossword', 'crw_insert_crossword' );
+// approve a crossword
+function crw_approve_crossword() {
+    global $wpdb, $data_table_name;
+    $error = __('The crossword could not be approved.', 'crw-text');
 
-// update crossword data
-function crw_update_crossword_nopriv() {
-    crw_save_crossword('update', false);
+    // sanitize fields
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+    $name = sanitize_text_field( wp_unslash($_POST['name']) );
+
+    $user = wp_get_current_user();
+    crw_test_permission( 'review', $user );
+
+    // call database
+    $success = $wpdb->update( $data_table_name, array(
+        'pending' => 0,
+    ), array(
+        'name' => $name,
+        'project' => $project
+    ) );
+
+    // check for database errors
+    if (false !== $success) {
+        crw_send_projects_and_riddles($user);
+    } else {
+        crw_send_error($error, $wpdb->last_error);
+    }
 }
-add_action( 'wp_ajax_nopriv_update_crossword', 'crw_update_crossword_nopriv' );
-function crw_update_crossword() {
-    $user = $_POST['username'] ? false : wp_get_current_user();
-    crw_save_crossword( 'update', $user );
+add_action( 'wp_ajax_approve_crossword', 'crw_approve_crossword' );
+
+// common function for insert and update shares data testing tasks and error handling
+function crw_save_crossword () {
+    global $wpdb, $data_table_name;
+    $error = __('You are not allowed to save the crossword.', 'crw-text');
+    $debug = NULL;
+
+    // sanitize fields
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+    $unsafe_name = wp_unslash($_POST['name']);
+    $name = sanitize_text_field( $unsafe_name );
+    $restricted_page = (bool)wp_unslash($_POST['restricted']);
+    $method = sanitize_text_field( wp_unslash($_POST['method']) );
+    if ( 'update' == $method ) {
+        $unsafe_old_name = wp_unslash($_POST['old_name']);
+        $old_name = sanitize_text_field( $unsafe_old_name );
+    } elseif ( 'insert' == $method ) {
+        $exists = $wpdb->get_var( $wpdb->prepare("
+            SELECT count(*)
+            FROM $data_table_name
+            WHERE project = %s AND name = %s
+        ", $project, $name) );
+    }
+
+    // if a username is sent, use it for authentication
+    if ( $_POST['username'] ) {
+        $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
+    } else {
+        $user = wp_get_current_user();
+    }
+    $for = $restricted_page ? 'push' : 'edit';
+    $restricted_permission = crw_test_permission( $for, $user, $project );
+
+    // verify crossword data
+    $crossword = wp_unslash( $_POST['crossword'] );
+    $verification = crw_verify_json( $crossword, $msg );
+
+    // set errors on inconsistencies
+    if ( !in_array( $method, array('insert', 'update') ) ) {
+        $debug = 'No valid method: ' . $method;
+    } elseif ( 'insert' == $method && $exists ) {
+        // on restricted build pages, saving is done 'blindly', so giving
+        // informative feedback is justified
+        $error = __('There is already another riddle with that name!', 'crw-text');
+        $debug = $name;
+    } elseif ( !$verification ) {
+        $debug = array_unshift($msg, 'The crossword data sent are invalid.');
+    } elseif ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
+        $debug = 'The project does not exist: ' . $project;
+    } else if ( $name !== $unsafe_name ) {
+        $debug = 'The name has forbidden content: ' . $name;
+    } else if ( 'update' == $method && $old_name !== $unsafe_old_name ) {
+        $debug = 'The old name has forbidden content: ' . $old_name;
+    } else if ( $name !== $verification ) {
+        $debug = array(
+            'The name sent is inconsistent with crossword data.',
+            $name . ' / ' . $verification
+        );
+    } else {
+        // if all data are ok, call database depending on method
+        if ( 'update' == $method ) {
+            $success = $wpdb->update($data_table_name, array(
+                'name' => $name,
+                'crossword' => $crossword,
+                'last_user' => $user->ID,
+                'pending' => $restricted_permission,
+            ), array(
+                'name' => $old_name,
+                'project' => $project
+            ));
+        } else if ( 'insert' == $method ) {
+            $success = $wpdb->insert($data_table_name, array(
+                'name' => $name,
+                'project' => $project,
+                'crossword' => $crossword,
+                'first_user' => $user->ID,
+                'last_user' => $user->ID,
+                'pending' => $restricted_permission,
+            ));
+        }
+
+        // check for database errors
+        if ($success !== false) {
+            if ($restricted_page) {
+                wp_send_json( array(
+                    CRW_NONCE_NAME => wp_create_nonce( NONCE_PUSH . $project )
+                ) );
+            } else {
+                // send updated list of (non-pending) names in project
+                $names_list = crw_get_names_list($project);
+                wp_send_json( array(
+                    'namesList' => $names_list,
+                    CRW_NONCE_NAME => wp_create_nonce( NONCE_EDIT . $project )
+                ) );
+            }
+        } else {
+            $error = __('The crossword could not be saved to the database.', 'crw-text');
+            $debug = $wpdb->last_error;
+        }
+    }
+
+    //send error message
+    crw_send_error($error, $debug);
 }
-add_action( 'wp_ajax_update_crossword', 'crw_update_crossword' );
+add_action( 'wp_ajax_nopriv_insert_crossword', 'crw_save_crossword' );
+add_action( 'wp_ajax_save_crossword', 'crw_save_crossword' );
+
+// select crossword data
+function crw_get_crossword() {
+    global $wpdb, $data_table_name;
+    $error = __('The crossword could not be retrieved.', 'crw-text');
+
+    // sanitize fields
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+    $name = sanitize_text_field( wp_unslash($_POST['name']) );
+
+    $restricted_permission = crw_test_permission( 'crossword', null, $project );
+
+    // call database
+    if ( $name === '' ) {
+        $crossword = true;
+    } else {
+        $crossword = $wpdb->get_var( $wpdb->prepare("
+            SELECT crossword
+            FROM $data_table_name
+            WHERE project = %s AND name = %s AND NOT (%d AND pending)
+        ", $project, $name, (int)$restricted_permission) );
+    }
+
+    // check for database errors
+    if ($crossword) {
+        // send updated list of (non-pending) names in project
+        $names_list = crw_get_names_list($project);
+        echo '{"crossword":' . $crossword .
+            ',"namesList":' . json_encode($names_list) .
+            ',"' . CRW_NONCE_NAME . '": "' . wp_create_nonce( NONCE_CROSSWORD ) .
+            '"}';
+        die();
+    } else {
+        crw_send_error($error, $wpdb->last_error);
+    }
+}
+add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
+add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 /* settings page load routines */
 

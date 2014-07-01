@@ -28,11 +28,12 @@ if ( current_user_can('edit_users') ) {
 ?>
     <div class="crw-editors" ng-switch-when="capabilities" ng-controller="OptionsController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_CAP); ?>')">
         <p><?php _e('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crw-text') ?></p>
+        <p><?php _e('Full editors can only act on the projects they are assigned to.', 'crw-text') ?></p>
         <form name="capsEdit">
         <table class="widefat">
             <thead>
             <tr>
-                <th rowspan="2"><?php _e('Roles') ?></th>
+                <th rowspan="2"><?php _e('Roles', 'crw-text') ?></th>
                 <th colspan="3"><?php _e('Editing rights', 'crw-text') ?></th>
             </tr>
             <tr>
@@ -62,7 +63,7 @@ if ( current_user_can('edit_users') ) {
                 <th class="between"></th>
                 <th><?php _e('Full project editors', 'crw-text') ?></th>
                 <th class="between"></th>
-                <th><?php _e('Other registered users', 'crw-text') ?></th>
+                <th><?php _e('Other users with full editor rights', 'crw-text') ?></th>
             </tr>
             <tr>
                 <td class="project">
@@ -126,7 +127,9 @@ if ( current_user_can(CRW_CAP_CONFIRMED) ) {
             <tr>
                 <th><?php _e('Projects', 'crw-text') ?></th>
                 <th class="between"></th>
-                <th><?php _e('Crosswords', 'crw-text') ?></th>
+                <th><?php _e('Approved crosswords', 'crw-text') ?></th>
+                <th class="between"></th>
+                <th><?php _e('Crosswords pending approval', 'crw-text') ?></th>
             </tr>
             <tr>
                 <td class="project">
@@ -134,23 +137,35 @@ if ( current_user_can(CRW_CAP_CONFIRMED) ) {
                 </td>
                 <td class="between"></td>
                 <td class="crosswordname">
-                    <select size="10" ng-model="selectedCrossword" ng-options="name for name in selectedProject.crosswords | orderBy:'toString()'"></select>
+                    <select size="10" ng-model="selectedCrossword.confirmed" ng-options="name for name in selectedProject.confirmed | orderBy:'toString()'"  crw-option-click="confirmed"></select>
+                </td>
+                <td class="between">
+                    <button title="<?php _e('Approve the marked crossword to be displayed for everyone', 'crw-text') ?>" ng-click="confirm()" ng-disabled="!selectedProject || !selectedProject.pending.length">&lt;</button><br />
+                </td>
+                <td class="crosswordname">
+                    <select size="10" ng-model="selectedCrossword.pending" ng-options="name for name in selectedProject.pending | orderBy:'toString()'" crw-option-click="pending"></select>
                 </td>
             </tr>
             <tr class="actions">
                 <td></td>
                 <td class="between"></td>
                 <td>
-                    <input type="checkbox" title="<?php _e('Show a preview of the selected crossword', 'crw-text') ?>" ng-model="preview"><?php _e('Preview', 'crw-text') ?></input>
-                    <button title="<?php _e('Delete the selected crossword', 'crw-text') ?>" ng-click="deleteCrossword()" ng-disabled="!selectedCrossword">−</button>
+                    <button title="<?php _e('Delete the selected approved crossword', 'crw-text') ?>" ng-click="deleteCrossword('confirmed')" ng-disabled="!selectedCrossword.confirmed">−</button>
+                    <p class="error" ng-if="deleteError">{{deleteError.error}}</p>
+                    <p class="error" ng-repeat="msg in deleteError.debug">{{msg}}</p>
+                </td>
+                <td class="between"></td>
+                <td>
+                    <button title="<?php _e('Delete the selected pending crossword', 'crw-text') ?>" ng-click="deleteCrossword('pending')" ng-disabled="!selectedCrossword.pending">−</button>
                     <p class="error" ng-if="deleteError">{{deleteError.error}}</p>
                     <p class="error" ng-repeat="msg in deleteError.debug">{{msg}}</p>
                 </td>
             </tr>
         </table>
-        <p class="error" ng-if="loadError">{{loadError.error}}</p>
-        <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
-        <div ng-if="preview" class="crw-wrapper" ng-controller="CrosswordController">
+        <p class="error" ng-if="reviewError">{{loadError.error}}</p>
+        <p class="error" ng-repeat="msg in reviewError.debug">{{msg}}</p>
+        <h3><input type="checkbox" title="<?php _e('Show a preview of the selected crossword', 'crw-text') ?>" ng-model="preview"><?php _e('Preview', 'crw-text') ?></input></h3>
+        <div ng-if="preview" class="crw-wrapper" ng-controller="CrosswordController" ng-init="commandState='preview'">
 <?php
 
     $mode = 'preview';

@@ -257,6 +257,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         var crwContext = "crossword", editContext = "edit";
         var crossword = {}, namesList = [];
         var project = "";
+        var restricted = false;
         var _loadDefault = function() {
             angular.extend(crossword, {
                 name: "",
@@ -333,8 +334,9 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         this.getNamesList = function() {
             return namesList;
         };
-        this.setProject = function(p, nc, ne) {
+        this.setProject = function(p, nc, ne, r) {
             project = p;
+            restricted = r;
             if (nc) {
                 ajaxFactory.setNonce(nc, crwContext);
             }
@@ -360,8 +362,10 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         };
         this.saveCrosswordData = function(name, action, username, password) {
             var content = {
-                action: action + "_crossword",
+                action: "save_crossword",
+                method: action,
                 project: project,
+                restricted: restricted,
                 crossword: angular.toJson(crossword),
                 username: username,
                 password: password
@@ -603,6 +607,32 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
     };
 } ]);
 
+crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scope, ajaxFactory) {
+    var capContext = "cap";
+    $scope.prepare = function(nonce) {
+        ajaxFactory.setNonce(nonce, capContext);
+        ajaxFactory.http({
+            action: "get_crw_capabilities"
+        }, capContext).then(function(data) {
+            $scope.capabilities = data.capabilities;
+        }, function(error) {
+            $scope.capError = error;
+        });
+    };
+    $scope.updateCaps = function() {
+        ajaxFactory.http({
+            action: "update_crw_capabilities",
+            capabilities: angular.toJson($scope.capabilities)
+        }, capContext).then(function(data) {
+            $scope.capError = null;
+            $scope.capsEdit.$setPristine();
+            $scope.capabilities = data.capabilities;
+        }, function(error) {
+            $scope.capError = error;
+        });
+    };
+} ]);
+
 crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
     var adminContext = "admin";
     var showLoaded = function(admin, selected) {
@@ -731,34 +761,25 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     };
 } ]);
 
-crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scope, ajaxFactory) {
-    var capContext = "cap";
-    $scope.prepare = function(nonce) {
-        ajaxFactory.setNonce(nonce, capContext);
-        ajaxFactory.http({
-            action: "get_crw_capabilities"
-        }, capContext).then(function(data) {
-            $scope.capabilities = data.capabilities;
-        }, function(error) {
-            $scope.capError = error;
-        });
+crwApp.directive("crwOptionClick", function() {
+    return {
+        link: function(scope, element, attrs) {
+            element.on("click", "option", function() {
+                scope.$apply(function() {
+                    scope.activateGroup(attrs.crwOptionClick);
+                });
+            });
+        }
     };
-    $scope.updateCaps = function() {
-        ajaxFactory.http({
-            action: "update_crw_capabilities",
-            capabilities: angular.toJson($scope.capabilities)
-        }, capContext).then(function(data) {
-            $scope.capError = null;
-            $scope.capsEdit.$setPristine();
-            $scope.capabilities = data.capabilities;
-        }, function(error) {
-            $scope.capError = error;
-        });
-    };
-} ]);
+});
 
 crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
     var reviewContext = "review";
+    $scope.selectedCrossword = {
+        confirmed: null,
+        pending: null
+    };
+    $scope.activeGroup = "confirmed";
     var showLoaded = function(data, selected) {
         var newSelected;
         $scope.projects = data.projects;
@@ -772,8 +793,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
         } else {
             $scope.selectedProject = $filter("orderBy")($scope.projects, "name")[0];
         }
-        $scope.loadError = null;
-        $scope.deleteError = null;
+        $scope.reviewError = null;
     };
     $scope.prepare = function(nonceCrossword, nonceReview) {
         ajaxFactory.setNonce(nonceCrossword, "crossword");
@@ -781,40 +801,66 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
         ajaxFactory.http({
             action: "list_projects_and_riddles"
         }, reviewContext).then(showLoaded, function(error) {
-            $scope.loadError = error;
+            $scope.reviewError = error;
         });
     };
-    $scope.deleteCrossword = function() {
+    $scope.deleteCrossword = function(group) {
         ajaxFactory.http({
             action: "delete_crossword",
             project: $scope.selectedProject.name,
-            name: $scope.selectedCrossword
+            name: $scope.selectedCrossword[group]
         }, reviewContext).then(function(data) {
             showLoaded(data, $scope.selectedProject.name);
         }, function(error) {
-            $scope.deleteError = error;
+            $scope.reviewError = error;
         });
+    };
+    $scope.confirm = function() {
+        var name = $scope.selectedCrossword.pending;
+        ajaxFactory.http({
+            action: "approve_crossword",
+            project: $scope.selectedProject.name,
+            name: name
+        }, reviewContext).then(function(data) {
+            showLoaded(data, $scope.selectedProject.name);
+            $scope.selectedCrossword.confirmed = name;
+            $scope.selectedCrossword.pending = $filter("orderBy")($scope.selectedProject.pending, "toString()")[0];
+            $scope.activateGroup("confirmed");
+        }, function(error) {
+            $scope.reviewError = error;
+        });
+    };
+    $scope.activateGroup = function(group) {
+        $scope.activeGroup = group;
+        $scope.previewCrossword = $scope.selectedCrossword[group];
     };
     $scope.$watch("selectedProject", function(newSel) {
         if (newSel) {
             if ($scope.preview) {
                 $scope.$broadcast("previewProject", newSel.name);
             }
-            $scope.selectedCrossword = $filter("orderBy")(newSel.crosswords, "toString()")[0];
-        }
-        $scope.deleteError = null;
-    });
-    $scope.$watch("selectedCrossword", function(newName) {
-        if (newName && $scope.preview) {
-            $scope.$broadcast("previewCrossword", newName);
+            angular.forEach($scope.selectedCrossword, function(name, group) {
+                if (!name || !jQuery.inArray(name, newSel[group])) {
+                    $scope.selectedCrossword[group] = $filter("orderBy")(newSel[group], "toString()")[0];
+                }
+            });
         }
     });
     $scope.$watch("preview", function(newPre) {
         if (newPre && $scope.selectedProject) {
             $scope.$evalAsync(function(scope) {
-                scope.$broadcast("previewProject", scope.selectedProject.name);
-                scope.$broadcast("previewCrossword", scope.selectedCrossword);
+                $scope.$broadcast("previewProject", $scope.selectedProject.name);
+                $scope.previewCrossword = $scope.selectedCrossword[$scope.activeGroup];
+                $scope.$broadcast("previewCrossword", $scope.previewCrossword);
             });
+        }
+    });
+    $scope.$watchCollection("selectedCrossword", function(newSc) {
+        $scope.previewCrossword = newSc[$scope.activeGroup];
+    });
+    $scope.$watch("previewCrossword", function(newName) {
+        if ($scope.preview) {
+            $scope.$broadcast("previewCrossword", newName);
         }
     });
 } ]);
@@ -862,6 +908,7 @@ crwApp.directive("crwMenu", [ "$compile", function($compile) {
 crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crosswordFactory", function($scope, qStore, basics, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
+    $scope.commandState = "full";
     $scope.highlight = [];
     $scope.count = {
         words: 0,
@@ -879,14 +926,6 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         insert: 'save("insert")',
         reload: "load(loadedName)"
     };
-    $scope.commandList = jQuery.map($scope.commands, function(value, command) {
-        var obj = basics.localize(command);
-        obj.value = command;
-        if (command === "load") {
-            obj.group = [];
-        }
-        return obj;
-    });
     $scope.$on("select", function(event, entry) {
         var task;
         if (jQuery.inArray(entry, $scope.namesInProject) < 0) {
@@ -896,8 +935,21 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         }
         $scope.$evalAsync(task);
     });
-    $scope.prepare = function(project, nonceCrossword, nonceEdit, name) {
-        $scope.crw.setProject(project, nonceCrossword, nonceEdit);
+    $scope.prepare = function(project, nonceCrossword, nonceEdit, name, restricted) {
+        $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
+        if (restricted) {
+            $scope.commandState = "restricted";
+            delete $scope.commands.load;
+            delete $scope.commands.insert;
+        }
+        $scope.commandList = jQuery.map($scope.commands, function(value, command) {
+            var obj = basics.localize(command);
+            obj.value = command;
+            if (command === "load") {
+                obj.group = [];
+            }
+            return obj;
+        });
         var deregister = $scope.$on("immediateReady", function() {
             $scope.load(name);
             deregister();
@@ -913,11 +965,16 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         });
         return arr;
     };
+    var updateNames = function() {
+        if ($scope.commandState === "full") {
+            $scope.namesInProject = $scope.crw.getNamesList();
+            updateLoadList($scope.namesInProject);
+        }
+        $scope.loadedName = $scope.crosswordData.name;
+    };
     var updateModel = function() {
         $scope.crosswordData = $scope.crw.getCrosswordData();
-        $scope.namesInProject = $scope.crw.getNamesList();
-        updateLoadList($scope.namesInProject);
-        $scope.loadedName = $scope.crosswordData.name || undefined;
+        updateNames();
         $scope.count.words = 0;
         angular.forEach($scope.crosswordData.words, function(word) {
             $scope.count.words++;
@@ -930,7 +987,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
     $scope.load = function(name) {
         $scope.loadError = null;
-        if (name || typeof name === "string") {
+        if ($scope.commandState !== "restricted" && (name || typeof name === "string")) {
             $scope.immediateStore.newPromise("loadCrossword", name).then(updateModel, function(error) {
                 $scope.loadError = error;
             });
@@ -955,11 +1012,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         if (!$scope.crosswordData.name) {
             action = "insert";
         }
-        $scope.immediateStore.newPromise("saveCrossword", action).then(function() {
-            $scope.namesInProject = $scope.crw.getNamesList();
-            updateLoadList($scope.namesInProject);
-            $scope.loadedName = $scope.crosswordData.name;
-        });
+        $scope.immediateStore.newPromise("saveCrossword", action).then(updateNames);
     };
     $scope.randomize = function() {
         $scope.crw.randomizeEmptyFields();

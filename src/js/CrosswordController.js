@@ -50,6 +50,10 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
 		function ($scope, qStore, basics, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
 	$scope.immediateStore = qStore.addStore();
+
+    // full: has command list, restricted: no command list,
+    // preview: bypasses command list for load
+    $scope.commandState = 'full';
     $scope.highlight = [];
     $scope.count = {
         words: 0,
@@ -71,15 +75,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         'insert': 'save("insert")',
         'reload': 'load(loadedName)'
     };
-    // init command data object
-    $scope.commandList = jQuery.map($scope.commands, function (value, command) {
-        var obj = basics.localize(command);
-        obj.value = command;
-        if (command === 'load') {
-            obj.group = [];
-        }
-        return obj;
-    });
+
     // execute command on menu selection
     $scope.$on('select', function(event, entry) {
         var task;
@@ -94,8 +90,23 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     });
 
     // init crossword at page load time
-    $scope.prepare = function (project, nonceCrossword, nonceEdit, name) {
-        $scope.crw.setProject(project, nonceCrossword, nonceEdit);
+    $scope.prepare = function (project, nonceCrossword, nonceEdit, name, restricted) {
+        $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
+        // init command data object and menu
+        if (restricted) {
+            $scope.commandState = 'restricted';
+            delete $scope.commands.load;
+            delete $scope.commands.insert;
+        }
+        $scope.commandList = jQuery.map($scope.commands, function (value, command) {
+            var obj = basics.localize(command);
+            obj.value = command;
+            if (command === 'load') {
+                obj.group = [];
+            }
+            return obj;
+        });
+        // load data
         var deregister = $scope.$on('immediateReady', function () {
             $scope.load(name);
             deregister();
@@ -117,12 +128,18 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         return arr;
     };
 
+    var updateNames = function () {
+        if ($scope.commandState === 'full') {
+            $scope.namesInProject = $scope.crw.getNamesList();
+            updateLoadList($scope.namesInProject);
+        }
+        $scope.loadedName = $scope.crosswordData.name;
+    };
+
     // get model data up to speed after loading
     var updateModel = function () {
         $scope.crosswordData = $scope.crw.getCrosswordData();
-        $scope.namesInProject = $scope.crw.getNamesList();
-        updateLoadList($scope.namesInProject);
-        $scope.loadedName = $scope.crosswordData.name || undefined;
+        updateNames();
         $scope.count.words = 0;
         angular.forEach($scope.crosswordData.words, function(word) {
             // count words in words/solution object
@@ -141,8 +158,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     $scope.load = function (name) {
         $scope.loadError = null;
         // if the page shortcode explicitely sets name='', it will be routed
-        // through by $scope.prepare. In this case, the namesList must be retrieved.
-        if (name || typeof name === 'string' ) {
+        // through by $scope.prepare. On unrestricted pages, the namesList must be retrieved.
+        if ($scope.commandState !== 'restricted' && (name || typeof name === 'string')) {
             $scope.immediateStore.newPromise('loadCrossword', name).then(
                 updateModel,
                 function (error) {
@@ -179,11 +196,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         if (!$scope.crosswordData.name) {
             action = 'insert';
         }
-        $scope.immediateStore.newPromise('saveCrossword', action).then(function () {
-            $scope.namesInProject = $scope.crw.getNamesList();
-            updateLoadList($scope.namesInProject);
-            $scope.loadedName = $scope.crosswordData.name;
-        });
+        $scope.immediateStore.newPromise('saveCrossword', action).then(updateNames);
     };
 
     // build page only: fill all empty fields with a random letter
