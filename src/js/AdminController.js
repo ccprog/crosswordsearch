@@ -289,7 +289,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
             }
             // adjust crossword selection
             angular.forEach($scope.selectedCrossword, function (name, group) {
-                if (!name || !jQuery.inArray(name, newSel[group])) {
+                if (!name || jQuery.inArray(name, newSel[group]) < 0) {
                     $scope.selectedCrossword[group] = $filter('orderBy')(newSel[group], 'toString()')[0];
                 }
             });

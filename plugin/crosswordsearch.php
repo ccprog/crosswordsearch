@@ -273,9 +273,9 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $prep_4 = esc_js($selected_name);
 
     $current_user = wp_get_current_user();
-    $is_auth = get_current_user_id() > 0;
+    $is_auth = is_user_logged_in();
     if ($restricted) {
-        $is_auth &= user_can($current_user, CRW_CAP_UNCONFIRMED);
+        $is_auth &= user_can($current_user, CRW_CAP_UNCONFIRMED) || ( user_can($current_user, CRW_CAP_CONFIRMED) && crw_is_editor($current_user, $project) );
     } else {
         $is_auth &= user_can($current_user, CRW_CAP_CONFIRMED) && crw_is_editor($current_user, $project);
     }
@@ -877,7 +877,7 @@ function crw_save_crossword () {
     //send error message
     crw_send_error($error, $debug);
 }
-add_action( 'wp_ajax_nopriv_insert_crossword', 'crw_save_crossword' );
+add_action( 'wp_ajax_nopriv_save_crossword', 'crw_save_crossword' );
 add_action( 'wp_ajax_save_crossword', 'crw_save_crossword' );
 
 // select crossword data
