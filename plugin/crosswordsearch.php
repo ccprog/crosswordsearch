@@ -783,13 +783,12 @@ function crw_save_crossword () {
     if ( 'update' == $method ) {
         $unsafe_old_name = wp_unslash($_POST['old_name']);
         $old_name = sanitize_text_field( $unsafe_old_name );
-    } elseif ( 'insert' == $method ) {
-        $exists = $wpdb->get_var( $wpdb->prepare("
-            SELECT count(*)
-            FROM $data_table_name
-            WHERE project = %s AND name = %s
-        ", $project, $name) );
     }
+    $exists = $wpdb->get_var( $wpdb->prepare("
+        SELECT count(*)
+        FROM $data_table_name
+        WHERE project = %s AND name = %s
+    ", $project, ('update' == $method ? $old_name : $name) ) );
 
     // if a username is sent, use it for authentication
     if ( $_POST['username'] ) {
@@ -807,11 +806,6 @@ function crw_save_crossword () {
     // set errors on inconsistencies
     if ( !in_array( $method, array('insert', 'update') ) ) {
         $debug = 'No valid method: ' . $method;
-    } elseif ( 'insert' == $method && $exists ) {
-        // on restricted build pages, saving is done 'blindly', so giving
-        // informative feedback is justified
-        $error = __('There is already another riddle with that name!', 'crw-text');
-        $debug = $name;
     } elseif ( !$verification ) {
         $debug = array_unshift($msg, 'The crossword data sent are invalid.');
     } elseif ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
@@ -825,6 +819,18 @@ function crw_save_crossword () {
             'The name sent is inconsistent with crossword data.',
             $name . ' / ' . $verification
         );
+    // errors on asynchronous effects or "blind" writing from restricted page
+    } elseif ( 'insert' == $method && $exists ) {
+        $error = __('There is already another riddle with that name!', 'crw-text');
+        $debug = $name;
+    } elseif ( 'update' == $method && !$exists ) {
+        $error = __('The riddle you tried to update can not be found!', 'crw-text');
+        if ( $restricted_page ) {
+            $error .= ' ' . __('A moderator might have deleted it already. You must start a new one.', 'crw-text');
+        } else {
+            $error .= ' ' . __('Someone else might have renamed or deleted it in the meantime. Look into the list of existing riddles.', 'crw-text');
+        }
+        $debug = $old_name;
     } else {
         // if all data are ok, call database depending on method
         if ( 'update' == $method ) {

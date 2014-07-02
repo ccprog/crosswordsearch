@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-30 15:16+0200\n"
+"POT-Creation-Date: 2014-07-02 11:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -123,7 +123,7 @@ msgstr ""
 msgid "You have exceeded the maximum length for a name!"
 msgstr ""
 
-#: plugin/app.php:178 plugin/crosswordsearch.php:808
+#: plugin/app.php:178 plugin/crosswordsearch.php:824
 msgid "There is already another riddle with that name!"
 msgstr ""
 
@@ -212,49 +212,63 @@ msgstr ""
 msgid "You do not have permission."
 msgstr ""
 
-#: plugin/crosswordsearch.php:477
+#: plugin/crosswordsearch.php:482
 msgid "Editing rights could not be updated."
 msgstr ""
 
-#: plugin/crosswordsearch.php:581
+#: plugin/crosswordsearch.php:586
 msgid "The project name already exists."
 msgstr ""
 
-#: plugin/crosswordsearch.php:591
+#: plugin/crosswordsearch.php:596
 msgid "The project could not be removed."
 msgstr ""
 
-#: plugin/crosswordsearch.php:603
+#: plugin/crosswordsearch.php:608
 msgid ""
 "There are still riddles saved for that project. You need to delete them "
 "before you can remove the project."
 msgstr ""
 
-#: plugin/crosswordsearch.php:628
+#: plugin/crosswordsearch.php:633
 msgid "The editors could not be updated."
 msgstr ""
 
-#: plugin/crosswordsearch.php:713
+#: plugin/crosswordsearch.php:718
 msgid "The crossword could not be deleted."
 msgstr ""
 
-#: plugin/crosswordsearch.php:740
+#: plugin/crosswordsearch.php:745
 msgid "The crossword could not be approved."
 msgstr ""
 
-#: plugin/crosswordsearch.php:769
+#: plugin/crosswordsearch.php:774
 msgid "You are not allowed to save the crossword."
 msgstr ""
 
-#: plugin/crosswordsearch.php:861
+#: plugin/crosswordsearch.php:827
+msgid "The riddle you tried to update can not be found!"
+msgstr ""
+
+#: plugin/crosswordsearch.php:829
+msgid "A moderator might have deleted it already. You must start a new one."
+msgstr ""
+
+#: plugin/crosswordsearch.php:831
+msgid ""
+"Someone else might have renamed or deleted it in the meantime. Look into the "
+"list of existing riddles."
+msgstr ""
+
+#: plugin/crosswordsearch.php:872
 msgid "The crossword could not be saved to the database."
 msgstr ""
 
-#: plugin/crosswordsearch.php:875
+#: plugin/crosswordsearch.php:886
 msgid "The crossword could not be retrieved."
 msgstr ""
 
-#: plugin/crosswordsearch.php:919
+#: plugin/crosswordsearch.php:930
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
