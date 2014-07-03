@@ -1,4 +1,11 @@
-/* controller for Options tab: assign capabilities to roles */
+/* wrapper controller */
+crwApp.controller("AdminController", ['$scope', 'qStore', 'crosswordFactory',
+		function ($scope, qStore, crosswordFactory) {
+    $scope.crw = crosswordFactory.getCrw();
+    $scope.immediateStore = qStore.addStore();
+}]);
+
+        /* controller for Options tab: assign capabilities to roles */
 crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {
     var capContext = 'cap';
@@ -167,11 +174,17 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 
     // remove a project from the server
     $scope.deleteProject = function () {
-        ajaxFactory.http({
-            action: 'remove_project',
+        var message = {
+            which: 'remove_project',
             project: $scope.selectedProject.name
-        }, adminContext).then(showLoaded, function (error) {
-            $scope.projectSaveError = error;
+        };
+        $scope.immediateStore.newPromise('actionConfirmation', message).then(function () {
+            ajaxFactory.http({
+                action: 'remove_project',
+                project: $scope.selectedProject.name
+            }, adminContext).then(showLoaded, function (error) {
+                $scope.projectSaveError = error;
+            });
         });
     };
 
@@ -246,31 +259,45 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 
     // delete a crossword from its group
     $scope.deleteCrossword = function (group) {
-        ajaxFactory.http({
-            action: 'delete_crossword',
-            project: $scope.selectedProject.name,
-            name: $scope.selectedCrossword[group]
-        }, reviewContext).then(function (data) {
-            showLoaded(data, $scope.selectedProject.name);
-        }, function (error) {
-            $scope.reviewError = error;
+        var message = {
+            which: 'delete_crossword',
+            crossword: $scope.selectedCrossword[group],
+            project: $scope.selectedProject.name
+        };
+        $scope.immediateStore.newPromise('actionConfirmation', message).then(function () {
+            ajaxFactory.http({
+                action: 'delete_crossword',
+                project: $scope.selectedProject.name,
+                name: $scope.selectedCrossword[group]
+            }, reviewContext).then(function (data) {
+                showLoaded(data, $scope.selectedProject.name);
+            }, function (error) {
+                $scope.reviewError = error;
+            });
         });
     };
 
     // move a crossword from pending to confirmed group
     $scope.confirm = function () {
         var name = $scope.selectedCrossword.pending;
-        ajaxFactory.http({
-            action: 'approve_crossword',
-            project: $scope.selectedProject.name,
-            name: name
-        }, reviewContext).then(function (data) {
-            showLoaded(data, $scope.selectedProject.name);
-            $scope.selectedCrossword.confirmed = name;
-            $scope.selectedCrossword.pending = $filter('orderBy')($scope.selectedProject.pending, 'toString()')[0];
-            $scope.activateGroup('confirmed');
-        }, function (error) {
-            $scope.reviewError = error;
+        var message = {
+            which: 'approve_crossword',
+            crossword: name,
+            project: $scope.selectedProject.name
+        };
+        $scope.immediateStore.newPromise('actionConfirmation', message).then(function () {
+            ajaxFactory.http({
+                action: 'approve_crossword',
+                project: $scope.selectedProject.name,
+                name: name
+            }, reviewContext).then(function (data) {
+                showLoaded(data, $scope.selectedProject.name);
+                $scope.selectedCrossword.confirmed = name;
+                $scope.selectedCrossword.pending = $filter('orderBy')($scope.selectedProject.pending, 'toString()')[0];
+                $scope.activateGroup('confirmed');
+            }, function (error) {
+                $scope.reviewError = error;
+            });
         });
     };
 

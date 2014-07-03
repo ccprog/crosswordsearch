@@ -168,13 +168,17 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
             // test for words crossing the table boundaries
             var critical = $scope.crw.testWordBoundaries(change);
             if (critical.length) {
-                // trigger async user interaction to ask whether change should be applied.
+                // highlight words crossing the new table boundaries
+                $scope.setHighlight(critical);
+                // ask user whether change should be applied.
                 $scope.immediateStore.newPromise('invalidWords', critical).then(function () {
                     // yes: apply all style changes.
                     $scope.crw.changeSize(change, critical);
                 }, function () {
                     // no: reset styles
                     resetSizes(currentSize.right + currentSize.left, currentSize.bottom + currentSize.top);
+                })['finally'](function () {
+                    $scope.setHighlight([]);
                 });
             } else {
                 // reset styles

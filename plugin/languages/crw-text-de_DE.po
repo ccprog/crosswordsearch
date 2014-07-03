@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-02 11:16+0200\n"
+"POT-Creation-Date: 2014-07-02 15:39+0200\n"
 "PO-Revision-Date: 2014-05-11 13:36+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
@@ -55,7 +55,7 @@ msgstr "Leeren"
 msgid "from line %1$s, column %2$s %3$s"
 msgstr "von Zeile %1$s, Spalte %2$s nach %3$s"
 
-#: plugin/app.php:107 plugin/app.php:157 plugin/app.php:232
+#: plugin/app.php:107 plugin/immediate.php:14 plugin/immediate.php:89
 msgid "Delete"
 msgstr "Löschen"
 
@@ -81,106 +81,9 @@ msgstr "Neu starten"
 msgid "Authored by"
 msgstr "Verfasst von"
 
-#: plugin/app.php:154
-msgid ""
-"The marked word no longer fits into the crossword area. For a successful "
-"resize you must delete this word."
-msgstr ""
-"Das markierte Wort passt nicht mehr vollständig in das Rätselfeld. Um die "
-"Größe anzupassen, musst Du es löschen."
-
-#: plugin/app.php:155
-msgid ""
-"The marked words no longer fit into the crossword area. For a successful "
-"resize you must delete these word."
-msgstr ""
-"Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. Um "
-"die Größe anzupassen, musst Du sie löschen."
-
-#: plugin/app.php:158 plugin/app.php:218 plugin/options.php:101
-#: plugin/options.php:109
-msgid "Abort"
-msgstr "Abbrechen"
-
-#: plugin/app.php:164
-msgid "To save it, you must give the riddle a new name."
-msgstr "Zum Speichern musst Du dem Rätsel einen neuen Namen geben."
-
-#: plugin/app.php:165
-msgid ""
-"You can change the additional informations that are saved about the riddle."
-msgstr ""
-"Du kannst die zusätzlichen Informationen anpassen, die über das Rätsel "
-"gespeichert werden."
-
-#: plugin/app.php:169
-msgid "Name:"
-msgstr "Name:"
-
-#: plugin/app.php:175 plugin/options.php:93
-msgid "You must give a name!"
-msgstr "Du musst einen Namen angeben!"
-
-#: plugin/app.php:176 plugin/options.php:94
-msgid "The name is too short!"
-msgstr "Der Name ist zu kurz!"
-
-#: plugin/app.php:177 plugin/crosswordsearch.php:61 plugin/options.php:95
+#: plugin/crosswordsearch.php:61 plugin/immediate.php:34 plugin/options.php:95
 msgid "You have exceeded the maximum length for a name!"
 msgstr "Du hast die maximale Länge für einen Namen überschritten!"
-
-#: plugin/app.php:178 plugin/crosswordsearch.php:824
-msgid "There is already another riddle with that name!"
-msgstr "Es gibt bereits ein Rätsel mit diesem Namen!"
-
-#: plugin/app.php:179
-msgid "That looks good!"
-msgstr "So sieht es gut aus!"
-
-#: plugin/app.php:183
-msgid "Give a hint which words should be found:"
-msgstr "Gib an, welche Wörter gefunden werden sollen:"
-
-#: plugin/app.php:187
-msgid "Author:"
-msgstr "Autor:"
-
-#: plugin/app.php:196
-msgid "Username:"
-msgstr "Benutzername:"
-
-#: plugin/app.php:200
-msgid "Password:"
-msgstr "Password:"
-
-#: plugin/app.php:205
-msgid "A username and password is required for saving!"
-msgstr "Benutzername und Password müssen zum Speichern angegeben werden!"
-
-#: plugin/app.php:215 plugin/options.php:97
-msgid "Dont't try to be clever!"
-msgstr ""
-
-#: plugin/app.php:217 plugin/options.php:54 plugin/options.php:100
-#: plugin/options.php:108
-msgid "Save"
-msgstr "Speichern"
-
-#: plugin/app.php:230
-msgid "The marked word is not part of the solution."
-msgstr "Das markierte Wort ist kein Teil der Lösung."
-
-#: plugin/app.php:236
-msgid "Congratulation, you have solved the riddle!"
-msgstr "Gratulation, Du hast das Rätsel gelöst!"
-
-#: plugin/app.php:238
-msgid "OK"
-msgstr "OK"
-
-#: plugin/app.php:247
-msgid "Please be patient for the crossword being loaded."
-msgstr "Bitte habe Geduld, bis das Kreuzworträtsel geladen ist."
 
 #: plugin/crosswordsearch.php:205
 msgid "The shortcode usage is faulty:"
@@ -216,23 +119,23 @@ msgstr "In Projekt %1$s gibt es keine Rätsel."
 msgid "There is no crossword with the name %1$s."
 msgstr "Es gibt kein Rätsel mit dem Namen %1$s."
 
-#: plugin/crosswordsearch.php:392
+#: plugin/crosswordsearch.php:393
 msgid "You do not have permission."
 msgstr "Du hast keine Erlaubnis."
 
-#: plugin/crosswordsearch.php:482
+#: plugin/crosswordsearch.php:483
 msgid "Editing rights could not be updated."
 msgstr "Die Bearbeitungsrechte konnten nicht aktualisiert werden."
 
-#: plugin/crosswordsearch.php:586
+#: plugin/crosswordsearch.php:587
 msgid "The project name already exists."
 msgstr "Dieser Projektname existiert bereits."
 
-#: plugin/crosswordsearch.php:596
+#: plugin/crosswordsearch.php:597
 msgid "The project could not be removed."
 msgstr "Das Projekt konnte nicht gelöscht werden."
 
-#: plugin/crosswordsearch.php:608
+#: plugin/crosswordsearch.php:609
 msgid ""
 "There are still riddles saved for that project. You need to delete them "
 "before you can remove the project."
@@ -240,49 +143,167 @@ msgstr ""
 "Für dieses Projekt sind noch Rätsel gespeichert. Du musst sie löschen, bevor "
 "Du das Projekt entfernen kannst."
 
-#: plugin/crosswordsearch.php:633
+#: plugin/crosswordsearch.php:634
 msgid "The editors could not be updated."
 msgstr "Die Bearbeiter konnten nicht aktualisiert werden."
 
-#: plugin/crosswordsearch.php:718
+#: plugin/crosswordsearch.php:719
 msgid "The crossword could not be deleted."
 msgstr "Das Rätsel konnte nicht gelöscht werden."
 
-#: plugin/crosswordsearch.php:745
+#: plugin/crosswordsearch.php:746
 msgid "The crossword could not be approved."
 msgstr "Das Rätsel konnte nicht freigegeben werden."
 
-#: plugin/crosswordsearch.php:774
+#: plugin/crosswordsearch.php:775
 msgid "You are not allowed to save the crossword."
 msgstr "Du darfst das Kreuzworträtsel nicht speichern."
 
-#: plugin/crosswordsearch.php:827
+#: plugin/crosswordsearch.php:825 plugin/immediate.php:35
+msgid "There is already another riddle with that name!"
+msgstr "Es gibt bereits ein Rätsel mit diesem Namen!"
+
+#: plugin/crosswordsearch.php:828
 msgid "The riddle you tried to update can not be found!"
 msgstr "Das Rätsel, dass du aktualisieren wolltest, wurde nicht gefunden!"
 
-#: plugin/crosswordsearch.php:829
+#: plugin/crosswordsearch.php:830
 msgid "A moderator might have deleted it already. You must start a new one."
-msgstr "Ein Moderator hat es möglicherweise bereits gelöscht. Du musst ein neues beginnen."
+msgstr ""
+"Ein Moderator hat es möglicherweise bereits gelöscht. Du musst ein neues "
+"beginnen."
 
-#: plugin/crosswordsearch.php:831
+#: plugin/crosswordsearch.php:832
 msgid ""
 "Someone else might have renamed or deleted it in the meantime. Look into the "
 "list of existing riddles."
 msgstr ""
-"Jemand anderes hat es möglicherweise umbenannt oder gelöscht. Überprüfe die Liste "
-"der existierenden Rätsel."
+"Jemand anderes hat es möglicherweise umbenannt oder gelöscht. Überprüfe die "
+"Liste der existierenden Rätsel."
 
-#: plugin/crosswordsearch.php:872
+#: plugin/crosswordsearch.php:873
 msgid "The crossword could not be saved to the database."
 msgstr "Das Rätsel konnte nicht in der Datenbank gespeichert werden."
 
-#: plugin/crosswordsearch.php:886
+#: plugin/crosswordsearch.php:887
 msgid "The crossword could not be retrieved."
 msgstr "Das Rätsel konnte nicht herunter geladen werden."
 
-#: plugin/crosswordsearch.php:930
+#: plugin/crosswordsearch.php:931
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
+
+#: plugin/immediate.php:11
+msgid ""
+"The marked word no longer fits into the crossword area. For a successful "
+"resize you must delete this word."
+msgstr ""
+"Das markierte Wort passt nicht mehr vollständig in das Rätselfeld. Um die "
+"Größe anzupassen, musst Du es löschen."
+
+#: plugin/immediate.php:12
+msgid ""
+"The marked words no longer fit into the crossword area. For a successful "
+"resize you must delete these words."
+msgstr ""
+"Die markierten Wörter passen nicht mehr vollständig in das Rätselfeld. Um "
+"die Größe anzupassen, musst Du sie löschen."
+
+#: plugin/immediate.php:15 plugin/immediate.php:75 plugin/immediate.php:110
+#: plugin/options.php:101 plugin/options.php:109
+msgid "Abort"
+msgstr "Abbrechen"
+
+#: plugin/immediate.php:21
+msgid "To save it, you must give the riddle a new name."
+msgstr "Zum Speichern musst Du dem Rätsel einen neuen Namen geben."
+
+#: plugin/immediate.php:22
+msgid ""
+"You can change the additional informations that are saved about the riddle."
+msgstr ""
+"Du kannst die zusätzlichen Informationen anpassen, die über das Rätsel "
+"gespeichert werden."
+
+#: plugin/immediate.php:26
+msgid "Name:"
+msgstr "Name:"
+
+#: plugin/immediate.php:32 plugin/options.php:93
+msgid "You must give a name!"
+msgstr "Du musst einen Namen angeben!"
+
+#: plugin/immediate.php:33 plugin/options.php:94
+msgid "The name is too short!"
+msgstr "Der Name ist zu kurz!"
+
+#: plugin/immediate.php:36
+msgid "That looks good!"
+msgstr "So sieht es gut aus!"
+
+#: plugin/immediate.php:40
+msgid "Give a hint which words should be found:"
+msgstr "Gib an, welche Wörter gefunden werden sollen:"
+
+#: plugin/immediate.php:44
+msgid "Author:"
+msgstr "Autor:"
+
+#: plugin/immediate.php:53
+msgid "Username:"
+msgstr "Benutzername:"
+
+#: plugin/immediate.php:57
+msgid "Password:"
+msgstr "Password:"
+
+#: plugin/immediate.php:62
+msgid "A username and password is required for saving!"
+msgstr "Benutzername und Password müssen zum Speichern angegeben werden!"
+
+#: plugin/immediate.php:72 plugin/options.php:97
+msgid "Dont't try to be clever!"
+msgstr ""
+
+#: plugin/immediate.php:74 plugin/options.php:54 plugin/options.php:100
+#: plugin/options.php:108
+msgid "Save"
+msgstr "Speichern"
+
+#: plugin/immediate.php:87
+msgid "The marked word is not part of the solution."
+msgstr "Das markierte Wort ist kein Teil der Lösung."
+
+#: plugin/immediate.php:93
+msgid "Congratulation, you have solved the riddle!"
+msgstr "Gratulation, Du hast das Rätsel gelöst!"
+
+#: plugin/immediate.php:95 plugin/immediate.php:109
+msgid "OK"
+msgstr "OK"
+
+#: plugin/immediate.php:104
+msgid "Do you really want to do this?"
+msgstr "Möchtest Du das wirklich tun?"
+
+#: plugin/immediate.php:105
+#, php-format
+msgid "Delete project %1$s"
+msgstr "Lösche Projekt %1$s"
+
+#: plugin/immediate.php:106
+#, php-format
+msgid "Delete crossword %1$s from project %2$s"
+msgstr "Lösche Rätsel %1$s aus Projekt  %2$s"
+
+#: plugin/immediate.php:107
+#, php-format
+msgid "Approve crossword %1$s for project %2$s"
+msgstr "Gib Rätsel  %1$s für Projekt  %2$s frei"
+
+#: plugin/immediate.php:119
+msgid "Please be patient for the crossword being loaded."
+msgstr "Bitte habe Geduld, bis das Kreuzworträtsel geladen ist."
 
 #: plugin/l10n.php:52
 msgid "down and right"

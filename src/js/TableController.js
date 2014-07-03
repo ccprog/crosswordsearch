@@ -148,9 +148,11 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 if (word.solved) {
                     $scope.count.solution++;
                 } else {
-                    // if not, inform user and delete the marking on confirmation
+                    // if not, highlight invalid solution and delete the marking on confirmation
+                    $scope.setHighlight([word.ID]);
                     $scope.immediateStore.newPromise('falseWord', word).then(function () {
                         $scope.crw.deleteWord(currentMarking.ID, 'solution');
+                        $scope.setHighlight([]);
                     });
                 }
             }

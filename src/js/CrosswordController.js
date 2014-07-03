@@ -48,8 +48,13 @@ crwApp.directive("crwMenu", ["$compile", function($compile) {
 /* wrapper controller for single crossword instance */
 crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswordFactory',
 		function ($scope, qStore, basics, crosswordFactory) {
-    $scope.crw = crosswordFactory.getCrw();
-	$scope.immediateStore = qStore.addStore();
+    // immediateStore and crw might have been initialized by wrapping AdminController
+    if (!$scope.crw) {
+        $scope.crw = crosswordFactory.getCrw();
+    }
+    if (!$scope.immediateStore) {
+        $scope.immediateStore = qStore.addStore();
+    }
 
     // full: has command list, restricted: no command list,
     // preview: bypasses command list for load
@@ -134,6 +139,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             updateLoadList($scope.namesInProject);
         }
         $scope.loadedName = $scope.crosswordData.name;
+        $scope.setHighlight([]);
     };
 
     // get model data up to speed after loading

@@ -1,4 +1,4 @@
-<div class="wrap" ng-switch="activeTab" ng-init="activeTab=<?php echo (current_user_can('edit_users') ? "'admin'" : "'review'") ?>">
+<div class="wrap" ng-controller="AdminController" ng-switch="activeTab" ng-init="activeTab=<?php echo (current_user_can('edit_users') ? "'admin'" : "'review'") ?>">
     <h2><?php _e('Crosswordsearch Administration', 'crw-text') ?></h2>
     <h3 class="nav-tab-wrapper">
 <?php
@@ -178,6 +178,9 @@ if ( current_user_can(CRW_CAP_CONFIRMED) ) {
 <?php
 
 }
+
+$mode = 'admin';
+include 'immediate.php';
 
 ?>
 </div>

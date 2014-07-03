@@ -106,7 +106,6 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
 
     // button event handler
     $scope.finish = function (resolution) {
-        $scope.setHighlight([]);
         $scope.saveError = undefined;
         $scope.saveDebug = undefined;
         $scope.immediate=null;
@@ -121,7 +120,11 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
     // register
     $scope.immediateStore.register('loadCrossword', function (loadDeferred, name) {
         deferred = loadDeferred;
-        $scope.immediate = 'loadCrossword';
+        $scope.message = {
+            which: 'load_crossword',
+            buttons: {}
+        };
+        $scope.immediate = 'dialogue';
         $scope.crw.loadCrosswordData(name).then(
             $scope.finish,
             function (error) {
@@ -136,18 +139,23 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
     // register
     $scope.immediateStore.register('invalidWords', function (invalidDeferred, critical) {
         deferred = invalidDeferred;
-        // highlight words crossing the new table boundaries
-        $scope.setHighlight(critical);
-        // word count for string pluralizing
-        $scope.invalidCount = critical.length;
-        $scope.immediate = 'invalidWords';
+        $scope.message = {
+            which: 'invalid_words',
+            // word count for string pluralizing
+            count: critical.length,
+            buttons: {
+                'delete': true,
+                'abort': true
+            }
+        };
+        $scope.immediate = 'dialogue';
     });
 
     // build page only: deferred handler for user dialogue on data upload
     // register
     $scope.immediateStore.register('saveCrossword', function (saveDeferred, action) {
         deferred = saveDeferred;
-        $scope.immediate = 'saveCrossword';
+        $scope.immediate = 'save_crossword';
         $scope.action = action;
     });
     // event handler for "upload" button
@@ -173,16 +181,39 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
     // register
     $scope.immediateStore.register('falseWord', function (falseDeferred, word) {
         deferred = falseDeferred;
-        // highlight invalid solution
-        $scope.setHighlight([word.ID]);
-        $scope.immediate = 'falseWord';
+        $scope.message = {
+            which: 'false_word',
+            buttons: {
+                'delete': true
+            }
+        };
+        $scope.immediate = 'dialogue';
     });
 
     // solve page only: deferred handler for user dialogue on completed solution
     // register
     $scope.immediateStore.register('solvedCompletely', function (solvedDeferred) {
         deferred = solvedDeferred;
-        $scope.immediate = 'solvedCompletely';
+        $scope.message = {
+            which: 'solved_completely',
+            buttons: {
+                'ok': true
+            }
+        };
+        $scope.immediate = 'dialogue';
+    });
+
+    // admin page only: deferred handler for security confirmation user dialogue
+    // register
+    $scope.immediateStore.register('actionConfirmation', function (actionDeferred, message) {
+        deferred = actionDeferred;
+        $scope.message = angular.extend(message, {
+            buttons: {
+                'ok': true,
+                'abort': true
+            }
+        });
+        $scope.immediate = 'dialogue';
     });
 
     $scope.$emit('immediateReady');

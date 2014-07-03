@@ -285,6 +285,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 
     ob_start();
     include 'app.php';
+    include 'immediate.php';
     $app_code = ob_get_clean();
 
 	return '<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', ' . $restricted . ')">' . $app_code . '</div>';
