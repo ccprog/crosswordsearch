@@ -1318,7 +1318,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                     $scope.count.solution++;
                 } else {
                     $scope.setHighlight([ word.ID ]);
-                    $scope.immediateStore.newPromise("falseWord", word).then(function() {
+                    $scope.immediateStore.newPromise("falseWord", word.fields).then(function() {
                         $scope.crw.deleteWord(currentMarking.ID, "solution");
                         $scope.setHighlight([]);
                     });
@@ -1570,6 +1570,7 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
         deferred = falseDeferred;
         $scope.message = {
             which: "false_word",
+            word: word,
             buttons: {
                 "delete": true
             }

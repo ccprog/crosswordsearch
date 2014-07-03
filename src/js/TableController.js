@@ -28,7 +28,7 @@ crwApp.directive('crwIndexChecker', function() {
 
 /* table and fields controller */
 
-crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
+crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         function ($scope, basics, markerFactory) {
     var isMarking = false, currentMarking, mode, lastName;
     var markers = markerFactory.getMarkers();
@@ -150,7 +150,7 @@ crwApp.controller("TableController", ["$scope", 'basics', 'markerFactory',
                 } else {
                     // if not, highlight invalid solution and delete the marking on confirmation
                     $scope.setHighlight([word.ID]);
-                    $scope.immediateStore.newPromise('falseWord', word).then(function () {
+                    $scope.immediateStore.newPromise('falseWord', word.fields).then(function () {
                         $scope.crw.deleteWord(currentMarking.ID, 'solution');
                         $scope.setHighlight([]);
                     });

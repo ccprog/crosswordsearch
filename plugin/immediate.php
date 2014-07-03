@@ -88,7 +88,7 @@ if ( 'build' == $mode ) {
 } elseif ( 'solve' == $mode ) {
 
 ?>
-                <p ng-switch-when="false_word"><?php _e('The marked word is not part of the solution.', 'crw-text') ?></p>
+                <p ng-switch-when="false_word"><?php printf( __('The marked word %1$s is not part of the solution.', 'crw-text'), '{{message.word | joinWord}}' ) ?></p>
                 <p ng-switch-when="solved_completely"><?php _e('Congratulation, you have solved the riddle!', 'crw-text') ?></p>
 <?php
 

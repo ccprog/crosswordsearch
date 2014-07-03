@@ -183,6 +183,7 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
         deferred = falseDeferred;
         $scope.message = {
             which: 'false_word',
+            word: word,
             buttons: {
                 'delete': true
             }

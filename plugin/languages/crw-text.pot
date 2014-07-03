@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-02 15:39+0200\n"
+"POT-Creation-Date: 2014-07-03 11:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgstr ""
 msgid "from line %1$s, column %2$s %3$s"
 msgstr ""
 
-#: plugin/app.php:107 plugin/immediate.php:14 plugin/immediate.php:89
+#: plugin/app.php:107 plugin/immediate.php:110
 msgid "Delete"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgstr ""
 msgid "Authored by"
 msgstr ""
 
-#: plugin/crosswordsearch.php:61 plugin/immediate.php:34 plugin/options.php:95
+#: plugin/crosswordsearch.php:61 plugin/immediate.php:25 plugin/options.php:95
 msgid "You have exceeded the maximum length for a name!"
 msgstr ""
 
@@ -155,7 +155,7 @@ msgstr ""
 msgid "You are not allowed to save the crossword."
 msgstr ""
 
-#: plugin/crosswordsearch.php:825 plugin/immediate.php:35
+#: plugin/crosswordsearch.php:825 plugin/immediate.php:26
 msgid "There is already another riddle with that name!"
 msgstr ""
 
@@ -185,110 +185,111 @@ msgstr ""
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: plugin/immediate.php:11
+#: plugin/immediate.php:12
+msgid "To save it, you must give the riddle a new name."
+msgstr ""
+
+#: plugin/immediate.php:13
+msgid ""
+"You can change the additional informations that are saved about the riddle."
+msgstr ""
+
+#: plugin/immediate.php:17
+msgid "Name:"
+msgstr ""
+
+#: plugin/immediate.php:23 plugin/options.php:93
+msgid "You must give a name!"
+msgstr ""
+
+#: plugin/immediate.php:24 plugin/options.php:94
+msgid "The name is too short!"
+msgstr ""
+
+#: plugin/immediate.php:27
+msgid "That looks good!"
+msgstr ""
+
+#: plugin/immediate.php:31
+msgid "Give a hint which words should be found:"
+msgstr ""
+
+#: plugin/immediate.php:35
+msgid "Author:"
+msgstr ""
+
+#: plugin/immediate.php:44
+msgid "Username:"
+msgstr ""
+
+#: plugin/immediate.php:48
+msgid "Password:"
+msgstr ""
+
+#: plugin/immediate.php:53
+msgid "A username and password is required for saving!"
+msgstr ""
+
+#: plugin/immediate.php:63 plugin/options.php:97
+msgid "Dont't try to be clever!"
+msgstr ""
+
+#: plugin/immediate.php:65 plugin/options.php:54 plugin/options.php:100
+#: plugin/options.php:108
+msgid "Save"
+msgstr ""
+
+#: plugin/immediate.php:66 plugin/immediate.php:111 plugin/options.php:101
+#: plugin/options.php:109
+msgid "Abort"
+msgstr ""
+
+#: plugin/immediate.php:84
 msgid ""
 "The marked word no longer fits into the crossword area. For a successful "
 "resize you must delete this word."
 msgstr ""
 
-#: plugin/immediate.php:12
+#: plugin/immediate.php:85
 msgid ""
 "The marked words no longer fit into the crossword area. For a successful "
-"resize you must delete these word."
+"resize you must delete these words."
 msgstr ""
 
-#: plugin/immediate.php:15 plugin/immediate.php:75 plugin/immediate.php:110
-#: plugin/options.php:101 plugin/options.php:109
-msgid "Abort"
+#: plugin/immediate.php:91
+#, php-format
+msgid "The marked word %1$s is not part of the solution."
 msgstr ""
 
-#: plugin/immediate.php:21
-msgid "To save it, you must give the riddle a new name."
-msgstr ""
-
-#: plugin/immediate.php:22
-msgid ""
-"You can change the additional informations that are saved about the riddle."
-msgstr ""
-
-#: plugin/immediate.php:26
-msgid "Name:"
-msgstr ""
-
-#: plugin/immediate.php:32 plugin/options.php:93
-msgid "You must give a name!"
-msgstr ""
-
-#: plugin/immediate.php:33 plugin/options.php:94
-msgid "The name is too short!"
-msgstr ""
-
-#: plugin/immediate.php:36
-msgid "That looks good!"
-msgstr ""
-
-#: plugin/immediate.php:40
-msgid "Give a hint which words should be found:"
-msgstr ""
-
-#: plugin/immediate.php:44
-msgid "Author:"
-msgstr ""
-
-#: plugin/immediate.php:53
-msgid "Username:"
-msgstr ""
-
-#: plugin/immediate.php:57
-msgid "Password:"
-msgstr ""
-
-#: plugin/immediate.php:62
-msgid "A username and password is required for saving!"
-msgstr ""
-
-#: plugin/immediate.php:72 plugin/options.php:97
-msgid "Dont't try to be clever!"
-msgstr ""
-
-#: plugin/immediate.php:74 plugin/options.php:54 plugin/options.php:100
-#: plugin/options.php:108
-msgid "Save"
-msgstr ""
-
-#: plugin/immediate.php:87
-msgid "The marked word is not part of the solution."
-msgstr ""
-
-#: plugin/immediate.php:93
+#: plugin/immediate.php:92
 msgid "Congratulation, you have solved the riddle!"
 msgstr ""
 
-#: plugin/immediate.php:95 plugin/immediate.php:109
-msgid "OK"
-msgstr ""
-
-#: plugin/immediate.php:104
+#: plugin/immediate.php:98
 msgid "Do you really want to do this?"
 msgstr ""
 
-#: plugin/immediate.php:105
+#: plugin/immediate.php:99
 #, php-format
 msgid "Delete project %1$s"
 msgstr ""
 
-#: plugin/immediate.php:106
+#: plugin/immediate.php:100
 #, php-format
 msgid "Delete crossword %1$s from project %2$s"
 msgstr ""
 
-#: plugin/immediate.php:107
+#: plugin/immediate.php:101
 #, php-format
 msgid "Approve crossword %1$s for project %2$s"
 msgstr ""
 
-#: plugin/immediate.php:119
+#: plugin/immediate.php:107
 msgid "Please be patient for the crossword being loaded."
+msgstr ""
+
+#: plugin/immediate.php:109
+msgid "OK"
 msgstr ""
 
 #: plugin/l10n.php:52
