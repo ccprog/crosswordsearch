@@ -22,7 +22,9 @@ with the exception of the test data install.
 
 Activating the plugin from the Wordpress administrative interface will
 + install two additional database tables `wp_crw_editors` and `wp_crw_crosswords`
-+ give the Administrator and Contributer roles a specialized capability `edit_crossword`
++ introduce two specialized capabilities: `edit_crossword` will be given to roles that have
+  the `moderate_comments` capability, `push_crossword` will be given to the Subscriber role.
+  These are defaults that can be altered on the Settings/Crosswordsearch adminstrative page.
 
 If your WP installation is in debug mode, additionally some test data will be added to
 `wp_crw_crosswords`. *(Debug mode will break if you use a WP version &lt; 3.8 together with PHP 5.5.
@@ -30,46 +32,64 @@ This is actually a general issue with class $wpdb. Read
 [this Blog post](http://make.wordpress.org/core/2014/04/07/mysql-in-wordpress-3-9/) for more
 information.)*
 
-On plugin deactivation, the special role will be removed, but the data tables are left in place.
+On plugin deactivation, the special roles will be removed, but the data tables are left in place.
 
 ### Usage in Wordpress
 
 Crosswords are organised in projects that share a common set of editors. On a page for building a
-new crossword, all saved riddles belonging to the project are available for editing. Administrators
-can add/delete projects and assign editors on the Options/Crosswordsearch administrative page.
+new crossword,
++ either all saved riddles belonging to the project are available for editing to 'full' editors
+  (`edit_crossword` capability),
++ or only new riddles can be saved by 'restricted' editors to be added to a moderation queue
+  (`push_crossword` capability).
 
-Editors assigned for projects can review Crosswords from the Options/Crosswordsearch administrative
-page and delete them.
+Administrators can add/delete projects and assign editors on the Settings/Crosswordsearch
+administrative page.
+
+Editors assigned for projects can review Crosswords from the Settings/Crosswordsearch administrative
+page and moderate (approve or delete) them.
 
 Authors can add a shortcode tag to any page or post to add a Crossword game to that page:
 
 ```
-[crosswordsearch mode="build" project="MyProject"]
-```
-will add a game area for building and editing riddles that belong to the project `MyProject`.
-
-```
-[crosswordsearch mode="build" project="MyProject" name="MyFirstCrossword"]
-```
-will initially show the crossword saved under the name `MyFirstCrossword`. All other riddles are
-presented in a menu for loading.
-
-```
-[crosswordsearch mode="build" project="MyProject" name=""]
-```
-will initially show an empty new crossword.
-
-```
 [crosswordsearch mode="solve" project="MyProject"]
 ```
-will show all saved crosswords in `MyProject` for solving. The one displayed can be selected
-through a menu.
+
+will add a game area for solving riddles that belong to the project `MyProject`. All saved
+and approved riddles belonging to the project can be loaded through a menu.
 
 ```
 [crosswordsearch mode="solve" project="MyProject" name="MyFirstCrossword"]
 ```
 will show only the crossword `MyFirstCrossword` for solving. No other crossword will be
 selectable.
+
+```
+[crosswordsearch mode="build" project="MyProject"]
+```
+will add a game area for developing new and editing existing riddles that belong to the
+project `MyProject`. All saved and approved riddles belonging to the project can be
+loaded through a menu. Initially visible will be the riddle with the alphabetically first
+name.
+
+```
+[crosswordsearch mode="build" project="MyProject" name="MyFirstCrossword"]
+```
+works as above, but will initially show the crossword saved under the name `MyFirstCrossword`.
+All other riddles can still be loaded through the menu.
+
+```
+[crosswordsearch mode="build" project="MyProject" name=""]
+```
+works as above, but will initially show an empty new crossword.
+
+```
+[crosswordsearch mode="build" restricted="1" project="MyProject"]
+```
+will add a game area for developing new riddles for the project `MyProject` by restricted
+editors. Restricted editors can work on a riddle as long as they stay on the page,
+but it will not be visible for anyone else. No menu for selecting other riddles is
+presented, and on page load an empty new crossword will be shown.
 
 ### Grunt tasks
 

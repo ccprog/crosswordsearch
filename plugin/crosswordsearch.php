@@ -2,7 +2,7 @@
 /*
 Plugin Name: crosswordsearch
 Plugin URI: https://github.com/ccprog/crosswordseach
-Version: 0.1.1
+Version: 0.2.0
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
 Text Domain: crw-text
@@ -136,6 +136,7 @@ function crw_install_data () {
     crw_change_project_list('test', 'add');
 
     $data_files = glob(CRW_PLUGIN_DIR . '../tests/*.json');
+    $user = wp_get_current_user();
 
     foreach( $data_files as $file) {
         $json = file_get_contents( realpath($file) );
@@ -145,6 +146,8 @@ function crw_install_data () {
             'project' => 'test',
             'name' => $data->name,
             'crossword' => $json,
+            'first_user' => $user->ID,
+            'last_user' => $user->ID,
         ));
     }
 }
