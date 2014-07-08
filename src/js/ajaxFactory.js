@@ -2,8 +2,8 @@
 crwApp.factory('ajaxFactory', ['$http', '$q', function ($http, $q) {
     // defaults for all communication
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    $http.defaults.transformRequest = jQuery.param;
     var httpDefaults = {
+        transformRequest: jQuery.param,
         method: 'POST',
         url: crwBasics.ajaxUrl
     };

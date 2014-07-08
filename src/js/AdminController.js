@@ -1,21 +1,26 @@
 /* wrapper controller */
-crwApp.controller("AdminController", ['$scope', 'qStore', 'crosswordFactory',
-		function ($scope, qStore, crosswordFactory) {
+crwApp.controller("AdminController", ['$scope', '$routeParams', '$location', 'qStore', 'crosswordFactory',
+		function ($scope, $routeParams, $location, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
+
+    $scope.$routeParams = $routeParams;
+    $scope.setActive = function (tabHash) {
+        $location.path(tabHash);
+    };
 }]);
 
-        /* controller for Options tab: assign capabilities to roles */
+/* controller for Options tab: assign capabilities to roles */
 crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {
-    var capContext = 'cap';
+    var optionsContext = 'options';
 
     // initial load after the nonce has been processed
     $scope.prepare = function (nonce) {
-        ajaxFactory.setNonce(nonce, capContext);
+        ajaxFactory.setNonce(nonce, optionsContext);
         ajaxFactory.http({
             action: 'get_crw_capabilities'
-        }, capContext).then(function (data) {
+        }, optionsContext).then(function (data) {
             $scope.capabilities = data.capabilities;
         }, function (error) {
             $scope.capError = error;
@@ -26,7 +31,7 @@ crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
         ajaxFactory.http({
             action: 'update_crw_capabilities',
             capabilities: angular.toJson($scope.capabilities)
-        }, capContext).then(function (data) {
+        }, optionsContext).then(function (data) {
             $scope.capError = null;
             $scope.capsEdit.$setPristine();
             $scope.capabilities = data.capabilities;
@@ -347,3 +352,20 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
         }
     });
 }]);
+
+/* route configuration */
+crwApp.config(function($routeProvider) {
+    var path = '';
+    $routeProvider.when('/:tab/:nonce', {
+        templateUrl: function ($routeParams) {
+            path = $routeParams.tab + '/' + $routeParams.nonce;
+            return crwBasics.ajaxUrl + '?action=get_option_tab&tab=' +
+                    $routeParams.tab + '&_crwnonce=' + $routeParams.nonce;
+        }
+    }).otherwise({
+        // use the last valid path
+        redirectTo: function () {
+            return path;
+        }
+    });
+});

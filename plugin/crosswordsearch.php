@@ -37,8 +37,9 @@ define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
 define('NONCE_EDIT', 'crw_edit_');
 define('NONCE_PUSH', 'crw_push_');
-define('NONCE_ADMIN', 'crw_admin_');
-define('NONCE_CAP', 'crw_cap_');
+define('NONCE_SETTINGS', 'crw_settings_');
+define('NONCE_EDITORS', 'crw_editors_');
+define('NONCE_OPTIONS', 'crw_options_');
 define('NONCE_REVIEW', 'crw_review_');
 define('CRW_CAP_CONFIRMED', 'edit_crossword');
 define('CRW_CAP_UNCONFIRMED', 'push_crossword');
@@ -174,8 +175,9 @@ function add_crw_scripts ( $hook ) {
 
 	if ( $crw_has_crossword || 'settings_page_crw_options' == $hook ) {
         wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js', array( 'jquery' ));
+        wp_enqueue_script('angular-route', CRW_PLUGIN_URL . 'js/angular-route.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', CRW_PLUGIN_URL . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
-        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch.js', array( 'angular', 'quantic-stylemodel' ));
+        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch.js', array( 'angular', 'angular-route', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
             'pluginPath' => CRW_PLUGIN_URL,
             'ajaxUrl' => admin_url( 'admin-ajax.php' )
@@ -414,11 +416,11 @@ function crw_test_permission ( $for, $user, $project=null ) {
         $nonce_source = NONCE_CROSSWORD;
         break;
     case 'cap':
-        $nonce_source = NONCE_CAP;
+        $nonce_source = NONCE_OPTIONS;
         $capability = 'edit_users';
         break;
     case 'admin':
-        $nonce_source = NONCE_ADMIN;
+        $nonce_source = NONCE_EDITORS;
         $capability = 'edit_users';
         break;
     case 'push':
@@ -475,7 +477,7 @@ function crw_send_capabilities () {
 
     wp_send_json( array(
         'capabilities' => $capabilities,
-        CRW_NONCE_NAME => wp_create_nonce(NONCE_CAP)
+        CRW_NONCE_NAME => wp_create_nonce(NONCE_OPTIONS)
     ) );
 }
 add_action( 'wp_ajax_get_crw_capabilities', 'crw_send_capabilities' );
@@ -572,7 +574,7 @@ function crw_send_admin_data () {
         'projects' => array_values($projects_list),
         'all_users' => $users_list,
         'capabilities' => get_option(CRW_ROLES_OPTION),
-        CRW_NONCE_NAME => wp_create_nonce(NONCE_ADMIN)
+        CRW_NONCE_NAME => wp_create_nonce(NONCE_EDITORS)
     ) );
 }
 add_action( 'wp_ajax_get_admin_data', 'crw_send_admin_data' );
@@ -924,14 +926,36 @@ add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 /* settings page load routines */
 
+// menu entry
 function crw_admin_menu () {
     add_options_page( 'Crosswordsearch', 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
 };
 add_action('admin_menu', 'crw_admin_menu');
+
+// load single tab template
+function crw_get_option_tab () {
+    if ( !wp_verify_nonce( $_GET[CRW_NONCE_NAME], NONCE_SETTINGS ) ) {
+        wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+    }
+
+    if ('capabilities' == $_GET['tab'] && current_user_can('edit_users') ) {
+        include WP_PLUGIN_DIR . '/crosswordsearch/optionsTab.php';
+    } elseif ('editor' == $_GET['tab'] && current_user_can('edit_users') ) {
+        include WP_PLUGIN_DIR . '/crosswordsearch/editorsTab.php';
+    } elseif ('review' == $_GET['tab'] && current_user_can(CRW_CAP_CONFIRMED) ) {
+        include WP_PLUGIN_DIR . '/crosswordsearch/reviewTab.php';
+    } else {
+        wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+    }
+    die();
+}
+add_action( 'wp_ajax_get_option_tab', 'crw_get_option_tab' );
+
+// load wrapper settings page
 function crw_show_options() {
 
 	if ( !current_user_can( CRW_CAP_CONFIRMED ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
-	include(WP_PLUGIN_DIR . '/crosswordsearch/options.php');
+	include(WP_PLUGIN_DIR . '/crosswordsearch/settings.php');
 }

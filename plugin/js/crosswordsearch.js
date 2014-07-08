@@ -1,5 +1,5 @@
 /*
-crosswordsearch Wordpress plugin v0.1.1
+crosswordsearch Wordpress plugin v0.2.0
 Copyright Claus Colloseus 2014 for RadiJojo.de
 
 This program is free software: Redistribution and use, with or
@@ -121,7 +121,7 @@ customSelectElement.directive("cseSelect", [ "$document", function($document) {
     };
 } ]);
 
-var crwApp = angular.module("crwApp", [ "qantic.angularjs.stylemodel", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "ngRoute", "qantic.angularjs.stylemodel", "customSelectElement" ]);
 
 crwApp.factory("reduce", function() {
     return function(array, initial, func) {
@@ -207,8 +207,8 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
 
 crwApp.factory("ajaxFactory", [ "$http", "$q", function($http, $q) {
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    $http.defaults.transformRequest = jQuery.param;
     var httpDefaults = {
+        transformRequest: jQuery.param,
         method: "POST",
         url: crwBasics.ajaxUrl
     };
@@ -607,18 +607,22 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
     };
 } ]);
 
-crwApp.controller("AdminController", [ "$scope", "qStore", "crosswordFactory", function($scope, qStore, crosswordFactory) {
+crwApp.controller("AdminController", [ "$scope", "$routeParams", "$location", "qStore", "crosswordFactory", function($scope, $routeParams, $location, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
+    $scope.$routeParams = $routeParams;
+    $scope.setActive = function(tabHash) {
+        $location.path(tabHash);
+    };
 } ]);
 
 crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scope, ajaxFactory) {
-    var capContext = "cap";
+    var optionsContext = "options";
     $scope.prepare = function(nonce) {
-        ajaxFactory.setNonce(nonce, capContext);
+        ajaxFactory.setNonce(nonce, optionsContext);
         ajaxFactory.http({
             action: "get_crw_capabilities"
-        }, capContext).then(function(data) {
+        }, optionsContext).then(function(data) {
             $scope.capabilities = data.capabilities;
         }, function(error) {
             $scope.capError = error;
@@ -628,7 +632,7 @@ crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scop
         ajaxFactory.http({
             action: "update_crw_capabilities",
             capabilities: angular.toJson($scope.capabilities)
-        }, capContext).then(function(data) {
+        }, optionsContext).then(function(data) {
             $scope.capError = null;
             $scope.capsEdit.$setPristine();
             $scope.capabilities = data.capabilities;
@@ -889,6 +893,20 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
         }
     });
 } ]);
+
+crwApp.config(function($routeProvider) {
+    var path = "";
+    $routeProvider.when("/:tab/:nonce", {
+        templateUrl: function($routeParams) {
+            path = $routeParams.tab + "/" + $routeParams.nonce;
+            return crwBasics.ajaxUrl + "?action=get_option_tab&tab=" + $routeParams.tab + "&_crwnonce=" + $routeParams.nonce;
+        }
+    }).otherwise({
+        redirectTo: function() {
+            return path;
+        }
+    });
+});
 
 crwApp.directive("crwCatchMouse", [ "$document", function($document) {
     return {
