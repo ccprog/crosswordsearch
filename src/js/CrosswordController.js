@@ -81,19 +81,6 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         'reload': 'load(loadedName)'
     };
 
-    // execute command on menu selection
-    $scope.$on('select', function(event, entry) {
-        var task;
-        if (jQuery.inArray(entry, $scope.namesInProject) < 0) {
-            // named command
-            task = $scope.commands[entry];
-        } else {
-            // load by name command
-            task = 'load("' + entry + '")';
-        }
-        $scope.$evalAsync(task);
-    });
-
     // init crossword at page load time
     $scope.prepare = function (project, nonceCrossword, nonceEdit, name, restricted) {
         $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
@@ -117,6 +104,21 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             deregister();
         });
     };
+
+    $scope.$on('select', function(event, value, source) {
+        event.stopPropagation();
+        switch (source) {
+        // execute command on menu selection
+        case 'command':
+            $scope.$evalAsync($scope.commands[value]);
+            break;
+        // execute load command on submenu selection
+        case 'command.sub':
+        case 'load':
+            $scope.$evalAsync('load("' + value + '")');
+            break;
+        }
+    });
 
     // preview page only: set current project on message sent by PreviewController
     $scope.$on('previewProject', function (event, project) {

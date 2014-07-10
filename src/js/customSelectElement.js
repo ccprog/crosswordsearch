@@ -9,26 +9,28 @@ customSelectElement.directive('cseDefault', ["$compile", function($compile) {
     };
 }]);
 /** intermediate template for option structure
-  * Clicking on an option entry will $emit a 'select' event with this argument:
-  * - if the option value is an object: property .value
-  * - if the option value is a primitive or the option list is an array: value
+  * Clicking on an option entry will $emit a 'select' event with these arguments:
+  * value:  - if the option value is an object: property .value
+  *         - if the option value is a primitive or the option list is an array: value
+  * source: the value of cseSelect;
+  *         in case of a submenu, this string is postfixed with ".sub"
   */
 customSelectElement.directive('cseOption', ["$compile", function($compile) {
     return {
         scope: {
-            value: "=",
+            value: '=',
             isMenu: '=',
             templ: '='
 
         },
         link: function (scope, element, attrs) {
             scope.select = function (value) {
-                scope.$emit('select', value);
+                scope.$emit('select', value, attrs.name);
             };
             attrs.$observe('value', function() {
                 var html;
                 if (angular.isObject(scope.value) && scope.value.group) {
-                    html = '<dl class="cse text" cse-select cse-options="value.group" ' +
+                    html = '<dl class="cse text" cse-select="' + attrs.name + '.sub" cse-options="value.group" ' +
                         'cse-model="head" ' + 'cse-template="' + attrs.templ + '"';
                     if (angular.isDefined(scope.isMenu)) {
                         html += ' cse-is-menu ng-init="head=value"';
@@ -53,7 +55,8 @@ customSelectElement.directive('cseOption', ["$compile", function($compile) {
 
 /** Select element template
   * Usage:
-  * <dl class="cse" cse-select cse-template="my-template" cse-model="..." cse-is-menu cse-options="...">
+  * <dl class="cse" cse-select="myName" cse-template="my-template" cse-model="..." cse-is-menu cse-options="...">
+  * cse-select: an arbitrary name to identify the element
   * cse-model: binds a data model to the element
   * cse-options: provide a list of options. Anything that ng-repeat can take is ok.
   *  It is possible to nest objects. If an option value is an object and contains a property
@@ -126,7 +129,8 @@ customSelectElement.directive("cseSelect", ['$document', function($document) {
                 templ + ' value="model"></div></dt>' +
                 '<dd ng-show="visible"><ul>' +
                 '<li ng-repeat="opt in options | orderBy:\'order\'" ' +
-                'cse-option value="opt" templ="' + templ + '"';
+                'cse-option name="' + tAttr.cseSelect + '" model="' + tAttr.cseModel +
+                '" value="opt" templ="' + templ + '"';
             if (angular.isDefined(tAttr.cseIsMenu)) {
                 html += ' is-menu="1"';
             }

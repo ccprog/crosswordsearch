@@ -40,12 +40,12 @@ customSelectElement.directive("cseOption", [ "$compile", function($compile) {
         },
         link: function(scope, element, attrs) {
             scope.select = function(value) {
-                scope.$emit("select", value);
+                scope.$emit("select", value, attrs.name);
             };
             attrs.$observe("value", function() {
                 var html;
                 if (angular.isObject(scope.value) && scope.value.group) {
-                    html = '<dl class="cse text" cse-select cse-options="value.group" ' + 'cse-model="head" ' + 'cse-template="' + attrs.templ + '"';
+                    html = '<dl class="cse text" cse-select="' + attrs.name + '.sub" cse-options="value.group" ' + 'cse-model="head" ' + 'cse-template="' + attrs.templ + '"';
                     if (angular.isDefined(scope.isMenu)) {
                         html += ' cse-is-menu ng-init="head=value"';
                     }
@@ -111,7 +111,7 @@ customSelectElement.directive("cseSelect", [ "$document", function($document) {
         },
         template: function(tElement, tAttr) {
             var templ = tAttr.cseTemplate || "cse-default";
-            var html = '<dt ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model"></div></dt>' + '<dd ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option value="opt" templ="' + templ + '"';
+            var html = '<dt ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model"></div></dt>' + '<dd ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option name="' + tAttr.cseSelect + '" model="' + tAttr.cseModel + '" value="opt" templ="' + templ + '"';
             if (angular.isDefined(tAttr.cseIsMenu)) {
                 html += ' is-menu="1"';
             }
@@ -973,15 +973,6 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         insert: 'save("insert")',
         reload: "load(loadedName)"
     };
-    $scope.$on("select", function(event, entry) {
-        var task;
-        if (jQuery.inArray(entry, $scope.namesInProject) < 0) {
-            task = $scope.commands[entry];
-        } else {
-            task = 'load("' + entry + '")';
-        }
-        $scope.$evalAsync(task);
-    });
     $scope.prepare = function(project, nonceCrossword, nonceEdit, name, restricted) {
         $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
         if (restricted) {
@@ -1002,6 +993,19 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             deregister();
         });
     };
+    $scope.$on("select", function(event, value, source) {
+        event.stopPropagation();
+        switch (source) {
+          case "command":
+            $scope.$evalAsync($scope.commands[value]);
+            break;
+
+          case "command.sub":
+          case "load":
+            $scope.$evalAsync('load("' + value + '")');
+            break;
+        }
+    });
     $scope.$on("previewProject", function(event, project) {
         $scope.crw.setProject(project);
     });
