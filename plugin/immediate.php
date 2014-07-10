@@ -28,10 +28,6 @@ if ( 'build' == $mode ) {
                             </td>
                         </tr>
                         <tr>
-                            <td><label for ="description"><?php _e('Give a hint which words should be found:', 'crw-text') ?></label></td>
-                            <td><textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea></td>
-                        </tr>
-                        <tr>
                             <td><label for ="author"><?php _e('Author:', 'crw-text') ?></label></td>
                             <td><input type="text" ng-model="crosswordData.author" name="author" crw-add-parsers="sane"></td>
                         </tr>

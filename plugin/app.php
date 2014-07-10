@@ -8,6 +8,11 @@ if ( 'build' == $mode ) {
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="name">{{crosswordData.name}}</p>
+    <form name="meta">
+        <label for ="description"><?php _e('Give a hint which words should be found:', 'crw-text') ?></label>
+        <textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea>
+        <p class="error" ng-show="meta.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></p>
+    </form>
 <?php // single solve/preview only shows the name
 
 } elseif ( $is_single ) {
@@ -22,6 +27,7 @@ if ( 'build' == $mode ) {
     <div><dl class="cse name" title="<?php _e('Select a riddle', 'crw-text') ?>" cse-select cse-options="namesInProject" cse-model="loadedName"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
+
 <?php
 
 }
