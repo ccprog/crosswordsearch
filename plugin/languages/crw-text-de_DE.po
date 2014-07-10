@@ -379,7 +379,7 @@ msgid ""
 "The marked words go into directions that are excluded for difficulty level "
 "%1$s. For a successful level change you must delete these words."
 msgstr ""
-"Die markierten Wörter gehen in eine Richtung, die für den Schwierigkeitsgrad "
+"Die markierten Wörter gehen in Richtungen, die für den Schwierigkeitsgrad "
 "%1$s ausgeschlossen sind. Um den Grad zu ändern, musst Du sie löschen."
 
 #: plugin/immediate.php:90
