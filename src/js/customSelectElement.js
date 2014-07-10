@@ -91,6 +91,7 @@ customSelectElement.directive("cseSelect", ['$document', function($document) {
             var elementEquals = function (el1, el2) {
                 return el1[0] === el2[0];
             };
+            scope.isDefined = angular.isDefined;
             var elementHide = function (event) {
                 var clicked = angular.element(event.target);
                 do {
@@ -125,7 +126,7 @@ customSelectElement.directive("cseSelect", ['$document', function($document) {
         },
         template: function (tElement, tAttr) {
             var templ = tAttr.cseTemplate || 'cse-default';
-            var html = '<dt ng-click="visible=!visible"><div ng-show="!!(model)" ' +
+            var html = '<dt ng-click="visible=!visible"><div ng-show="isDefined(model)" ' +
                 templ + ' value="model"></div></dt>' +
                 '<dd ng-show="visible"><ul>' +
                 '<li ng-repeat="opt in options | orderBy:\'order\'" ' +

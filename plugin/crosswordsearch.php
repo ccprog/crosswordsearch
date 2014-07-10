@@ -301,6 +301,7 @@ add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
 // checks for json crossword data
 function crw_verify_json($json, &$msg) {
+    $easy_directions = array('right', 'down');
     include('schema/jsv4.php');
     include('schema/schema-store.php');
     include('l10n.php');
@@ -319,7 +320,7 @@ function crw_verify_json($json, &$msg) {
     try {
         $crossword = json_decode($json);
     } catch (Exception $e) {
-        $msg = 'decode exception';
+        $msg = array('decode exception');
         return false;
     }
 
@@ -335,12 +336,12 @@ function crw_verify_json($json, &$msg) {
 
     // verify width and height are consistent
     if ( $crossword->size->height !== count($crossword->table)) {
-        $msg = 'height inconsistency';
+        $msg = array('height inconsistency');
         return false;
     }
     foreach ( $crossword->table as $line ) {
         if ( $crossword->size->width !== count($line) ) {
-            $msg = 'width inconsistency';
+            $msg = array('width inconsistency');
             return false;
         }
     }
@@ -348,13 +349,18 @@ function crw_verify_json($json, &$msg) {
     foreach ( $crossword->words as $key => $word ) {
         // verify keys match ID content
         if ( (int)$key !== $word->ID ) {
-            $msg = 'word key inconsistency';
+            $msg = array('word key inconsistency');
             return false;
         }
         // verify word lengths are consistent with start/stop positions
         $computed_length = max( abs( $word->stop->x - $word->start->x ), abs( $word->stop->y - $word->start->y ) ) + 1;
         if ( $computed_length !== count($word->fields) ) {
-            $msg = 'word length inconsistency';
+            $msg = array('word length inconsistency');
+            return false;
+        }
+        // verify direction restriction by level
+        if ( !($crossword->level & 1) && !in_array($word->direction, $easy_directions) ) {
+            $msg = array('word level and direction inconsistency');
             return false;
         }
         // even more you could test:
@@ -807,13 +813,13 @@ function crw_save_crossword () {
 
     // verify crossword data
     $crossword = wp_unslash( $_POST['crossword'] );
-    $verification = crw_verify_json( $crossword, $msg );
+    $verification = crw_verify_json( $crossword, $debug );
 
     // set errors on inconsistencies
     if ( !in_array( $method, array('insert', 'update') ) ) {
         $debug = 'No valid method: ' . $method;
     } elseif ( !$verification ) {
-        $debug = array_unshift($msg, 'The crossword data sent are invalid.');
+        array_unshift($debug, 'The crossword data sent are invalid.');
     } elseif ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
         $debug = 'The project does not exist: ' . $project;
     } else if ( $name !== $unsafe_name ) {

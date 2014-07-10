@@ -1,7 +1,7 @@
 {
   "id": "http://example.com/schema",
   "type": "object",
-  "required": [ "name", "description", "author", "size", "table", "words", "solution" ],
+  "required": [ "name", "description", "author", "size", "table", "words", "solution", "level" ],
   "additionalProperties": false,
   "properties": {
     "name": {
@@ -100,6 +100,12 @@
     "solution": {
       "type": "object",
       "maxProperties": 0
+    },
+    "level": {
+      "type": "number",
+      "multipleOf": 1,
+      "minimum": 0,
+      "maximum": 3
     }
   },
   "definitions": {

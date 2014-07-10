@@ -81,6 +81,7 @@ customSelectElement.directive("cseSelect", [ "$document", function($document) {
             var elementEquals = function(el1, el2) {
                 return el1[0] === el2[0];
             };
+            scope.isDefined = angular.isDefined;
             var elementHide = function(event) {
                 var clicked = angular.element(event.target);
                 do {
@@ -111,7 +112,7 @@ customSelectElement.directive("cseSelect", [ "$document", function($document) {
         },
         template: function(tElement, tAttr) {
             var templ = tAttr.cseTemplate || "cse-default";
-            var html = '<dt ng-click="visible=!visible"><div ng-show="!!(model)" ' + templ + ' value="model"></div></dt>' + '<dd ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option name="' + tAttr.cseSelect + '" model="' + tAttr.cseModel + '" value="opt" templ="' + templ + '"';
+            var html = '<dt ng-click="visible=!visible"><div ng-show="isDefined(model)" ' + templ + ' value="model"></div></dt>' + '<dd ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option name="' + tAttr.cseSelect + '" model="' + tAttr.cseModel + '" value="opt" templ="' + templ + '"';
             if (angular.isDefined(tAttr.cseIsMenu)) {
                 html += ' is-menu="1"';
             }
@@ -269,9 +270,19 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 },
                 table: [],
                 words: {},
-                solution: {}
+                solution: {},
+                level: 1
             });
             addRows(crossword.size.height, false);
+        };
+        var _getLevelRestriction = function(restriction) {
+            switch (restriction) {
+              case "dir":
+                return !(crossword.level & 1);
+
+              case "sol":
+                return !(crossword.level & 2);
+            }
         };
         var addRows = function(number, top) {
             if (number > 0) {
@@ -353,6 +364,9 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             }, crwContext).then(function(data) {
                 if (angular.isObject(data.crossword)) {
                     angular.extend(crossword, data.crossword);
+                    if (_getLevelRestriction("sol")) {
+                        crossword.solution = angular.copy(crossword.words);
+                    }
                 } else {
                     _loadDefault();
                 }
@@ -361,6 +375,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             });
         };
         this.saveCrosswordData = function(name, action, username, password) {
+            crossword.solution = {};
             var content = {
                 action: "save_crossword",
                 method: action,
@@ -413,6 +428,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             });
             return crossword.words[marking.ID] = marking;
         };
+        this.getLevelRestriction = _getLevelRestriction;
         this.probeWord = function(marking) {
             var entry = marking;
             angular.forEach(entry.fields, function(field) {
@@ -432,6 +448,15 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             var critical = [];
             angular.forEach(crossword.words, function(word, id) {
                 if (Math.min(word.start.x, word.stop.x) < -change.left || Math.max(word.start.x, word.stop.x) >= crossword.size.width + change.right || Math.min(word.start.y, word.stop.y) < -change.top || Math.max(word.start.y, word.stop.y) >= crossword.size.height + change.bottom) {
+                    critical.push(parseInt(id, 10));
+                }
+            });
+            return critical;
+        };
+        this.testDirection = function() {
+            var critical = [];
+            angular.forEach(crossword.words, function(word, id) {
+                if (word.direction !== "right" && word.direction !== "down") {
                     critical.push(parseInt(id, 10));
                 }
             });
@@ -948,6 +973,15 @@ crwApp.directive("crwMenu", [ "$compile", function($compile) {
     };
 } ]);
 
+crwApp.directive("crwLevelNumber", [ "$compile", function($compile) {
+    return {
+        scope: {
+            value: "="
+        },
+        template: "{{value + 1}}"
+    };
+} ]);
+
 crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crosswordFactory", function($scope, qStore, basics, crosswordFactory) {
     if (!$scope.crw) {
         $scope.crw = crosswordFactory.getCrw();
@@ -973,6 +1007,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         insert: 'save("insert")',
         reload: "load(loadedName)"
     };
+    $scope.levelList = [ 0, 1, 2, 3 ];
     $scope.prepare = function(project, nonceCrossword, nonceEdit, name, restricted) {
         $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
         if (restricted) {
@@ -1003,6 +1038,27 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
           case "command.sub":
           case "load":
             $scope.$evalAsync('load("' + value + '")');
+            break;
+
+          case "level":
+            var critical = $scope.crw.testDirection();
+            var oldLevel = $scope.crosswordData.level;
+            if (!(value & 1) && critical.length) {
+                $scope.setHighlight(critical);
+                var arg = {
+                    count: critical.length,
+                    level: value
+                };
+                $scope.immediateStore.newPromise("invalidDirections", arg).then(function() {
+                    angular.forEach(critical, function(id) {
+                        $scope.crw.deleteWord(id, "words");
+                    });
+                }, function() {
+                    $scope.$evalAsync("crosswordData.level=" + oldLevel);
+                })["finally"](function() {
+                    $scope.setHighlight([]);
+                });
+            }
             break;
         }
     });
@@ -1052,7 +1108,13 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         $scope.load(name);
     });
     $scope.restart = function() {
-        $scope.crosswordData.solution = {};
+        if (!$scope.crw.getLevelRestriction("sol")) {
+            $scope.crosswordData.solution = {};
+        } else {
+            angular.forEach($scope.crosswordData.solution, function(word) {
+                word.solved = false;
+            });
+        }
         $scope.count.solution = 0;
     };
     $scope.$watch("count.solution", function(s) {
@@ -1250,66 +1312,66 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
     var markers = markerFactory.getMarkers();
     function validMarking(newStop) {
         var dif_x = currentMarking.start.x - newStop.x, dif_y = currentMarking.start.y - newStop.y;
-        return Math.abs(dif_x) === Math.abs(dif_y) || dif_x === 0 || dif_y === 0;
+        if ($scope.crw.getLevelRestriction("dir")) {
+            return dif_x === 0 && dif_y <= 0 || dif_y === 0 && dif_x <= 0;
+        } else {
+            return Math.abs(dif_x) === Math.abs(dif_y) || dif_x === 0 || dif_y === 0;
+        }
     }
     $scope.setMode = function(m) {
         mode = m;
+        lastName = $scope.crosswordData.name;
         currentMarking = {
             ID: $scope.crw.getHighId()
         };
         if (mode === "build") {
-            markers.redrawMarkers($scope.crosswordData.words);
-            lastName = $scope.crosswordData.name;
             $scope.$watch("crosswordData.words", function(newWords, oldWords) {
-                var probe, len = 0;
-                if ($scope.crosswordData.name !== lastName) {
-                    markers.deleteAllMarking();
-                    markers.redrawMarkers(newWords);
-                    currentMarking = {
-                        ID: $scope.crw.getHighId()
-                    };
+                if (lastName !== $scope.crosswordData.name) {
                     lastName = $scope.crosswordData.name;
-                } else {
-                    angular.forEach(oldWords, function(word, id) {
-                        len++;
-                        if (!newWords[id]) {
-                            markers.deleteMarking(id);
-                        } else {
-                            probe = true;
-                        }
-                    });
-                    if (probe || len === 0) {
-                        markers.redrawMarkers($scope.crosswordData.words);
+                    return;
+                }
+                var probe, len = 0;
+                angular.forEach(oldWords, function(word, id) {
+                    len++;
+                    if (!newWords[id]) {
+                        markers.deleteMarking(id);
+                    } else {
+                        probe = true;
                     }
+                });
+                if (probe || len === 0) {
+                    markers.redrawMarkers($scope.crosswordData.words);
                 }
             }, true);
-        }
-        if (mode === "preview") {
-            $scope.$watch("crosswordData.words", function(newWords) {
-                markers.deleteAllMarking();
-                markers.redrawMarkers(newWords);
-            });
         }
         if (mode === "solve") {
             $scope.$watch("crosswordData.solution", function(newWords, oldWords) {
+                if (lastName !== $scope.crosswordData.name) {
+                    lastName = $scope.crosswordData.name;
+                    return;
+                }
                 angular.forEach(oldWords, function(word, id) {
-                    if (!newWords[id]) {
+                    if (!newWords[id] || !newWords[id].solved) {
                         markers.deleteMarking(word.markingId);
                     }
                 });
-                var probe = false;
                 angular.forEach(newWords, function(word, id) {
-                    if (!oldWords[id]) {
+                    if (!oldWords[id] || !oldWords[id].solved && word.solved) {
                         markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
                     }
-                    probe = true;
                 });
-                if (!probe) {
-                    currentMarking.ID = $scope.crw.getHighId();
-                }
             }, true);
         }
     };
+    $scope.$watch("crosswordData.name", function() {
+        markers.deleteAllMarking();
+        currentMarking = {
+            ID: $scope.crw.getHighId()
+        };
+        if (mode !== "solve") {
+            markers.redrawMarkers($scope.crosswordData.words);
+        }
+    });
     $scope.getMarks = function(line, column) {
         return markers.getMarks(column, line);
     };
@@ -1570,6 +1632,19 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
         $scope.message = {
             which: "invalid_words",
             count: critical.length,
+            buttons: {
+                "delete": true,
+                abort: true
+            }
+        };
+        $scope.immediate = "dialogue";
+    });
+    $scope.immediateStore.register("invalidDirections", function(invalidDeferred, arg) {
+        deferred = invalidDeferred;
+        $scope.message = {
+            which: "invalid_directions",
+            count: arg.count,
+            level: arg.level,
             buttons: {
                 "delete": true,
                 abort: true

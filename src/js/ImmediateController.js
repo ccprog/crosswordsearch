@@ -151,6 +151,20 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
         $scope.immediate = 'dialogue';
     });
 
+    $scope.immediateStore.register('invalidDirections', function (invalidDeferred, arg) {
+        deferred = invalidDeferred;
+        $scope.message = {
+            which: 'invalid_directions',
+            count: arg.count,
+            level: arg.level,
+            buttons: {
+                'delete': true,
+                'abort': true
+            }
+        };
+        $scope.immediate = 'dialogue';
+    });
+
     // build page only: deferred handler for user dialogue on data upload
     // register
     $scope.immediateStore.register('saveCrossword', function (saveDeferred, action) {

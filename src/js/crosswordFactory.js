@@ -26,9 +26,19 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 words: {},
                 // letter sequences that have been marked on the solve page,
                 // irrespective of their status as a valid solution
-                solution: {}
+                solution: {},
+                level: 1
             });
             addRows(crossword.size.height, false);
+        };
+
+         var _getLevelRestriction = function (restriction) {
+            switch (restriction) {
+            case 'dir':
+                return !(crossword.level & 1);
+            case 'sol':
+                return !(crossword.level & 2);
+            }
         };
 
         // add or delete the given number of rows
@@ -133,6 +143,9 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 // if an empty string is sent for name, no object is returned
                 if (angular.isObject(data.crossword)) {
                     angular.extend(crossword, data.crossword);
+                    if (_getLevelRestriction('sol')) {
+                        crossword.solution = angular.copy(crossword.words);
+                    }
                 } else {
                     _loadDefault();
                 }
@@ -143,6 +156,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
 
         // save a crossword
         this.saveCrosswordData = function (name, action, username, password) {
+            crossword.solution = {};
             var content = {
                 action: 'save_crossword',
                 method: action,
@@ -218,6 +232,8 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             return (crossword.words[marking.ID] = marking);
         };
 
+        this.getLevelRestriction = _getLevelRestriction;
+
         // look up whether a field sequence (format see above)
         // matches an entry in the words list. The sequence is added to the
         // solution list in any case. If it is not found in words,
@@ -255,6 +271,16 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                         Math.max(word.start.x, word.stop.x) >= crossword.size.width + change.right ||
                         Math.min(word.start.y, word.stop.y) < -change.top ||
                         Math.max(word.start.y, word.stop.y) >= crossword.size.height + change.bottom) {
+                    critical.push(parseInt(id, 10));
+                }
+            });
+            return critical;
+        };
+
+        this.testDirection = function () {
+            var critical = [];
+            angular.forEach(crossword.words, function (word, id) {
+                if (word.direction !== 'right' && word.direction !== 'down') {
                     critical.push(parseInt(id, 10));
                 }
             });

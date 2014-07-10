@@ -34,77 +34,73 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
     var markers = markerFactory.getMarkers();
 
     // test whether start and stop field are in a straight or diagonal relation
+    // for levels 0 & 2 restrict to right and down
     function validMarking (newStop) {
         var dif_x = currentMarking.start.x - newStop.x,
             dif_y = currentMarking.start.y - newStop.y;
-        return Math.abs(dif_x) === Math.abs(dif_y) || dif_x === 0 || dif_y === 0;
+        if ($scope.crw.getLevelRestriction('dir')) {
+            return (dif_x === 0 && dif_y <= 0) || (dif_y === 0 && dif_x <= 0);
+        } else {
+            return Math.abs(dif_x) === Math.abs(dif_y) || dif_x === 0 || dif_y === 0;
+        }
     }
 
     // init controller for build and solve page
     $scope.setMode = function (m) {
         mode = m;
+        lastName = $scope.crosswordData.name;
         // shift marking ids so they never overlap with pre-existing word ids
         currentMarking = { ID: $scope.crw.getHighId() };
         if (mode === 'build') { // build page
-            // load existing markings
-            markers.redrawMarkers($scope.crosswordData.words);
-            lastName = $scope.crosswordData.name;
             $scope.$watch('crosswordData.words', function (newWords, oldWords) {
-                var probe, len = 0;
-                // is this a new crossword?
-                if ($scope.crosswordData.name !== lastName) {
-                    // redraw all markers and reset marking ids
-                    markers.deleteAllMarking();
-                    markers.redrawMarkers(newWords);
-                    currentMarking = { ID: $scope.crw.getHighId() };
+                if (lastName !== $scope.crosswordData.name) {
                     lastName = $scope.crosswordData.name;
-                } else {
-                    // remove marking for deleted words
-                    angular.forEach(oldWords, function (word, id) {
-                        len++;
-                        if (!newWords[id]) {
-                            markers.deleteMarking(id);
-                        } else {
-                            probe = true;
-                        }
-                    });
-                    // if there are other markings, redraw to catch word shifts
-                    if (probe || len === 0) {
-                        markers.redrawMarkers($scope.crosswordData.words);
+                    return;
+                }
+                var probe, len = 0;
+                // remove marking for deleted words
+                angular.forEach(oldWords, function (word, id) {
+                    len++;
+                    if (!newWords[id]) {
+                        markers.deleteMarking(id);
+                    } else {
+                        probe = true;
                     }
+                });
+                // if there are other markings, redraw to catch word shifts
+                if (probe || len === 0) {
+                    markers.redrawMarkers($scope.crosswordData.words);
                 }
             }, true);
-        }
-        if (mode === 'preview') { // preview page
-            // load existing markings on data change
-            $scope.$watch('crosswordData.words', function (newWords) {
-                markers.deleteAllMarking();
-                markers.redrawMarkers(newWords);
-            });
         }
         if (mode === 'solve') { // solve page
             // remove marking for deleted solutions and colorize valid solutions
             $scope.$watch('crosswordData.solution', function (newWords, oldWords) {
+                if (lastName !== $scope.crosswordData.name) {
+                    lastName = $scope.crosswordData.name;
+                    return;
+                }
                 angular.forEach(oldWords, function (word, id) {
-                    if (!newWords[id]) {
+                    if (!newWords[id] || !newWords[id].solved) {
                         markers.deleteMarking(word.markingId);
                     }
                 });
-                var probe = false;
                 angular.forEach(newWords, function (word, id) {
-                    if (!oldWords[id]) {
+                    if (!oldWords[id] || (!oldWords[id].solved && word.solved)) {
                         markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
                     }
-                    probe = true;
                 });
-                // reset marking ids if no solutions are present,
-                // i. e. after a new crossword has been loaded
-                if (!probe) {
-                    currentMarking.ID = $scope.crw.getHighId();
-                }
             }, true);
         }
     };
+
+    $scope.$watch('crosswordData.name', function () {
+        markers.deleteAllMarking();
+        currentMarking = { ID: $scope.crw.getHighId() };
+        if (mode !== 'solve') {
+            markers.redrawMarkers($scope.crosswordData.words);
+        }
+    });
 
     // retrieve the markers for a field
     $scope.getMarks = function (line, column) {

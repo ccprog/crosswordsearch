@@ -13,15 +13,21 @@ if ( 'build' == $mode ) {
         <textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea>
         <p class="error" ng-show="meta.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></p>
     </form>
+    <dl class="crw-level">
+        <dt><span><?php _e('Select a difficulty level:', 'crw-text') ?></span>
+            <dl class="cse" cse-select="level" cse-options="levelList" cse-model="crosswordData.level" cse-template="crw-level-number"></dl>
+        </dt>
 <?php // single solve/preview only shows the name
 
-} elseif ( $is_single ) {
+} else {
+
+    if ( $is_single ) {
 
 ?>
     <p class="name">{{crosswordData.name}}</p>
 <?php // multi solve has a name selection
 
-} else {
+    } else {
 
 ?>
     <div><dl class="cse name" title="<?php _e('Select a riddle', 'crw-text') ?>" cse-select="load" cse-options="namesInProject" cse-model="loadedName"></dl></div>
@@ -30,10 +36,25 @@ if ( 'build' == $mode ) {
 
 <?php
 
-}
+    }
 
 ?>
     <p class="crw-description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crw-text') ?></em> {{crosswordData.description}}</p>
+    <dl class="crw-level">
+        <dt><?php _e('Difficulty level', 'crw-text') ?> {{crosswordData.level+1}}</dt>
+<?php
+
+}
+
+?>
+        <dd><?php _e('Word directions', 'crw-text') ?>:
+            <strong ng-show="crw.getLevelRestriction('dir')"><?php _e('only to the right and down', 'crw-text') ?>,</strong>
+            <strong ng-show="!crw.getLevelRestriction('dir')"><?php _e('any, including the diagonals and backwards', 'crw-text') ?>,</strong>
+            <br /><?php _e('List of words that should be found', 'crw-text') ?>:
+            <strong ng-show="crw.getLevelRestriction('sol')"><?php _e('visible before found', 'crw-text') ?></strong>
+            <strong ng-show="!crw.getLevelRestriction('sol')"><?php _e('hidden before found', 'crw-text') ?></strong>
+        </dd>
+    </dl>
     <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide" ng-style="styleCrossword()' : '' ) ?>" ng-controller="SizeController" ng-if="crosswordData">
         <div ng-style="styleGridSize()" class="crw-grid<?php if ( 'build' == $mode ) echo ' divider' ?>">
 <?php // resize handles
@@ -106,7 +127,7 @@ if ( 'build' == $mode ) {
 ?>
         <ul class="crw-word">
             <li ng-class="{'highlight': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
-                <dl class="cse crw-color" title="{{word.color}}" cse-template ="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
+                <dl class="cse crw-color" title="{{word.color}}" cse-template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
                 <span>{{word.fields | joinWord}} (<?php
                 /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
                 printf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') ?>)</span>
@@ -134,9 +155,10 @@ if ( 'build' == $mode ) {
             <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crw-text'), '{{count.words}}' ) ?></span>
             <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="<?php _e('Restart solving the riddle', 'crw-text') ?>" alt="<?php _e('Restart', 'crw-text') ?>"></button>
         </p>
-        <ul class="crw-word">
-            <li ng-class="{'highlight': isHighlighted(word.ID)}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:'ID'" ng-controller="EntryController">
-                <img title="{{word.color}}" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-{{word.color}}.png">
+        <ul class="crw-word" ng-class="{'palid': crw.getLevelRestriction('sol')}">
+            <li ng-class="{'highlight': isHighlighted(), 'found': word.solved}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:'ID'" ng-controller="EntryController">
+                <img ng-if="word.solved" title="{{word.color}}" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-{{word.color}}.png">
+                <img ng-if="!word.solved" title="grey" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-grey.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>

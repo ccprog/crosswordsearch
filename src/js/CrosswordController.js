@@ -45,6 +45,14 @@ crwApp.directive("crwMenu", ["$compile", function($compile) {
     };
 }]);
 
+// level menu data binding directive: add +1 to displayed number
+crwApp.directive("crwLevelNumber", ["$compile", function($compile) {
+    return {
+        scope: { value: "=" },
+        template: '{{value + 1}}'
+    };
+}]);
+
 /* wrapper controller for single crossword instance */
 crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswordFactory',
 		function ($scope, qStore, basics, crosswordFactory) {
@@ -80,6 +88,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         'insert': 'save("insert")',
         'reload': 'load(loadedName)'
     };
+    $scope.levelList = [0, 1, 2, 3];
 
     // init crossword at page load time
     $scope.prepare = function (project, nonceCrossword, nonceEdit, name, restricted) {
@@ -116,6 +125,28 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         case 'command.sub':
         case 'load':
             $scope.$evalAsync('load("' + value + '")');
+            break;
+        // build page only: test directions on level downgrade
+        case 'level':
+            var critical = $scope.crw.testDirection();
+            var oldLevel = $scope.crosswordData.level;
+            if (!(value & 1) && critical.length) {
+                // highlight words with invalid directions
+                $scope.setHighlight(critical);
+                // ask user whether change should be applied.
+                var arg = {count: critical.length, level: value};
+                $scope.immediateStore.newPromise('invalidDirections', arg).then(function () {
+                    // yes: delete words.
+                    angular.forEach(critical, function (id) {
+                        $scope.crw.deleteWord(id, 'words');
+                    });
+                }, function () {
+                    // no: reset level
+                    $scope.$evalAsync('crosswordData.level=' + oldLevel); //late enough?
+                })['finally'](function () {
+                    $scope.setHighlight([]);
+                });
+            }
             break;
         }
     });
@@ -187,7 +218,13 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
 
     // solve page only: restart the loaded riddle
     $scope.restart = function () {
-        $scope.crosswordData.solution = {};
+        if (!$scope.crw.getLevelRestriction('sol')) {
+            $scope.crosswordData.solution = {};
+        } else {
+            angular.forEach($scope.crosswordData.solution, function (word) {
+                word.solved = false;
+            });
+        }
         $scope.count.solution = 0;
     };
 

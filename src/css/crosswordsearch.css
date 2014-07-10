@@ -35,6 +35,20 @@
 .crw-wrapper p.crw-description em {
     margin-right: 0.5em;
 }
+dl.crw-level>dt, dl.crw-level>dd {
+    font-weight: normal;
+    margin-left: 0;
+    padding-left: 0;
+}
+dl.crw-level>dt > * {
+    vertical-align: middle;
+}
+dl.crw-level>dt .cse {
+    line-height: 1.3;
+}
+dl.crw-level>dd {
+    font-size: 0.85em;
+}
 .crw-wrapper dl.cse.menu dt {
     width: 200px;
     min-height: 1.5em;
@@ -303,7 +317,15 @@ ul.crw-word>li>* {
 ul.crw-word>li>img {
     margin: 2px 3px;
 }
+ul.crw-word.palid li {
+    color: #888;
+}
+ul.crw-word li.found {
+    color: #000;
+    font-weight: bold;
+}
 ul.crw-word li.highlight {
+    color: #444;
     background-color: #ddd;
 }
 dl.crw-color {

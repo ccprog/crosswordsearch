@@ -79,6 +79,9 @@ if ( 'build' == $mode ) {
                 <p ng-switch-when="invalid_words" ng-pluralize count="message.count" when="{
                     'one': '<?php _e('The marked word no longer fits into the crossword area. For a successful resize you must delete this word.', 'crw-text') ?>',
                     'other': '<?php _e('The marked words no longer fit into the crossword area. For a successful resize you must delete these words.', 'crw-text') ?>'}"></p>
+                <p ng-switch-when="invalid_directions" ng-pluralize count="message.count" when="{
+                    'one': '<?php printf( __('The marked word goes into a direction that is excluded for difficulty level %1$s. For a successful level change you must delete this word.', 'crw-text'), '{{message.level + 1}}' ) ?>',
+                    'other': '<?php printf( __('The marked words go into directions that are excluded for difficulty level %1$s. For a successful level change you must delete these words.', 'crw-text'), '{{message.level + 1}}' ) ?>'}"></p>
 <?php
 
 } elseif ( 'solve' == $mode ) {
