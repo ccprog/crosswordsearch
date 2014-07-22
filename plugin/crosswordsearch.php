@@ -218,7 +218,7 @@ function add_crw_scripts ( $hook ) {
         wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js', array( 'jquery' ));
         wp_enqueue_script('angular-route', CRW_PLUGIN_URL . 'js/angular-route.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', CRW_PLUGIN_URL . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
-        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch.js', array( 'angular', 'angular-route', 'quantic-stylemodel' ));
+        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch' . (WP_DEBUG ? '' : '.min') . '.js', array( 'angular', 'angular-route', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
             'pluginPath' => CRW_PLUGIN_URL,
             'ajaxUrl' => admin_url( 'admin-ajax.php' )

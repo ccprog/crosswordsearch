@@ -975,7 +975,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
     });
 } ]);
 
-crwApp.config(function($routeProvider) {
+crwApp.config([ "$routeProvider", function($routeProvider) {
     var path = "";
     $routeProvider.when("/:tab/:nonce", {
         templateUrl: function($routeParams) {
@@ -987,7 +987,7 @@ crwApp.config(function($routeProvider) {
             return path;
         }
     });
-});
+} ]);
 
 crwApp.directive("crwCatchMouse", [ "$document", function($document) {
     return {

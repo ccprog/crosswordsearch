@@ -405,7 +405,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 }]);
 
 /* route configuration */
-crwApp.config(function($routeProvider) {
+crwApp.config(['$routeProvider', function($routeProvider) {
     var path = '';
     $routeProvider.when('/:tab/:nonce', {
         templateUrl: function ($routeParams) {
@@ -419,4 +419,4 @@ crwApp.config(function($routeProvider) {
             return path;
         }
     });
-});
+}]);
