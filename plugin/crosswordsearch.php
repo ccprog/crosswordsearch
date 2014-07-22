@@ -31,7 +31,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 /* plugin installation */
 define('CRW_DB_VERSION', '0.3');
-define('CRW_PROJECTS_OPTION', 'crw_projects');
 define('CRW_ROLES_OPTION', 'crw_roles_caps');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
@@ -48,38 +47,51 @@ define('CRW_PLUGIN_URL', plugins_url( 'crosswordsearch/' ));
 define('CRW_PLUGIN_FILE', WP_PLUGIN_DIR . '/crosswordsearch/' . basename(__FILE__));
 define('CRW_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 
-global $wpdb, $data_table_name, $editors_table_name;
+global $wpdb, $project_table_name, $data_table_name, $editors_table_name;
 $wpdb->hide_errors();
 
+$project_table_name = $wpdb->prefix . "crw_projects";
 $data_table_name = $wpdb->prefix . "crw_crosswords";
 $editors_table_name = $wpdb->prefix . "crw_editors";
 
-function crw_change_project_list ( $project, $action ) {
-    $project_list = get_option(CRW_PROJECTS_OPTION);
+function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
+    global $wpdb, $project_table_name;
 
-    if ( 'add' == $action ) {
-        if ( mb_strlen($project, 'UTF-8') > 255 ) {
-            crw_send_error( __('You have exceeded the maximum length for a name!', 'crw-text'), $project );
-        } elseif ( in_array($project, $project_list) ) {
-            return false;
+    if ( 'add' == $method ) {
+        ksort($args);
+        // resulting order: default_level, maximum_level, project
+        $success = $wpdb->insert( $project_table_name, $args, array('%d', '%d', '%s') );
+    } elseif ( 'remove' == $method ) {
+        $success = $wpdb->query( $wpdb->prepare("
+            DELETE FROM $project_table_name
+            WHERE project = %s
+        ", $project) );
+        if ( $success === false ) {
+            // not really true, but I can't read error numbers...
+            $error = __('There are still riddles saved for that project. You need to delete them before you can remove the project.', 'crw-text');
+            $debug = array( $wpdb->last_error, $wpdb->last_query );
+            crw_send_error($error, $debug);
         }
-        array_push($project_list, $project);
-    } elseif ( 'remove' == $action ) {
-        $key = array_search($project, $project_list);
-        if ( false === $key ) {
-            return false;
+    } elseif ( 'update' == $method ) {
+        $success = $wpdb->query( $wpdb->prepare("
+            UPDATE $project_table_name
+            SET project=%s, default_level=%d, maximum_level=%d
+            WHERE project=%s
+        ", $args['project'], $args['default_level'], $args['maximum_level'], $project) );
+        // no row altered is not considered an error
+        if (0 === $success) {
+            $success = true;
         }
-        unset($project_list[$key]);
     }
 
-    return update_option(CRW_PROJECTS_OPTION, $project_list);
+    $debug = array( $wpdb->last_error, $wpdb->last_query );
+    return $success;
 }
 
 function crw_install () {
-    global $wp_roles, $wpdb, $charset_collate, $data_table_name, $editors_table_name;
+    global $wp_roles, $wpdb, $charset_collate, $project_table_name, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-    add_option( CRW_PROJECTS_OPTION, (array)NULL );
     update_option( "crw_db_version", CRW_DB_VERSION );
     $roles_caps = array();
     foreach ( $wp_roles->role_objects as $name => $role ) {
@@ -93,6 +105,16 @@ function crw_install () {
     foreach ( get_option(CRW_ROLES_OPTION) as $role => $cap ) {
         get_role( $role )->add_cap( $cap );
     }
+
+    dbDelta( "
+CREATE TABLE IF NOT EXISTS $project_table_name (
+  project varchar(255) NOT NULL,
+  default_level int NOT NULL,
+  maximum_level int NOT NULL,
+  used_level int NOT NULL,
+  PRIMARY KEY  (project)
+) $charset_collate;\n"
+    );
 
     dbDelta( "
 CREATE TABLE IF NOT EXISTS $data_table_name (
@@ -113,6 +135,21 @@ CREATE TABLE IF NOT EXISTS $editors_table_name (
   PRIMARY KEY (project, user_id)
 ) $charset_collate;\n"
     );
+
+    $wpdb->query("
+        ALTER TABLE $data_table_name
+        ADD CONSTRAINT project_crossword FOREIGN KEY (project)
+        REFERENCES $project_table_name (project)
+        ON UPDATE CASCADE
+    ");
+
+    $wpdb->query("
+        ALTER TABLE $editors_table_name
+        ADD CONSTRAINT project_editors FOREIGN KEY (project)
+        REFERENCES $project_table_name (project)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    ");
 }
 register_activation_hook( CRW_PLUGIN_FILE, 'crw_install' );
 
@@ -134,7 +171,11 @@ function crw_install_data () {
         return;
     }
 
-    crw_change_project_list('test', 'add');
+    crw_change_project_list('add', null, array(
+        'default_level' => 1,
+        'maximum_level' => 3,
+        'project' => 'test'
+    ) );
 
     $data_files = glob(CRW_PLUGIN_DIR . '../tests/*.json');
     $user = wp_get_current_user();
@@ -204,8 +245,14 @@ function crw_set_admin_header () {
 add_action( 'load-settings_page_crw_options', 'crw_set_admin_header');
 
 function crw_test_shortcode ($atts, $names_list) {
-    $projects_list = get_option(CRW_PROJECTS_OPTION);
+    global $wpdb, $project_table_name;
+
     extract($atts);
+    $project_found = $wpdb->get_var($wpdb->prepare("
+        SELECT count(*)
+        FROM $project_table_name
+        WHERE project = %s
+    ", $project) );
 
     $html = '<strong>' . __('The shortcode usage is faulty:', 'crw-text') . '</strong> ';
 
@@ -218,7 +265,7 @@ function crw_test_shortcode ($atts, $names_list) {
         return $html . __('If attribute <em>restricted</em> is set, attribute <em>name</em> must be omitted.', 'crw-text');
     }
 
-    if ( !in_array( $project, $projects_list ) ) {
+    if ( false == $project_found ) {
         /// translators: argument %1 will be the literal 'project'
         return $html . sprintf(__('Attribute %1$s needs to be an existing project.', 'crw-text'), '<em>project</em>');
     }
@@ -251,7 +298,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 		'mode' => 'build',
         'restricted' => 0,
         'project' => '',
-        'name' => false,
+        'name' => '',
 	), $atts, 'crosswordsearch' );
     $filtered_atts['restricted'] = (int)$filtered_atts['restricted'];
 	extract( $filtered_atts );
@@ -264,7 +311,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     }
 
     $is_single = false;
-    if ( $name === false && count($names_list) > 0 && !$restricted ) {
+    if ( $name === '' && count($names_list) > 0 && !$restricted ) {
         $selected_name = $names_list[0];
     } else {
         $selected_name = $name;
@@ -368,7 +415,10 @@ function crw_verify_json($json, &$msg) {
         // each letter is in the right position
     }
 
-    return $crossword->name;
+    return array(
+        'name' => $crossword->name,
+        'level' => $crossword->level,
+    );
 }
 
 // format and send errors as json
@@ -535,33 +585,39 @@ add_action( 'wp_ajax_update_crw_capabilities', 'crw_update_capabilities' );
 
 // data for Settings->Projects tab
 function crw_send_admin_data () {
-    global $wpdb, $editors_table_name;
+    global $wpdb, $project_table_name, $editors_table_name;
 
     crw_test_permission( 'admin', wp_get_current_user() );
 
-    $projects = get_option(CRW_PROJECTS_OPTION);
     // rule out deleted users
     $editors_list = array_filter( $wpdb->get_results("
-        SELECT et.*
-        FROM $editors_table_name AS et
-        INNER JOIN $wpdb->users as wpu ON wpu.ID = et.user_id
+        SELECT pt.project AS project, pt.default_level AS default_level,
+        pt.maximum_level AS maximum_level, pt.used_level AS used_level,
+        et.user_id AS user_id
+        FROM $project_table_name AS pt
+        LEFT JOIN ($editors_table_name AS et
+        INNER JOIN $wpdb->users as wpu ON wpu.ID = et.user_id)
+        ON et.project = pt.project
     "), function ($entry) {
         // rule out users whos editor capability was revoked
-        return user_can( get_user_by('id', $entry->user_id), CRW_CAP_CONFIRMED );
+        return !$entry->user_id || user_can( get_user_by('id', $entry->user_id), CRW_CAP_CONFIRMED );
     } );
 
-    $projects_list = array_map( function ($project) use (&$editors_list) {
-        $editors = array();
-        array_walk( $editors_list, function ($entry) use ($project, &$editors) {
-            if ( $entry->project === $project ) {
-                array_push( $editors, $entry->user_id );
-            }
-        } );
-        return array(
-            'name' => $project,
-            'editors' => $editors
-        );
-    }, $projects );
+    $projects_list = array();
+    array_walk( $editors_list, function ($entry) use (&$projects_list) {
+        if ( !array_key_exists($entry->project, $projects_list) ) {
+            $projects_list[$entry->project] = array(
+                'name' => $entry->project,
+                'default_level' => (int)$entry->default_level,
+                'maximum_level' => (int)$entry->maximum_level,
+                'used_level' => (int)$entry->used_level,
+                'editors' => array(),
+            );
+        }
+        if ($entry->user_id) {
+            array_push( $projects_list[$entry->project]['editors'], $entry->user_id );
+        }
+    } );
 
     $users_list = array();
     $user_query = new WP_User_Query( array(
@@ -579,84 +635,81 @@ function crw_send_admin_data () {
     wp_send_json( array(
         'projects' => array_values($projects_list),
         'all_users' => $users_list,
-        'capabilities' => get_option(CRW_ROLES_OPTION),
         CRW_NONCE_NAME => wp_create_nonce(NONCE_EDITORS)
     ) );
 }
 add_action( 'wp_ajax_get_admin_data', 'crw_send_admin_data' );
 
-// add a project
-function crw_add_project () {
+// add, update or remove a project
+function crw_save_project () {
+    $level_list = range(0, 3);
+
     crw_test_permission( 'admin', wp_get_current_user() );
 
+    $method = sanitize_text_field( wp_unslash($_POST['method']) );
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
 
-    $success = crw_change_project_list( $project, 'add' );
-    if ( $success ) {
-        crw_send_admin_data();
+    if ( 'remove' == $method ) {
+        $args =  null;
+        $error = __('The project could not be removed.', 'crw-text');
     } else {
-        $error = __('The project name already exists.', 'crw-text');
-        $debug = $project;
-        crw_send_error($error, $debug);
-    }
-}
-add_action( 'wp_ajax_add_project', 'crw_add_project' );
+        $args = array(
+            'project' => sanitize_text_field( wp_unslash( $_POST['new_name']) ),
+            'default_level' => (int)wp_unslash( $_POST['default_level']),
+            'maximum_level' => (int)wp_unslash( $_POST['maximum_level']),
+        );
 
-// remove a project
-function crw_remove_project () {
-    global $wpdb, $data_table_name, $editors_table_name;
-    $error = __('The project could not be removed.', 'crw-text');
-
-    crw_test_permission( 'admin', wp_get_current_user() );
-
-    $project = sanitize_text_field( wp_unslash($_POST['project']) );
-
-    $name_count = $wpdb->get_var( $wpdb->prepare("
-        SELECT count(*)
-        FROM $data_table_name
-        WHERE project = %s
-    ", $project) );
-    if ( $name_count > 0 ) {
-        $error = __('There are still riddles saved for that project. You need to delete them before you can remove the project.', 'crw-text');
-        $debug = $project . ': ' . $name_count . ' entries';
-        crw_send_error($error, $debug);
-    }
-
-    $success = crw_change_project_list( $project, 'remove' );
-    if ( $success ) {
-        $deleted = $wpdb->delete( $editors_table_name, array( 'project' => $project ), array( '%s' ) );
-        if ( false === $deleted ) {
-            // not really a substitute for rollback, but should do
-            crw_change_project_list( $project, 'add' );
-            $debug = $wpdb->last_error;
+        if ( mb_strlen($args['project'], 'UTF-8') > 255 ) {
+            crw_send_error( __('You have exceeded the maximum length for a name!', 'crw-text'), $args['project'] );
+        } elseif ( !in_array($args['default_level'], $level_list) ||
+                !in_array($args['maximum_level'], $level_list) ||
+                $args['default_level'] > $args['maximum_level'] ) {
+            $debug = 'Invalid levels: default ' . $default_level . ' / maximum ' . $maximum_level;
             crw_send_error($error, $debug);
         }
+
+        if ( 'add' == $method ) {
+            $project = null;
+            $error = __('The project could not be added.', 'crw-text');
+        } elseif ( 'update' == $method ) {
+            $error = __('The project could not be altered.', 'crw-text');
+        }
+    }
+    $success = crw_change_project_list( $method, $project, $args, $debug );
+
+    if ( $success ) {
         crw_send_admin_data();
     } else {
-        $debug = 'Not in options: ' . $project;
         crw_send_error($error, $debug);
     }
 }
-add_action( 'wp_ajax_remove_project', 'crw_remove_project' );
+add_action( 'wp_ajax_save_project', 'crw_save_project' );
 
 // update editors list
 function crw_update_editors () {
-    global $wpdb, $editors_table_name;
+    global $wpdb, $editors_table_name, $project_table_name;
     $error = __('The editors could not be updated.', 'crw-text');
 
     crw_test_permission( 'admin', wp_get_current_user() );
 
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $esc_project = esc_sql($project);
+    $project_found = $wpdb->get_var( $wpdb->prepare("
+        SELECT count(*)
+        FROM $project_table_name
+        WHERE project = %s
+    ", $project ) );
+
     $editors = json_decode( wp_unslash( $_POST['editors'] ) );
 
-    if ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
+    if ( !$project_found ) {
         $debug = 'invalid project name: ' . $project;
         crw_send_error($error, $debug);
     } elseif ( !is_array($editors) ) {
         $debug = 'invalid data: no array';
         crw_send_error($error, $debug);
     }
+
     $insertion = array_map( function ($id) use ($esc_project, $error) {
         if ( (string)(integer)$id !== $id ) {
             $debug = 'invalid data: no integer';
@@ -679,7 +732,7 @@ function crw_update_editors () {
         );
     }
     if (false === $success) {
-        $debug = $wpdb->last_error;
+        $debug = array( $wpdb->last_error, $wpdb->last_query );
         crw_send_error($error, $debug);
     }
     crw_send_admin_data();
@@ -746,7 +799,8 @@ function crw_delete_crossword() {
     if (false !== $success) {
         crw_send_projects_and_riddles($user);
     } else {
-        crw_send_error($error, $wpdb->last_error);
+        $debug = array( $wpdb->last_error, $wpdb->last_query );
+        crw_send_error($error, $debug);
     }
 }
 add_action( 'wp_ajax_delete_crossword', 'crw_delete_crossword' );
@@ -775,14 +829,15 @@ function crw_approve_crossword() {
     if (false !== $success) {
         crw_send_projects_and_riddles($user);
     } else {
-        crw_send_error($error, $wpdb->last_error);
+        $debug = array( $wpdb->last_error, $wpdb->last_query );
+        crw_send_error($error, $debug);
     }
 }
 add_action( 'wp_ajax_approve_crossword', 'crw_approve_crossword' );
 
 // common function for insert and update shares data testing tasks and error handling
 function crw_save_crossword () {
-    global $wpdb, $data_table_name;
+    global $wpdb, $project_table_name, $data_table_name;
     $error = __('You are not allowed to save the crossword.', 'crw-text');
     $debug = NULL;
 
@@ -796,11 +851,6 @@ function crw_save_crossword () {
         $unsafe_old_name = wp_unslash($_POST['old_name']);
         $old_name = sanitize_text_field( $unsafe_old_name );
     }
-    $exists = $wpdb->get_var( $wpdb->prepare("
-        SELECT count(*)
-        FROM $data_table_name
-        WHERE project = %s AND name = %s
-    ", $project, ('update' == $method ? $old_name : $name) ) );
 
     // if a username is sent, use it for authentication
     if ( $_POST['username'] ) {
@@ -815,27 +865,44 @@ function crw_save_crossword () {
     $crossword = wp_unslash( $_POST['crossword'] );
     $verification = crw_verify_json( $crossword, $debug );
 
+    // as a drive-by, finds if a project exists
+    $maximum_level = $wpdb->get_var( $wpdb->prepare("
+        SELECT maximum_level
+        FROM $project_table_name
+        WHERE project = %s
+    ", $project ) );
+    $crossword_found = $wpdb->get_var( $wpdb->prepare("
+        SELECT count(*)
+        FROM $data_table_name
+        WHERE project = %s AND name = %s
+    ", $project, ('update' == $method ? $old_name : $name) ) );
+
     // set errors on inconsistencies
     if ( !in_array( $method, array('insert', 'update') ) ) {
         $debug = 'No valid method: ' . $method;
     } elseif ( !$verification ) {
         array_unshift($debug, 'The crossword data sent are invalid.');
-    } elseif ( !in_array( $project, get_option(CRW_PROJECTS_OPTION), true ) ) {
+    } elseif ( is_null($maximum_level) ) {
         $debug = 'The project does not exist: ' . $project;
     } else if ( $name !== $unsafe_name ) {
         $debug = 'The name has forbidden content: ' . $name;
     } else if ( 'update' == $method && $old_name !== $unsafe_old_name ) {
         $debug = 'The old name has forbidden content: ' . $old_name;
-    } else if ( $name !== $verification ) {
+    } else if ( $name !== $verification['name'] ) {
         $debug = array(
             'The name sent is inconsistent with crossword data.',
-            $name . ' / ' . $verification
+            $name . ' / data: ' . $verification['name']
+        );
+    } else if ( $verification['level'] > $maximum_level ) {
+        $debug = array(
+            'The difficulty level surpasses the maximum.',
+            $verification['level'] . ' / maximum: ' . $maximum_level
         );
     // errors on asynchronous effects or "blind" writing from restricted page
-    } elseif ( 'insert' == $method && $exists ) {
+    } elseif ( 'insert' == $method && $crossword_found ) {
         $error = __('There is already another riddle with that name!', 'crw-text');
         $debug = $name;
-    } elseif ( 'update' == $method && !$exists ) {
+    } elseif ( 'update' == $method && !$crossword_found ) {
         $error = __('The riddle you tried to update can not be found!', 'crw-text');
         if ( $restricted_page ) {
             $error .= ' ' . __('A moderator might have deleted it already. You must start a new one.', 'crw-text');
@@ -868,6 +935,12 @@ function crw_save_crossword () {
 
         // check for database errors
         if ($success !== false) {
+            $wpdb->query($wpdb->prepare("
+                UPDATE $project_table_name
+                SET used_level = %d
+                WHERE project = %s
+                AND used_level < %d
+            ", $verification['level'], $project, $verification['level']) );
             if ($restricted_page) {
                 wp_send_json( array(
                     CRW_NONCE_NAME => wp_create_nonce( NONCE_PUSH . $project )
@@ -882,7 +955,7 @@ function crw_save_crossword () {
             }
         } else {
             $error = __('The crossword could not be saved to the database.', 'crw-text');
-            $debug = $wpdb->last_error;
+            $debug = array( $wpdb->last_error, $wpdb->last_query );
         }
     }
 
@@ -894,37 +967,48 @@ add_action( 'wp_ajax_save_crossword', 'crw_save_crossword' );
 
 // select crossword data
 function crw_get_crossword() {
-    global $wpdb, $data_table_name;
+    global $wpdb, $data_table_name, $project_table_name;
     $error = __('The crossword could not be retrieved.', 'crw-text');
 
     // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
+    $restricted_page = (bool)wp_unslash($_POST['restricted']);
 
     $restricted_permission = crw_test_permission( 'crossword', null, $project );
 
     // call database
     if ( $name === '' ) {
-        $crossword = true;
+        $data = $wpdb->get_row( $wpdb->prepare("
+            SELECT NULL AS crossword, default_level, maximum_level
+            FROM $project_table_name
+            WHERE project = %s
+        ", $project) );
     } else {
-        $crossword = $wpdb->get_var( $wpdb->prepare("
-            SELECT crossword
-            FROM $data_table_name
-            WHERE project = %s AND name = %s AND NOT (%d AND pending)
+        // the $restricted_permission test is only used for previews,
+        // in posts pending riddles never show in $names_list
+        $data = $wpdb->get_row( $wpdb->prepare("
+            SELECT dt.crossword AS crossword, pt.default_level AS default_level,
+            pt.maximum_level AS maximum_level
+            FROM $project_table_name AS pt
+            LEFT JOIN $data_table_name AS dt ON pt.project = dt.project
+            WHERE pt.project = %s AND dt.name = %s AND NOT (%d AND dt.pending)
         ", $project, $name, (int)$restricted_permission) );
     }
-
     // check for database errors
-    if ($crossword) {
+    if ($data) {
         // send updated list of (non-pending) names in project
         $names_list = crw_get_names_list($project);
-        echo '{"crossword":' . $crossword .
-            ',"namesList":' . json_encode($names_list) .
+        echo '{"crossword":' . ($data->crossword ? $data->crossword : 'null') .
+            ',"default_level":' . $data->default_level .
+            ',"maximum_level":' . $data->maximum_level .
+            ',"namesList":' . ($restricted_page ? '[]' : json_encode($names_list)) .
             ',"' . CRW_NONCE_NAME . '": "' . wp_create_nonce( NONCE_CROSSWORD ) .
             '"}';
         die();
     } else {
-        crw_send_error($error, $wpdb->last_error);
+        $debug = array( $wpdb->last_error, $wpdb->last_query );
+        crw_send_error($error, $debug);
     }
 }
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );

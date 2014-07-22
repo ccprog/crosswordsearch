@@ -72,6 +72,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         words: 0,
         solution: 0
     };
+    $scope.levelList = $scope.crw.getLevelList();
 
     // build page only: data object for command menu
     // move the namesIn Project list into the command sub-menu
@@ -88,7 +89,6 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         'insert': 'save("insert")',
         'reload': 'load(loadedName)'
     };
-    $scope.levelList = [0, 1, 2, 3];
 
     // init crossword at page load time
     $scope.prepare = function (project, nonceCrossword, nonceEdit, name, restricted) {
@@ -166,6 +166,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         return arr;
     };
 
+    // adjust names list in menu
     var updateNames = function () {
         if ($scope.commandState === 'full') {
             $scope.namesInProject = $scope.crw.getNamesList();
@@ -178,6 +179,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // get model data up to speed after loading
     var updateModel = function () {
         $scope.crosswordData = $scope.crw.getCrosswordData();
+        $scope.levelList = $scope.crw.getLevelList();
         updateNames();
         $scope.count.words = 0;
         angular.forEach($scope.crosswordData.words, function(word) {
@@ -197,8 +199,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     $scope.load = function (name) {
         $scope.loadError = null;
         // if the page shortcode explicitely sets name='', it will be routed
-        // through by $scope.prepare. On unrestricted pages, the namesList must be retrieved.
-        if ($scope.commandState !== 'restricted' && (name || typeof name === 'string')) {
+        // through by $scope.prepare.
+        if (name || typeof name === 'string') {
             $scope.immediateStore.newPromise('loadCrossword', name).then(
                 updateModel,
                 function (error) {

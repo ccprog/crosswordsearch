@@ -338,52 +338,79 @@ dl.crw-color img {
     padding: 2px 0;
 }
 .crw-editors table.widefat {
-    width: 24em;
+    width: auto;
 }
-.crw-editors table.widefat th, .crw-editors table.widefat td {
+.crw-editors table.widefat th,
+.crw-editors table.widefat td,
+.crw-editors table.widefat .check-column {
     padding: 3px 10px;
 }
-.crw-editors table.widefat .radiocol {
+.crw-editors table.widefat .check-column {
     text-align: center;
 }
-.crw-options th.between, .crw-editors td.between {
-    width: 5em;
-    max-width: 5em;
-    text-align: center;
+.crw-options {
+    border-spacing: 0;
 }
-.crw-options tr.actions {
+.crw-options tr.actions td {
     vertical-align: top;
+    padding-bottom: 4px;
 }
-.crw-options select {
-    height: 186px;
-}
-.crw-options td {
+.crw-options th, .crw-options td {
+    max-width: 166px;
     padding: 1px;
 }
-.crw-options td.project {
-    max-width: 252px;
+.crw-options select {
+    height: 400px;
+    width: 160px;
+    font-size: 100%;
 }
-.crw-options .project select, .crw-options .project input {
-    width: 250px;
-}
+.crw-options th.crosswordname,
 .crw-options td.crosswordname {
-    max-width: 282px;
+    max-width: 286px;
 }
 .crw-options .crosswordname select {
     width: 280px;
 }
-.crw-options td {
-    max-width: 162px;
+.crw-options td.aligned {
+    padding-left: 14px;
 }
-.crw-options select {
-    width: 160px;
+.crw-options th.project,
+.crw-options td.project {
+    max-width: 252px;
+    padding-right: 20px;
+}
+.crw-options td.project {
+    vertical-align: top;
+}
+.crw-options .project select {
+    width: 250px;
+}
+.crw-options td.username {
+    vertical-align: bottom;
+}
+.crw-options td.username select {
+    height: 190px;
+}
+.crw-options tr.separate th {
+    border-top: 1px solid #ccc;
+    padding-top: 4px;
+}
+.crw-options th.between,
+.crw-editors td.between {
+    width: 50px;
+    max-width: 50px;
+}
+.crw-options td.between select.spin,
+.widefat select.spin {
+    width: 46px;
+    height: auto;
+}
+.crw-options .projectname input {
+    width: 100%;
 }
 .crw-options button {
     width: 36px;
 }
 .crw-options button.text {
     width: auto;
-}
-.crw-options input[type="checkbox"]+button {
-    margin-left: 0.5em;
 }

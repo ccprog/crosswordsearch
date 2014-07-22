@@ -9,17 +9,17 @@
                 <th colspan="3"><?php _e('Editing rights', 'crw-text') ?></th>
             </tr>
             <tr>
-                <th class="radiocol"><?php _e('none', 'crw-text') ?></th>
-                <th class="radiocol"><?php _e('restricted', 'crw-text') ?></th>
-                <th class="radiocol"><?php _e('full', 'crw-text') ?></th>
+                <th class="check-column"><?php _e('none', 'crw-text') ?></th>
+                <th class="check-column"><?php _e('restricted', 'crw-text') ?></th>
+                <th class="check-column"><?php _e('full', 'crw-text') ?></th>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="role in capabilities">
-                <td>{{role.local}}</td>
-                <td class="radiocol"><input type="radio" name="{{role.name}}" ng-model="role.cap" value=""></input></td>
-                <td class="radiocol"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_UNCONFIRMED ?>"></input></td>
-                <td class="radiocol"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_CONFIRMED ?>"></input></td>
+            <tr ng-class-odd="'alternate'" ng-repeat="role in capabilities">
+                <th>{{role.local}}</th>
+                <td class="check-column"><input type="radio" name="{{role.name}}" ng-model="role.cap" value=""></input></td>
+                <td class="check-column"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_UNCONFIRMED ?>"></input></td>
+                <td class="check-column"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_CONFIRMED ?>"></input></td>
             </tr>
             </tbody>
         </table>

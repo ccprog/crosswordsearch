@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-10 13:52+0200\n"
+"POT-Creation-Date: 2014-07-22 13:38+0200\n"
 "PO-Revision-Date: 2014-05-11 13:36+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
@@ -25,7 +25,7 @@ msgstr "Rätsel..."
 msgid "Give a hint which words should be found:"
 msgstr "Gib an, welche Wörter gefunden werden sollen:"
 
-#: plugin/app.php:14 plugin/editorsTab.php:39 plugin/immediate.php:59
+#: plugin/app.php:14 plugin/editorsTab.php:25 plugin/immediate.php:59
 msgid "Dont't try to be clever!"
 msgstr ""
 
@@ -121,22 +121,25 @@ msgstr "Neu starten"
 msgid "Authored by"
 msgstr "Verfasst von"
 
-#: plugin/crosswordsearch.php:62 plugin/editorsTab.php:37
-#: plugin/immediate.php:25
-msgid "You have exceeded the maximum length for a name!"
-msgstr "Du hast die maximale Länge für einen Namen überschritten!"
+#: plugin/crosswordsearch.php:71
+msgid ""
+"There are still riddles saved for that project. You need to delete them "
+"before you can remove the project."
+msgstr ""
+"Für dieses Projekt sind noch Rätsel gespeichert. Du musst sie löschen, bevor "
+"Du das Projekt entfernen kannst."
 
-#: plugin/crosswordsearch.php:210
+#: plugin/crosswordsearch.php:257
 msgid "The shortcode usage is faulty:"
 msgstr "Die Shortcode-Verwendung ist fehlerhaft:"
 
 #. / translators: argument %1 will be the literal 'mode'
-#: plugin/crosswordsearch.php:214
+#: plugin/crosswordsearch.php:261
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
 msgstr "Das Attribut %1$s muss entweder \"%2$s\" oder \"%3$s\" lauten."
 
-#: plugin/crosswordsearch.php:218
+#: plugin/crosswordsearch.php:265
 msgid ""
 "If attribute <em>restricted</em> is set, attribute <em>name</em> must be "
 "omitted."
@@ -145,76 +148,77 @@ msgstr ""
 "<em>name</em> ausgelassen werden."
 
 #. / translators: argument %1 will be the literal 'project'
-#: plugin/crosswordsearch.php:223
+#: plugin/crosswordsearch.php:270
 #, php-format
 msgid "Attribute %1$s needs to be an existing project."
 msgstr "Das Attribut %1$s muss ein existierendes Projekt benennen."
 
-#: plugin/crosswordsearch.php:227
+#: plugin/crosswordsearch.php:274
 #, php-format
 msgid "There is no crossword in project %1$s."
 msgstr "In Projekt %1$s gibt es keine Rätsel."
 
-#: plugin/crosswordsearch.php:231
+#: plugin/crosswordsearch.php:278
 #, php-format
 msgid "There is no crossword with the name %1$s."
 msgstr "Es gibt kein Rätsel mit dem Namen %1$s."
 
-#: plugin/crosswordsearch.php:398
+#: plugin/crosswordsearch.php:454
 msgid "You do not have permission."
 msgstr "Du hast keine Erlaubnis."
 
-#: plugin/crosswordsearch.php:488
+#: plugin/crosswordsearch.php:544
 msgid "Editing rights could not be updated."
 msgstr "Die Bearbeitungsrechte konnten nicht aktualisiert werden."
 
-#: plugin/crosswordsearch.php:592
-msgid "The project name already exists."
-msgstr "Dieser Projektname existiert bereits."
-
-#: plugin/crosswordsearch.php:602
+#: plugin/crosswordsearch.php:654
 msgid "The project could not be removed."
 msgstr "Das Projekt konnte nicht gelöscht werden."
 
-#: plugin/crosswordsearch.php:614
-msgid ""
-"There are still riddles saved for that project. You need to delete them "
-"before you can remove the project."
-msgstr ""
-"Für dieses Projekt sind noch Rätsel gespeichert. Du musst sie löschen, bevor "
-"Du das Projekt entfernen kannst."
+#: plugin/crosswordsearch.php:663 plugin/editorsTab.php:23
+#: plugin/immediate.php:25
+msgid "You have exceeded the maximum length for a name!"
+msgstr "Du hast die maximale Länge für einen Namen überschritten!"
 
-#: plugin/crosswordsearch.php:639
+#: plugin/crosswordsearch.php:673
+msgid "The project could not be added."
+msgstr "Das Projekt konnte nicht hinzugefügt werden."
+
+#: plugin/crosswordsearch.php:675
+msgid "The project could not be altered."
+msgstr "Das Projekt konnte nicht geändert werden."
+
+#: plugin/crosswordsearch.php:691
 msgid "The editors could not be updated."
 msgstr "Die Bearbeiter konnten nicht aktualisiert werden."
 
-#: plugin/crosswordsearch.php:724
+#: plugin/crosswordsearch.php:783
 msgid "The crossword could not be deleted."
 msgstr "Das Rätsel konnte nicht gelöscht werden."
 
-#: plugin/crosswordsearch.php:751
+#: plugin/crosswordsearch.php:811
 msgid "The crossword could not be approved."
 msgstr "Das Rätsel konnte nicht freigegeben werden."
 
-#: plugin/crosswordsearch.php:780
+#: plugin/crosswordsearch.php:841
 msgid "You are not allowed to save the crossword."
 msgstr "Du darfst das Kreuzworträtsel nicht speichern."
 
-#: plugin/crosswordsearch.php:830 plugin/immediate.php:26
+#: plugin/crosswordsearch.php:903 plugin/immediate.php:26
 msgid "There is already another riddle with that name!"
 msgstr "Es gibt bereits ein Rätsel mit diesem Namen!"
 
-#: plugin/crosswordsearch.php:833
+#: plugin/crosswordsearch.php:906
 msgid "The riddle you tried to update can not be found!"
 msgstr "Das Rätsel, dass du aktualisieren wolltest, wurde nicht gefunden!"
 
-#: plugin/crosswordsearch.php:835
+#: plugin/crosswordsearch.php:908
 msgid "A moderator might have deleted it already. You must start a new one."
 msgstr ""
 "Ein Moderator hat es möglicherweise bereits gelöscht. Du musst ein neues "
 "beginnen."
 
-#: plugin/crosswordsearch.php:837
+#: plugin/crosswordsearch.php:910
 msgid ""
 "Someone else might have renamed or deleted it in the meantime. Look into the "
 "list of existing riddles."
@@ -222,94 +226,102 @@ msgstr ""
 "Jemand anderes hat es möglicherweise umbenannt oder gelöscht. Überprüfe die "
 "Liste der existierenden Rätsel."
 
-#: plugin/crosswordsearch.php:878
+#: plugin/crosswordsearch.php:957
 msgid "The crossword could not be saved to the database."
 msgstr "Das Rätsel konnte nicht in der Datenbank gespeichert werden."
 
-#: plugin/crosswordsearch.php:892
+#: plugin/crosswordsearch.php:971
 msgid "The crossword could not be retrieved."
 msgstr "Das Rätsel konnte nicht herunter geladen werden."
 
-#: plugin/crosswordsearch.php:938 plugin/crosswordsearch.php:948
-#: plugin/crosswordsearch.php:958
+#: plugin/crosswordsearch.php:1028 plugin/crosswordsearch.php:1038
+#: plugin/crosswordsearch.php:1048
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: plugin/editorsTab.php:4 plugin/reviewTab.php:4
+#: plugin/editorsTab.php:5 plugin/reviewTab.php:4
 msgid "Projects"
 msgstr "Projekte"
 
-#: plugin/editorsTab.php:6
-msgid "Full project editors"
-msgstr "Volle Projekt-Bearbeiter"
+#: plugin/editorsTab.php:12
+msgid "Project Name"
+msgstr "Projektname"
 
-#: plugin/editorsTab.php:8
-msgid "Other users with full editor rights"
-msgstr "Andere Benutzer mit vollen Bearbeiter-Rechten"
-
-#: plugin/editorsTab.php:14
-msgid "can be used by"
-msgstr "kann bearbeitet werden von"
-
-#: plugin/editorsTab.php:19
-msgid "Add all users to the editors of the marked project"
-msgstr "Füge alle Nutzer zu den Bearbeitern des Projektes hinzu"
-
-#: plugin/editorsTab.php:20
-msgid "Add the marked user to the editors of the marked project"
-msgstr "Füge den markierten Nutzer zu den Bearbeitern des Projektes hinzu"
-
-#: plugin/editorsTab.php:21
-msgid "Remove the marked user from the editors of the marked project"
-msgstr "Entferne den markierten Nutzer als Bearbeiter des Projektes"
-
-#: plugin/editorsTab.php:22
-msgid "Remove all users from the editors of the marked project"
-msgstr "Entferne alle Nutzer als Bearbeiter des Projektes"
-
-#: plugin/editorsTab.php:31
-msgid "Delete the selected project"
-msgstr "Lösche das ausgewählte Projekt"
-
-#: plugin/editorsTab.php:32
-msgid "Add a new project"
-msgstr "Füge eine neues Projekt hinzu"
-
-#: plugin/editorsTab.php:35 plugin/immediate.php:23
+#: plugin/editorsTab.php:21 plugin/immediate.php:23
 msgid "You must give a name!"
 msgstr "Du musst einen Namen angeben!"
 
-#: plugin/editorsTab.php:36 plugin/immediate.php:24
+#: plugin/editorsTab.php:22 plugin/immediate.php:24
 msgid "The name is too short!"
 msgstr "Der Name ist zu kurz!"
 
-#: plugin/editorsTab.php:38
+#: plugin/editorsTab.php:24
 msgid "There is already another project with that name!"
 msgstr "Es gibt bereits ein Projekt mit diesem Namen!"
 
-#: plugin/editorsTab.php:42
-msgid "Save the new project name"
-msgstr "Speichere den neuen Projektnamen"
+#: plugin/editorsTab.php:31
+msgid "Default difficulty level"
+msgstr "Vorgegebener Schwierigkeitsgrad"
 
-#: plugin/editorsTab.php:42 plugin/editorsTab.php:50 plugin/immediate.php:61
+#: plugin/editorsTab.php:37
+msgid "Maximum difficulty level"
+msgstr "Maximaler Schwierigkeitsgrad"
+
+#: plugin/editorsTab.php:44
+msgid "Save the project"
+msgstr "Speichere das Projekt"
+
+#: plugin/editorsTab.php:44 plugin/editorsTab.php:75 plugin/immediate.php:61
 #: plugin/optionsTab.php:26
 msgid "Save"
 msgstr "Speichern"
 
-#: plugin/editorsTab.php:43
-msgid "Abort saving the project name"
-msgstr "Speichervorgang für den Projektnamen abbrechen"
+#: plugin/editorsTab.php:45
+msgid "Abort saving the project"
+msgstr "Speichervorgang für das Projekt abbrechen"
 
-#: plugin/editorsTab.php:43 plugin/editorsTab.php:51 plugin/immediate.php:62
+#: plugin/editorsTab.php:45 plugin/editorsTab.php:76 plugin/immediate.php:62
 #: plugin/immediate.php:110
 msgid "Abort"
 msgstr "Abbrechen"
 
-#: plugin/editorsTab.php:50
+#: plugin/editorsTab.php:51
+msgid "Full project editors"
+msgstr "Volle Projekt-Bearbeiter"
+
+#: plugin/editorsTab.php:53
+msgid "Other users with full editor rights"
+msgstr "Andere Benutzer mit vollen Bearbeiter-Rechten"
+
+#: plugin/editorsTab.php:60
+msgid "Add all users to the editors of the marked project"
+msgstr "Füge alle Nutzer zu den Bearbeitern des Projektes hinzu"
+
+#: plugin/editorsTab.php:61
+msgid "Add the marked user to the editors of the marked project"
+msgstr "Füge den markierten Nutzer zu den Bearbeitern des Projektes hinzu"
+
+#: plugin/editorsTab.php:62
+msgid "Remove the marked user from the editors of the marked project"
+msgstr "Entferne den markierten Nutzer als Bearbeiter des Projektes"
+
+#: plugin/editorsTab.php:63
+msgid "Remove all users from the editors of the marked project"
+msgstr "Entferne alle Nutzer als Bearbeiter des Projektes"
+
+#: plugin/editorsTab.php:71
+msgid "Add a new project"
+msgstr "Füge eine neues Projekt hinzu"
+
+#: plugin/editorsTab.php:72
+msgid "Delete the selected project"
+msgstr "Lösche das ausgewählte Projekt"
+
+#: plugin/editorsTab.php:75
 msgid "Save the editor list for this project"
 msgstr "Speichere die Bearbeiterliste für dieses Projekt"
 
-#: plugin/editorsTab.php:51
+#: plugin/editorsTab.php:76
 msgid "Abort saving the editor list"
 msgstr "Speichervorgang für die Bearbeiterliste abbrechen"
 
@@ -528,32 +540,32 @@ msgstr "voll"
 msgid "Save the updated assignment of editing capabilities"
 msgstr "Speichere die aktualisierte Zuordnung von Bearbeitungsrechten"
 
-#: plugin/reviewTab.php:6
+#: plugin/reviewTab.php:5
 msgid "Approved crosswords"
 msgstr "Freigegebene Kreuzworträtsel"
 
-#: plugin/reviewTab.php:8
+#: plugin/reviewTab.php:7
 msgid "Crosswords pending approval"
 msgstr "Kreuzworträtsel ohne Freigabe"
 
-#: plugin/reviewTab.php:19
+#: plugin/reviewTab.php:17
 msgid "Approve the marked crossword to be displayed for everyone"
 msgstr ""
 "Gib das markierte Kreuzworträtsel frei, so dass es allgemein sichtbar wird"
 
-#: plugin/reviewTab.php:29
+#: plugin/reviewTab.php:26
 msgid "Delete the selected approved crossword"
 msgstr "Lösche das ausgewählte freigegebene Kreuzworträtsel"
 
-#: plugin/reviewTab.php:35
+#: plugin/reviewTab.php:32
 msgid "Delete the selected pending crossword"
 msgstr "Lösche das ausgewählte Kreuzworträtsel ohne Freigabe"
 
-#: plugin/reviewTab.php:43
+#: plugin/reviewTab.php:40
 msgid "Show a preview of the selected crossword"
 msgstr "Betrachte eine Vorschau des gewählten Kreuzworträtsels"
 
-#: plugin/reviewTab.php:43
+#: plugin/reviewTab.php:40
 msgid "Preview"
 msgstr "Vorschau"
 

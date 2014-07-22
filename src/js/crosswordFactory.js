@@ -4,8 +4,14 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
     function Crw () {
         var crwContext = 'crossword', editContext = 'edit';
         // parent data object
-        var crossword = {}, namesList = [];
-        // project key
+        var crossword = {};
+        // default level for new crosswords
+        var stdLevel = 1;
+        // maximum level for crosswords
+        var maxLevel = 3;
+        // list of crossword names in project
+        var namesList = [];
+        // project name
         var project = '';
         // restriction context
         var restricted = false;
@@ -27,16 +33,19 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 // letter sequences that have been marked on the solve page,
                 // irrespective of their status as a valid solution
                 solution: {},
-                level: 1
+                level: stdLevel
             });
             addRows(crossword.size.height, false);
         };
 
-         var _getLevelRestriction = function (restriction) {
+        // test whether a difficulty level enforces a restriction
+        var _getLevelRestriction = function (restriction) {
             switch (restriction) {
             case 'dir':
+                // only easy directions
                 return !(crossword.level & 1);
             case 'sol':
+                // show word before found
                 return !(crossword.level & 2);
             }
         };
@@ -118,6 +127,15 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             return namesList;
         };
 
+        // return list of adjustable levels for a crossword
+        this.getLevelList = function () {
+            var list = [];
+            for (var i = 0; i <= maxLevel; i++) {
+                list.push(i);
+            }
+            return list;
+        };
+
         // set the project key, previewController will not set nonces
         this.setProject = function (p, nc, ne, r) {
             project = p;
@@ -136,9 +154,10 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // load a crossword
         this.loadCrosswordData = function (name) {
             return ajaxFactory.http({
-                    action: 'get_crossword',
-                    project: project,
-                    name: name
+                action: 'get_crossword',
+                project: project,
+                name: name,
+                restricted: restricted
             }, crwContext).then(function(data) {
                 // if an empty string is sent for name, no object is returned
                 if (angular.isObject(data.crossword)) {
@@ -150,6 +169,8 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                     _loadDefault();
                 }
                 namesList = data.namesList;
+                stdLevel = data.default_level;
+                maxLevel = data.maximum_level;
                 return true;
             });
         };
@@ -204,7 +225,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         this.randomizeEmptyFields = function () {
             forAllFields(function () {
                 if (!this.letter) {
-                    this.letter = basics.randomLetter("german");
+                    this.letter = basics.randomLetter();
                 }
             });
         };
@@ -277,6 +298,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             return critical;
         };
 
+        // test words for easy directions
         this.testDirection = function () {
             var critical = [];
             angular.forEach(crossword.words, function (word, id) {

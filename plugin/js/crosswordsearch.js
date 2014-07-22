@@ -256,7 +256,10 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", function($http, $q) {
 crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function(basics, reduce, ajaxFactory) {
     function Crw() {
         var crwContext = "crossword", editContext = "edit";
-        var crossword = {}, namesList = [];
+        var crossword = {};
+        var stdLevel = 1;
+        var maxLevel = 3;
+        var namesList = [];
         var project = "";
         var restricted = false;
         var _loadDefault = function() {
@@ -271,7 +274,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 table: [],
                 words: {},
                 solution: {},
-                level: 1
+                level: stdLevel
             });
             addRows(crossword.size.height, false);
         };
@@ -345,6 +348,13 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         this.getNamesList = function() {
             return namesList;
         };
+        this.getLevelList = function() {
+            var list = [];
+            for (var i = 0; i <= maxLevel; i++) {
+                list.push(i);
+            }
+            return list;
+        };
         this.setProject = function(p, nc, ne, r) {
             project = p;
             restricted = r;
@@ -360,7 +370,8 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             return ajaxFactory.http({
                 action: "get_crossword",
                 project: project,
-                name: name
+                name: name,
+                restricted: restricted
             }, crwContext).then(function(data) {
                 if (angular.isObject(data.crossword)) {
                     angular.extend(crossword, data.crossword);
@@ -371,6 +382,8 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                     _loadDefault();
                 }
                 namesList = data.namesList;
+                stdLevel = data.default_level;
+                maxLevel = data.maximum_level;
                 return true;
             });
         };
@@ -413,7 +426,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         this.randomizeEmptyFields = function() {
             forAllFields(function() {
                 if (!this.letter) {
-                    this.letter = basics.randomLetter("german");
+                    this.letter = basics.randomLetter();
                 }
             });
         };
@@ -669,6 +682,30 @@ crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scop
 
 crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
     var adminContext = "admin";
+    $scope.levelList = function(which) {
+        var min, max, list = [];
+        if (which === "default") {
+            min = 0;
+            max = $scope.currentProject.maximum_level;
+        } else {
+            min = Math.max($scope.currentProject.default_level, $scope.currentProject.used_level);
+            max = 3;
+        }
+        for (var i = min; i <= max; i++) {
+            list.push(i);
+        }
+        return list;
+    };
+    $scope.getProjectList = function(current) {
+        var list = [];
+        angular.forEach($scope.admin.projects, function(project) {
+            if (project.name !== current) {
+                list.push(project.name);
+            }
+        });
+        return list;
+    };
+    $scope.currentEditors = [];
     var showLoaded = function(admin, selected) {
         $scope.admin = admin;
         angular.forEach($scope.admin.projects, function(project) {
@@ -681,9 +718,8 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         } else {
             $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
         }
-        $scope.newProject = null;
-        $scope.addingProject = false;
-        $scope.editorsSaveError = null;
+        $scope.currentProject = angular.copy($scope.selectedProject);
+        $scope.editorsPristine = true;
     };
     $scope.prepare = function(nonce) {
         ajaxFactory.setNonce(nonce, adminContext);
@@ -693,33 +729,87 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
             $scope.loadError = error;
         });
     };
-    $scope.filtered_users = [];
-    $scope.current_users = [];
-    $scope.$watch("selectedProject", function(newSel) {
-        if (newSel) {
-            $scope.current_users = angular.copy(newSel.editors) || [];
-        } else {
-            $scope.current_users = null;
+    $scope.$watch("projectMod.$pristine", function(p) {
+        var truePristine = true;
+        angular.forEach([ "name", "defaultL", "maximumL" ], function(name) {
+            truePristine &= $scope.projectMod[name].$pristine;
+        });
+        if (!p && truePristine) {
+            $scope.projectMod.$setPristine();
         }
     });
-    $scope.$watchCollection("current_users", function() {
+    $scope.addProject = function() {
+        $scope.selectedProject = null;
+    };
+    $scope.$watch("selectedProject", function(newSel) {
+        if (newSel) {
+            $scope.currentProject = angular.copy(newSel);
+            $scope.currentEditors = angular.copy(newSel.editors);
+        } else {
+            $scope.currentProject = {
+                name: "",
+                default_level: 1,
+                maximum_level: 3,
+                editors: []
+            };
+            $scope.currentEditors = [];
+        }
+        $scope.projectMod.$setPristine();
+        $scope.editorsPristine = true;
+        $scope.editorsSaveError = null;
+        $scope.projectSaveError = null;
+    });
+    $scope.abortProject = function() {
+        if (!$scope.selectedProject) {
+            $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
+        }
+        $scope.currentProject = angular.copy($scope.selectedProject);
+        $scope.projectMod.$setPristine();
+        $scope.projectSaveError = null;
+    };
+    $scope.saveProject = function() {
+        ajaxFactory.http({
+            action: "save_project",
+            method: $scope.selectedProject ? "update" : "add",
+            project: $scope.selectedProject ? $scope.selectedProject.name : undefined,
+            new_name: $scope.currentProject.name,
+            default_level: $scope.currentProject.default_level,
+            maximum_level: $scope.currentProject.maximum_level
+        }, adminContext).then(function(data) {
+            showLoaded(data, $scope.currentProject.name);
+        }, function(error) {
+            $scope.projectSaveError = error;
+        });
+    };
+    $scope.deleteProject = function() {
+        var message = {
+            which: "remove_project",
+            project: $scope.selectedProject.name
+        };
+        $scope.immediateStore.newPromise("actionConfirmation", message).then(function() {
+            ajaxFactory.http({
+                action: "save_project",
+                method: "remove",
+                project: $scope.selectedProject.name
+            }, adminContext).then(showLoaded, function(error) {
+                $scope.projectSaveError = error;
+            });
+        });
+    };
+    $scope.filtered_users = [];
+    $scope.$watchCollection("currentEditors", function() {
         if (!$scope.admin) {
             return;
         }
         $scope.filtered_users = jQuery.grep($scope.admin.all_users, function(user) {
-            if ($scope.selectedProject) {
-                return jQuery.inArray(user.user_id, $scope.current_users) < 0;
-            } else {
-                return true;
-            }
+            return jQuery.inArray(user.user_id, $scope.currentEditors) < 0;
         });
-        $scope.selectedEditor = $filter("orderBy")($scope.current_users, $scope.getUserName)[0];
+        $scope.selectedEditor = $filter("orderBy")($scope.currentEditors, $scope.getUserName)[0];
         $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
         $scope.loadError = null;
-        $scope.projectSaveError = null;
     });
     var addUser = function(user) {
-        $scope.current_users.push(user.user_id);
+        $scope.currentEditors.push(user.user_id);
     };
     var getUser = function(id) {
         return jQuery.grep($scope.admin.all_users, function(user) {
@@ -729,75 +819,41 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     $scope.getUserName = function(id) {
         return getUser(id).user_name;
     };
-    $scope.getProjectList = function() {
-        return jQuery.map($scope.admin.projects, function(project) {
-            return project.name;
-        });
-    };
     $scope.addAll = function() {
         angular.forEach($scope.filtered_users, addUser);
-        $scope.selectedProject.pristine = false;
+        $scope.editorsPristine = false;
     };
     $scope.addOne = function() {
         var selected = $scope.selectedUser.user_id;
         addUser($scope.selectedUser);
-        $scope.selectedProject.pristine = false;
+        $scope.editorsPristine = false;
         $scope.selectedEditor = selected;
     };
     $scope.removeAll = function() {
-        $scope.current_users.splice(0);
-        $scope.selectedProject.pristine = false;
+        $scope.currentEditors.splice(0);
+        $scope.editorsPristine = false;
     };
     $scope.removeOne = function() {
-        var index = jQuery.inArray($scope.selectedEditor, $scope.current_users), selected = getUser($scope.selectedEditor);
-        $scope.current_users.splice(index, 1);
-        $scope.selectedProject.pristine = false;
+        var index = jQuery.inArray($scope.selectedEditor, $scope.currentEditors), selected = getUser($scope.selectedEditor);
+        $scope.currentEditors.splice(index, 1);
+        $scope.editorsPristine = false;
         $scope.selectedUser = selected;
     };
-    $scope.saveProject = function() {
-        ajaxFactory.http({
-            action: "add_project",
-            project: $scope.newProject
-        }, adminContext).then(function(data) {
-            showLoaded(data, $scope.newProject);
-        }, function(error) {
-            $scope.projectSaveError = error;
-        });
-    };
-    $scope.abortProject = function() {
-        $scope.newProject = null;
-        $scope.projectSaveError = null;
-        $scope.addingProject = false;
-    };
-    $scope.deleteProject = function() {
-        var message = {
-            which: "remove_project",
-            project: $scope.selectedProject.name
-        };
-        $scope.immediateStore.newPromise("actionConfirmation", message).then(function() {
-            ajaxFactory.http({
-                action: "remove_project",
-                project: $scope.selectedProject.name
-            }, adminContext).then(showLoaded, function(error) {
-                $scope.projectSaveError = error;
-            });
-        });
+    $scope.abortEditors = function() {
+        $scope.currentEditors = angular.copy($scope.selectedProject.editors);
+        $scope.editorsSaveError = null;
+        $scope.editorsPristine = true;
     };
     $scope.saveEditors = function() {
         ajaxFactory.http({
             action: "update_editors",
             project: $scope.selectedProject.name,
-            editors: angular.toJson($scope.current_users)
+            editors: angular.toJson($scope.currentEditors)
         }, adminContext).then(function(data) {
             showLoaded(data, $scope.selectedProject.name);
         }, function(error) {
             $scope.editorsSaveError = error;
         });
-    };
-    $scope.abortEditors = function() {
-        $scope.current_users = angular.copy($scope.selectedProject.editors);
-        $scope.editorsSaveError = null;
-        $scope.selectedProject.pristine = true;
     };
 } ]);
 
@@ -995,6 +1051,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         words: 0,
         solution: 0
     };
+    $scope.levelList = $scope.crw.getLevelList();
     function updateLoadList(names) {
         jQuery.grep($scope.commandList, function(command) {
             return command.value === "load";
@@ -1007,7 +1064,6 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         insert: 'save("insert")',
         reload: "load(loadedName)"
     };
-    $scope.levelList = [ 0, 1, 2, 3 ];
     $scope.prepare = function(project, nonceCrossword, nonceEdit, name, restricted) {
         $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
         if (restricted) {
@@ -1082,6 +1138,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
     var updateModel = function() {
         $scope.crosswordData = $scope.crw.getCrosswordData();
+        $scope.levelList = $scope.crw.getLevelList();
         updateNames();
         $scope.count.words = 0;
         angular.forEach($scope.crosswordData.words, function(word) {
@@ -1095,7 +1152,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
     $scope.load = function(name) {
         $scope.loadError = null;
-        if ($scope.commandState !== "restricted" && (name || typeof name === "string")) {
+        if (name || typeof name === "string") {
             $scope.immediateStore.newPromise("loadCrossword", name).then(updateModel, function(error) {
                 $scope.loadError = error;
             });
