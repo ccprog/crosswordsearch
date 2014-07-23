@@ -5,8 +5,9 @@ Crosswordsearch is a WordPress plugin for designing and playing wordsearch-style
 It is being developed for [RadiJojo.de](radijojo.de), the International Children's Media Network.
 
 The project is currently under active development. If you want to use this plugin on your
-Website, I'd ask you to wait until it shows up in
-[the Wordpress Plugin repository](http://wordpress.org/plugins/).
+Website, I strongly advise you to load it from
+[the Wordpress Plugin repository](http://wordpress.org/plugins/crosswordsearch). Please be
+aware that it is still in an experimental stage.
 
 ## For developers
 
@@ -21,14 +22,14 @@ directory pointing at the `plugin` directory. Copying and renaming the directory
 with the exception of the test data install.
 
 Activating the plugin from the Wordpress administrative interface will
-+ install two additional database tables `wp_crw_editors` and `wp_crw_crosswords`
++ install three additional database tables `wp_crw_projects`, `wp_crw_editors` and `wp_crw_crosswords`
 + introduce two specialized capabilities: `edit_crossword` will be given to roles that have
   the `moderate_comments` capability, `push_crossword` will be given to the Subscriber role.
   These are defaults that can be altered on the Settings/Crosswordsearch adminstrative page.
 
 If your WP installation is in debug mode, additionally some test data will be added to
-`wp_crw_crosswords`. *(Debug mode will break if you use a WP version &lt; 3.8 together with PHP 5.5.
-This is actually a general issue with class $wpdb. Read
+`wp_crw_projects` and `wp_crw_crosswords`. *(Debug mode will break if you use a WP version
+&lt; 3.8 together with PHP 5.5. This is actually a general issue with class $wpdb. Read
 [this Blog post](http://make.wordpress.org/core/2014/04/07/mysql-in-wordpress-3-9/) for more
 information.)*
 
@@ -43,7 +44,7 @@ new crossword,
 + or only new riddles can be saved by 'restricted' editors to be added to a moderation queue
   (`push_crossword` capability).
 
-Administrators can add/delete projects and assign editors on the Settings/Crosswordsearch
+Administrators can add, update and delete projects and assign editors on the Settings/Crosswordsearch
 administrative page.
 
 Editors assigned for projects can review Crosswords from the Settings/Crosswordsearch administrative
