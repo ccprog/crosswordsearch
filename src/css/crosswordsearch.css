@@ -130,6 +130,9 @@ table.crw-table {
     width: auto;
     height: auto;
 }
+table.crw-table tr, table.crw-table th, table.crw-table td {
+    background: none;
+}
 td.crw-field {
     height: 30px;
     width: 30px;

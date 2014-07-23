@@ -115,7 +115,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         } else {
             $scope.selectedProject = $filter('orderBy')($scope.admin.projects, 'name')[0];
         }
-        $scope.currentProject = angular.copy($scope.selectedProject);
+        getFilteredUsers();
         $scope.editorsPristine = true;
     };
 
@@ -155,6 +155,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
                 name: "",
                 default_level: 1,
                 maximum_level: 3,
+                used_level: 0,
                 editors: []
             };
             $scope.currentEditors = [];
@@ -212,7 +213,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     $scope.filtered_users = [];
 
     // get user lists and their model data up to speed
-    $scope.$watchCollection('currentEditors', function () {
+    var getFilteredUsers = function () {
         if (!$scope.admin) {
             return;
         }
@@ -222,7 +223,8 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         $scope.selectedEditor = $filter('orderBy')($scope.currentEditors, $scope.getUserName)[0];
         $scope.selectedUser = $filter('orderBy')($scope.filtered_users, 'user_name')[0];
         $scope.loadError = null;
-    });
+    };
+    $scope.$watchCollection('currentEditors', getFilteredUsers);
 
     var addUser = function (user) {
         $scope.currentEditors.push(user.user_id);

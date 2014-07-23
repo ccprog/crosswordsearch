@@ -1,5 +1,5 @@
 /*
-crosswordsearch Wordpress plugin v0.2.0
+crosswordsearch Wordpress plugin v0.3.0
 Copyright Claus Colloseus 2014 for RadiJojo.de
 
 This program is free software: Redistribution and use, with or
@@ -739,7 +739,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         } else {
             $scope.selectedProject = $filter("orderBy")($scope.admin.projects, "name")[0];
         }
-        $scope.currentProject = angular.copy($scope.selectedProject);
+        getFilteredUsers();
         $scope.editorsPristine = true;
     };
     $scope.prepare = function(nonce) {
@@ -771,6 +771,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
                 name: "",
                 default_level: 1,
                 maximum_level: 3,
+                used_level: 0,
                 editors: []
             };
             $scope.currentEditors = [];
@@ -818,7 +819,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         });
     };
     $scope.filtered_users = [];
-    $scope.$watchCollection("currentEditors", function() {
+    var getFilteredUsers = function() {
         if (!$scope.admin) {
             return;
         }
@@ -828,7 +829,8 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         $scope.selectedEditor = $filter("orderBy")($scope.currentEditors, $scope.getUserName)[0];
         $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
         $scope.loadError = null;
-    });
+    };
+    $scope.$watchCollection("currentEditors", getFilteredUsers);
     var addUser = function(user) {
         $scope.currentEditors.push(user.user_id);
     };

@@ -9,7 +9,7 @@ if ( 'build' == $mode ) {
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="name">{{crosswordData.name}}</p>
     <form name="meta">
-        <label for ="description"><?php _e('Give a hint which words should be found:', 'crw-text') ?></label>
+        <label for ="description"><?php _e('Give a hint which words should be found:', 'crw-text') ?></label><br/>
         <textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea>
         <p class="error" ng-show="meta.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></p>
     </form>
