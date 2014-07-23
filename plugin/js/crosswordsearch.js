@@ -645,6 +645,27 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
     };
 } ]);
 
+crwApp.directive("crwHelpFollow", [ "$document", function($document) {
+    return {
+        link: function(scope, element, attrs) {
+            var helptabs = {};
+            var matching = $document.find(".contextual-help-tabs li, .help-tab-content");
+            helptabs.capabilities = matching.filter("[id*=crw-help-tab-options]");
+            helptabs.editor = matching.filter("[id*=crw-help-tab-projects]");
+            helptabs.review = matching.filter("[id*=crw-help-tab-review]");
+            scope.$watch("$routeParams.tab", function(tab) {
+                angular.forEach(helptabs, function(el, id) {
+                    if (id === tab) {
+                        el.addClass("active");
+                    } else {
+                        el.removeClass("active");
+                    }
+                });
+            });
+        }
+    };
+} ]);
+
 crwApp.controller("AdminController", [ "$scope", "$routeParams", "$location", "qStore", "crosswordFactory", function($scope, $routeParams, $location, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();

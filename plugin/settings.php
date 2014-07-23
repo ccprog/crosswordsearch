@@ -14,7 +14,7 @@ if ( current_user_can('edit_users') ) {
 ?>
 <div class="wrap" ng-controller="AdminController" ng-init="setActive('<?php echo $ref_active ?>')">
     <h2><?php _e('Crosswordsearch Administration', 'crw-text') ?></h2>
-    <h3 class="nav-tab-wrapper">
+    <h3 class="nav-tab-wrapper" crw-help-follow>
 <?php
 
 if ( current_user_can('edit_users') ) {

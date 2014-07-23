@@ -1,3 +1,28 @@
+/* set help tabs active cresponding to settings tab */
+crwApp.directive('crwHelpFollow', ['$document', function ($document) {
+    return {
+        link: function (scope, element, attrs) {
+            // identify elements
+            var helptabs = {};
+            var matching = $document.find('.contextual-help-tabs li, .help-tab-content');
+            helptabs.capabilities = matching.filter('[id*=crw-help-tab-options]');
+            helptabs.editor = matching.filter('[id*=crw-help-tab-projects]');
+            helptabs.review = matching.filter('[id*=crw-help-tab-review]');
+
+            // set active on selection
+            scope.$watch('$routeParams.tab', function (tab) {
+                angular.forEach(helptabs, function (el, id) {
+                    if (id === tab) {
+                        el.addClass('active');
+                    } else {
+                        el.removeClass('active');
+                    }
+                });
+            });
+        }
+    };
+}]);
+
 /* wrapper controller */
 crwApp.controller("AdminController", ['$scope', '$routeParams', '$location', 'qStore', 'crosswordFactory',
 		function ($scope, $routeParams, $location, qStore, crosswordFactory) {

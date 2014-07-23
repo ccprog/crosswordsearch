@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-22 13:38+0200\n"
+"POT-Creation-Date: 2014-07-23 13:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,13 +226,61 @@ msgstr ""
 msgid "The crossword could not be retrieved."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1028 plugin/crosswordsearch.php:1038
-#: plugin/crosswordsearch.php:1048
-msgid "You do not have sufficient permissions to access this page."
+#: plugin/crosswordsearch.php:1025 plugin/settings.php:23
+msgid "Options"
 msgstr ""
 
-#: plugin/editorsTab.php:5 plugin/reviewTab.php:4
+#: plugin/crosswordsearch.php:1026
+msgid ""
+"Riddles saved by restricted editors need the approval of full editors before "
+"they can appear for other users."
+msgstr ""
+
+#: plugin/crosswordsearch.php:1027
+msgid "Full editors can only act on the projects they are assigned to."
+msgstr ""
+
+#: plugin/crosswordsearch.php:1031 plugin/editorsTab.php:5
+#: plugin/reviewTab.php:4
 msgid "Projects"
+msgstr ""
+
+#: plugin/crosswordsearch.php:1032
+msgid ""
+"If you change the name of a project, remember that you need to change it "
+"also in every shortcode refering to it."
+msgstr ""
+
+#: plugin/crosswordsearch.php:1032
+msgid ""
+"The lowest eligible maximum difficulty level is either the the default level "
+"or the highest level used in an existing riddle, whatever is higher."
+msgstr ""
+
+#: plugin/crosswordsearch.php:1033
+msgid ""
+"You need to assign editors to a project in order for them to see its riddles "
+"in the <em>Review</em> tab."
+msgstr ""
+
+#: plugin/crosswordsearch.php:1034
+msgid ""
+"If you want to delete a project, you need first to delete all its riddles."
+msgstr ""
+
+#: plugin/crosswordsearch.php:1040
+msgid "Review"
+msgstr ""
+
+#: plugin/crosswordsearch.php:1041
+msgid ""
+"To preview a riddle, check the <em>Preview</em> box and then click on the "
+"name of the riddle"
+msgstr ""
+
+#: plugin/crosswordsearch.php:1056 plugin/crosswordsearch.php:1066
+#: plugin/crosswordsearch.php:1076
+msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
 #: plugin/editorsTab.php:12
@@ -264,7 +312,7 @@ msgid "Save the project"
 msgstr ""
 
 #: plugin/editorsTab.php:44 plugin/editorsTab.php:75 plugin/immediate.php:61
-#: plugin/optionsTab.php:26
+#: plugin/optionsTab.php:24
 msgid "Save"
 msgstr ""
 
@@ -484,37 +532,27 @@ msgstr ""
 msgid "Reset to the saved version"
 msgstr ""
 
-#: plugin/optionsTab.php:2
-msgid ""
-"Riddles saved by restricted editors need the approval of full editors before "
-"they can appear for other users."
-msgstr ""
-
-#: plugin/optionsTab.php:3
-msgid "Full editors can only act on the projects they are assigned to."
-msgstr ""
-
-#: plugin/optionsTab.php:8
+#: plugin/optionsTab.php:6
 msgid "Roles"
 msgstr ""
 
-#: plugin/optionsTab.php:9
+#: plugin/optionsTab.php:7
 msgid "Editing rights"
 msgstr ""
 
-#: plugin/optionsTab.php:12
+#: plugin/optionsTab.php:10
 msgid "none"
 msgstr ""
 
-#: plugin/optionsTab.php:13
+#: plugin/optionsTab.php:11
 msgid "restricted"
 msgstr ""
 
-#: plugin/optionsTab.php:14
+#: plugin/optionsTab.php:12
 msgid "full"
 msgstr ""
 
-#: plugin/optionsTab.php:26
+#: plugin/optionsTab.php:24
 msgid "Save the updated assignment of editing capabilities"
 msgstr ""
 
@@ -548,10 +586,6 @@ msgstr ""
 
 #: plugin/settings.php:16
 msgid "Crosswordsearch Administration"
-msgstr ""
-
-#: plugin/settings.php:23
-msgid "Options"
 msgstr ""
 
 #: plugin/settings.php:24

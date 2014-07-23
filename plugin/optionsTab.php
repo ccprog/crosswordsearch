@@ -1,6 +1,4 @@
     <div class="crw-editors" ng-controller="OptionsController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_OPTIONS); ?>')">
-        <p><?php _e('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crw-text') ?></p>
-        <p><?php _e('Full editors can only act on the projects they are assigned to.', 'crw-text') ?></p>
         <form name="capsEdit">
         <table class="widefat">
             <thead>

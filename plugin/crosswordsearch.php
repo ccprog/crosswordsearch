@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: crosswordsearch
-Plugin URI: https://github.com/ccprog/crosswordseach
+Plugin URI: https://github.com/ccprog/crosswordsearch
 Version: 0.2.0
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
@@ -1016,9 +1016,38 @@ add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 /* settings page load routines */
 
+// context sensitive help
+function crw_add_help_tab () {
+    $screen = get_current_screen();
+
+    if ( current_user_can('edit_users') ) {
+        $screen->add_help_tab( array(
+            'id'	=> 'crw-help-tab-options',
+            'title'	=> __('Options', 'crw-text'),
+            'content'	=> '<p>' . __('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crw-text') . '</p><p>' .
+                __('Full editors can only act on the projects they are assigned to.', 'crw-text') . '</p>',
+        ) );
+        $screen->add_help_tab( array(
+            'id'	=> 'crw-help-tab-projects',
+            'title'	=> __('Projects', 'crw-text'),
+            'content'	=> '<p>' . __('If you change the name of a project, remember that you need to change it also in every shortcode refering to it.', 'crw-text') . '</p><p>' . __('The lowest eligible maximum difficulty level is either the the default level or the highest level used in an existing riddle, whatever is higher.', 'crw-text') . '</p><p>'
+                . __('You need to assign editors to a project in order for them to see its riddles in the <em>Review</em> tab.', 'crw-text') . '</p><p>' .
+                __('If you want to delete a project, you need first to delete all its riddles.', 'crw-text') . '</p>',
+        ) );
+    }
+    if ( current_user_can(CRW_CAP_CONFIRMED) ) {
+        $screen->add_help_tab( array(
+            'id'	=> 'crw-help-tab-review',
+            'title'	=> __('Review', 'crw-text'),
+            'content'	=> '<p>' . __('To preview a riddle, check the <em>Preview</em> box and then click on the name of the riddle', 'crw-text') . '</p>',
+        ) );
+    }
+}
+
 // menu entry
 function crw_admin_menu () {
-    add_options_page( 'Crosswordsearch', 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
+    $settings_page = add_options_page( 'Crosswordsearch', 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
+    add_action('load-'.$settings_page, 'crw_add_help_tab');
 };
 add_action('admin_menu', 'crw_admin_menu');
 
