@@ -22,7 +22,9 @@ directory pointing at the `plugin` directory. Copying and renaming the directory
 with the exception of the test data install.
 
 Activating the plugin from the Wordpress administrative interface will
-+ install three additional database tables `wp_crw_projects`, `wp_crw_editors` and `wp_crw_crosswords`
++ install three additional database tables `wp_crw_projects`, `wp_crw_editors` and
+  `wp_crw_crosswords`, explicitly as InnoDB tables. Make sure your MySQL server supports
+  this engine.
 + introduce two specialized capabilities: `edit_crossword` will be given to roles that have
   the `moderate_comments` capability, `push_crossword` will be given to the Subscriber role.
   These are defaults that can be altered on the Settings/Crosswordsearch adminstrative page.

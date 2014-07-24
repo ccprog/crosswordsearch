@@ -92,6 +92,13 @@ function crw_install () {
     global $wp_roles, $wpdb, $charset_collate, $project_table_name, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
+    $have_innodb = $wpdb->get_var("
+        SHOW VARIABLES LIKE 'have_innodb';
+    ");
+    if ('NO' === $have_innodb ) {
+        trigger_error( 'This plugin requires MySQL to support the InnoDB table engine. Please contact your server administrator before you activate this plugin', E_USER_ERROR );
+    }
+
     update_option( "crw_db_version", CRW_DB_VERSION );
     $roles_caps = array();
     foreach ( $wp_roles->role_objects as $name => $role ) {
@@ -125,7 +132,7 @@ CREATE TABLE IF NOT EXISTS $data_table_name (
   last_user bigint(20) unsigned NOT NULL,
   pending boolean NOT NULL DEFAULT FALSE,
   PRIMARY KEY  (project, name)
-) $charset_collate;\n"
+) ENGINE=InnoDB $charset_collate;\n"
     );
 
     dbDelta( "
@@ -133,7 +140,7 @@ CREATE TABLE IF NOT EXISTS $editors_table_name (
   project varchar(255) NOT NULL,
   user_id bigint(20) unsigned NOT NULL,
   PRIMARY KEY (project, user_id)
-) $charset_collate;\n"
+) ENGINE=InnoDB $charset_collate;\n"
     );
 
     $wpdb->query("
