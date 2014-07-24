@@ -119,12 +119,12 @@ if ( 'build' == $mode ) {
 
 ?>
     </div>
-    <div class="crw-controls">
 <?php // build mode: wordlist with color chooser and delete button
 
 if ( 'build' == $mode ) {
 
 ?>
+    <div class="crw-controls wide">
         <ul class="crw-word">
             <li ng-class="{'highlight': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
                 <dl class="cse crw-color" title="{{word.color}}" cse-template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
@@ -139,6 +139,7 @@ if ( 'build' == $mode ) {
 } elseif ( 'preview' == $mode ) {
 
 ?>
+    <div class="crw-controls">
         <ul class="crw-word">
             <li ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
                 <img title="{{word.color}}" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-{{word.color}}.png">
@@ -150,6 +151,7 @@ if ( 'build' == $mode ) {
 } else {
 
 ?>
+    <div class="crw-controls">
         <p ng-show="crosswordData.name">
             <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) ?></span>
             <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crw-text'), '{{count.words}}' ) ?></span>

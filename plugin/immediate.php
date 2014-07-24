@@ -1,4 +1,4 @@
-    <div class="crw-immediate" ng-controller="ImmediateController" ng-show="immediate" ng-switch on="immediate">
+    <div class="crw-immediate" ng-controller="ImmediateController" ng-cloak ng-show="immediate" ng-switch on="immediate">
         <div class="blocker"></div>
         <div class="message">
 <?php

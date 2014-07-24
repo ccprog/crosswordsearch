@@ -22,6 +22,10 @@
     font-weight: bold;
     margin: 3px 10px 5px;
 }
+.crw-wrapper .copyright {
+    clear: left;
+    float: none;
+}
 .crw-wrapper .error {
     color: red;
 }
@@ -31,6 +35,10 @@
 .crw-wrapper p.name {
     font-style: italic;
     font-weight: bold;
+}
+.crw-wrapper textarea {
+    width: 90%;
+    height: 6em;
 }
 .crw-wrapper p.crw-description em {
     margin-right: 0.5em;
@@ -145,6 +153,7 @@ td.crw-field {
 td.crw-field  > div {
     position: relative;
     height: 30px;
+    line-height: 18px;
 }
 td.crw-field button {
     height: 26px;
@@ -226,6 +235,13 @@ div.crw-marked.up { background-position: -124px -124px; }
 .crw-crossword button.empty:hover {
     background-position: -31px 0px;
 }
+.crw-controls {
+    display: inline-block;
+    width: 20em;
+}
+.crw-controls.wide {
+    width: 30em;
+}
 .crw-controls button {
     margin: 0;
     padding: 0;
@@ -243,13 +259,10 @@ div.crw-marked.up { background-position: -124px -124px; }
 }
 .crw-controls button.restart {
     background-position: -93px -35px;
+    vertical-align: middle;
 }
 .crw-controls button.restart:hover {
     background-position: -93px -4px;
-}
-.crw-controls {
-    display: inline-block;
-    width: 30em;
 }
 .crw-immediate>.blocker {
     position: fixed;
@@ -296,11 +309,6 @@ div.crw-marked.up { background-position: -124px -124px; }
 }
 .crw-immediate input.authenticate {
     width: 10em;
-}
-.crw-immediate textarea {
-    width: 15em;
-    height: 6em;
-    vertical-align: text-top;
 }
 ul.crw-word {
     list-style-type: none;
