@@ -7,45 +7,54 @@ module.exports = function(grunt) {
     var options = this.options({
         text_domain: 'messages',
         template: './',
+        version: 'VERSION',
     });
+    var dateFormat = require('dateformat');
 
-	if( grunt.file.isDir(options.template) ) {
-	    options.template = options.template.replace(/\/$/, '') + '/' + options.text_domain + '.pot';
+    if( grunt.file.isDir(options.template) ) {
+        options.template = options.template.replace(/\/$/, '') + '/' + options.text_domain + '.pot';
     }
 
-	if( !grunt.file.exists(options.template) ) {
+    if( !grunt.file.exists(options.template) ) {
         grunt.fail.warn('Template file not found: ' + options.template, 3);
     }
 
     grunt.verbose.writeln('Template: ' + options.template);
     
-	var done = this.async();
+    var done = this.async();
     var counter = this.files.length;
 
     this.files.forEach(function(file) {
 
-	  grunt.util.spawn( {
-	    cmd: 'msgmerge',
-	    args: ['-U', file.src, options.template]
-	  }, function(error, result, code){
+      grunt.util.spawn( {
+        cmd: 'msgmerge',
+        args: [file.src, options.template]
+      }, function(error, result, code){
 
-		grunt.verbose.write('Updating: ' + file.src + ' ...');
+        grunt.verbose.write('Updating: ' + file.src + ' ...');
 
-		if (error) {
-			grunt.verbose.error();
-		} else {
-		    grunt.verbose.ok();
-		}
+        if (error) {
+            grunt.verbose.error();
+        } else {
+            var regexp = /(Project-Id-Version: crosswordsearch ).*(\\n)/;
+            var rpl = '$1' + options.version + '$2';
+            var content = String(result).replace(regexp, rpl);
+            regexp = /(PO-Revision-Date: ).*(\\n)/;
+            rpl =  '$1' + dateFormat(new Date(), 'yyyy-mm-dd HH:MMo') + '$2';
+            content = content.replace(regexp, rpl);
+            grunt.file.write(file.src[0], content);
+            grunt.verbose.ok();
+        }
 
-		counter--;
+        counter--;
 
-		if (error || counter === 0) {
-			done(error);
-		}
+        if (error || counter === 0) {
+            done(error);
+        }
 
-	  });
-		
-	});
+      });
+
+    });
 
   });
 
@@ -117,20 +126,20 @@ module.exports = function(grunt) {
             encoding: 'UTF-8',
             overwrite: true,
             keywords: [
-                '__:1',
-                '_e:1',
-                '_x:1,2c',
-                'esc_html__:1',
-                'esc_html_e:1',
-                'esc_html_x:1,2c',
-                'esc_attr__:1', 
-                'esc_attr_e:1', 
-                'esc_attr_x:1,2c', 
-                '_ex:1,2c',
-                '_n:1,2', 
-                '_nx:1,2,4c',
-                '_n_noop:1,2',
-                '_nx_noop:1,2,3c'
+                '__:1,2t',
+                '_e:1,2t',
+                '_x:1,2c,3t',
+                'esc_html__:1,2t',
+                'esc_html_e:1,2t',
+                'esc_html_x:1,2c,3t',
+                'esc_attr__:1,2t', 
+                'esc_attr_e:1,2t', 
+                'esc_attr_x:1,2c,3t', 
+                '_ex:1,2c,3t',
+                '_n:1,2,3t', 
+                '_nx:1,2,4c,5t',
+                '_n_noop:1,2,3t',
+                '_nx_noop:1,2,3c,4t'
             ],
         },
         files:{
@@ -142,6 +151,7 @@ module.exports = function(grunt) {
       options: {
         text_domain: text_domain,
         template: l10ndir,
+        version: '<%= pkg.version %>',
       },
       files: {
         src: l10ndir + text_domain + '-*.po',
@@ -162,6 +172,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-pot');
   grunt.loadNpmTasks('grunt-po2mo');
 
-  grunt.registerTask('default', ['jshint', 'uglify', 'cssmin']);
   grunt.registerTask('msgupdate', ['pot', 'msgmerge']);
+  grunt.registerTask('default', ['jshint', 'uglify', 'cssmin', 'msgupdate']);
 };

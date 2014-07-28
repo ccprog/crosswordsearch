@@ -114,5 +114,5 @@ The following tasks are available for the development process:
 + `grunt msgmerge` will update all `.po` files in `plugin/languages/` to reflect
   `plugin/languages/crw-text.pot`.
 + `grunt msgupdate` executes `pot` and `msgmerge` together.
-+ `grunt` executes `jshint`, `uglify` and `cssmin` together.
++ `grunt` executes `jshint`, `uglify`, `cssmin` and `msgupdate` together.
 
