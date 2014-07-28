@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS $project_table_name (
   maximum_level int NOT NULL,
   used_level int NOT NULL,
   PRIMARY KEY  (project)
-) $charset_collate;\n"
+) ENGINE=InnoDB $charset_collate;\n"
     );
 
     dbDelta( "
