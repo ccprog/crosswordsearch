@@ -1,5 +1,5 @@
 /*
-crosswordsearch Wordpress plugin v0.3.1
+crosswordsearch Wordpress plugin v0.3.2
 Copyright Claus Colloseus 2014 for RadiJojo.de
 
 This program is free software: Redistribution and use, with or
