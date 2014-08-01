@@ -104,15 +104,17 @@ in the base directory will install all needed dependencies for the defined tasks
 
 The following tasks are available for the development process:
 
++ `grunt jasmine` will execute the unit tests in `tests/unit/`
 + `grunt jshint` will lint the files in `src/js/`
 + `grunt uglify` will link the files in `src/js/` together as `plugin/js/crosswordsearch.js`
   and minify them as `plugin/js/crosswordsearch.min.js`. Please note that if you add a new file,
   you have to list it explicitely in `Gruntfile.js` to include for linting and uglifying.
++ `grunt writel10n` will compile `l10n.php` from json data that are also used in unit testing
 + `grunt cssmin` will link and minify the files in `src/css/` as `plugin/css/crosswordsearch.css`.
 + `grunt pot` extracts the localizable strings from the `plugin/` `.php` files to the
   `plugin/languages/crw-text.pot` template.
 + `grunt msgmerge` will update all `.po` files in `plugin/languages/` to reflect
   `plugin/languages/crw-text.pot`.
 + `grunt msgupdate` executes `pot` and `msgmerge` together.
-+ `grunt` executes `jshint`, `uglify`, `cssmin` and `msgupdate` together.
++ `grunt` executes `jshint`, `uglify`, `writel10n`, `cssmin` and `msgupdate` together.
 

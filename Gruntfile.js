@@ -1,66 +1,9 @@
 module.exports = function(grunt) {
 
-  // use `msginit -i crw-text.pot -l <ll_CC> -o crw-text-<ll_CC>.po` to start new translations
-  
-  grunt.registerMultiTask('msgmerge', function() {
-
-    var options = this.options({
-        text_domain: 'messages',
-        template: './',
-        version: 'VERSION',
-    });
-    var dateFormat = require('dateformat');
-
-    if( grunt.file.isDir(options.template) ) {
-        options.template = options.template.replace(/\/$/, '') + '/' + options.text_domain + '.pot';
-    }
-
-    if( !grunt.file.exists(options.template) ) {
-        grunt.fail.warn('Template file not found: ' + options.template, 3);
-    }
-
-    grunt.verbose.writeln('Template: ' + options.template);
-    
-    var done = this.async();
-    var counter = this.files.length;
-
-    this.files.forEach(function(file) {
-
-      grunt.util.spawn( {
-        cmd: 'msgmerge',
-        args: [file.src, options.template]
-      }, function(error, result, code){
-
-        grunt.verbose.write('Updating: ' + file.src + ' ...');
-
-        if (error) {
-            grunt.verbose.error();
-        } else {
-            var regexp = /(Project-Id-Version: crosswordsearch ).*(\\n)/;
-            var rpl = '$1' + options.version + '$2';
-            var content = String(result).replace(regexp, rpl);
-            regexp = /(PO-Revision-Date: ).*(\\n)/;
-            rpl =  '$1' + dateFormat(new Date(), 'yyyy-mm-dd HH:MMo') + '$2';
-            content = content.replace(regexp, rpl);
-            grunt.file.write(file.src[0], content);
-            grunt.verbose.ok();
-        }
-
-        counter--;
-
-        if (error || counter === 0) {
-            done(error);
-        }
-
-      });
-
-    });
-
-  });
-
   var srcdir = 'src/js/',
     destdir = 'plugin/js/',
-    l10ndir = 'plugin/languages/';
+    l10ndir = 'plugin/languages/',
+    testdir = 'tests/';
 
   var text_domain = 'crw-text';
 
@@ -77,6 +20,22 @@ module.exports = function(grunt) {
     srcdir + 'EntryController.js',
     srcdir + 'ImmediateController.js'
   ];
+
+  var processJasmineTemplate = function (grunt, task, context) {
+    var letterData = grunt.file.readJSON('src/json/letter.json', {encoding:'utf8'}),
+        localeData = grunt.file.readJSON('src/json/locale.json', {encoding:'utf8'});
+    context.crwBasics = JSON.stringify({
+        locale: localeData.locale,
+        letterDist: letterData.en.letterDist,
+        letterRegEx: letterData.en.letterRegEx,
+        pluginPath: 'mock/',
+        ajaxUrl: 'mock/admin-ajax.php'
+    });
+    context.crossword = grunt.file.read(testdir + 'test1.json', {encoding:'utf8'}).trim();
+
+    var source = grunt.file.read(testdir + 'CrosswordRunner.tmpl');
+    return grunt.util._.template(source, context);
+  };
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -117,6 +76,22 @@ module.exports = function(grunt) {
         force: true
       },
       all: jslist
+    },
+    jasmine: {
+      src: jslist,
+      options: {
+        template: { process: processJasmineTemplate },
+        vendor: [
+          testdir + 'vendor/jquery.js',
+          destdir + 'angular.min.js',
+          destdir + 'angular-route.min.js',
+          testdir + 'vendor/angular-mocks.js',
+          destdir + 'qantic.angularjs.stylemodel.min.js'
+        ],
+        specs: testdir + 'unit/*Spec.js',
+        outfile: testdir + '_SpecRunner.html',
+//        keepRunner: true
+      }
     },
     pot: {
         options: {
@@ -163,7 +138,8 @@ module.exports = function(grunt) {
         src: l10ndir + '*.po',
         expand: true,
       },
-    }
+    },
+    writel10n: {}
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -171,7 +147,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-pot');
   grunt.loadNpmTasks('grunt-po2mo');
+  grunt.loadNpmTasks('grunt-contrib-jasmine');
+  grunt.task.loadTasks('tasks/');
 
   grunt.registerTask('msgupdate', ['pot', 'msgmerge']);
-  grunt.registerTask('default', ['jshint', 'uglify', 'cssmin', 'msgupdate']);
+  grunt.registerTask('default', ['jshint', 'uglify', 'writel10n', 'cssmin', 'msgupdate']);
 };

@@ -1,3 +1,5 @@
 additional/
 node_modules/
 *~
+.grunt/
+tests/_SpecRunner.html

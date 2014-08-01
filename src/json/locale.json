@@ -1,0 +1,32 @@
+{
+    "locale": {
+        "down-right": "down and right",
+        "up-left": "up and left",
+        "up-right": "up and right",
+        "down-left": "down and left",
+        "down": "down",
+        "up": "up",
+        "right": "to the right",
+        "left": "to the left",
+        "new": {
+            "display": "New",
+            "title": "Start a completely new riddle"
+        },
+        "load": {
+            "display": "Load",
+            "title": "Load an existing riddle"
+        },
+        "update": {
+            "display": "Save...",
+            "title": "Save your work on the riddle"
+        },
+        "insert": {
+            "display": "Save as...",
+            "title": "Save as a new riddle with a seperate name"
+        },
+        "reload": {
+            "display": "Reload",
+            "title": "Reset to the saved version"
+        }
+    }
+}
