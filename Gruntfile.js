@@ -32,6 +32,7 @@ module.exports = function(grunt) {
         ajaxUrl: 'mock/admin-ajax.php'
     });
     context.crossword = grunt.file.read(testdir + 'test1.json', {encoding:'utf8'}).trim();
+    context.schema = grunt.file.read('plugin/schema/schema.json', {encoding:'utf8'}).trim();
 
     var source = grunt.file.read(testdir + 'CrosswordRunner.tmpl');
     return grunt.util._.template(source, context);
@@ -82,6 +83,7 @@ module.exports = function(grunt) {
       options: {
         template: { process: processJasmineTemplate },
         vendor: [
+          testdir + 'vendor/tv4.js',
           testdir + 'vendor/jquery.js',
           destdir + 'angular.min.js',
           destdir + 'angular-route.min.js',
