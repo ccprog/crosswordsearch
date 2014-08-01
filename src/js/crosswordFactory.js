@@ -160,6 +160,9 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 restricted: restricted
             }, crwContext).then(function(data) {
                 // if an empty string is sent for name, no object is returned
+                stdLevel = data.default_level;
+                maxLevel = data.maximum_level;
+                namesList = data.namesList;
                 if (angular.isObject(data.crossword)) {
                     angular.extend(crossword, data.crossword);
                     if (_getLevelRestriction('sol')) {
@@ -168,9 +171,6 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 } else {
                     _loadDefault();
                 }
-                namesList = data.namesList;
-                stdLevel = data.default_level;
-                maxLevel = data.maximum_level;
                 return true;
             });
         };
@@ -281,9 +281,8 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // test whether a size change will leave letter sequences running
         // across the altered border of the crossword.
         // change has the format {left: ..., right: ..., top: ..., bottom: ...}
-        // with the number indicating the border movement indicated in top/left
-        // coordinates (that means left = 2 and right = -2 would both _remove_ two
-        // fields on their respective side)
+        // with a positive number indicating an addition of rows/columns and
+        // a negative number indicating a removal of rows/columns.
         // returns an array of word ids that would run across a changed border
         this.testWordBoundaries = function (change) {
             var critical = [];
