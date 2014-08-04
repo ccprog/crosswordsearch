@@ -84,6 +84,7 @@ module.exports = function(grunt) {
         template: { process: processJasmineTemplate },
         vendor: [
           testdir + 'vendor/tv4.js',
+          testdir + 'vendor/URI.min.js',
           testdir + 'vendor/jquery.js',
           destdir + 'angular.min.js',
           destdir + 'angular-route.min.js',
