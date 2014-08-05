@@ -31,7 +31,7 @@ crwApp.directive('crwIndexChecker', function() {
 crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         function ($scope, basics, markerFactory) {
     var isMarking = false, currentMarking, mode, lastName;
-    var markers = markerFactory.getMarkers();
+    $scope.markers = markerFactory.getMarkers();
 
     // test whether start and stop field are in a straight or diagonal relation
     // for levels 0 & 2 restrict to right and down
@@ -62,14 +62,14 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
                 angular.forEach(oldWords, function (word, id) {
                     len++;
                     if (!newWords[id]) {
-                        markers.deleteMarking(id);
+                        $scope.markers.deleteMarking(id);
                     } else {
                         probe = true;
                     }
                 });
                 // if there are other markings, redraw to catch word shifts
                 if (probe || len === 0) {
-                    markers.redrawMarkers($scope.crosswordData.words);
+                    $scope.markers.redrawMarkers($scope.crosswordData.words);
                 }
             }, true);
         }
@@ -82,12 +82,12 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
                 }
                 angular.forEach(oldWords, function (word, id) {
                     if (!newWords[id] || !newWords[id].solved) {
-                        markers.deleteMarking(word.markingId);
+                        $scope.markers.deleteMarking(word.markingId);
                     }
                 });
                 angular.forEach(newWords, function (word, id) {
                     if (!oldWords[id] || (!oldWords[id].solved && word.solved)) {
-                        markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
+                        $scope.markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
                     }
                 });
             }, true);
@@ -95,16 +95,16 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
     };
 
     $scope.$watch('crosswordData.name', function () {
-        markers.deleteAllMarking();
+        $scope.markers.deleteAllMarking();
         currentMarking = { ID: $scope.crw.getHighId() };
         if (mode !== 'solve') {
-            markers.redrawMarkers($scope.crosswordData.words);
+            $scope.markers.redrawMarkers($scope.crosswordData.words);
         }
     });
 
-    // retrieve the markers for a field
+    // retrieve the $scope.markers for a field
     $scope.getMarks = function (line, column) {
-        return markers.getMarks(column, line);
+        return $scope.markers.getMarks(column, line);
     };
     // unpack the image class names into an array
     $scope.getImgClass = function (marker) {
@@ -154,7 +154,7 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
             }
         } else {
             // delete one-field markings
-            markers.deleteMarking(currentMarking.ID);
+            $scope.markers.deleteMarking(currentMarking.ID);
         }
     };
 
@@ -164,7 +164,7 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         // draw marking only for valid directions
         if (isMarking && currentMarking.start && validMarking(newStop)) {
             currentMarking.stop = newStop;
-            markers.setNewMarkers(currentMarking);
+            $scope.markers.setNewMarkers(currentMarking);
         }
     };
     // event handler on mouseleave
@@ -173,7 +173,7 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         // and set first marking
         if (isMarking && !currentMarking.start) {
             currentMarking.start = currentMarking.stop = {x: col, y:row};
-            markers.setNewMarkers(currentMarking);
+            $scope.markers.setNewMarkers(currentMarking);
         }
     };
 
