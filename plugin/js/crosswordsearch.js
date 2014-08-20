@@ -373,6 +373,9 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 name: name,
                 restricted: restricted
             }, crwContext).then(function(data) {
+                stdLevel = data.default_level;
+                maxLevel = data.maximum_level;
+                namesList = data.namesList;
                 if (angular.isObject(data.crossword)) {
                     angular.extend(crossword, data.crossword);
                     if (_getLevelRestriction("sol")) {
@@ -381,9 +384,6 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 } else {
                     _loadDefault();
                 }
-                namesList = data.namesList;
-                stdLevel = data.default_level;
-                maxLevel = data.maximum_level;
                 return true;
             });
         };
@@ -826,8 +826,12 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         $scope.filtered_users = jQuery.grep($scope.admin.all_users, function(user) {
             return jQuery.inArray(user.user_id, $scope.currentEditors) < 0;
         });
-        $scope.selectedEditor = $filter("orderBy")($scope.currentEditors, $scope.getUserName)[0];
-        $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
+        if (jQuery.inArray($scope.selectedEditor, $scope.currentEditors) < 0) {
+            $scope.selectedEditor = $filter("orderBy")($scope.currentEditors, $scope.getUserName)[0];
+        }
+        if (jQuery.inArray($scope.selectedUser, $scope.filtered_users) < 0) {
+            $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
+        }
         $scope.loadError = null;
     };
     $scope.$watchCollection("currentEditors", getFilteredUsers);
