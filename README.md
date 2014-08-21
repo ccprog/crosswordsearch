@@ -100,7 +100,8 @@ Please refer to http://gruntjs.com/getting-started to get grunt up and running. 
 ```
 npm install
 ```
-in the base directory will install all needed dependencies for the defined tasks.
+in the base directory will install all needed dependencies for the defined tasks. This includes
+some Jasmine test dependencies installed in `tests/vendor` with bower.
 
 The following tasks are available for the development process:
 

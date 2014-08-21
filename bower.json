@@ -1,0 +1,11 @@
+{
+  "name": "crosswordsearch",
+  "homepage": "https://github.com/ccprog/crosswordsearch",
+  "private": true,
+  "devDependencies": {
+    "jquery-1.10.2.min": "http://code.jquery.com/jquery-1.10.2.min.js",
+    "angular-mocks": "https://code.angularjs.org/1.2.19/angular-mocks.js",
+    "tv4": "~1.0.17",
+    "URI.min": "https://github.com/medialize/URI.js/raw/gh-pages/src/URI.min.js"
+  }
+}

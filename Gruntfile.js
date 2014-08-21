@@ -83,12 +83,12 @@ module.exports = function(grunt) {
       options: {
         template: { process: processJasmineTemplate },
         vendor: [
-          testdir + 'vendor/tv4.js',
-          testdir + 'vendor/URI.min.js',
-          testdir + 'vendor/jquery.js',
+          testdir + 'vendor/tv4/tv4.js',
+          testdir + 'vendor/URI.min/index.js',
+          testdir + 'vendor/jquery-1.10.2.min/index.js',
           destdir + 'angular.min.js',
           destdir + 'angular-route.min.js',
-          testdir + 'vendor/angular-mocks.js',
+          testdir + 'vendor/angular-mocks/index.js',
           destdir + 'qantic.angularjs.stylemodel.min.js'
         ],
         specs: testdir + 'unit/*Spec.js',
