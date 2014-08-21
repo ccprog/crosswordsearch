@@ -112,7 +112,7 @@ describe("CrosswordController", function () {
                 }
             }
             expect($scope.load).not.toHaveBeenCalled();
-            $scope.$broadcast('immediateReady');
+            $root.$broadcast('immediateReady');
             expect($scope.load).toHaveBeenCalled();
             $scope.prepare('project', 'nc', 'ne', 'name', true);
             expect($scope.commandState).toBe('restricted');
@@ -123,7 +123,6 @@ describe("CrosswordController", function () {
                     expect($scope.commandList[i].group).toEqual([]);
                 }
             }
-            $scope.$broadcast('immediateReady');
         });
 
         it("evaluates menu commands asynchronously", function () {
@@ -202,7 +201,8 @@ describe("CrosswordController", function () {
                 deferred.reject();
                 $scope.$apply();
                 expect($scope.crosswordData.level).toBe(1);
-                expect($scope.setHighlight.calls.count()).toBe(2);
+                expect($scope.setHighlight).toHaveBeenCalledWith(critical);
+                expect($scope.setHighlight.calls.argsFor(1)[0]).toEqual([]);
             });
         });
 
@@ -274,20 +274,25 @@ describe("CrosswordController", function () {
             expect($scope.loadError).toBe('error2');
         });
 
+        it("sets crossword on preview message", function () {
+            spyOn($scope, 'load');
+            $root.$broadcast('previewCrossword', 'crossword');
+            expect($scope.load).toHaveBeenCalledWith('crossword');
+        });
+
         it("restarts the loaded riddle", function () {
-            $scope.crw.getLevelRestriction = jasmine.createSpy('getLevelRestriction')
-                .and.returnValue(true);
+            var restrict = true;
+            $scope.crw.getLevelRestriction = function () { return restrict; };
             $scope.crosswordData.solution = {
                 word1: {solved: true},
                 word2: {solved: true}
             };
             $scope.count.solution = 2;
             $scope.restart();
-            expect($scope.crw.getLevelRestriction).toHaveBeenCalledWith('sol');
             expect($scope.count.solution).toBe(0);
             expect($scope.crosswordData.solution.word1.solved).toBe(false);
             expect($scope.crosswordData.solution.word2.solved).toBe(false);
-            $scope.crw.getLevelRestriction.and.returnValue(false);
+            restrict = false;
             $scope.count.solution = 2;
             $scope.restart();
             expect($scope.count.solution).toBe(0);

@@ -18,15 +18,19 @@ describe("EntryController", function () {
     var $root, $scope, basics;
 
     beforeEach(module('crwApp'));
-    beforeEach(inject(function($rootScope, $filter, _basics_, $controller) {
+    beforeEach(inject(function($rootScope, $controller) {
+        basics = {
+            colors: ['red', 'green'],
+            localize: 'lang'
+        };
         $root = $rootScope.$new();
-        basics = _basics_;
         $scope = $root.$new();
-        $scope.crw = { deleteWord: jasmine.createSpy('deleteWord') };
+        $scope.crw = {
+            deleteWord: jasmine.createSpy('deleteWord')
+        };
         $scope.word = {};
-        $scope.highlight = [2, 4];
         $scope.child = $scope.$new();
-        $controller('EntryController', { $filter: $filter, basics: basics, $scope: $scope });
+        $controller('EntryController', { $filter: {}, basics: basics, $scope: $scope });
     }));
 
     it("sets up properties", function () {
@@ -41,6 +45,7 @@ describe("EntryController", function () {
     });
 
     it("identifies as highlighted", function () {
+        $scope.highlight = [2, 4];
         $scope.word.ID = 1;
         expect($scope.isHighlighted()).toBeFalsy();
 
@@ -49,10 +54,9 @@ describe("EntryController", function () {
     });
 
     it("stops event propagation", function () {
-        var eventHandler = jasmine.createSpy('deleteWord');
-        $root.$on('select', eventHandler);
+        var listener = jasmine.createSpy('listener');
+        $root.$on('select', listener);
         $scope.child.$emit('select', {});
-
-        expect(eventHandler.calls.any()).toEqual(false);
+        expect(listener).not.toHaveBeenCalled();
     });
 });
