@@ -1,4 +1,16 @@
-describe("colorSelect", function () {
+describe("colorSelect (cse option template)", function () {
+    beforeEach(module('crwApp'));
+
+    it("shows image", inject(function ($rootScope, $compile) {
+        var $scope = $rootScope.$new();
+        $scope.value = 'red';
+        var element = $compile('<div color-select value="value"></div>')($scope);
+        $scope.$digest();
+        expect(element.find('img').attr('src')).toBe(crwBasics.pluginPath + 'images/bullet-red.png');
+    }));
+});
+
+describe("joinWord", function () {
     beforeEach(module('crwApp'));
 
     it("concatenates Words", inject(function ($filter) {

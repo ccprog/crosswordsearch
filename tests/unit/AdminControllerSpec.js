@@ -1,3 +1,40 @@
+describe("crwHelpFollow", function() {
+    beforeEach(module('crwApp'));
+
+    it("sets active class", inject(function($rootScope, $compile) {
+        jQuery('body').append('<div id="contextual-help-columns"><div class="contextual-help-tabs">' +
+            '<ul>' +
+            '<li id="tab-link-crw-help-tab-options">' +
+            '<li id="tab-link-crw-help-tab-projects">' +
+            '<li id="tab-link-crw-help-tab-review">' +
+            '</ul>' +
+            '</div>' +
+            '<div class="contextual-help-tabs-wrap">' +
+            '<div id="tab-panel-crw-help-tab-options" class="help-tab-content"></div>' +
+            '<div id="tab-panel-crw-help-tab-projects" class="help-tab-content"></div>' +
+            '<div id="tab-panel-crw-help-tab-review" class="help-tab-content"></div>' +
+            '</div></div>');
+        var element = jQuery('#contextual-help-columns');
+        var $scope = $rootScope.$new();
+        $scope.$routeParams = { tab: null };
+        $compile('<div crw-help-follow></div>')($scope);
+        var tabs = {
+            capabilities: 'options',
+            editor: 'projects',
+            review: 'review'
+        };
+        for (var t1 in tabs) {
+            $scope.$routeParams.tab = t1;
+            $scope.$apply();
+            for (var t2 in tabs) {
+                expect(element.find('#tab-link-crw-help-tab-' + tabs[t2]).hasClass('active')).toBe(t1 === t2);
+                expect(element.find('#tab-panel-crw-help-tab-' + tabs[t2]).hasClass('active')).toBe(t1 === t2);
+            }
+        }
+        element.remove();
+    }));
+});
+
 describe("AdminController", function () {
     beforeEach(module('crwApp'));
 
@@ -407,6 +444,21 @@ describe("EditorController", function () {
     });
 });
 
+describe("crwOptionClick", function() {
+    beforeEach(module('crwApp'));
+
+    it("catches option selection", inject(function($rootScope, $compile) {
+        var $scope = $rootScope.$new();
+        $scope.activateGroup = jasmine.createSpy('activateGroup');
+        var element = $compile('<select crw-option-click="this">' +
+            '<option value="1">1</option>' +
+            '<option value="2">2</option>' +
+            '</select>')($scope);
+        element.find('option[value=1]').trigger('click');
+        expect($scope.activateGroup).toHaveBeenCalledWith('this');
+    }));
+});
+
 describe("ReviewController", function () {
     var $scope, $child, ajaxFactory, deferred, projects;
 
@@ -620,4 +672,37 @@ describe("ReviewController", function () {
         expect(crosswordListener.calls.count()).toBe(3);
         expect(crosswordListener.calls.argsFor(2)[1]).toBe(projects[0].confirmed[1]);
     });
+});
+
+describe("Adminstrative tab navigation", function () {
+    var $httpBackend, $scope, element;
+
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function($injector, $rootScope, $location, $compile) {
+        $httpBackend = $injector.get('$httpBackend');
+        $httpBackend.whenGET(/get_option_tab/).respond(201, '');
+        $scope = $rootScope.$new();
+        $scope.location = $location;
+        element = $compile('<div ng-view></div>')($scope);
+    }));
+
+    it("requests tab templates", inject(function ($route) {
+        var basepath = crwBasics.ajaxUrl + '?action=get_option_tab';
+        var routePaths = {
+            '/first/nonce1': '&tab=first&_crwnonce=nonce1',
+            '/second/nonce2': '&tab=second&_crwnonce=nonce2',
+            '/other': '&tab=second&_crwnonce=nonce2'
+        }
+        for (var route in routePaths) {
+            $scope.location.path(route);
+            if (route !== '/other') {
+                $httpBackend.expectGET(basepath + routePaths[route]);
+                $scope.$apply();
+                $httpBackend.flush();
+            } else {
+                $scope.$apply();
+            }
+            expect($route.current.loadedTemplateUrl).toBe(basepath + routePaths[route]);
+        }
+    }));
 });

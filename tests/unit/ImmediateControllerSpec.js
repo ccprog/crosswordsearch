@@ -36,6 +36,108 @@ describe("qStore", function () {
     });
 });
 
+describe("crwAddParsers", function() {
+    var $scope, $compile, element, model;
+
+    function compile (uniques) {
+        element = $compile('<form name="frm">' +
+            '<input name="txt" type="text" ng-model="value" ' +
+            'crw-add-parsers="unique sane" crw-unique="' + uniques + '"></input>' +
+            '</form>')($scope);
+        model = element.find('input').controller('ngModel');
+    }
+
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function($rootScope, _$compile_) {
+        $compile = _$compile_;
+        $scope = $rootScope.$new();
+        $scope.value = 'neutral';
+    }));
+
+    it("adds multiple parsers", function() {
+        $scope.uniques = [];
+        compile('uniques');
+        expect(model.$parsers.length).toBe(2);
+    });
+
+    describe("uniques", function () {
+        afterEach(function () {
+            model.$setViewValue('three');
+            expect($scope.frm.txt.$error.unique).toBe(false);
+            expect($scope.value).toBe('three');
+            model.$setViewValue('one');
+            expect($scope.frm.txt.$error.unique).toBe(true);
+            expect($scope.value).toBeUndefined();
+        });
+
+        it("rules out string value", function() {
+            $scope.uniques = 'one';
+            compile('uniques');
+        });
+
+        it("rules out array values", function() {
+            $scope.uniques = ['one', 'two'];
+            compile('uniques');
+        });
+
+        it("rules out property names", function() {
+            $scope.uniques = {one: 1, two: 2};
+            compile('uniques');
+        });
+
+        it("rules out values from multiple sources", function() {
+            $scope.uniques1 = ['one'];
+            $scope.uniques2 = 'two';
+            compile('uniques1 uniques2');
+            model.$setViewValue('two');
+            expect($scope.frm.txt.$error.unique).toBe(true);
+            expect($scope.value).toBeUndefined();
+        });
+    });
+
+    describe("sane", function () {
+        beforeEach(function () {
+            $scope.uniques = [];
+            compile('uniques');
+        });
+
+        it("sanitizes like WordPress", function() {
+            model.$setViewValue('simple');
+            expect($scope.frm.txt.$error.sane).toBe(false);
+            expect($scope.value).toBe('simple');
+            model.$setViewValue('octal %d3');
+            expect($scope.frm.txt.$error.sane).toBe(true);
+            expect($scope.value).toBeUndefined();
+            model.$setViewValue('nonoctal %t8');
+            expect($scope.frm.txt.$error.sane).toBe(false);
+            expect($scope.value).toBe('nonoctal %t8');
+            model.$setViewValue('<entity');
+            expect($scope.frm.txt.$error.sane).toBe(true);
+            expect($scope.value).toBeUndefined();
+            model.$setViewValue('nonentity>');
+            expect($scope.frm.txt.$error.sane).toBe(false);
+            expect($scope.value).toBe('nonentity>');
+        });
+    });
+});
+
+describe("crwHasPassword", function() {
+    beforeEach(module('crwApp'));
+
+    it("resets password field on submit", inject(function($rootScope, $compile) {
+        var $scope = $rootScope.$new();
+        $scope.password = 'password';
+        var element = $compile('<form crw-has-password>' +
+            '<input id="txt" type="text"></input>' +
+            '<input id="btn" type="submit"></input>' +
+            '</form>')($scope);
+        element.find('#txt').trigger('click');
+        expect($scope.password).not.toBeNull();
+        element.find('#btn').trigger('click');
+        expect($scope.password).toBeNull();
+    }));
+});
+
 describe("ImmediateController", function () {
     var $scope;
 

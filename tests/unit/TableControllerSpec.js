@@ -1,3 +1,68 @@
+describe("crwSetFocus", function() {
+    var $scope, element;
+
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function($rootScope, $compile) {
+        $scope = $rootScope.$new();
+        $scope.line = 1;
+        $scope.cols = [2, 3];
+        element = $compile('<ul>' +
+            '<li ng-repeat="column in cols" ng-click="$broadcast(\'setFocus\', line, column)">' +
+            '<button id="btn{{column}}" crw-set-focus></button>' +
+            '<div id="top{{column}}"></top>' +
+            '</li>' +
+            '</ul>')($scope);
+        jQuery('body').append(element);
+        $rootScope.$digest();
+    }));
+    afterEach(function () {
+        element.remove();
+    });
+
+    it("prevents letter highlighting", function() {
+        var listener = jasmine.createSpy('listener');
+        jQuery('body').on('mousemove', listener);
+        element.find('#btn2').trigger('mousemove');
+        expect(listener.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
+    });
+
+    it("sends setFocus events to button", function() {
+        element.find('#top2').trigger('click');
+        expect(document.activeElement.id).toBe('btn2');
+        element.find('#top3').trigger('click');
+        expect(document.activeElement.id).toBe('btn3');
+    });
+});
+
+describe("crwIndexChecker", function() {
+    var $scope, element;
+
+    beforeEach(module('crwApp'));
+
+    function runThrough() {
+        var li, liScope, index;
+        $scope.$digest();
+        for (index = 0; index < $scope.cols.length; index++) {
+            li = element.find('#li' + $scope.cols[index]);
+            liScope = li.scope('ngRepeat');
+            expect(liScope.index).toBe(index);
+        }
+    }
+
+    it("keeps index current", inject(function($rootScope, $compile) {
+        $scope = $rootScope.$new();
+        element = $compile('<ul>' +
+            '<li id="li{{column}}" ng-repeat="column in cols" crw-index-checker="index"></li>' +
+            '</ul>')($scope);
+        $scope.cols = [1, 2, 3];
+        runThrough();
+        $scope.cols.unshift(0);
+        runThrough();
+        $scope.cols.pop();
+        runThrough();
+    }));
+});
+
 describe("TableController", function () {
     var $scope, basics;
 

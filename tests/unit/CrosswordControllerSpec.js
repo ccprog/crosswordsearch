@@ -1,3 +1,81 @@
+describe("crwCatchMouse", function() {
+    var $scope, element, bodyevent;
+
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function ($rootScope) {
+        $scope = $rootScope.$new();
+        $scope.down = jasmine.createSpy("down");
+        $scope.up = jasmine.createSpy("up");
+        bodyevent = {
+            down: jasmine.createSpy('downbody'),
+            up: jasmine.createSpy('upbody')
+        };
+        jQuery('body')
+            .on('mousedown', bodyevent.down)
+            .on('mouseup', bodyevent.up);
+    }));
+    afterEach(function () {
+        element.remove();
+    });
+
+    it("executes mousedown/mouseup callbacks", inject(function($compile) {
+        element = $compile('<p crw-catch-mouse down="down" up="up">abc</p>')($scope);
+        jQuery('body').append(element);
+        element.trigger('mouseup');
+        expect($scope.up).not.toHaveBeenCalled();
+        element.trigger('mousedown');
+        expect($scope.down).toHaveBeenCalled();
+        expect(bodyevent.down.calls.argsFor(0)[0].isDefaultPrevented()).toBe(false);
+        element.trigger('mouseup');
+        expect($scope.up).toHaveBeenCalled();
+        expect(bodyevent.up.calls.argsFor(0)[0].isDefaultPrevented()).toBe(false);
+        element.trigger('mouseup');
+        expect($scope.down.calls.count()).toBe(1);
+    }));
+
+    it("suppresses event defaults if option is set", inject(function($compile) {
+        element = $compile('<p crw-catch-mouse down="down" up="up" prevent-default>abc</p>')($scope);
+        jQuery('body').append(element);
+        element.trigger('mousedown');
+        expect($scope.down).toHaveBeenCalled();
+        expect(bodyevent.down.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
+        element.trigger('mouseup');
+        expect($scope.up).toHaveBeenCalled();
+        expect(bodyevent.up.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
+    }));
+});
+
+describe("crwMenu (cse option template)", function () {
+    beforeEach(module('crwApp'));
+
+    it("sets title and text", inject(function ($rootScope, $compile) {
+        var $scope = $rootScope.$new();
+        $scope.value = {
+            display: 'display',
+            title: 'title'
+        };
+        var element = $compile('<div crw-menu value="value"></div>')($scope);
+        $scope.$digest();
+        expect(element.text()).toBe('display');
+        expect(element.attr('title')).toBe('title');
+    }));
+});
+
+describe("crwLevelNumber (cse option template)", function () {
+    beforeEach(module('crwApp'));
+
+    it("adds one", inject(function ($rootScope, $compile) {
+        var $scope = $rootScope.$new();
+        var element = $compile('<div crw-level-number value="value"></div>')($scope);
+        $scope.value = 2;
+        $scope.$digest();
+        expect(element.text()).toBe('3');
+        $scope.value = 0;
+        $scope.$digest();
+        expect(element.text()).toBe('1');
+    }));
+});
+
 describe("CrosswordController", function () {
     beforeEach(module('crwApp'));
 
