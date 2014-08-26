@@ -1393,7 +1393,7 @@ crwApp.directive("crwIndexChecker", function() {
 
 crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", function($scope, basics, markerFactory) {
     var isMarking = false, currentMarking, mode, lastName;
-    var markers = markerFactory.getMarkers();
+    $scope.markers = markerFactory.getMarkers();
     function validMarking(newStop) {
         var dif_x = currentMarking.start.x - newStop.x, dif_y = currentMarking.start.y - newStop.y;
         if ($scope.crw.getLevelRestriction("dir")) {
@@ -1418,13 +1418,13 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                 angular.forEach(oldWords, function(word, id) {
                     len++;
                     if (!newWords[id]) {
-                        markers.deleteMarking(id);
+                        $scope.markers.deleteMarking(id);
                     } else {
                         probe = true;
                     }
                 });
                 if (probe || len === 0) {
-                    markers.redrawMarkers($scope.crosswordData.words);
+                    $scope.markers.redrawMarkers($scope.crosswordData.words);
                 }
             }, true);
         }
@@ -1436,28 +1436,28 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                 }
                 angular.forEach(oldWords, function(word, id) {
                     if (!newWords[id] || !newWords[id].solved) {
-                        markers.deleteMarking(word.markingId);
+                        $scope.markers.deleteMarking(word.markingId);
                     }
                 });
                 angular.forEach(newWords, function(word, id) {
                     if (!oldWords[id] || !oldWords[id].solved && word.solved) {
-                        markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
+                        $scope.markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
                     }
                 });
             }, true);
         }
     };
     $scope.$watch("crosswordData.name", function() {
-        markers.deleteAllMarking();
+        $scope.markers.deleteAllMarking();
         currentMarking = {
             ID: $scope.crw.getHighId()
         };
         if (mode !== "solve") {
-            markers.redrawMarkers($scope.crosswordData.words);
+            $scope.markers.redrawMarkers($scope.crosswordData.words);
         }
     });
     $scope.getMarks = function(line, column) {
-        return markers.getMarks(column, line);
+        return $scope.markers.getMarks(column, line);
     };
     $scope.getImgClass = function(marker) {
         return [ marker.img, marker.marking.color ];
@@ -1493,7 +1493,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                 }
             }
         } else {
-            markers.deleteMarking(currentMarking.ID);
+            $scope.markers.deleteMarking(currentMarking.ID);
         }
     };
     $scope.intoField = function(row, col) {
@@ -1503,7 +1503,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         };
         if (isMarking && currentMarking.start && validMarking(newStop)) {
             currentMarking.stop = newStop;
-            markers.setNewMarkers(currentMarking);
+            $scope.markers.setNewMarkers(currentMarking);
         }
     };
     $scope.outofField = function(row, col) {
@@ -1512,7 +1512,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                 x: col,
                 y: row
             };
-            markers.setNewMarkers(currentMarking);
+            $scope.markers.setNewMarkers(currentMarking);
         }
     };
     $scope.move = function(event) {
@@ -1644,15 +1644,15 @@ crwApp.directive("crwAddParsers", function() {
                             if (jQuery.inArray(viewValue, blacklist) >= 0) {
                                 result = undefined;
                             }
-                            break;
+                            continue;
                         } else if (typeof blacklist === "object") {
                             if (blacklist.hasOwnProperty(viewValue)) {
                                 result = undefined;
                             }
-                            break;
+                            continue;
                         } else if (typeof blacklist === "string" && blacklist === viewValue) {
                             result = undefined;
-                            break;
+                            continue;
                         }
                     }
                     ctrl.$setValidity("unique", result !== undefined);
