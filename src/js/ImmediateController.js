@@ -55,15 +55,15 @@ crwApp.directive('crwAddParsers', function () {
                             if (jQuery.inArray(viewValue, blacklist) >= 0) {
                                 result = undefined;
                             }
-                            break;
+                            continue;
                         } else if (typeof blacklist === 'object') {
                             if (blacklist.hasOwnProperty(viewValue)) {
                                 result = undefined;
                             }
-                            break;
+                            continue;
                         } else if (typeof blacklist === 'string' && blacklist === viewValue) {
                             result = undefined;
-                            break;
+                            continue;
                         }
                     }
                     ctrl.$setValidity('unique', result !== undefined);
