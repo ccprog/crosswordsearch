@@ -79,21 +79,39 @@ module.exports = function(grunt) {
       all: jslist
     },
     jasmine: {
-      src: jslist,
       options: {
         template: { process: processJasmineTemplate },
-        vendor: [
-          testdir + 'vendor/tv4/tv4.js',
-          testdir + 'vendor/URI.min/index.js',
-          testdir + 'vendor/jquery-1.10.2.min/index.js',
-          destdir + 'angular.min.js',
-          destdir + 'angular-route.min.js',
-          testdir + 'vendor/angular-mocks/index.js',
-          destdir + 'qantic.angularjs.stylemodel.min.js'
-        ],
         specs: testdir + 'unit/*Spec.js',
         outfile: testdir + '_SpecRunner.html',
 //        keepRunner: true
+      },
+      wp_3: {
+        src: jslist,
+        options: {
+          vendor: [
+            testdir + 'vendor/tv4/tv4.js',
+            testdir + 'vendor/URI.min/index.js',
+            testdir + 'vendor/jquery-1.10.2.min/index.js',
+            destdir + 'angular.min.js',
+            destdir + 'angular-route.min.js',
+            testdir + 'vendor/angular-mocks/index.js',
+            destdir + 'qantic.angularjs.stylemodel.min.js'
+          ],
+        }
+      },
+      wp_4: {
+        src: jslist,
+        options: {
+          vendor: [
+            testdir + 'vendor/tv4/tv4.js',
+            testdir + 'vendor/URI.min/index.js',
+            testdir + 'vendor/jquery-1.11.1.min/index.js',
+            destdir + 'angular.min.js',
+            destdir + 'angular-route.min.js',
+            testdir + 'vendor/angular-mocks/index.js',
+            destdir + 'qantic.angularjs.stylemodel.min.js'
+          ],
+        }
       }
     },
     pot: {

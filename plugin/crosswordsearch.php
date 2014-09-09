@@ -630,14 +630,14 @@ function crw_send_admin_data () {
     $user_query = new WP_User_Query( array(
         'fields' => array( 'ID', 'display_name' )
     ) );
-    array_walk( $user_query->results, function ($user) use (&$users_list) {
+    foreach( $user_query->get_results() as $user) {
         if ( user_can($user->ID, CRW_CAP_CONFIRMED) ) {
             array_push($users_list, array(
                 'user_id' => $user->ID,
                 'user_name' => $user->display_name
             ));
         }
-    } );
+    };
 
     wp_send_json( array(
         'projects' => array_values($projects_list),

@@ -105,7 +105,8 @@ some Jasmine test dependencies installed in `tests/vendor` with bower.
 
 The following tasks are available for the development process:
 
-+ `grunt jasmine` will execute the unit tests in `tests/unit/`
++ `grunt jasmine` will execute the unit tests in `tests/unit/` (twice, against jQuery 1.10.2
+  for WP 3.x versions and 1.11.1 for WP 4.0)
 + `grunt jshint` will lint the files in `src/js/`
 + `grunt uglify` will link the files in `src/js/` together as `plugin/js/crosswordsearch.js`
   and minify them as `plugin/js/crosswordsearch.min.js`. Please note that if you add a new file,
