@@ -8,7 +8,7 @@
 .crw-wrapper>* {
     margin: 10px 10px 0;
 }
-.crw-wrapper .cse dt, .crw-wrapper .cse ul {
+.crw-wrapper .cse, .crw-wrapper .cse ul {
     border-radius: 2px;
 }
 .crw-editors .error {
@@ -51,7 +51,7 @@ dl.crw-level>dt, dl.crw-level>dd {
 dl.crw-level>dt > * {
     vertical-align: middle;
 }
-dl.crw-level>dt .cse {
+dl.crw-level .cse.select {
     line-height: 1.3;
 }
 dl.crw-level>dd {

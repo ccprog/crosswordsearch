@@ -24,23 +24,16 @@ app.filter('plus', function () {
 app.directive("myTextPlus", function() {
     return {
         scope: { value: "=" },
-        template: '{{value | plus}}'
+        template: function (tElement, tAttr) {
+            if (angular.isDefined(tAttr.isCurrent)) {
+                return '{{value}}';
+            } else {
+                return '{{value | plus}}';
+            }
+        }
 
     };
 });
-
-app.directive("myMenu", ["$compile", function($compile) {
-    return {
-        scope: { value: "=" },
-        template: function (tElement, tAttr) {
-            if (tAttr.value === 'value') {
-                return '{{value.value || value}}';
-            } else {
-                return 'Farbe...';
-            }
-        }
-    };
-}]);
 
 app.controller("TestController", ["$scope", function ($scope) {
     $scope.colors = ["black", "red", "green", "blue", "orange", "violet", "aqua"];
@@ -56,7 +49,7 @@ app.controller("TestController", ["$scope", function ($scope) {
                 7:"violet", 
                 8:"aqua"
             },
-            'value': 'more:',
+            'menu': 'more:',
             order: 6
         }
     };
@@ -67,143 +60,25 @@ app.controller("TestController", ["$scope", function ($scope) {
         $scope.colorsObject["6"].group["9"] = "extra";
     };
 }]);
-
 </script>
-<!-- <link type="text/css" href="../src/cse.css" rel="stylesheet"> -->
+<link type="text/css" href="../src/css/cse.css" rel="stylesheet">
 <style type="text/css">
-dl.cse, dl.cse * {
-    -moz-box-sizing: content-box;
-    border-sizing: content-box;
-    vertical-align: middle;
+.cse.select dt .btn {
+    background-image: url(../plugin/images/arrows.png);
 }
-.cse dd, .cse dt, .cse ul {
-    margin:0px; padding:0px;
-}
-dl.cse {
-    display: inline-block;
-    margin: 0 4px;
-    padding:0px;
-    cursor: pointer;
-}
-.cse dd, .cse dt, .cse ul, .cse li {
-    line-height: inherit;
-}
-.cse div {
-    white-space: nowrap;
-}
-.cse dd {
-    position:relative;
-}
-.cse dt {
-    background: #fff no-repeat scroll right center;
-    background-image: url(../plugin/images/arrow-passive.png);
-    display: block;
-    padding-right: 16px;
-    border: 1px solid #666;
-    min-width: 20px;
-    min-height: 20px;
-}
-.cse dt:hover {
-    background-image: url(../plugin/images/arrow-active.png);
-    border: 1px solid #000;
-}
-.cse dt div {
-    padding: 0px 2px;
-    overflow: hidden;
-}
-.cse dd ul {
-    display: table;
-    -moz-box-sizing: border-box;
-    border-sizing: border-box;
-    background:#fff none repeat scroll 0 0;
-    border:1px solid #666;
-    color:#000;
-    left:0px;
-    padding:0px;
-    position:absolute;
-    top:1px;
-    left:0;
-    right:0;
-    min-width:100%;
-    list-style:none;
-}
-.cse dd li {
-    margin: 0;
-    padding: 0;
-}
-.cse dd ul li {
-    padding: 0px 2px;
-    display:block;
-}
-.cse dd ul li:hover {
-    background-color: Highlight;
-}
-.cse dd ul li img {
-    padding: 1px;
-}
-.cse img {
-    border:none;
-    box-shadow: none;
-    vertical-align: middle;
-}
-
 ul.outer>li {
     margin-bottom: 4px;
-}
-
-dl.bullet dt {
-    width: 20px;
-}
-dl.text dt {
-    width: 60px;
-}
-
-dl.cse dl {
-    margin: 0;
-    display:block;
-    position: relative;
-    height: 100%;
-    width: 100%  !important;
-}
-.cse dd dt div {
-    padding: 0;
-}
-.cse dd dt {
-    border: none;
-    background-color: transparent;
-    background-image: url(../plugin/images/arrow-passive-right.png);
-    padding: 0;
-    display: inline-block;
-    min-width: 100%;
-}
-.cse dd dt:hover {
-    background-image: url(../plugin/images/arrow-active-right.png);
-    border: none;
-}
-.cse dd dt {
-    display: inline-block;
-    width: 100%;
-}
-.cse dd dd {
-    display: inline-block;
-    position: absolute;
-}
-.cse dd dd ul {
-    left: 4px;
-}
-.cse dd dd div {
-    max-width: 300px;
-    overflow: hidden;
 }
 </style>
 </head>
 <body>
 <ul class="outer">
 <li ng-controller="TestController">
-<dl class="cse bullet" cse-select cse-options="colors" cse-model="color" cse-template ="my-image"></dl> {{color}}</li>
-<li ng-controller="TestController" ng-init="color='black'"><dl class="cse text" cse-select cse-options="colors" cse-model="color"></dl> {{color}}</li>
-<li ng-controller="TestController"><dl class="cse text" cse-select cse-options="colorsPlus" cse-model="color" cse-template="my-text-plus"></dl> {{color}}</li>
-<li ng-controller="TestController"><dl class="cse text" cse-select cse-options="colorsObject" cse-model="heading" cse-is-menu="heading='Farbe...'"></dl> {{result}} <button ng-click="addone()">add</button></li>
+<dl class="bullet" cse-select cse-model="color" cse-options="colors" template="my-image"></dl> {{color}}</li>
+<li ng-controller="TestController" ng-init="color='black'"><dl class="text" cse-select cse-model="color" cse-options="colors"></dl> {{color}}</li>
+<li ng-controller="TestController"><dl class="text" cse-select cse-model="color" cse-options="colors" display="value.substr(0, 3) + '..'"></dl> {{color}}</li>
+<li ng-controller="TestController"><dl class="text" cse-select cse-model="color" cse-options="colorsPlus" template="my-text-plus"></dl> {{color}}</li>
+<li ng-controller="TestController"><dl class="text" cse-select cse-model="heading" cse-options="colorsObject" is-menu="Farbe..."></dl> {{result}} <button ng-click="addone()">add</button></li>
 </ul>
 
 </body>

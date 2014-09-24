@@ -61,21 +61,6 @@ describe("crwMenu (cse option template)", function () {
     }));
 });
 
-describe("crwLevelNumber (cse option template)", function () {
-    beforeEach(module('crwApp'));
-
-    it("adds one", inject(function ($rootScope, $compile) {
-        var $scope = $rootScope.$new();
-        var element = $compile('<div crw-level-number value="value"></div>')($scope);
-        $scope.value = 2;
-        $scope.$digest();
-        expect(element.text()).toBe('3');
-        $scope.value = 0;
-        $scope.$digest();
-        expect(element.text()).toBe('1');
-    }));
-});
-
 describe("CrosswordController", function () {
     beforeEach(module('crwApp'));
 
@@ -173,7 +158,6 @@ describe("CrosswordController", function () {
                 }
             };
             spyOn($scope.immediateStore, 'newPromise').and.callThrough();
-            $scope.crw = {};
         }));
 
         it("inits command data object, menu and crossword at page load time", function () {
@@ -206,15 +190,15 @@ describe("CrosswordController", function () {
         it("evaluates menu commands asynchronously", function () {
             $scope.loadedName = 'name1';
             var listener = jasmine.createSpy("listener");
-            $root.$on('select', listener);
+            $root.$on('cseSelect', listener);
             spyOn($scope, 'load');
             spyOn($scope, 'save');
-            $child.$emit('select', 'new', 'command');
-            $child.$emit('select', 'update', 'command');
-            $child.$emit('select', 'insert', 'command');
-            $child.$emit('select', 'reload', 'command');
-            $child.$emit('select', 'name2', 'load');
-            $child.$emit('select', 'name3', 'command.sub');
+            $child.$emit('cseSelect', 'command', 'new');
+            $child.$emit('cseSelect', 'command', 'update');
+            $child.$emit('cseSelect', 'command', 'insert');
+            $child.$emit('cseSelect', 'command', 'reload');
+            $child.$emit('cseSelect', 'load', 'name2');
+            $child.$emit('cseSelect', 'command.sub', 'name3');
             expect($scope.load).not.toHaveBeenCalled();
             expect($scope.save).not.toHaveBeenCalled();
             $scope.$apply();
@@ -242,7 +226,8 @@ describe("CrosswordController", function () {
             it("on level upgrade", function () {
                 critical = [];
                 $scope.crosswordData.level = 0;
-                $child.$emit('select', 1, 'level');
+                $child.$emit('cseSelect', 'level', 1);
+                $scope.$apply();
                 expect($scope.crw.testDirection).toHaveBeenCalled();
                 expect($scope.setHighlight).not.toHaveBeenCalled();
             });
@@ -250,14 +235,14 @@ describe("CrosswordController", function () {
             it("on non-critical level downgrade", function () {
                 critical = [];
                 $scope.crosswordData.level = 1;
-                $child.$emit('select', 0, 'level');
+                $child.$emit('cseSelect', 'level', 0);
                 expect($scope.setHighlight).not.toHaveBeenCalled();
             });
 
             it("user resolution on critical level downgrade", function () {
                 critical = [1,2];
                 $scope.crosswordData.level = 1;
-                $child.$emit('select', 0, 'level');
+                $child.$emit('cseSelect', 'level', 0);
                 expect($scope.setHighlight).toHaveBeenCalledWith(critical);
                 expect($scope.immediateStore.newPromise.calls.argsFor(0)[0]).toBe('invalidDirections');
                 expect($scope.immediateStore.newPromise.calls.argsFor(0)[1]).toEqual({
@@ -274,7 +259,7 @@ describe("CrosswordController", function () {
             it("user rejection on critical level downgrade", function () {
                 critical = [1,2];
                 $scope.crosswordData.level = 1;
-                $child.$emit('select', 0, 'level');
+                $child.$emit('cseSelect', 'level', 0);
                 $scope.crosswordData.level = 0;
                 deferred.reject();
                 $scope.$apply();

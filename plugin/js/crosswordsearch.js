@@ -22,32 +22,37 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 var customSelectElement = angular.module("customSelectElement", []);
 
-customSelectElement.directive("cseDefault", [ "$compile", function($compile) {
+customSelectElement.directive("cseDefault", function() {
     return {
         scope: {
             value: "="
         },
-        template: "{{value.value || value}}"
+        template: function(tElement, tAttr) {
+            return "{{" + (tAttr.cseDefault || "value.value || value") + "}}";
+        }
     };
-} ]);
+});
 
 customSelectElement.directive("cseOption", [ "$compile", function($compile) {
     return {
         scope: {
-            value: "=",
-            isMenu: "=",
-            templ: "="
+            value: "="
         },
         link: function(scope, element, attrs) {
             scope.select = function(value) {
-                scope.$emit("select", value, attrs.name);
+                scope.$emit("cseSelect", attrs.name, value);
             };
             attrs.$observe("value", function() {
                 var html;
                 if (angular.isObject(scope.value) && scope.value.group) {
-                    html = '<dl class="cse text" cse-select="' + attrs.name + '.sub" cse-options="value.group" ' + 'cse-model="head" ' + 'cse-template="' + attrs.templ + '"';
-                    if (angular.isDefined(scope.isMenu)) {
-                        html += ' cse-is-menu ng-init="head=value"';
+                    html = '<dl cse-select="' + attrs.name + '.sub" cse-model="head" cse-options="value.group" is-group ';
+                    if (angular.isDefined(attrs.expr)) {
+                        html += 'display="' + attrs.expr + '"';
+                    } else {
+                        html += 'template="' + attrs.templ + '"';
+                    }
+                    if (angular.isDefined(attrs.isMenu)) {
+                        html += ' is-menu="' + scope.value.menu + '"';
                     }
                     html += "></dl>";
                     element.html(html);
@@ -58,7 +63,11 @@ customSelectElement.directive("cseOption", [ "$compile", function($compile) {
                     } else {
                         html += '"select(value)" ';
                     }
-                    html += attrs.templ + ' value="value"></div>';
+                    html += attrs.templ;
+                    if (angular.isDefined(attrs.expr)) {
+                        html += '="' + attrs.expr + '"';
+                    }
+                    html += ' value="value"></div>';
                     element.html(html);
                 }
                 $compile(element.contents())(scope);
@@ -67,22 +76,55 @@ customSelectElement.directive("cseOption", [ "$compile", function($compile) {
     };
 } ]);
 
-customSelectElement.directive("cseSelect", [ "$document", function($document) {
+customSelectElement.directive("cseSelect", [ "$document", "$timeout", function($document, $timeout) {
     return {
         restrict: "A",
         scope: {
             options: "=cseOptions",
-            model: "=cseModel",
-            isMenu: "=cseIsMenu",
-            cseTemplate: "="
+            model: "=cseModel"
         },
         link: function(scope, element, attrs) {
-            scope.setModel = !angular.isDefined(attrs.cseIsMenu);
-            var elementEquals = function(el1, el2) {
-                return el1[0] === el2[0];
-            };
+            var delayed;
+            element.addClass("cse select");
             scope.isDefined = angular.isDefined;
-            var elementHide = function(event) {
+            if (angular.isDefined(attrs.isMenu)) {
+                scope.model = attrs.isMenu;
+                scope.setModel = false;
+            } else {
+                scope.setModel = true;
+            }
+            scope.visible = false;
+            scope.$watch("visible", function(newVisible) {
+                if (newVisible) {
+                    $document.bind("click", elementHideClick);
+                } else {
+                    $document.unbind("click", elementHideClick);
+                }
+            });
+            scope.hideLeave = function() {
+                delayed = $timeout(function() {
+                    scope.visible = false;
+                }, 200);
+            };
+            scope.showEnter = function() {
+                scope.visible = true;
+                if (delayed) {
+                    $timeout.cancel(delayed);
+                }
+            };
+            element.on("$destroy", function() {
+                $document.unbind("click", elementHideClick);
+                if (delayed) {
+                    $timeout.cancel(delayed);
+                }
+            });
+            scope.$on("cseSelect", function(event, name, opt) {
+                scope.visible = false;
+                if (scope.setModel) {
+                    scope.model = opt;
+                }
+            });
+            function elementHideClick(event) {
                 var clicked = angular.element(event.target);
                 do {
                     if (elementEquals(clicked, element)) {
@@ -91,30 +133,38 @@ customSelectElement.directive("cseSelect", [ "$document", function($document) {
                     clicked = clicked.parent();
                 } while (clicked.length && !elementEquals($document, clicked));
                 scope.$apply("visible = false");
-            };
-            scope.visible = false;
-            scope.$watch("visible", function(newVisible) {
-                if (newVisible) {
-                    $document.bind("click", elementHide);
-                } else {
-                    $document.unbind("click", elementHide);
-                }
-            });
-            element.on("$destroy", function() {
-                $document.unbind("click", elementHide);
-            });
-            scope.$on("select", function(event, opt) {
-                scope.visible = false;
-                if (scope.setModel) {
-                    scope.model = opt;
-                }
-            });
+            }
+            function elementEquals(el1, el2) {
+                return el1[0] === el2[0];
+            }
         },
         template: function(tElement, tAttr) {
-            var templ = tAttr.cseTemplate || "cse-default";
-            var html = '<dt ng-click="visible=!visible"><div ng-show="isDefined(model)" ' + templ + ' value="model"></div></dt>' + '<dd ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option name="' + tAttr.cseSelect + '" model="' + tAttr.cseModel + '" value="opt" templ="' + templ + '"';
-            if (angular.isDefined(tAttr.cseIsMenu)) {
-                html += ' is-menu="1"';
+            var templ = "cse-default", isExpression = false;
+            if (angular.isDefined(tAttr.template)) {
+                templ = tAttr.template;
+            } else if (angular.isDefined(tAttr.display)) {
+                isExpression = true;
+            }
+            var html = "<dt ";
+            if (angular.isDefined(tAttr.isGroup)) {
+                html += 'ng-mouseenter="showEnter()" ng-mouseleave="hideLeave()"';
+            } else {
+                html += 'ng-click="visible=!visible"';
+            }
+            html += '><div ng-show="isDefined(model)" ' + templ;
+            if (isExpression) {
+                html += '="' + tAttr.display + '"';
+            }
+            html += ' value="model" is-current></div><a class="btn"></a></dt><dd';
+            if (angular.isDefined(tAttr.isGroup)) {
+                html += ' ng-mouseenter="showEnter()" ng-mouseleave="hideLeave()"';
+            }
+            html += ' ng-show="visible"><ul>' + "<li ng-repeat=\"opt in options | orderBy:'order'\" " + 'cse-option name="' + tAttr.cseSelect + '" model="' + tAttr.cseModel + '" value="opt" templ="' + templ + '"';
+            if (isExpression) {
+                html += ' expr="' + tAttr.display + '"';
+            }
+            if (angular.isDefined(tAttr.isMenu)) {
+                html += " is-menu";
             }
             html += "></li></ul></dd>";
             return html;
@@ -1056,15 +1106,6 @@ crwApp.directive("crwMenu", [ "$compile", function($compile) {
     };
 } ]);
 
-crwApp.directive("crwLevelNumber", [ "$compile", function($compile) {
-    return {
-        scope: {
-            value: "="
-        },
-        template: "{{value + 1}}"
-    };
-} ]);
-
 crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crosswordFactory", function($scope, qStore, basics, crosswordFactory) {
     if (!$scope.crw) {
         $scope.crw = crosswordFactory.getCrw();
@@ -1102,6 +1143,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             var obj = basics.localize(command);
             obj.value = command;
             if (command === "load") {
+                obj.menu = obj.display;
                 obj.group = [];
             }
             return obj;
@@ -1111,7 +1153,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             deregister();
         });
     };
-    $scope.$on("select", function(event, value, source) {
+    $scope.$on("cseSelect", function(event, source, value) {
         event.stopPropagation();
         switch (source) {
           case "command":

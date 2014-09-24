@@ -4,7 +4,7 @@
 if ( 'build' == $mode ) {
 
 ?>
-    <div><dl class="cse menu" cse-select="command" cse-options="commandList" cse-model="entry" cse-is-menu cse-template="crw-menu" ng-init="entry='<?php _e('Riddle...', 'crw-text') ?>'"></dl></div>
+    <div><dl class="menu" cse-select="command" cse-options="commandList" cse-model="entry" is-menu="<?php _e('Riddle...', 'crw-text') ?>" template="crw-menu"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="name">{{crosswordData.name}}</p>
@@ -15,7 +15,7 @@ if ( 'build' == $mode ) {
     </form>
     <dl class="crw-level">
         <dt><span><?php _e('Select a difficulty level:', 'crw-text') ?></span>
-            <dl class="cse" cse-select="level" cse-options="levelList" cse-model="crosswordData.level" cse-template="crw-level-number"></dl>
+            <dl cse-select="level" cse-options="levelList" cse-model="crosswordData.level" display="value + 1"></dl>
         </dt>
 <?php // single solve/preview only shows the name
 
@@ -30,7 +30,7 @@ if ( 'build' == $mode ) {
     } else {
 
 ?>
-    <div><dl class="cse name" title="<?php _e('Select a riddle', 'crw-text') ?>" cse-select="load" cse-options="namesInProject" cse-model="loadedName"></dl></div>
+    <div><dl class="name" title="<?php _e('Select a riddle', 'crw-text') ?>" cse-select="load" cse-options="namesInProject" cse-model="loadedName"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
 
@@ -127,7 +127,7 @@ if ( 'build' == $mode ) {
     <div class="crw-controls wide">
         <ul class="crw-word">
             <li ng-class="{'highlight': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
-                <dl class="cse crw-color" title="{{word.color}}" cse-template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
+                <dl class="crw-color" title="{{word.color}}" template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
                 <span>{{word.fields | joinWord}} (<?php
                 /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
                 printf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localizeDirection(word.direction)}}') ?>)</span>

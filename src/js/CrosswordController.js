@@ -45,14 +45,6 @@ crwApp.directive("crwMenu", ["$compile", function($compile) {
     };
 }]);
 
-// level menu data binding directive: add +1 to displayed number
-crwApp.directive("crwLevelNumber", ["$compile", function($compile) {
-    return {
-        scope: { value: "=" },
-        template: '{{value + 1}}'
-    };
-}]);
-
 /* wrapper controller for single crossword instance */
 crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswordFactory',
 		function ($scope, qStore, basics, crosswordFactory) {
@@ -103,6 +95,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             var obj = basics.localize(command);
             obj.value = command;
             if (command === 'load') {
+                obj.menu = obj.display;
                 obj.group = [];
             }
             return obj;
@@ -114,7 +107,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         });
     };
 
-    $scope.$on('select', function(event, value, source) {
+    $scope.$on('cseSelect', function(event, source, value) {
         event.stopPropagation();
         switch (source) {
         // execute command on menu selection
