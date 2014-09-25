@@ -73,10 +73,16 @@ module.exports = function(grunt) {
     },
     jshint: {
       options: {
-        jshintrc: '.jshintrc',
         force: true
       },
-      all: jslist
+      main: {
+        jshintrc: '.jshintrc',
+        src: jslist
+      },
+      spec: {
+        jshintrc: '.jshintrc_spec',
+        src: testdir + 'unit/*Spec.js',
+      }
     },
     jasmine: {
       options: {
@@ -172,5 +178,5 @@ module.exports = function(grunt) {
   grunt.task.loadTasks('tasks/');
 
   grunt.registerTask('msgupdate', ['pot', 'msgmerge']);
-  grunt.registerTask('default', ['jshint', 'uglify', 'writel10n', 'cssmin', 'msgupdate']);
+  grunt.registerTask('default', ['jshint:main', 'uglify', 'writel10n', 'cssmin', 'msgupdate']);
 };

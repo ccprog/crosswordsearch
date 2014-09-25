@@ -28,7 +28,7 @@ describe("crosswordFactory", function () {
                 };
                 ajaxFactory = $injector.get('ajaxFactory');
                 ajaxFactory.http = http;
-                ajaxFactory.setNonce = jasmine.createSpy()
+                ajaxFactory.setNonce = jasmine.createSpy();
                 spyOn(ajaxFactory, 'http').and.callThrough();
             });
             expect(crw.getCrosswordData()).toEqual({});
@@ -61,7 +61,7 @@ describe("crosswordFactory", function () {
             deferred.resolve({
                 crossword: null,
                 default_level: 0,
-                maximum_level: 2,
+                maximum_level: 2
             });
             $rootScope.$apply();
             expect(crossword.name).toBe('');
@@ -77,7 +77,7 @@ describe("crosswordFactory", function () {
             expect(ajaxFactory.setNonce).toHaveBeenCalledWith('editnonce', 'crossword');
             crw.loadCrosswordData('test');
 
-            var namesList = ['test', 'more']
+            var namesList = ['test', 'more'];
             deferred.resolve({
                 crossword: angular.copy(testdata),
                 default_level: 2,
@@ -156,8 +156,8 @@ describe("crosswordFactory", function () {
             var crossword = crw.getCrosswordData();
             angular.extend(crossword, angular.copy(testdata));
             crw.randomizeEmptyFields();
-            for(line in crossword.table) {
-                for(field in crossword.table[line]) {
+            for(var line = 0; line < crossword.table.length; line++) {
+                for(var field = 0; field < crossword.table[line].length; field++) {
                     expect(crossword.table[line][field].letter).toBeTruthy();
                 }
             }
@@ -167,8 +167,8 @@ describe("crosswordFactory", function () {
             var crossword = crw.getCrosswordData();
             crw.loadDefault();
             crw.emptyAllFields();
-            for(line in crossword.table) {
-                for(field in crossword.table[line]) {
+            for(var line = 0; line < crossword.table.length; line++) {
+                for(var field = 0; field < crossword.table[line].length; field++) {
                     expect(crossword.table[line][field].letter).toBeFalsy();
                 }
             }
@@ -192,8 +192,8 @@ describe("crosswordFactory", function () {
 
         function compareLetters (table, word) {
             var field, xses = [], yses = [];
-            for (index in word.fields) {
-                field = word.fields[index];
+            for (var i = 0; i < word.fields.length; i++) {
+                field = word.fields[i];
                 xses.push(field.x);
                 yses.push(field.y);
                 expect(field.word.letter).toBe(table[field.y][field.x].letter);
@@ -228,7 +228,7 @@ describe("crosswordFactory", function () {
             expect(crossword.solution[11]).toBe(marking);
             compareLetters(crossword.table, word);
             expect(word.solved).toBe(false);
-            var marking = {
+            marking = {
                 ID: 12,
                 color: 'color',
                 start: {x: 0, y: 0},
@@ -289,26 +289,26 @@ describe("crosswordFactory", function () {
             crw.changeSize({left: 2, right: 0, top: 0, bottom: 0}, []);
             expect(crossword.table[5][7].letter).toBe("X");
             expect(crossword.table.length).toBe(10);
-            for (line in crossword.table) {
-                expect(crossword.table[line].length).toBe(12);
+            for (var i = 0; i < crossword.table.length; i++) {
+                expect(crossword.table[i].length).toBe(12);
             }
             crw.changeSize({left: 0, right: -2, top: 0, bottom: 0}, []);
             expect(crossword.table[5][7].letter).toBe("X");
             expect(crossword.table.length).toBe(10);
-            for (line in crossword.table) {
-                expect(crossword.table[line].length).toBe(10);
+            for (i = 0; i < crossword.table.length; i++) {
+                expect(crossword.table[i].length).toBe(10);
             }
             crw.changeSize({left: 0, right: 0, top: -1, bottom: 0}, []);
             expect(crossword.table[4][7].letter).toBe("X");
             expect(crossword.table.length).toBe(9);
-            for (line in crossword.table) {
-                expect(crossword.table[line].length).toBe(10);
+            for (i = 0; i < crossword.table.length; i++) {
+                expect(crossword.table[i].length).toBe(10);
             }
             crw.changeSize({left: 0, right: 0, top: 0, bottom: 3}, []);
             expect(crossword.table[4][7].letter).toBe("X");
             expect(crossword.table.length).toBe(12);
-            for (line in crossword.table) {
-                expect(crossword.table[line].length).toBe(10);
+            for (i = 0; i < crossword.table.length; i++) {
+                expect(crossword.table[i].length).toBe(10);
             }
         });
 

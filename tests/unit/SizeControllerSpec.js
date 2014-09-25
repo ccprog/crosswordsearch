@@ -3,7 +3,7 @@ describe("SizeController", function () {
 
     beforeEach(module('crwApp'));
     beforeEach(inject(function(_$rootScope_, StyleModelContainer, $controller) {
-        $rootScope = _$rootScope_
+        $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         $scope.crosswordData = {
             size: {width: 10, height: 10}

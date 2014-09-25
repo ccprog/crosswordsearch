@@ -79,7 +79,7 @@ describe("markerFactory", function () {
                         fields: [ {x: 0, y: 1}, {x: 1, y: 1}, {x: 2, y: 1} ],
                         direction: 'right' },
                     img: 'horizontal' 
-                },
+                }
             });
         });
 
@@ -210,10 +210,8 @@ describe("markerFactory", function () {
                 color: 'green'
             });
             markers.exchangeMarkers(fields, 1, 'blue');
-            for (var i in fields) {
+            for (var i = 0; i < fields.length; i++) {
                 expect(markers.getMarks(fields[i].x, fields[i].y)['1'].marking.color).toBe('blue');
-            }
-            for (var i in fields) {
                 expect(markers.getMarks(fields[i].x, fields[i].y)['2'].marking.color).toBe('green');
             }
         });
@@ -221,9 +219,11 @@ describe("markerFactory", function () {
         it("draws a set of markers", function () {
             markers.redrawMarkers(angular.copy(testdata.words));
             for (var ID in testdata.words) {
-                var fields = testdata.words[ID].fields;
-                for (var i in fields) {
-                    expect(markers.getMarks(fields[i].x, fields[i].y)[ID]).toBeDefined();
+                if (testdata.words.hasOwnProperty(ID)) {
+                    var fields = testdata.words[ID].fields;
+                    for (var i = 0; i < fields.length; i++) {
+                        expect(markers.getMarks(fields[i].x, fields[i].y)[ID]).toBeDefined();
+                    }
                 }
             }
             expect(markers.getMarks(0,2)).toBeUndefined();
@@ -250,7 +250,7 @@ describe("markerFactory", function () {
             markers.redrawMarkers(angular.copy(testdata.words));
             markers.deleteMarking(6);
             var fields = testdata.words[6].fields;
-            for (var i in fields) {
+            for (var i = 0; i < fields.length; i++) {
                 expect(markers.getMarks(fields[i].x, fields[i].y)['6']).toBeUndefined();
             }
         });
@@ -260,7 +260,7 @@ describe("markerFactory", function () {
             markers.deleteAllMarking();
             for (var x = 0; x < 10; x++) {
                 for (var y = 0; y < 7; y++) {
-                    expect(markers.getMarks(5,6)).toBeUndefined();
+                    expect(markers.getMarks(x,y)).toBeUndefined();
                 }
             }
         });

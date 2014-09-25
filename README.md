@@ -107,7 +107,7 @@ The following tasks are available for the development process:
 
 + `grunt jasmine` will execute the unit tests in `tests/unit/` (twice, against jQuery 1.10.2
   for WP 3.x versions and 1.11.1 for WP 4.0)
-+ `grunt jshint` will lint the files in `src/js/`
++ `grunt jshint:main` will lint the files in `src/js/`, `grunt jshint:spec` those in `tests/unit/`
 + `grunt uglify` will link the files in `src/js/` together as `plugin/js/crosswordsearch.js`
   and minify them as `plugin/js/crosswordsearch.min.js`. Please note that if you add a new file,
   you have to list it explicitely in `Gruntfile.js` to include for linting and uglifying.
@@ -118,5 +118,5 @@ The following tasks are available for the development process:
 + `grunt msgmerge` will update all `.po` files in `plugin/languages/` to reflect
   `plugin/languages/crw-text.pot`.
 + `grunt msgupdate` executes `pot` and `msgmerge` together.
-+ `grunt` executes `jshint`, `uglify`, `writel10n`, `cssmin` and `msgupdate` together.
++ `grunt` executes `jshint:main`, `uglify`, `writel10n`, `cssmin` and `msgupdate` together.
 

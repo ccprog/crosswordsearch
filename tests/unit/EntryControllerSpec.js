@@ -19,7 +19,7 @@ describe("joinWord", function () {
             { word: { letter: 'B' } },
             { word: { letter: '' } },
             { word: { letter: 'D' } },
-            { word: { letter: null } },
+            { word: { letter: null } }
         ];
 
         expect($filter('joinWord')(input)).toBe('AB_D_');

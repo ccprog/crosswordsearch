@@ -9,15 +9,15 @@ describe("reduce implementation", function () {
             },
             initial: 0,
             array: [1,2,3]
-        }
+        };
         spyOn(mock, 'func').and.callThrough();
 
         var result = reduce(mock.array, mock.initial, mock.func);
 
         expect(mock.func.calls.count()).toEqual(mock.array.length);
-        mock.array.forEach(function (value, index) {
-            expect(mock.func.calls.argsFor(index)).toEqual([mock.initial, value, index]);
-        });
+        for (var i = 0; i < mock.array.length; i++) {
+            expect(mock.func.calls.argsFor(i)).toEqual([mock.initial, mock.array[i], i]);
+        }
         expect(result).toBe(mock.initial);
     }));
 });
@@ -51,7 +51,7 @@ describe("basics factory", function () {
     it("returns a random color", function () {
         var color, random;
         for (var i = 1; i < 4; i++) {
-            color = basics.colors[i]
+            color = basics.colors[i];
             random = basics.randomColor(color);
             expect(basics.colors).toContain(random);
             expect(random).not.toBe(color);

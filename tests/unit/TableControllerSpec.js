@@ -75,13 +75,13 @@ describe("TableController", function () {
             getHighId: jasmine.createSpy('getHighId').and.returnValue(1),
             randomColor: jasmine.createSpy("randomColor").and.returnValue('red'),
             getLevelRestriction: jasmine.createSpy("getLevelRestriction").and.returnValue(false)
-        }
+        };
         basics = {};
-        markerFactory = {
+        var markerFactory = {
             getMarkers: function () {
-                return jasmine.createSpyObj('markers', ['setNewMarkers', 'exchangeMarkers', 'redrawMarkers', 'getMarks', 'deleteMarking', 'deleteAllMarking'])
+                return jasmine.createSpyObj('markers', ['setNewMarkers', 'exchangeMarkers', 'redrawMarkers', 'getMarks', 'deleteMarking', 'deleteAllMarking']);
             }
-        }
+        };
         $controller('TableController', { markerFactory: markerFactory, basics: basics, $scope: $scope });
     }));
 
@@ -99,7 +99,7 @@ describe("TableController", function () {
             $scope.crosswordData = {
                 name: 'riddle',
                 words: {'1': {}}
-            }
+            };
             $scope.$apply();
             expect($scope.markers.deleteAllMarking.calls.count()).toBe(2);
             expect($scope.markers.deleteMarking).not.toHaveBeenCalled();
@@ -148,7 +148,7 @@ describe("TableController", function () {
             $scope.crosswordData = {
                 name: 'riddle',
                 solution: {'1': {}}
-            }
+            };
             $scope.$apply();
             expect($scope.markers.deleteAllMarking.calls.count()).toBe(2);
             expect($scope.markers.deleteMarking).not.toHaveBeenCalled();

@@ -26,15 +26,17 @@ describe("cseDefault", function() {
 });
 
 describe("cseOption", function() {
-    var $root, $scope, $isolate, $compile;
+    var $root, $scope, $isolate, $compile, element;
 
     function compile (attributes, initial) {
         $scope = $root.$new();
         var html = '<li cse-option name="theSelect" value="opt" templ="cse-default"';
-        for (item in attributes) {
-            html += ' ' + item;
-            if (attributes[item] !== null) {
-                html += '="' + attributes[item] + '"';
+        for (var item in attributes) {
+            if (attributes.hasOwnProperty(item)) {
+                html += ' ' + item;
+                if (attributes[item] !== null) {
+                    html += '="' + attributes[item] + '"';
+                }
             }
         }
         html += '></li>';
@@ -100,10 +102,12 @@ describe("cseSelect", function() {
     function compile (attributes, list) {
         $scope = $root.$new();
         var html = '<dl cse-select="theSelect" cse-model="result" cse-options="list"';
-        for (item in attributes) {
-            html += ' ' + item;
-            if (attributes[item] !== null) {
-                html += '="' + attributes[item] + '"';
+        for (var item in attributes) {
+            if (attributes.hasOwnProperty(item)) {
+                html += ' ' + item;
+                if (attributes[item] !== null) {
+                    html += '="' + attributes[item] + '"';
+                }
             }
         }
         html += '></dl>';

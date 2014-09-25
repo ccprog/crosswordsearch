@@ -65,7 +65,7 @@ describe("CrosswordController", function () {
     beforeEach(module('crwApp'));
 
     describe("Initialization", function () {
-        var qStore;
+        var qStore, crosswordFactory;
 
         beforeEach(function() {
             qStore = {
@@ -167,7 +167,7 @@ describe("CrosswordController", function () {
             expect($scope.crw.setProject).toHaveBeenCalledWith('project', 'nc', 'ne', false);
             expect($scope.commandState).toBe('full');
             var commands = ['new', 'load', 'update', 'insert', 'reload'];
-            for (var i in $scope.commandList) {
+            for (var i = 0;i < $scope.commandList.length; i++) {
                 expect($scope.commandList[i].value).toBe(commands[i]);
                 if ($scope.commandList[i].value === 'load') {
                     expect($scope.commandList[i].group).toEqual([]);
@@ -178,8 +178,8 @@ describe("CrosswordController", function () {
             expect($scope.load).toHaveBeenCalled();
             $scope.prepare('project', 'nc', 'ne', 'name', true);
             expect($scope.commandState).toBe('restricted');
-            var commands = ['new', 'update', 'reload'];
-            for (var i in $scope.commandList) {
+            commands = ['new', 'update', 'reload'];
+            for (i = 0;i < $scope.commandList.length; i++) {
                 expect($scope.commandList[i].value).toBe(commands[i]);
                 if ($scope.commandList[i].value === 'load') {
                     expect($scope.commandList[i].group).toEqual([]);
@@ -217,7 +217,7 @@ describe("CrosswordController", function () {
            beforeEach(function() {
                 $scope.crw.testDirection = function () {
                     return critical;
-                }
+                };
                 spyOn($scope.crw, 'testDirection').and.callThrough();
                 $scope.crw.deleteWord = jasmine.createSpy("deleteWord");
                 spyOn($scope, 'setHighlight');
@@ -278,7 +278,9 @@ describe("CrosswordController", function () {
         it("maps words to array", function () {
             var array = $scope.wordsToArray(testdata.words);
             for (var key in testdata.words) {
-                expect(array).toContain(testdata.words[key]);
+                if (testdata.words.hasOwnProperty(key)) {
+                    expect(array).toContain(testdata.words[key]);
+                }
             }
         });
 

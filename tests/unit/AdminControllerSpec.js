@@ -74,7 +74,7 @@ describe("OptionsController", function () {
                 return deferred.promise;
             },
             setNonce: jasmine.createSpy()
-        }
+        };
         spyOn(ajaxFactory, 'http').and.callThrough();
         $scope = $rootScope.$new();
         $controller('OptionsController', {
@@ -140,7 +140,7 @@ describe("EditorController", function () {
                 return deferred.promise;
             },
             setNonce: jasmine.createSpy()
-        }
+        };
         spyOn(ajaxFactory, 'http').and.callThrough();
         $scope = $rootScope.$new();
         $controller('EditorController', {
@@ -197,7 +197,7 @@ describe("EditorController", function () {
         deferred.resolve(admin);
         $scope.$apply();
         expect($scope.admin).toBe(admin);
-        for(var i in admin.projects) {
+        for (var i = 0;i < admin.projects.length; i++) {
             expect(admin.projects[i].pristine).toBe(true);
         }
         expect($scope.currentProject).toEqual(admin.projects[2]);
@@ -314,7 +314,7 @@ describe("EditorController", function () {
                 deferred = $q.defer();
                 return deferred.promise;
             }
-        }
+        };
         spyOn($scope.immediateStore, 'newPromise').and.callThrough();
         $scope.prepare('nonce');
         deferred.resolve(admin);
@@ -336,7 +336,7 @@ describe("EditorController", function () {
         expect(ajaxFactory.http.calls.argsFor(1)[0]).toEqual({
             action: 'save_project',
             method: 'remove',
-            project: 'project1',
+            project: 'project1'
         });
         expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('admin');
         deferred.resolve(admin);
@@ -470,7 +470,7 @@ describe("ReviewController", function () {
                 return deferred.promise;
             },
             setNonce: jasmine.createSpy()
-        }
+        };
         spyOn(ajaxFactory, 'http').and.callThrough();
         $scope = $rootScope.$new();
         $controller('ReviewController', {
@@ -484,7 +484,7 @@ describe("ReviewController", function () {
                 deferred = $q.defer();
                 return deferred.promise;
             }
-        }
+        };
         spyOn($scope.immediateStore, 'newPromise').and.callThrough();
         projects = angular.copy([
             {
@@ -692,7 +692,7 @@ describe("Adminstrative tab navigation", function () {
             '/first/nonce1': '&tab=first&_crwnonce=nonce1',
             '/second/nonce2': '&tab=second&_crwnonce=nonce2',
             '/other': '&tab=second&_crwnonce=nonce2'
-        }
+        };
         for (var route in routePaths) {
             $scope.location.path(route);
             if (route !== '/other') {

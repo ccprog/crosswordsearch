@@ -1,5 +1,5 @@
 describe("qStore", function () {
-    var qStore, ajaxFactory;
+    var qStore;
 
     beforeEach(function () {
         module('crwApp');
@@ -21,8 +21,8 @@ describe("qStore", function () {
         var func1 = jasmine.createSpy("func1"),
             func2 = jasmine.createSpy("func2"),
             func3 = jasmine.createSpy("func3");
-        qs.register('def1', func1),
-        qs.register('def1', func2),
+        qs.register('def1', func1);
+        qs.register('def1', func2);
         qs.register('def2', func3);
         var promise1 = qs.newPromise('def1', 'arg1');
         expect(func1.calls.argsFor(0)[0].promise).toBe(promise1);
@@ -139,12 +139,12 @@ describe("crwHasPassword", function() {
 });
 
 describe("ImmediateController", function () {
-    var $scope;
+    var $scope, $q;
 
     beforeEach(module('crwApp'));
     beforeEach(inject(function($rootScope, _$q_, $controller) {
         $q = _$q_;
-        $root = $rootScope.$new();
+        var $root = $rootScope.$new();
         var listener = jasmine.createSpy("listener");
         $root.$on('immediateReady', listener);
         $scope = $root.$new();
@@ -165,7 +165,7 @@ describe("ImmediateController", function () {
         spyOn(deferredImmediate, 'resolve');
         spyOn(deferredImmediate, 'reject');
         return deferredImmediate;
-    };
+    }
 
     it("reacts on resolving finish button", function () {
         $scope.saveError = 'error';
@@ -251,14 +251,14 @@ describe("ImmediateController", function () {
         initPromise('saveCrossword', 'insert');
         expect($scope.immediate).toBe('save_crossword');
         expect($scope.action).toBe('insert');
-        $scope.upload('username', 'password')
+        $scope.upload('username', 'password');
         expect($scope.crw.saveCrosswordData).toHaveBeenCalledWith('name2', 'insert', 'username', 'password');
         $scope.loadedName = 'name2';
-        $scope.upload('username', 'password')
+        $scope.upload('username', 'password');
         expect($scope.crw.saveCrosswordData).toHaveBeenCalledWith('name2', 'update', 'username', 'password');
         var deferredImmediate = initPromise('saveCrossword', 'update');
         $scope.loadedName = 'name1';
-        $scope.upload('username', 'password')
+        $scope.upload('username', 'password');
         expect($scope.crw.saveCrosswordData).toHaveBeenCalledWith('name1', 'update', 'username', 'password');
         deferredData.resolve(true);
         $scope.$apply();
@@ -273,7 +273,7 @@ describe("ImmediateController", function () {
         $scope.crosswordData = {name: 'name2'};
         var deferredImmediate = initPromise('saveCrossword', 'update');
         $scope.loadedName = 'name1';
-        $scope.upload('username', 'password')
+        $scope.upload('username', 'password');
         expect($scope.crw.saveCrosswordData).toHaveBeenCalledWith('name1', 'update', 'username', 'password');
         deferredData.reject({error: 'error', debug: 'debug'});
         $scope.$apply();

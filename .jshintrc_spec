@@ -1,0 +1,29 @@
+{
+    "curly": true,
+    "eqnull": true,
+    "eqeqeq": true,
+    "undef": true,
+    "unused": "vars",
+    "es3": true,
+    "globals": {
+        "angular": true,
+        "jQuery": true,
+        "customSelectElement": true,
+        "crwApp": true,
+        "crwBasics": true,
+        "URI": true,
+        "tv4": true,
+        "jasmine": true,
+        "spyOn":true,
+        "describe": true,
+        "it": true,
+        "expect": true,
+        "beforeEach": true,
+        "afterEach": true,
+        "module": true,
+        "inject": true,
+        "testdata": true,
+        "schema": true,
+        "document": true
+    }
+}
