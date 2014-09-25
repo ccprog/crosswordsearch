@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: crosswordsearch 0.3.2\n"
+"Project-Id-Version: crosswordsearch 0.3.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-28 11:17+0200\n"
-"PO-Revision-Date: 2014-07-28 11:17+0200\n"
+"POT-Creation-Date: 2014-09-25 10:48+0200\n"
+"PO-Revision-Date: 2014-09-25 10:48+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -488,75 +488,75 @@ msgstr "Bitte habe Geduld, bis das Kreuzworträtsel geladen ist."
 msgid "OK"
 msgstr "OK"
 
-#: plugin/l10n.php:52
+#: plugin/l10n.php:4
 msgid "down and right"
 msgstr "rechts unten"
 
-#: plugin/l10n.php:53
+#: plugin/l10n.php:4
 msgid "up and left"
 msgstr "links oben"
 
-#: plugin/l10n.php:54
+#: plugin/l10n.php:4
 msgid "up and right"
 msgstr "rechts oben"
 
-#: plugin/l10n.php:55
+#: plugin/l10n.php:4
 msgid "down and left"
 msgstr "rechts unten"
 
-#: plugin/l10n.php:56
+#: plugin/l10n.php:4
 msgid "down"
 msgstr "unten"
 
-#: plugin/l10n.php:57
+#: plugin/l10n.php:4
 msgid "up"
 msgstr "oben"
 
-#: plugin/l10n.php:58
+#: plugin/l10n.php:4
 msgid "to the right"
 msgstr "rechts"
 
-#: plugin/l10n.php:59
+#: plugin/l10n.php:4
 msgid "to the left"
 msgstr "links"
 
-#: plugin/l10n.php:61
+#: plugin/l10n.php:4
 msgid "New"
 msgstr "Neu"
 
-#: plugin/l10n.php:62
+#: plugin/l10n.php:4
 msgid "Start a completely new riddle"
 msgstr "Starte ein völlig neues Rätsel"
 
-#: plugin/l10n.php:65
+#: plugin/l10n.php:4
 msgid "Load"
 msgstr "Laden"
 
-#: plugin/l10n.php:66
+#: plugin/l10n.php:4
 msgid "Load an existing riddle"
 msgstr "Lade ein bestehendes Rätsel"
 
-#: plugin/l10n.php:69
+#: plugin/l10n.php:4
 msgid "Save..."
 msgstr "Speichern..."
 
-#: plugin/l10n.php:70
+#: plugin/l10n.php:4
 msgid "Save your work on the riddle"
 msgstr "Speichere deine Bearbeitung des Rätsels"
 
-#: plugin/l10n.php:73
+#: plugin/l10n.php:4
 msgid "Save as..."
 msgstr "Speichern als..."
 
-#: plugin/l10n.php:74
+#: plugin/l10n.php:4
 msgid "Save as a new riddle with a seperate name"
 msgstr "Speichere das Rätsel unter einem anderen Namen"
 
-#: plugin/l10n.php:77
+#: plugin/l10n.php:4
 msgid "Reload"
 msgstr "Zurücksetzen"
 
-#: plugin/l10n.php:78
+#: plugin/l10n.php:4
 msgid "Reset to the saved version"
 msgstr "Kehre zur gespeicherten Version zurück"
 

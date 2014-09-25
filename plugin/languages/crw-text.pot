@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: crosswordsearch 0.3.2\n"
+"Project-Id-Version: crosswordsearch 0.3.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-28 11:17+0200\n"
+"POT-Creation-Date: 2014-09-25 10:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -455,75 +455,75 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: plugin/l10n.php:52
+#: plugin/l10n.php:4
 msgid "down and right"
 msgstr ""
 
-#: plugin/l10n.php:53
+#: plugin/l10n.php:4
 msgid "up and left"
 msgstr ""
 
-#: plugin/l10n.php:54
+#: plugin/l10n.php:4
 msgid "up and right"
 msgstr ""
 
-#: plugin/l10n.php:55
+#: plugin/l10n.php:4
 msgid "down and left"
 msgstr ""
 
-#: plugin/l10n.php:56
+#: plugin/l10n.php:4
 msgid "down"
 msgstr ""
 
-#: plugin/l10n.php:57
+#: plugin/l10n.php:4
 msgid "up"
 msgstr ""
 
-#: plugin/l10n.php:58
+#: plugin/l10n.php:4
 msgid "to the right"
 msgstr ""
 
-#: plugin/l10n.php:59
+#: plugin/l10n.php:4
 msgid "to the left"
 msgstr ""
 
-#: plugin/l10n.php:61
+#: plugin/l10n.php:4
 msgid "New"
 msgstr ""
 
-#: plugin/l10n.php:62
+#: plugin/l10n.php:4
 msgid "Start a completely new riddle"
 msgstr ""
 
-#: plugin/l10n.php:65
+#: plugin/l10n.php:4
 msgid "Load"
 msgstr ""
 
-#: plugin/l10n.php:66
+#: plugin/l10n.php:4
 msgid "Load an existing riddle"
 msgstr ""
 
-#: plugin/l10n.php:69
+#: plugin/l10n.php:4
 msgid "Save..."
 msgstr ""
 
-#: plugin/l10n.php:70
+#: plugin/l10n.php:4
 msgid "Save your work on the riddle"
 msgstr ""
 
-#: plugin/l10n.php:73
+#: plugin/l10n.php:4
 msgid "Save as..."
 msgstr ""
 
-#: plugin/l10n.php:74
+#: plugin/l10n.php:4
 msgid "Save as a new riddle with a seperate name"
 msgstr ""
 
-#: plugin/l10n.php:77
+#: plugin/l10n.php:4
 msgid "Reload"
 msgstr ""
 
-#: plugin/l10n.php:78
+#: plugin/l10n.php:4
 msgid "Reset to the saved version"
 msgstr ""
 
