@@ -262,7 +262,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 
     // disable all users for the current project
     $scope.removeAll = function () {
-        $scope.currentEditors.splice(0);
+        $scope.currentEditors.splice(0, $scope.currentEditors.length);
         $scope.editorsPristine = false;
     };
 
