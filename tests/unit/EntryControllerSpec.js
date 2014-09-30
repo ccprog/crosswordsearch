@@ -47,7 +47,7 @@ describe("EntryController", function () {
 
     it("sets up properties", function () {
         expect($scope.colors).toBe(basics.colors);
-        expect($scope.localizeDirection).toBe(basics.localize);
+        expect($scope.localize).toBe(basics.localize);
     });
 
     it("delegates deleteWord", function () {

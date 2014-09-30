@@ -23,6 +23,17 @@ crwApp.directive('crwHelpFollow', ['$document', function ($document) {
     };
 }]);
 
+/* bypass escape service for localized strings */
+crwApp.directive('crwBindTrusted', ['$sce', function ($sce) {
+    return {
+        link: function (scope, element, attrs) {
+            scope.$watch(attrs.crwBindTrusted, function (newString) {
+                element.html(newString);
+            });
+        }
+    };
+}]);
+
 /* wrapper controller */
 crwApp.controller("AdminController", ['$scope', '$routeParams', '$location', 'qStore', 'crosswordFactory',
 		function ($scope, $routeParams, $location, qStore, crosswordFactory) {

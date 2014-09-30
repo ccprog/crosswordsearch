@@ -27,6 +27,14 @@
         "reload": {
             "display": "Reload",
             "title": "Reset to the saved version"
-        }
+        },
+        "black": "black",
+        "red": "red",
+        "green": "green",
+        "blue": "blue",
+        "orange": "orange",
+        "violet": "violet",
+        "aqua": "aqua",
+        "grey": "grey"
     }
 }

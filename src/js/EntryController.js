@@ -2,7 +2,10 @@
 crwApp.directive('colorSelect', ['basics', function(basics) {
     return {
         scope: { value: "=" },
-        template: '<img ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
+        link: function (scope, element, attrs) {
+            scope.localize = basics.localize;
+        },
+        template: '<img title="{{localize(value)}}" ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
     };
 }]);
 
@@ -36,8 +39,8 @@ crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
         $scope.crw.deleteWord(id, 'words');
     };
 
-    //build page only: localize direction string
-    $scope.localizeDirection = basics.localize;
+    //localize color and direction string
+    $scope.localize = basics.localize;
 
     // color selection goes no further
     $scope.$on('select', function(event) {

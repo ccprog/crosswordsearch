@@ -41,7 +41,7 @@ crwApp.directive("crwMenu", ["$compile", function($compile) {
                 element.attr('title', scope.value.title);
             });
         },
-        template: '{{value.display || value}}'
+        template: '<span crw-bind-trusted="value.display || value"></span>'
     };
 }]);
 

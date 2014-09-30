@@ -716,6 +716,16 @@ crwApp.directive("crwHelpFollow", [ "$document", function($document) {
     };
 } ]);
 
+crwApp.directive("crwBindTrusted", [ "$sce", function($sce) {
+    return {
+        link: function(scope, element, attrs) {
+            scope.$watch(attrs.crwBindTrusted, function(newString) {
+                element.html(newString);
+            });
+        }
+    };
+} ]);
+
 crwApp.controller("AdminController", [ "$scope", "$routeParams", "$location", "qStore", "crosswordFactory", function($scope, $routeParams, $location, qStore, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
@@ -1121,7 +1131,7 @@ crwApp.directive("crwMenu", [ "$compile", function($compile) {
                 element.attr("title", scope.value.title);
             });
         },
-        template: "{{value.display || value}}"
+        template: '<span crw-bind-trusted="value.display || value"></span>'
     };
 } ]);
 
@@ -1631,7 +1641,10 @@ crwApp.directive("colorSelect", [ "basics", function(basics) {
         scope: {
             value: "="
         },
-        template: '<img ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
+        link: function(scope, element, attrs) {
+            scope.localize = basics.localize;
+        },
+        template: '<img title="{{localize(value)}}" ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
     };
 } ]);
 
@@ -1656,7 +1669,7 @@ crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($
     $scope.deleteWord = function(id) {
         $scope.crw.deleteWord(id, "words");
     };
-    $scope.localizeDirection = basics.localize;
+    $scope.localize = basics.localize;
     $scope.$on("select", function(event) {
         event.stopPropagation();
     });

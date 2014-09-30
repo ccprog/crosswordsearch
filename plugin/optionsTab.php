@@ -17,7 +17,7 @@
             </thead>
             <tbody>
             <tr ng-class-odd="'alternate'" ng-repeat="role in capabilities">
-                <th>{{role.local}}</th>
+                <th crw-bind-trusted="role.local"></th>
                 <td class="check-column"><input type="radio" name="{{role.name}}" ng-model="role.cap" value=""></input></td>
                 <td class="check-column"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_UNCONFIRMED ?>"></input></td>
                 <td class="check-column"><input type="radio" name="{{role.name}}" ng-model="role.cap" value="<?php echo CRW_CAP_CONFIRMED ?>"></input></td>
