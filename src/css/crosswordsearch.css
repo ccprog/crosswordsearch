@@ -81,11 +81,12 @@ dl.crw-level>dd {
     -moz-box-sizing: content-box;
     border-sizing: content-box;
     position: relative;
-    border-left: 1px solid transparent;
-    border-top: 1px solid transparent;
+    border-style: solid;
+    border-color: transparent;
 }
 .crw-grid.divider {
     background-image: url(../images/grid.png);
+    border-color: black;
 }
 .crw-grid #handle-left {
     cursor: w-resize;
@@ -131,10 +132,13 @@ dl.crw-level>dd {
 }
 .crw-mask {
     overflow: hidden;
+    border-style: solid;
+    border-color: transparent;
 }
 table.crw-table {
     position: absolute;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border: none;
     width: auto;
     height: auto;
 }
@@ -142,22 +146,16 @@ table.crw-table tr, table.crw-table th, table.crw-table td {
     background: none;
 }
 td.crw-field {
-    height: 30px;
-    width: 30px;
-    min-width:30px;
-    border: 1px solid transparent;
+    border: none;
     padding: 0;
     vertical-align: middle;
     text-align: center;
 }
 td.crw-field  > div {
     position: relative;
-    height: 30px;
     line-height: 18px;
 }
 td.crw-field button {
-    height: 26px;
-    width: 26px;
     border: none;
     padding: 0;
     margin: 2px;
@@ -169,8 +167,6 @@ td.crw-field button {
     cursor: default;
 }
 td.crw-field span {
-    height: 30px;
-    width: 30px;
     display: table-cell;
     vertical-align: middle;
     font-weight: bold;
@@ -185,8 +181,6 @@ div.crw-marked {
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 31px;
-    height:31px;
 }
 div.crw-marked.grey { background-image: url(../images/markers-grey.png); }
 div.crw-marked.black { background-image: url(../images/markers-black.png); }
@@ -359,6 +353,13 @@ dl.crw-color img {
 .crw-editors table.widefat .check-column {
     text-align: center;
 }
+.crw-editors .illustration {
+    float:right;
+    margin: 0 20px;
+}
+.crw-editors .form-table {
+    clear:none;
+}
 .crw-options {
     border-spacing: 0;
 }
@@ -425,3 +426,4 @@ dl.crw-color img {
 .crw-options button.text {
     width: auto;
 }
+

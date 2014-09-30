@@ -63,6 +63,41 @@ describe("AdminController", function () {
     }));
 });
 
+describe("crwDimension", function() {
+    var $scope, $compile, element, model;
+
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function($rootScope, _$compile_) {
+        $compile = _$compile_;
+        $scope = $rootScope.$new();
+        $scope.value = 1;
+        element = $compile('<form name="frm"><input name="dim" type="text" ng-model="value" ' +
+            'crw-dimension></input></form>')($scope);
+        model = element.find('input').controller('ngModel');
+    }));
+
+    it("accepts only integers of 0 and above", function() {
+        model.$setViewValue('0');
+        expect($scope.frm.dim.$error.dimension).toBe(false);
+        expect($scope.value).toBe(0);
+        model.$setViewValue('1.3');
+        expect($scope.frm.dim.$error.dimension).toBe(true);
+        expect($scope.value).toBeUndefined();
+        model.$setViewValue('1');
+        expect($scope.frm.dim.$error.dimension).toBe(false);
+        expect($scope.value).toBe(1);
+        model.$setViewValue('-2');
+        expect($scope.frm.dim.$error.dimension).toBe(true);
+        expect($scope.value).toBeUndefined();
+        model.$setViewValue('563');
+        expect($scope.frm.dim.$error.dimension).toBe(false);
+        expect($scope.value).toBe(563);
+        model.$setViewValue('abc');
+        expect($scope.frm.dim.$error.dimension).toBe(true);
+        expect($scope.value).toBeUndefined();
+    });
+});
+
 describe("OptionsController", function () {
     var $scope, ajaxFactory, deferred, capabilities;
 
@@ -81,8 +116,10 @@ describe("OptionsController", function () {
             $scope: $scope,
             ajaxFactory: ajaxFactory
         });
-        capabilities = $scope.capabilities = {data:"data"};
+        capabilities = $scope.capabilities = {data:"data1"};
+        dimensions = $scope.dimensions = {data:"data2"};
         $scope.capsEdit = {$setPristine: jasmine.createSpy()};
+        $scope.dimEdit = {$setPristine: jasmine.createSpy()};
     }));
 
     it("loads initial data", function () {
@@ -92,10 +129,11 @@ describe("OptionsController", function () {
             action: 'get_crw_capabilities'
         });
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
-        deferred.resolve({capabilities: 'cap'});
+        deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
         $scope.$apply();
         expect($scope.capabilities).toBe('cap');
-        expect($scope.capError).toBeUndefined();
+        expect($scope.dimensions).toBe('dim');
+        expect($scope.optError).toBeNull();
     });
 
     it("reacts on initial data load failure", function () {
@@ -103,29 +141,54 @@ describe("OptionsController", function () {
         deferred.reject('error');
         $scope.$apply();
         expect($scope.capabilities).toBe(capabilities);
-        expect($scope.capError).toBe('error');
+        expect($scope.dimensions).toBe(dimensions);
+        expect($scope.optError).toBe('error');
     });
 
     it("calls for capabilities update", function () {
-        $scope.updateCaps();
+        $scope.update('capabilities');
         expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual({
             action: 'update_crw_capabilities',
             capabilities: JSON.stringify(capabilities)
         });
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
-        deferred.resolve({capabilities: 'cap'});
+        deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
         $scope.$apply();
-        expect($scope.capError).toBeNull();
+        expect($scope.optError).toBeNull();
         expect($scope.capsEdit.$setPristine).toHaveBeenCalled();
+        expect($scope.dimEdit.$setPristine).toHaveBeenCalled();
         expect($scope.capabilities).toBe('cap');
     });
 
     it("reacts on capabilities update failure", function () {
-        $scope.updateCaps();
+        $scope.update('capabilities');
         deferred.reject('error');
         $scope.$apply();
-        expect($scope.capError).toBe('error');
+        expect($scope.optError).toBe('error');
         expect($scope.capabilities).toBe(capabilities);
+    });
+
+    it("calls for dimensions update", function () {
+        $scope.update('dimensions');
+        expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual({
+            action: 'update_crw_dimensions',
+            dimensions: JSON.stringify(dimensions)
+        });
+        expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
+        deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
+        $scope.$apply();
+        expect($scope.optError).toBeNull();
+        expect($scope.capsEdit.$setPristine).toHaveBeenCalled();
+        expect($scope.dimEdit.$setPristine).toHaveBeenCalled();
+        expect($scope.dimensions).toBe('dim');
+    });
+
+    it("reacts on dimensions update failure", function () {
+        $scope.update('dimensions');
+        deferred.reject('error');
+        $scope.$apply();
+        expect($scope.optError).toBe('error');
+        expect($scope.dimensions).toBe(dimensions);
     });
 });
 

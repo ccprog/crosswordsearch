@@ -26,6 +26,9 @@ crwApp.factory('basics', ['reduce', function (reduce) {
         // the list of marking colors selectable on build page.
         colors: ["black", "red", "green", "blue", "orange", "violet", "aqua"],
 
+        // table sizing dimensions in pixels
+        dimensions: crwBasics.dimensions,
+
         // base directory
         pluginPath: crwBasics.pluginPath,
 
@@ -47,11 +50,6 @@ crwApp.factory('basics', ['reduce', function (reduce) {
 
         // return the regex describing allowed letters
         letterRegEx: new RegExp(crwBasics.letterRegEx),
-
-        // pixel sizing for one crossword field, including borders
-        // This must match the width and height of images/grid.png
-        // and all images/markers-...png partial sizes
-        fieldSize: 31,
 
         // maps from marking direction names to CSS class names for
         // individual marker parts

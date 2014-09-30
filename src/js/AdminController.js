@@ -35,34 +35,53 @@ crwApp.controller("AdminController", ['$scope', '$routeParams', '$location', 'qS
     };
 }]);
 
+/* input validity parser for dimensions */
+crwApp.directive('crwDimension', function () {
+    return {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                var val = parseInt(viewValue, 10);
+                if (isNaN(val) || val < 0 || val.toString() !== viewValue) {
+                    ctrl.$setValidity('dimension', false);
+                    return undefined;
+                } else {
+                    ctrl.$setValidity('dimension', true);
+                    return val;
+                }
+            });
+        }
+    };
+});
+
 /* controller for Options tab: assign capabilities to roles */
 crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {
     var optionsContext = 'options';
+
+    var displayOptions = function (data) {
+        $scope.capsEdit.$setPristine();
+        $scope.dimEdit.$setPristine();
+        $scope.optError = null;
+        $scope.capabilities = data.capabilities;
+        $scope.dimensions = data.dimensions;
+    };
+    var displayError = function (error) {
+        $scope.optError = error;
+    };
 
     // initial load after the nonce has been processed
     $scope.prepare = function (nonce) {
         ajaxFactory.setNonce(nonce, optionsContext);
         ajaxFactory.http({
             action: 'get_crw_capabilities'
-        }, optionsContext).then(function (data) {
-            $scope.capabilities = data.capabilities;
-        }, function (error) {
-            $scope.capError = error;
-        });
+        }, optionsContext).then(displayOptions, displayError);
     };
 
-    $scope.updateCaps = function () {
-        ajaxFactory.http({
-            action: 'update_crw_capabilities',
-            capabilities: angular.toJson($scope.capabilities)
-        }, optionsContext).then(function (data) {
-            $scope.capError = null;
-            $scope.capsEdit.$setPristine();
-            $scope.capabilities = data.capabilities;
-        }, function (error) {
-            $scope.capError = error;
-        });
+    $scope.update = function (part) {
+        var data = {action: 'update_crw_' + part};
+        data[part] = angular.toJson($scope[part]);
+        ajaxFactory.http(data, optionsContext).then(displayOptions, displayError);
     };
 }]);
 

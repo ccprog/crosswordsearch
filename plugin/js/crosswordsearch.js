@@ -194,6 +194,7 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
     });
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
+        dimensions: crwBasics.dimensions,
         pluginPath: crwBasics.pluginPath,
         randomColor: function(last) {
             var color;
@@ -207,7 +208,6 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
             return list.slice(pos, pos + 1);
         },
         letterRegEx: new RegExp(crwBasics.letterRegEx),
-        fieldSize: 31,
         directionMapping: {
             "down-right": {
                 end: "up-left",
@@ -725,29 +725,48 @@ crwApp.controller("AdminController", [ "$scope", "$routeParams", "$location", "q
     };
 } ]);
 
+crwApp.directive("crwDimension", function() {
+    return {
+        require: "ngModel",
+        link: function(scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                var val = parseInt(viewValue, 10);
+                if (isNaN(val) || val < 0 || val.toString() !== viewValue) {
+                    ctrl.$setValidity("dimension", false);
+                    return undefined;
+                } else {
+                    ctrl.$setValidity("dimension", true);
+                    return val;
+                }
+            });
+        }
+    };
+});
+
 crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scope, ajaxFactory) {
     var optionsContext = "options";
+    var displayOptions = function(data) {
+        $scope.capsEdit.$setPristine();
+        $scope.dimEdit.$setPristine();
+        $scope.optError = null;
+        $scope.capabilities = data.capabilities;
+        $scope.dimensions = data.dimensions;
+    };
+    var displayError = function(error) {
+        $scope.optError = error;
+    };
     $scope.prepare = function(nonce) {
         ajaxFactory.setNonce(nonce, optionsContext);
         ajaxFactory.http({
             action: "get_crw_capabilities"
-        }, optionsContext).then(function(data) {
-            $scope.capabilities = data.capabilities;
-        }, function(error) {
-            $scope.capError = error;
-        });
+        }, optionsContext).then(displayOptions, displayError);
     };
-    $scope.updateCaps = function() {
-        ajaxFactory.http({
-            action: "update_crw_capabilities",
-            capabilities: angular.toJson($scope.capabilities)
-        }, optionsContext).then(function(data) {
-            $scope.capError = null;
-            $scope.capsEdit.$setPristine();
-            $scope.capabilities = data.capabilities;
-        }, function(error) {
-            $scope.capError = error;
-        });
+    $scope.update = function(part) {
+        var data = {
+            action: "update_crw_" + part
+        };
+        data[part] = angular.toJson($scope[part]);
+        ajaxFactory.http(data, optionsContext).then(displayOptions, displayError);
     };
 } ]);
 
@@ -1263,23 +1282,25 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
 } ]);
 
 crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleModelContainer", function($scope, $document, basics, StyleModelContainer) {
-    var size = basics.fieldSize, t, b, l, r, lg, tg, wg, hg, fwg, fhg;
+    var size = basics.dimensions.field + basics.dimensions.fieldBorder, handleShift = basics.dimensions.handleOutside + basics.dimensions.tableBorder, handleSize = basics.dimensions.handleOutside + basics.dimensions.handleInside, t, b, l, r, lg, tg, wg, hg, fwg, fhg;
     var resetSizes = function(cols, rows) {
-        l = t = -1;
-        r = cols * size + 1;
-        b = rows * size + 1;
+        l = t = 0;
+        r = cols * size;
+        b = rows * size;
         lg = tg = 0;
-        wg = fwg = cols * size;
+        wg = cols * size;
+        fwg = wg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
         hg = fhg = rows * size;
+        fhg = hg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
         $scope.modLeft.transform(l, 0);
         $scope.modTop.transform(0, t);
         $scope.modRight.transform(r, 0);
         $scope.modBottom.transform(0, b);
     };
-    StyleModelContainer.add("size-left", -Infinity, ($scope.crosswordData.size.height - 3) * size + 1, 0, 0);
-    StyleModelContainer.add("size-top", 0, 0, -Infinity, ($scope.crosswordData.size.width - 3) * size + 1);
-    StyleModelContainer.add("size-right", 5 * size + 1, Infinity, 0, 0);
-    StyleModelContainer.add("size-bottom", 0, 0, 5 * size + 1, Infinity);
+    StyleModelContainer.add("size-left", -Infinity, ($scope.crosswordData.size.height - 3) * size, 0, 0);
+    StyleModelContainer.add("size-top", 0, 0, -Infinity, ($scope.crosswordData.size.width - 3) * size);
+    StyleModelContainer.add("size-right", 5 * size, Infinity, 0, 0);
+    StyleModelContainer.add("size-bottom", 0, 0, 5 * size, Infinity);
     $scope.modLeft = StyleModelContainer.get("size-left");
     $scope.modTop = StyleModelContainer.get("size-top");
     $scope.modRight = StyleModelContainer.get("size-right");
@@ -1290,56 +1311,56 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
     });
     $scope.modLeft.addStyle("size-left", function(x, y) {
         l = x;
-        lg = Math.ceil((l + 1) / size) * size;
-        wg = Math.floor((r - 1 - lg) / size) * size;
+        lg = Math.ceil(l / size) * size;
+        wg = Math.floor((r - lg) / size) * size;
         if ($scope.modRight) {
-            $scope.modRight.minx = Math.floor((l + 1) / size) * size + 3 * size + 1;
+            $scope.modRight.minx = Math.floor(l / size) * size + 3 * size;
         }
     });
     $scope.modLeft.addStyle("handle-left", function(x, y) {
         return {
-            left: l - lg - 8 + "px",
-            width: lg - l + 12 + "px"
+            left: l - lg - handleShift + "px",
+            width: lg - l + handleSize + "px"
         };
     });
     $scope.modTop.addStyle("size-top", function(x, y) {
         t = y;
-        tg = Math.ceil((t + 1) / size) * size;
-        hg = Math.floor((b - 1 - tg) / size) * size;
+        tg = Math.ceil(t / size) * size;
+        hg = Math.floor((b - tg) / size) * size;
         if ($scope.modBottom) {
-            $scope.modBottom.miny = Math.floor((t + 1) / size) * size + 3 * size + 1;
+            $scope.modBottom.miny = Math.floor(t / size) * size + 3 * size;
         }
     });
     $scope.modTop.addStyle("handle-top", function(x, y) {
         return {
-            top: t - tg - 8 + "px",
-            height: tg - t + 12 + "px"
+            top: t - tg - handleShift + "px",
+            height: tg - t + handleSize + "px"
         };
     });
     $scope.modRight.addStyle("size-right", function(x, y) {
         r = x;
-        wg = Math.floor((r - 1 - lg) / size) * size;
+        wg = Math.floor((r - lg) / size) * size;
         if ($scope.modLeft) {
-            $scope.modLeft.maxx = Math.floor((r - 1) / size) * size - 3 * size + 1;
+            $scope.modLeft.maxx = Math.floor(r / size) * size - 3 * size;
         }
     });
     $scope.modRight.addStyle("handle-right", function(x, y) {
         return {
-            right: lg + wg - r - 8 + "px",
-            width: r - lg - wg + 12 + "px"
+            right: lg + wg - r - handleShift + "px",
+            width: r - lg - wg + handleSize + "px"
         };
     });
     $scope.modBottom.addStyle("size-bottom", function(x, y) {
         b = y;
-        hg = Math.floor((b - 1 - tg) / size) * size;
+        hg = Math.floor((b - tg) / size) * size;
         if ($scope.modTop) {
-            $scope.modTop.maxy = Math.floor((b - 1) / size) * size - 3 * size + 1;
+            $scope.modTop.maxy = Math.floor(b / size) * size - 3 * size;
         }
     });
     $scope.modBottom.addStyle("handle-bottom", function(x, y) {
         return {
-            bottom: tg + hg - b - 8 + "px",
-            height: b - tg - hg + 12 + "px"
+            bottom: tg + hg - b - handleShift + "px",
+            height: b - tg - hg + handleSize + "px"
         };
     });
     $scope.styleCrossword = function() {
@@ -1351,21 +1372,21 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
     $scope.styleGridSize = function() {
         return {
             left: lg + "px",
-            width: wg + "px",
+            width: wg - basics.dimensions.fieldBorder + "px",
             top: tg + "px",
-            height: hg + "px"
+            height: hg - basics.dimensions.fieldBorder + "px"
         };
     };
     $scope.styleShift = function() {
         return {
-            left: -lg + "px",
-            top: -tg + "px"
+            left: -(lg + basics.dimensions.fieldBorder) + "px",
+            top: -(tg + basics.dimensions.fieldBorder) + "px"
         };
     };
     $scope.styleExtras = function() {
         return {
             left: lg + "px",
-            top: tg + hg + 8 + "px"
+            top: tg + hg + handleShift + "px"
         };
     };
     var currentSize;

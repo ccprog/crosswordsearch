@@ -31,6 +31,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 /* plugin installation */
 define('CRW_DB_VERSION', '0.4');
+define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_ROLES_OPTION', 'crw_roles_caps');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
@@ -98,6 +99,14 @@ function crw_install () {
     if ('NO' === $have_innodb ) {
         trigger_error( 'This plugin requires MySQL to support the InnoDB table engine. Please contact your server administrator before you activate this plugin', E_USER_ERROR );
     }
+
+    add_option( CRW_DIMENSIONS_OPTION, array(
+        'fieldBorder' => 1,
+        'tableBorder' => 1,
+        'field' => 30,
+        'handleInside' => 4,
+        'handleOutside' => 8
+    ) );
 
     update_option( "crw_db_version", CRW_DB_VERSION );
     $roles_caps = array();
@@ -228,7 +237,8 @@ function add_crw_scripts ( $hook ) {
         wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch' . (WP_DEBUG ? '' : '.min') . '.js', array( 'angular', 'angular-route', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
             'pluginPath' => CRW_PLUGIN_URL,
-            'ajaxUrl' => admin_url( 'admin-ajax.php' )
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'dimensions' => get_option( CRW_DIMENSIONS_OPTION )
         )));
 	}
 }
@@ -244,10 +254,43 @@ function crw_set_header () {
 }
 add_action( 'get_header', 'crw_set_header');
 
+function crw_compose_style () {
+    global $wp_styles;
+
+    $dimensions = get_option( CRW_DIMENSIONS_OPTION );
+
+    $code = '.crw-grid, .crw-mask {
+    border-width: ' . $dimensions['tableBorder'] . 'px;
+}
+table.crw-table {
+    border-spacing: ' . $dimensions['fieldBorder'] . 'px;
+}
+td.crw-field, td.crw-field  > div {
+    height: ' . $dimensions['field'] . 'px;
+    width: ' . $dimensions['field'] . 'px;
+    min-width: ' . $dimensions['field'] . 'px;
+}
+td.crw-field span {
+    height: ' . ($dimensions['field'] - 2) . 'px;
+    width: ' . ($dimensions['field'] - 2) . 'px;
+}
+td.crw-field button {
+    height: ' . ($dimensions['field'] - 4) . 'px;
+    width: ' . ($dimensions['field'] - 4) . 'px;
+}
+div.crw-marked {
+    width: ' . ($dimensions['field'] + $dimensions['fieldBorder']) . 'px;
+    height: ' . ($dimensions['field'] + $dimensions['fieldBorder']) . 'px;
+}';
+
+    wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
+    $wp_styles->add_inline_style( 'crw-css', $code );
+}
+
 function crw_set_admin_header () {
     add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
     add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
-    wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
+    crw_compose_style();
 }
 add_action( 'load-settings_page_crw_options', 'crw_set_admin_header');
 
@@ -340,7 +383,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     }
 
 	// load stylesheet into page bottom to get it past theming
-    wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
+    crw_compose_style();
 
     ob_start();
     include 'app.php';
@@ -540,6 +583,7 @@ function crw_send_capabilities () {
 
     wp_send_json( array(
         'capabilities' => $capabilities,
+        'dimensions' => get_option(CRW_DIMENSIONS_OPTION),
         CRW_NONCE_NAME => wp_create_nonce(NONCE_OPTIONS)
     ) );
 }
@@ -589,6 +633,38 @@ function crw_update_capabilities () {
     crw_send_capabilities();
 }
 add_action( 'wp_ajax_update_crw_capabilities', 'crw_update_capabilities' );
+
+// update dimensions list in option entry
+function crw_update_dimensions () {
+    global $wp_roles;
+    $error = __('Dimensions could not be updated.', 'crw-text');
+
+    crw_test_permission( 'cap', wp_get_current_user() );
+
+    $dimensions_raw = json_decode( wp_unslash( $_POST['dimensions'] ), true );
+    if ( !is_array($dimensions_raw) ) {
+        $debug = 'invalid data: no array';
+        crw_send_error($error, $debug);
+    } else {
+        $dimensions = get_option(CRW_DIMENSIONS_OPTION);
+        foreach ( $dimensions as $key => $dim ) {
+            if ( !key_exists($key, $dimensions_raw) ) {
+                $debug = 'invalid data: missing key ' . $key;
+                crw_send_error($error, $debug);
+            } elseif ( !is_int($dimensions_raw[$key]) || $dimensions_raw[$key] < 0 ) {
+                $debug = 'invalid data: invalid size ' . $key . ':'. $dimensions_raw[$key];
+                crw_send_error($error, $debug);
+            } else {
+                $dimensions[$key] = $dimensions_raw[$key];
+            }
+        }
+    }
+
+    update_option(CRW_DIMENSIONS_OPTION, $dimensions);
+
+    crw_send_capabilities();
+}
+add_action( 'wp_ajax_update_crw_dimensions', 'crw_update_dimensions' );
 
 // data for Settings->Projects tab
 function crw_send_admin_data () {
@@ -1032,12 +1108,14 @@ function crw_add_help_tab () {
             'id'	=> 'crw-help-tab-options',
             'title'	=> __('Options', 'crw-text'),
             'content'	=> '<p>' . __('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crw-text') . '</p><p>' .
-                __('Full editors can only act on the projects they are assigned to.', 'crw-text') . '</p>',
+                __('Full editors can only act on the projects they are assigned to.', 'crw-text') . '</p><p>' .
+                __('The dimension values are used for specific dynamic computations and do not change the theming of the crossword grid by themselves. Only change dimensions if you need to adjust them to your custom CSS.', 'crw-text') . '</p><p>' .
+                __('Dimensions are pixel values and used uniformly for heights and widths.', 'crw-text') . '</p>',
         ) );
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-projects',
             'title'	=> __('Projects', 'crw-text'),
-            'content'	=> '<p>' . __('If you change the name of a project, remember that you need to change it also in every shortcode refering to it.', 'crw-text') . '</p><p>' . __('The lowest eligible maximum difficulty level is either the the default level or the highest level used in an existing riddle, whatever is higher.', 'crw-text') . '</p><p>'
+            'content'	=> '<p>' . __('If you change the name of a project, remember that you need to change it also in every shortcode referring to it.', 'crw-text') . '</p><p>' . __('The lowest eligible maximum difficulty level is either the the default level or the highest level used in an existing riddle, whatever is higher.', 'crw-text') . '</p><p>'
                 . __('You need to assign editors to a project in order for them to see its riddles in the <em>Review</em> tab.', 'crw-text') . '</p><p>' .
                 __('If you want to delete a project, you need first to delete all its riddles.', 'crw-text') . '</p>',
         ) );
