@@ -100,14 +100,6 @@ function crw_install () {
         trigger_error( 'This plugin requires MySQL to support the InnoDB table engine. Please contact your server administrator before you activate this plugin', E_USER_ERROR );
     }
 
-    add_option( CRW_DIMENSIONS_OPTION, array(
-        'fieldBorder' => 1,
-        'tableBorder' => 1,
-        'field' => 30,
-        'handleInside' => 4,
-        'handleOutside' => 8
-    ) );
-
     update_option( "crw_db_version", CRW_DB_VERSION );
     $roles_caps = array();
     foreach ( $wp_roles->role_objects as $name => $role ) {
@@ -168,6 +160,19 @@ CREATE TABLE IF NOT EXISTS $editors_table_name (
     ");
 }
 register_activation_hook( CRW_PLUGIN_FILE, 'crw_install' );
+
+/* update tasks */
+function crw_update () {
+    // v0.3.3 -> v0.4.0
+    add_option( CRW_DIMENSIONS_OPTION, array(
+        'fieldBorder' => 1,
+        'tableBorder' => 1,
+        'field' => 30,
+        'handleInside' => 4,
+        'handleOutside' => 8
+    ) );
+}
+add_action( 'plugins_loaded', 'crw_update' );
 
 function crw_deactivate () {
     global $wp_roles;
