@@ -94,6 +94,17 @@ editors. Restricted editors can work on a riddle as long as they stay on the pag
 but it will not be visible for anyone else. No menu for selecting other riddles is
 presented, and on page load an empty new crossword will be shown.
 
+#### Custom theming
+
+It is possible to override the design for this plugin by placing a file
+`crosswordsearch.css` into the base folder of the active theme. It will be loaded
+directly after the default plugin CSS.
+
+Since some dimension values for the crossword grid are used in computations during
+drag operations, it might be necessary to adjust them to customizations. Therefore
+the Options tab on the Settings/Crosswordsearch page exposes the required values
+if it finds an active custom CSS file.
+
 ### Grunt tasks
 
 Please refer to http://gruntjs.com/getting-started to get grunt up and running. Running

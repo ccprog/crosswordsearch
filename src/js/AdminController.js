@@ -72,7 +72,9 @@ crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
 
     var displayOptions = function (data) {
         $scope.capsEdit.$setPristine();
-        $scope.dimEdit.$setPristine();
+        if ($scope.dimEdit) {
+            $scope.dimEdit.$setPristine();
+        }
         $scope.optError = null;
         $scope.capabilities = data.capabilities;
         $scope.dimensions = data.dimensions;

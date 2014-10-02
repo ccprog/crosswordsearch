@@ -11,6 +11,9 @@
 .crw-wrapper .cse, .crw-wrapper .cse ul {
     border-radius: 2px;
 }
+.crw-editors .disabled {
+    color: #555;
+}
 .crw-editors .error {
     font-size: 10px;
     font-weight: bold;

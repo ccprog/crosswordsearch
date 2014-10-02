@@ -32,6 +32,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 /* plugin installation */
 define('CRW_DB_VERSION', '0.4');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
+define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
 define('CRW_ROLES_OPTION', 'crw_roles_caps');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
@@ -54,6 +55,8 @@ $wpdb->hide_errors();
 $project_table_name = $wpdb->prefix . "crw_projects";
 $data_table_name = $wpdb->prefix . "crw_crosswords";
 $editors_table_name = $wpdb->prefix . "crw_editors";
+
+$child_css = crw_get_child_stylesheet();
 
 function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
     global $wpdb, $project_table_name;
@@ -164,13 +167,15 @@ register_activation_hook( CRW_PLUGIN_FILE, 'crw_install' );
 /* update tasks */
 function crw_update () {
     // v0.3.3 -> v0.4.0
-    add_option( CRW_DIMENSIONS_OPTION, array(
+    $dimensions = array(
         'fieldBorder' => 1,
         'tableBorder' => 1,
         'field' => 30,
         'handleInside' => 4,
         'handleOutside' => 8
-    ) );
+    );
+    add_option( CRW_DIMENSIONS_OPTION, $dimensions );
+    add_option( CRW_CUSTOM_DIMENSIONS_OPTION, $dimensions );
 }
 add_action( 'plugins_loaded', 'crw_update' );
 
@@ -231,7 +236,7 @@ function crw_add_angular_attribute ($attributes) {
 
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $crw_has_crossword;
+    global $crw_has_crossword, $child_css;
 
     $locale_data = crw_get_locale_data();
 
@@ -243,7 +248,7 @@ function add_crw_scripts ( $hook ) {
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
             'pluginPath' => CRW_PLUGIN_URL,
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-            'dimensions' => get_option( CRW_DIMENSIONS_OPTION )
+            'dimensions' => get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION )
         )));
 	}
 }
@@ -259,10 +264,22 @@ function crw_set_header () {
 }
 add_action( 'get_header', 'crw_set_header');
 
-function crw_compose_style () {
-    global $wp_styles;
+function crw_get_child_stylesheet () {
+    $css_file = '/crosswordsearch.css';
 
-    $dimensions = get_option( CRW_DIMENSIONS_OPTION );
+    if ( file_exists( get_stylesheet_directory() . $css_file ) ) {
+        return get_stylesheet_directory_uri() . $css_file;
+    } elseif ( file_exists( get_template_directory() . $css_file ) ) {
+        return get_template_directory_uri() . $css_file;
+    } else {
+        return false;
+    }
+}
+
+function crw_compose_style () {
+    global $wp_styles, $child_css;
+
+    $dimensions = get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION );
 
     $code = '.crw-grid, .crw-mask {
     border-width: ' . $dimensions['tableBorder'] . 'px;
@@ -288,8 +305,14 @@ div.crw-marked {
     height: ' . ($dimensions['field'] + $dimensions['fieldBorder']) . 'px;
 }';
 
-    wp_enqueue_style('crw-css', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
-    $wp_styles->add_inline_style( 'crw-css', $code );
+    wp_enqueue_style('crw', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
+    if ( $child_css ) {
+        wp_enqueue_style('crw-child', $child_css, 'crw');
+        $dep = 'crw-child';
+    } else {
+        $dep = 'crw';
+    }
+        $wp_styles->add_inline_style( $dep, $code );
 }
 
 function crw_set_admin_header () {
@@ -588,7 +611,7 @@ function crw_send_capabilities () {
 
     wp_send_json( array(
         'capabilities' => $capabilities,
-        'dimensions' => get_option(CRW_DIMENSIONS_OPTION),
+        'dimensions' => get_option(CRW_CUSTOM_DIMENSIONS_OPTION),
         CRW_NONCE_NAME => wp_create_nonce(NONCE_OPTIONS)
     ) );
 }
@@ -651,7 +674,7 @@ function crw_update_dimensions () {
         $debug = 'invalid data: no array';
         crw_send_error($error, $debug);
     } else {
-        $dimensions = get_option(CRW_DIMENSIONS_OPTION);
+        $dimensions = get_option(CRW_CUSTOM_DIMENSIONS_OPTION);
         foreach ( $dimensions as $key => $dim ) {
             if ( !key_exists($key, $dimensions_raw) ) {
                 $debug = 'invalid data: missing key ' . $key;
@@ -665,7 +688,7 @@ function crw_update_dimensions () {
         }
     }
 
-    update_option(CRW_DIMENSIONS_OPTION, $dimensions);
+    update_option(CRW_CUSTOM_DIMENSIONS_OPTION, $dimensions);
 
     crw_send_capabilities();
 }
@@ -1114,8 +1137,9 @@ function crw_add_help_tab () {
             'title'	=> __('Options', 'crw-text'),
             'content'	=> '<p>' . __('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crw-text') . '</p><p>' .
                 __('Full editors can only act on the projects they are assigned to.', 'crw-text') . '</p><p>' .
-                __('The dimension values are used for specific dynamic computations and do not change the theming of the crossword grid by themselves. Only change dimensions if you need to adjust them to your custom CSS.', 'crw-text') . '</p><p>' .
-                __('Dimensions are pixel values and used uniformly for heights and widths.', 'crw-text') . '</p>',
+                sprintf( __('For custom theming, place a file %1$s with overrides to the default theme into your theme folder.', 'crw-text'), '<code>crosswordsearch.css</code>') . '</p><p>' .
+                __('There are some dimension values that are used in computations during drag operations. If you have a custom theme, you might have to additionally adjust these values.', 'crw-text') . '</p><p>' .
+                __('Dimension settings are pixel values and used uniformly for heights and widths.', 'crw-text') . '</p><p>' . '</p>',
         ) );
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-projects',
@@ -1143,6 +1167,8 @@ add_action('admin_menu', 'crw_admin_menu');
 
 // load single tab template
 function crw_get_option_tab () {
+    global $child_css;
+
     if ( !wp_verify_nonce( $_GET[CRW_NONCE_NAME], NONCE_SETTINGS ) ) {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }

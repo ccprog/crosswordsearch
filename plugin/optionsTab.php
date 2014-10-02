@@ -26,6 +26,11 @@
         </table>
         <p><button class="text" title="<?php _e('Save the updated assignment of editing capabilities', 'crw-text') ?>" ng-click="update('capabilities')" ng-disabled="(capsEdit.$pristine)"><?php _e('Save', 'crw-text') ?></button>
         </form>
+<?php
+
+if ( $child_css ) {
+
+?>
         <h3><?php _e('Dimensions of the table grid', 'crw-text') ?></h3>
         <p><?php _e('Do not change this without reviewing your CSS!', 'crw-text') ?></p>
         <img class="illustration" title="<?php _e('Illustration of grid dimensions', 'crw-text') ?>" src="<?php echo CRW_PLUGIN_URL ?>images/dimensioning.png" />
@@ -55,4 +60,16 @@
         <p class="error" ng-if="dimEdit.$invalid"><?php _e('Each dimension needs to be an integer of 0 or more', 'crw-text') ?></p>
         <p><button class="text" title="<?php _e('Save the updated grid dimensions', 'crw-text') ?>" ng-click="update('dimensions')" ng-disabled="(dimEdit.$pristine || dimEdit.$invalid)"><?php _e('Save', 'crw-text') ?></button>
         </form>
+<?php
+
+} else {
+
+?>
+        <h3 class="disabled"><?php _e('Dimensions of the table grid', 'crw-text') ?></h3>
+        <p><?php _e('These settings are only available if you use a custom stylesheet', 'crw-text') ?></p>
+<?php
+
+}
+
+?>
     </div>
