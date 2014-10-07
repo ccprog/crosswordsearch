@@ -1160,7 +1160,7 @@ function crw_add_help_tab () {
 
 // menu entry
 function crw_admin_menu () {
-    $settings_page = add_options_page( 'Crosswordsearch', 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
+    $settings_page = add_options_page( __('Crosswordsearch Administration', 'crw-text'), 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
     add_action('load-'.$settings_page, 'crw_add_help_tab');
 };
 add_action('admin_menu', 'crw_admin_menu');

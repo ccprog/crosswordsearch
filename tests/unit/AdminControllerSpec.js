@@ -76,7 +76,7 @@ describe("AdminController", function () {
         expect(qStore.addStore).toHaveBeenCalled();
         expect($scope.$routeParams).toBe($routeParams);
         $scope.setActive('hash');
-        expect($location.path).toHaveBeenCalledWith('hash');
+        expect($location.path.calls.mostRecent().args[0]).toBe('hash');
     }));
 });
 

@@ -17,7 +17,8 @@
 .crw-editors .error {
     font-size: 10px;
     font-weight: bold;
-    margin: 3px 0px 5px;
+    margin: 0;
+    padding: 3px 0px 5px;
     color: red;
 }
 .crw-wrapper .error, .crw-immediate .confirm, .crw-wrapper .copyright {
@@ -372,12 +373,11 @@ dl.crw-color img {
 }
 .crw-options th, .crw-options td {
     max-width: 166px;
-    padding: 1px;
+    padding: 5px 1px;
 }
 .crw-options select {
-    height: 400px;
+    height: 430px;
     width: 160px;
-    font-size: 100%;
 }
 .crw-options th.crosswordname,
 .crw-options td.crosswordname {
@@ -408,7 +408,6 @@ dl.crw-color img {
 }
 .crw-options tr.separate th {
     border-top: 1px solid #ccc;
-    padding-top: 4px;
 }
 .crw-options th.between,
 .crw-editors td.between {

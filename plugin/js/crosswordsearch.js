@@ -731,7 +731,9 @@ crwApp.controller("AdminController", [ "$scope", "$routeParams", "$location", "q
     $scope.immediateStore = qStore.addStore();
     $scope.$routeParams = $routeParams;
     $scope.setActive = function(tabHash) {
-        $location.path(tabHash);
+        if (!/^\/(capabilities|editor|review)\//.test($location.path())) {
+            $location.path(tabHash);
+        }
     };
 } ]);
 

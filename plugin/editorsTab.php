@@ -16,15 +16,13 @@
             </tr>
             <tr>
                 <td></td>
-                <td colspan="2" class="aligned">
-                    <p class="error">
-                        <span ng-show="projectMod.$error.required && !(projectMod.$error.sane || projectMod.$error.unique)"><?php _e('You must give a name!', 'crw-text') ?></span>
-                        <span ng-show="projectMod.$error.minlength"><?php _e('The name is too short!', 'crw-text') ?></span>
-                        <span ng-show="projectMod.$error.maxlength"><?php _e('You have exceeded the maximum length for a name!', 'crw-text') ?></span>
-                        <span ng-show="projectMod.$error.unique"><?php _e('There is already another project with that name!', 'crw-text') ?></span>
-                        <span ng-show="projectMod.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></span>
-                        <span ng-show="projectMod.$valid">&nbsp;</span>
-                    </p>
+                <td colspan="2" class="aligned error">
+                    <span ng-show="projectMod.$error.required && !(projectMod.$error.sane || projectMod.$error.unique)"><?php _e('You must give a name!', 'crw-text') ?></span>
+                    <span ng-show="projectMod.$error.minlength"><?php _e('The name is too short!', 'crw-text') ?></span>
+                    <span ng-show="projectMod.$error.maxlength"><?php _e('You have exceeded the maximum length for a name!', 'crw-text') ?></span>
+                    <span ng-show="projectMod.$error.unique"><?php _e('There is already another project with that name!', 'crw-text') ?></span>
+                    <span ng-show="projectMod.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></span>
+                    <span ng-show="projectMod.$valid">&nbsp;</span>
                 </td>
             </tr>
             <tr>
