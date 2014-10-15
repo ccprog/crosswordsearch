@@ -61,6 +61,26 @@ describe("ajaxFactory", function () {
         $httpBackend.flush();
     });
 
+    it("detects wp-auth-check", inject(function (nonces) {
+        nonces.context = 'nonce1';
+        nonces.other = 'nonce2';
+        jQuery(document).trigger('heartbeat-tick', {content: true});
+        expect(nonces.context).toBe('nonce1');
+        jQuery(document).trigger('heartbeat-tick', {'wp-auth-check': true});
+        expect(nonces.context).toBe('nonce1');
+        jQuery(document).trigger('heartbeat-tick', {'wp-auth-check': false});
+        expect(nonces).toEqual({});
+    }));
+
+    it("detects missing nonces", inject(function (nonces) {
+        var called = jasmine.createSpy("called");
+        delete nonces.context;
+        ajaxFactory.http({action: 'action'}, 'context').then(called, function (error) {
+            expect(error).toEqual({heartbeat: true});
+        });
+        expect(called).not.toHaveBeenCalled();
+    }));
+
     it("detects errors", function () {
         var called = jasmine.createSpy("called");
         ajaxFactory.setNonce('nonce1', 'context');
@@ -68,7 +88,7 @@ describe("ajaxFactory", function () {
         ajaxFactory.http({}, 'context').then(called, function (error) {
             expect(error).toEqual({
                 error: 'server error',
-                debug: 'status 400'
+                debug: ['status 400']
             });
         });
         ajaxFactory.setNonce('nonce1', 'context');

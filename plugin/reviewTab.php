@@ -24,19 +24,13 @@
                 <td></td>
                 <td>
                     <button title="<?php _e('Delete the selected approved crossword', 'crw-text') ?>" ng-click="deleteCrossword('confirmed')" ng-disabled="!selectedCrossword.confirmed">−</button>
-                    <p class="error" ng-if="deleteError">{{deleteError.error}}</p>
-                    <p class="error" ng-repeat="msg in deleteError.debug">{{msg}}</p>
                 </td>
                 <td class="between"></td>
                 <td>
                     <button title="<?php _e('Delete the selected pending crossword', 'crw-text') ?>" ng-click="deleteCrossword('pending')" ng-disabled="!selectedCrossword.pending">−</button>
-                    <p class="error" ng-if="deleteError">{{deleteError.error}}</p>
-                    <p class="error" ng-repeat="msg in deleteError.debug">{{msg}}</p>
                 </td>
             </tr>
         </table>
-        <p class="error" ng-if="reviewError">{{loadError.error}}</p>
-        <p class="error" ng-repeat="msg in reviewError.debug">{{msg}}</p>
         <h3><input type="checkbox" title="<?php _e('Show a preview of the selected crossword', 'crw-text') ?>" ng-model="preview"><?php _e('Preview', 'crw-text') ?></input></h3>
         <div ng-if="preview" class="crw-wrapper" ng-controller="CrosswordController" ng-init="commandState='preview'">
 <?php

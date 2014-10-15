@@ -1,5 +1,7 @@
+crwApp.constant('nonces', {});
+
 /* wrapper for $http service */
-crwApp.factory('ajaxFactory', ['$http', '$q', function ($http, $q) {
+crwApp.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, nonces) {
     // defaults for all communication
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     var httpDefaults = {
@@ -8,18 +10,30 @@ crwApp.factory('ajaxFactory', ['$http', '$q', function ($http, $q) {
         url: crwBasics.ajaxUrl
     };
 
-    var nonces = {};
+    jQuery(document).on('heartbeat-tick', function (e, data) {
+        if (data['wp-auth-check'] === false) {
+            // nonces have expired, delete them
+            angular.forEach(nonces, function (val, key) {
+                delete nonces[key];
+            });
+        }
+    });
 
-    // web server error messages
+    // format errors from heartbeat or $http
     var serverError = function (response) {
-        return $q.reject({
-            error: 'server error',
-            debug: 'status ' + response.status
-        });
+        if (response.heartbeat) {
+            // ajax won't work at all without a browser reload
+            return $q.reject(response);
+        } else {
+            return $q.reject({
+                error: 'server error',
+                debug: ['status ' + response.status]
+            });
+        }
     };
 
-    // look for error messages received from server
-    // or return the data object
+    // reject if the data received from the server are error messages,
+    // or hand on the data object
     var inspectResponse = function (response, context) {
         var error = false;
         // look for admin-ajax.php errors
@@ -38,6 +52,17 @@ crwApp.factory('ajaxFactory', ['$http', '$q', function ($http, $q) {
         return response.data;
     };
 
+    // construct runtime $http config and send xhr
+    var request = function (data, context) {
+        var bodyData = angular.extend({
+                _crwnonce: nonces[context]
+            }, data);
+        var config = angular.extend({
+            data: bodyData,
+        }, httpDefaults);
+        return $http(config);
+    };
+
     return {
         // for initial nonces transmitted with html code
         setNonce: function (nonce, context) {
@@ -46,13 +71,15 @@ crwApp.factory('ajaxFactory', ['$http', '$q', function ($http, $q) {
 
         // data must be an object and at least contain data.action
         http: function (data, context) {
-            return $http(angular.extend({
-                data: angular.extend({
-                    _crwnonce: nonces[context]
-                }, data)
-            }, httpDefaults)).then(function (response) {
-                return inspectResponse(response, context);
-            }, serverError);
+            if (nonces[context]) {
+                // request can be sent
+                return request(data, context).then(function (response) {
+                    return inspectResponse(response, context);
+                }, serverError);
+            } else {
+                // nonces have expired and are gone
+                return $q.reject({heartbeat: true});
+            }
         }
     };
 }]);

@@ -1625,7 +1625,9 @@ add_action('admin_menu', 'crw_admin_menu');
 function crw_get_option_tab () {
     global $child_css;
 
-    if ( !wp_verify_nonce( $_GET[CRW_NONCE_NAME], NONCE_SETTINGS ) ) {
+    if ('invalid' == $_GET['tab'] ) {
+        wp_die( __( 'You need to hit your browser\'s Reload button.', 'crw-text' ) );
+    } elseif ( !wp_verify_nonce( $_GET[CRW_NONCE_NAME], NONCE_SETTINGS ) ) {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
 

@@ -41,8 +41,6 @@
                 <td colspan="3">
                     <button class="text" title="<?php _e('Save the project', 'crw-text') ?>" ng-click="saveProject()" ng-disabled="projectMod.$invalid || projectMod.$pristine"><?php _e('Save', 'crw-text') ?></button>
                     <button class="text" title="<?php _e('Abort saving the project', 'crw-text') ?>" ng-click="abortProject()" ng-disabled="projectMod.$pristine && selectedProject"><?php _e('Abort', 'crw-text') ?></button><br />
-                    <p class="error" ng-if="projectSaveError">{{projectSaveError.error}}</p>
-                    <p class="error" ng-repeat="msg in projectSaveError.debug">{{msg}}</p>
                 </td>
             </tr>
             <tr class="separate">
@@ -72,12 +70,8 @@
                 <td colspan="3">
                     <button class="text" title="<?php _e('Save the editor list for this project', 'crw-text') ?>" ng-click="saveEditors()" ng-disabled="!selectedProject || editorsPristine"><?php _e('Save', 'crw-text') ?></button>
                     <button class="text" title="<?php _e('Abort saving the editor list', 'crw-text') ?>" ng-click="abortEditors()" ng-disabled="!selectedProject || editorsPristine"><?php _e('Abort', 'crw-text') ?></button>
-                    <p class="error" ng-if="editorsSaveError">{{editorsSaveError.error}}</p>
-                    <p class="error" ng-repeat="msg in editorsSaveError.debug">{{msg}}</p>
                 </td>
             </tr>
         </table>
         </form>
-        <p class="error" ng-if="loadError">{{loadError.error}}</p>
-        <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     </div>

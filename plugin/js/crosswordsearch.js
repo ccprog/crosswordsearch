@@ -256,19 +256,31 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
     };
 } ]);
 
-crwApp.factory("ajaxFactory", [ "$http", "$q", function($http, $q) {
+crwApp.constant("nonces", {});
+
+crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     var httpDefaults = {
         transformRequest: jQuery.param,
         method: "POST",
         url: crwBasics.ajaxUrl
     };
-    var nonces = {};
+    jQuery(document).on("heartbeat-tick", function(e, data) {
+        if (data["wp-auth-check"] === false) {
+            angular.forEach(nonces, function(val, key) {
+                delete nonces[key];
+            });
+        }
+    });
     var serverError = function(response) {
-        return $q.reject({
-            error: "server error",
-            debug: "status " + response.status
-        });
+        if (response.heartbeat) {
+            return $q.reject(response);
+        } else {
+            return $q.reject({
+                error: "server error",
+                debug: [ "status " + response.status ]
+            });
+        }
     };
     var inspectResponse = function(response, context) {
         var error = false;
@@ -287,18 +299,29 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", function($http, $q) {
         }
         return response.data;
     };
+    var request = function(data, context) {
+        var bodyData = angular.extend({
+            _crwnonce: nonces[context]
+        }, data);
+        var config = angular.extend({
+            data: bodyData
+        }, httpDefaults);
+        return $http(config);
+    };
     return {
         setNonce: function(nonce, context) {
             nonces[context] = nonce;
         },
         http: function(data, context) {
-            return $http(angular.extend({
-                data: angular.extend({
-                    _crwnonce: nonces[context]
-                }, data)
-            }, httpDefaults)).then(function(response) {
-                return inspectResponse(response, context);
-            }, serverError);
+            if (nonces[context]) {
+                return request(data, context).then(function(response) {
+                    return inspectResponse(response, context);
+                }, serverError);
+            } else {
+                return $q.reject({
+                    heartbeat: true
+                });
+            }
         }
     };
 } ]);
@@ -726,13 +749,28 @@ crwApp.directive("crwBindTrusted", [ "$sce", function($sce) {
     };
 } ]);
 
-crwApp.controller("AdminController", [ "$scope", "$routeParams", "$location", "qStore", "crosswordFactory", function($scope, $routeParams, $location, qStore, crosswordFactory) {
+crwApp.controller("AdminController", [ "$scope", "$location", "qStore", "ajaxFactory", "crosswordFactory", function($scope, $location, qStore, ajaxFactory, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
-    $scope.$routeParams = $routeParams;
     $scope.setActive = function(tabHash) {
-        if (!/^\/(capabilities|editor|review)\//.test($location.path())) {
-            $location.path(tabHash);
+        $scope.activeTab = tabHash;
+        $location.path($scope.activeTab);
+    };
+    $scope.prepare = function(tabHash, nonce) {
+        ajaxFactory.setNonce(nonce, "settings");
+        if (!$scope.activeTab && /^\/(capabilities|editor|review)/.test($location.path())) {
+            $scope.setActive($location.path());
+        } else {
+            $scope.setActive(tabHash);
+        }
+    };
+    $scope.setError = function(error) {
+        if (!error) {
+            $scope.globalError = null;
+        } else if (error.heartbeat) {
+            $location.path("");
+        } else {
+            $scope.globalError = error;
         }
     };
 } ]);
@@ -762,30 +800,27 @@ crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scop
         if ($scope.dimEdit) {
             $scope.dimEdit.$setPristine();
         }
-        $scope.optError = null;
+        $scope.setError(false);
         $scope.capabilities = data.capabilities;
         $scope.dimensions = data.dimensions;
-    };
-    var displayError = function(error) {
-        $scope.optError = error;
-    };
-    $scope.prepare = function(nonce) {
-        ajaxFactory.setNonce(nonce, optionsContext);
-        ajaxFactory.http({
-            action: "get_crw_capabilities"
-        }, optionsContext).then(displayOptions, displayError);
     };
     $scope.update = function(part) {
         var data = {
             action: "update_crw_" + part
         };
         data[part] = angular.toJson($scope[part]);
-        ajaxFactory.http(data, optionsContext).then(displayOptions, displayError);
+        ajaxFactory.http(data, optionsContext).then(displayOptions, $scope.setError);
+    };
+    $scope.prepare = function(nonce) {
+        ajaxFactory.setNonce(nonce, optionsContext);
+        ajaxFactory.http({
+            action: "get_crw_capabilities"
+        }, optionsContext).then(displayOptions, $scope.setError);
     };
 } ]);
 
 crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
-    var adminContext = "admin";
+    var adminContext = "editors";
     $scope.levelList = function(which) {
         var min, max, list = [];
         if (which === "default") {
@@ -825,14 +860,6 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         getFilteredUsers();
         $scope.editorsPristine = true;
     };
-    $scope.prepare = function(nonce) {
-        ajaxFactory.setNonce(nonce, adminContext);
-        ajaxFactory.http({
-            action: "get_admin_data"
-        }, adminContext).then(showLoaded, function(error) {
-            $scope.loadError = error;
-        });
-    };
     $scope.$watch("projectMod.$pristine", function(p) {
         var truePristine = true;
         angular.forEach([ "name", "defaultL", "maximumL" ], function(name) {
@@ -861,8 +888,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         }
         $scope.projectMod.$setPristine();
         $scope.editorsPristine = true;
-        $scope.editorsSaveError = null;
-        $scope.projectSaveError = null;
+        $scope.setError(false);
     });
     $scope.abortProject = function() {
         if (!$scope.selectedProject) {
@@ -870,7 +896,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         }
         $scope.currentProject = angular.copy($scope.selectedProject);
         $scope.projectMod.$setPristine();
-        $scope.projectSaveError = null;
+        $scope.setError(false);
     };
     $scope.saveProject = function() {
         ajaxFactory.http({
@@ -882,9 +908,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
             maximum_level: $scope.currentProject.maximum_level
         }, adminContext).then(function(data) {
             showLoaded(data, $scope.currentProject.name);
-        }, function(error) {
-            $scope.projectSaveError = error;
-        });
+        }, $scope.setError);
     };
     $scope.deleteProject = function() {
         var message = {
@@ -896,9 +920,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
                 action: "save_project",
                 method: "remove",
                 project: $scope.selectedProject.name
-            }, adminContext).then(showLoaded, function(error) {
-                $scope.projectSaveError = error;
-            });
+            }, adminContext).then(showLoaded, $scope.setError);
         });
     };
     $scope.filtered_users = [];
@@ -915,7 +937,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         if (jQuery.inArray($scope.selectedUser, $scope.filtered_users) < 0) {
             $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
         }
-        $scope.loadError = null;
+        $scope.setError(false);
     };
     $scope.$watchCollection("currentEditors", getFilteredUsers);
     var addUser = function(user) {
@@ -951,7 +973,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     };
     $scope.abortEditors = function() {
         $scope.currentEditors = angular.copy($scope.selectedProject.editors);
-        $scope.editorsSaveError = null;
+        $scope.setError(false);
         $scope.editorsPristine = true;
     };
     $scope.saveEditors = function() {
@@ -961,9 +983,13 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
             editors: angular.toJson($scope.currentEditors)
         }, adminContext).then(function(data) {
             showLoaded(data, $scope.selectedProject.name);
-        }, function(error) {
-            $scope.editorsSaveError = error;
-        });
+        }, $scope.setError);
+    };
+    $scope.prepare = function(nonce) {
+        ajaxFactory.setNonce(nonce, adminContext);
+        ajaxFactory.http({
+            action: "get_admin_data"
+        }, adminContext).then(showLoaded, $scope.setError);
     };
 } ]);
 
@@ -999,16 +1025,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
         } else {
             $scope.selectedProject = $filter("orderBy")($scope.projects, "name")[0];
         }
-        $scope.reviewError = null;
-    };
-    $scope.prepare = function(nonceCrossword, nonceReview) {
-        ajaxFactory.setNonce(nonceCrossword, "crossword");
-        ajaxFactory.setNonce(nonceReview, reviewContext);
-        ajaxFactory.http({
-            action: "list_projects_and_riddles"
-        }, reviewContext).then(showLoaded, function(error) {
-            $scope.reviewError = error;
-        });
+        $scope.setError(false);
     };
     $scope.deleteCrossword = function(group) {
         var message = {
@@ -1023,9 +1040,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
                 name: $scope.selectedCrossword[group]
             }, reviewContext).then(function(data) {
                 showLoaded(data, $scope.selectedProject.name);
-            }, function(error) {
-                $scope.reviewError = error;
-            });
+            }, $scope.setError);
         });
     };
     $scope.confirm = function() {
@@ -1045,9 +1060,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
                 $scope.selectedCrossword.confirmed = name;
                 $scope.selectedCrossword.pending = $filter("orderBy")($scope.selectedProject.pending, "toString()")[0];
                 $scope.activateGroup("confirmed");
-            }, function(error) {
-                $scope.reviewError = error;
-            });
+            }, $scope.setError);
         });
     };
     $scope.activateGroup = function(group) {
@@ -1083,18 +1096,42 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
             $scope.$broadcast("previewCrossword", newName);
         }
     });
+    $scope.prepare = function(nonceCrossword, nonceReview) {
+        ajaxFactory.setNonce(nonceCrossword, "crossword");
+        ajaxFactory.setNonce(nonceReview, reviewContext);
+        ajaxFactory.http({
+            action: "list_projects_and_riddles"
+        }, reviewContext).then(showLoaded, $scope.setError);
+    };
 } ]);
 
-crwApp.config([ "$routeProvider", function($routeProvider) {
-    var path = "";
-    $routeProvider.when("/:tab/:nonce", {
-        templateUrl: function($routeParams) {
-            path = $routeParams.tab + "/" + $routeParams.nonce;
-            return crwBasics.ajaxUrl + "?action=get_option_tab&tab=" + $routeParams.tab + "&_crwnonce=" + $routeParams.nonce;
+crwApp.config([ "$routeProvider", "nonces", function($routeProvider, nonces) {
+    var lastPath = "";
+    function getUrl(tab) {
+        var url = crwBasics.ajaxUrl + "?action=get_option_tab&tab=";
+        if (!nonces.settings) {
+            return url + "invalid";
+        }
+        return url + tab + "&_crwnonce=" + nonces.settings;
+    }
+    $routeProvider.when("/capabilities", {
+        templateUrl: function() {
+            lastPath = "/capabilities";
+            return getUrl("capabilities");
+        }
+    }).when("/editor", {
+        templateUrl: function() {
+            lastPath = "/editor";
+            return getUrl("editor");
+        }
+    }).when("/review", {
+        templateUrl: function() {
+            lastPath = "/review";
+            return getUrl("review");
         }
     }).otherwise({
         redirectTo: function() {
-            return path;
+            return lastPath;
         }
     });
 } ]);

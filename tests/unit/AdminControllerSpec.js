@@ -53,31 +53,62 @@ describe("crwBindTrusted", function() {
 });
 
 describe("AdminController", function () {
-    beforeEach(module('crwApp'));
+    var $scope, $location, qStore, ajaxFactory, crosswordFactory;
 
-    it("initializes wrapper controller", inject(function($rootScope, $controller) {
-        var $scope = $rootScope.$new();
-        var qStore = {
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function($rootScope, $controller) {
+        $scope = $rootScope.$new();
+        $location = {
+            path: jasmine.createSpy("path")
+        };
+        qStore = {
             addStore: jasmine.createSpy("addStore")
         };
-        var crosswordFactory = {
+        ajaxFactory = {
+            setNonce: jasmine.createSpy("setNonce")
+        };
+        crosswordFactory = {
             getCrw: jasmine.createSpy("getCrw")
         };
-        var $routeParams = {};
-        var $location = {path: jasmine.createSpy("path")};
         $controller('AdminController', {
             $scope: $scope,
-            $routeParams: $routeParams,
             $location: $location,
             qStore: qStore,
+            ajaxFactory: ajaxFactory,
             crosswordFactory: crosswordFactory
         });
+    }));
+
+    it("initializes wrapper controller", function() {
         expect(crosswordFactory.getCrw).toHaveBeenCalled();
         expect(qStore.addStore).toHaveBeenCalled();
-        expect($scope.$routeParams).toBe($routeParams);
-        $scope.setActive('hash');
-        expect($location.path.calls.mostRecent().args[0]).toBe('hash');
-    }));
+    });
+
+    it("inspects location on initial load", function() {
+        $location.path.and.returnValue('');
+        spyOn($scope, "setActive");
+        $scope.prepare('hash', 'nonce');
+        expect(ajaxFactory.setNonce).toHaveBeenCalledWith('nonce', 'settings');
+        expect($scope.setActive.calls.mostRecent().args[0]).toBe('hash');
+        delete $scope.activeTab;
+        $location.path.and.returnValue( '/editor');
+        $scope.prepare('hash', 'nonce');
+        expect($scope.setActive.calls.mostRecent().args[0]).toBe('/editor');
+        delete $scope.activeTab;
+        $scope.setActive.and.callThrough();
+        $scope.setActive('hash2');
+        expect($scope.activeTab).toBe('hash2');
+        expect($location.path.calls.mostRecent().args[0]).toBe('hash2');
+    });
+
+    it("handles errors", function() {
+        $scope.setError({error: 'error'});
+        expect($scope.globalError).toEqual({error: 'error'});
+        $scope.setError(null);
+        expect($scope.globalError).toBe(null);
+        $scope.setError({heartbeat: true});
+        expect($location.path).toHaveBeenCalledWith('');
+    });
 });
 
 describe("crwDimension", function() {
@@ -137,6 +168,7 @@ describe("OptionsController", function () {
         dimensions = $scope.dimensions = {data:"data2"};
         $scope.capsEdit = {$setPristine: jasmine.createSpy()};
         $scope.dimEdit = {$setPristine: jasmine.createSpy()};
+        $scope.setError = jasmine.createSpy("setError");
     }));
 
     it("loads initial data", function () {
@@ -150,7 +182,7 @@ describe("OptionsController", function () {
         $scope.$apply();
         expect($scope.capabilities).toBe('cap');
         expect($scope.dimensions).toBe('dim');
-        expect($scope.optError).toBeNull();
+        expect($scope.setError).toHaveBeenCalledWith(false);
     });
 
     it("reacts on initial data load failure", function () {
@@ -159,7 +191,7 @@ describe("OptionsController", function () {
         $scope.$apply();
         expect($scope.capabilities).toBe(capabilities);
         expect($scope.dimensions).toBe(dimensions);
-        expect($scope.optError).toBe('error');
+        expect($scope.setError).toHaveBeenCalledWith('error');
     });
 
     it("calls for capabilities update", function () {
@@ -171,7 +203,7 @@ describe("OptionsController", function () {
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
         deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
         $scope.$apply();
-        expect($scope.optError).toBeNull();
+        expect($scope.setError).toHaveBeenCalledWith(false);
         expect($scope.capsEdit.$setPristine).toHaveBeenCalled();
         expect($scope.dimEdit.$setPristine).toHaveBeenCalled();
         expect($scope.capabilities).toBe('cap');
@@ -181,7 +213,7 @@ describe("OptionsController", function () {
         $scope.update('capabilities');
         deferred.reject('error');
         $scope.$apply();
-        expect($scope.optError).toBe('error');
+        expect($scope.setError).toHaveBeenCalledWith('error');
         expect($scope.capabilities).toBe(capabilities);
     });
 
@@ -194,7 +226,7 @@ describe("OptionsController", function () {
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
         deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
         $scope.$apply();
-        expect($scope.optError).toBeNull();
+        expect($scope.setError).toHaveBeenCalledWith(false);
         expect($scope.capsEdit.$setPristine).toHaveBeenCalled();
         expect($scope.dimEdit.$setPristine).toHaveBeenCalled();
         expect($scope.dimensions).toBe('dim');
@@ -204,7 +236,7 @@ describe("OptionsController", function () {
         $scope.update('dimensions');
         deferred.reject('error');
         $scope.$apply();
-        expect($scope.optError).toBe('error');
+        expect($scope.setError).toHaveBeenCalledWith('error');
         expect($scope.dimensions).toBe(dimensions);
     });
 });
@@ -223,6 +255,7 @@ describe("EditorController", function () {
         };
         spyOn(ajaxFactory, 'http').and.callThrough();
         $scope = $rootScope.$new();
+        $scope.setError = jasmine.createSpy("setError");
         $controller('EditorController', {
             $scope: $scope,
             $filter: $filter,
@@ -269,11 +302,11 @@ describe("EditorController", function () {
     it("loads initial data", function () {
         $scope.admin = null;
         $scope.prepare('nonce');
-        expect(ajaxFactory.setNonce).toHaveBeenCalledWith('nonce', 'admin');
+        expect(ajaxFactory.setNonce).toHaveBeenCalledWith('nonce', 'editors');
         expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual({
             action: 'get_admin_data'
         });
-        expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('admin');
+        expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('editors');
         deferred.resolve(admin);
         $scope.$apply();
         expect($scope.admin).toBe(admin);
@@ -285,7 +318,7 @@ describe("EditorController", function () {
         expect($scope.filtered_users).toEqual([admin.all_users[1]]);
         expect($scope.selectedEditor).toBe(1);
         expect($scope.selectedUser).toBe(admin.all_users[1]);
-        expect($scope.loadError).toBeNull();
+        expect($scope.setError).toHaveBeenCalledWith(false);
         expect($scope.editorsPristine).toBe(true);
     });
 
@@ -324,8 +357,8 @@ describe("EditorController", function () {
         expect($scope.currentEditors).toEqual([]);
         expect($scope.editorsPristine).toBe(true);
         expect($scope.projectMod.$pristine).toBe(true);
-        expect($scope.editorsSaveError).toBeNull();
-        expect($scope.projectSaveError).toBeNull();
+        expect($scope.setError).toHaveBeenCalledWith(false);
+        expect($scope.setError).toHaveBeenCalledWith(false);
     });
 
     it("resets project object", function () {
@@ -347,7 +380,7 @@ describe("EditorController", function () {
         expect($scope.currentProject.default_level).toBe(2);
         expect($scope.currentProject.editors).toEqual([2,3]);
         expect($scope.projectMod.$pristine).toBe(true);
-        expect($scope.projectSaveError).toBeNull();
+        expect($scope.setError).toHaveBeenCalledWith(false);
     });
 
     it("adds a new project to the server", function () {
@@ -361,7 +394,7 @@ describe("EditorController", function () {
             default_level: 1,
             maximum_level: 2
         });
-        expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('admin');
+        expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('editors');
         deferred.resolve(admin);
         $scope.$apply();
         expect($scope.currentProject).toEqual(admin.projects[0]);
@@ -381,11 +414,11 @@ describe("EditorController", function () {
             default_level: 2,
             maximum_level: 3
         });
-        expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('admin');
+        expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('editors');
         deferred.reject('error');
         $scope.$apply();
         expect($scope.selectedProject.name).toBe('_project3');
-        expect($scope.projectSaveError).toBe('error');
+        expect($scope.setError).toHaveBeenCalledWith('error');
     });
 
     it("remove a project from the server", inject(function ($q) {
@@ -418,7 +451,7 @@ describe("EditorController", function () {
             method: 'remove',
             project: 'project1'
         });
-        expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('admin');
+        expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('editors');
         deferred.resolve(admin);
         $scope.$apply();
         expect($scope.currentProject).toEqual(admin.projects[2]);
@@ -517,10 +550,10 @@ describe("EditorController", function () {
             project: '_project3',
             editors: angular.toJson(admin.projects[2].editors)
         });
-        expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('admin');
+        expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('editors');
         deferred.reject('error');
         $scope.$apply();
-        expect($scope.editorsSaveError).toBe('error');
+        expect($scope.setError).toHaveBeenCalledWith('error');
     });
 });
 
@@ -553,6 +586,7 @@ describe("ReviewController", function () {
         };
         spyOn(ajaxFactory, 'http').and.callThrough();
         $scope = $rootScope.$new();
+        $scope.setError = jasmine.createSpy("setError");
         $controller('ReviewController', {
             $scope: $scope,
             $filter: $filter,
@@ -597,7 +631,7 @@ describe("ReviewController", function () {
         $scope.$apply();
         expect($scope.projects).toBe(projects);
         expect($scope.selectedProject).toEqual(projects[1]);
-        expect($scope.reviewError).toBeNull();
+        expect($scope.setError).toHaveBeenCalledWith(false);
     });
 
     it("deletes a crossword from pending group", function () {
@@ -649,7 +683,7 @@ describe("ReviewController", function () {
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('review');
         deferred.reject('error');
         $scope.$apply();
-        expect($scope.reviewError).toBe('error');
+        expect($scope.setError).toHaveBeenCalledWith('error');
     });
 
     it("moves a crossword from pending to confirmed group", function () {
@@ -766,13 +800,19 @@ describe("Adminstrative tab navigation", function () {
         element = $compile('<div ng-view></div>')($scope);
     }));
 
-    it("requests tab templates", inject(function ($route) {
+    it("requests tab templates", inject(function ($route, nonces) {
         var basepath = crwBasics.ajaxUrl + '?action=get_option_tab';
         var routePaths = {
-            '/first/nonce1': '&tab=first&_crwnonce=nonce1',
-            '/second/nonce2': '&tab=second&_crwnonce=nonce2',
-            '/other': '&tab=second&_crwnonce=nonce2'
+            '/editor': '&tab=editor&_crwnonce=nonce',
+            '/review': '&tab=review&_crwnonce=nonce',
+            '/other': '&tab=review&_crwnonce=nonce'
         };
+        $scope.location.path('/capabilities');
+        $httpBackend.expectGET(basepath + '&tab=invalid');
+        $scope.$apply();
+        $httpBackend.flush();
+        expect($route.current.loadedTemplateUrl).toBe(basepath + '&tab=invalid');
+        nonces.settings = 'nonce';
         for (var route in routePaths) {
             $scope.location.path(route);
             if (route !== '/other') {

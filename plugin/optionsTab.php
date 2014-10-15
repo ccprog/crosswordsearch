@@ -1,6 +1,4 @@
     <div class="crw-editors" ng-controller="OptionsController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_OPTIONS); ?>')">
-        <p class="error" ng-if="optError">{{optError.error}}</p>
-        <p class="error" ng-repeat="msg in optError.debug">{{msg}}</p>
         <h3><?php _e('Editing rights', 'crw-text') ?></h3>
         <form name="capsEdit">
         <table class="widefat">

@@ -30,7 +30,7 @@
     clear: left;
     float: none;
 }
-.crw-wrapper .error {
+.crw-wrapper .error, .crw-global-error {
     color: red;
 }
 .crw-wrapper .confirm {
