@@ -726,6 +726,9 @@ function crw_test_permission ( $for, $user, $project=null ) {
         $nonce_source = NONCE_EDIT . $project;
         break;
     case 'review':
+        if ( $project ) {
+            $for_project = crw_is_editor( $user, $project );
+        }
         $nonce_source = NONCE_REVIEW;
         $capability = CRW_CAP_CONFIRMED;
         break;
@@ -1087,6 +1090,8 @@ function crw_save_project () {
 
         if ( mb_strlen($args['project'], 'UTF-8') > 255 ) {
             crw_send_error( __('You have exceeded the maximum length for a name!', 'crw-text'), $args['project'] );
+        } elseif ( mb_strlen($args['project'], 'UTF-8') < 4 ) {
+            crw_send_error( __('The name is too short!', 'crw-text'), $args['project'] );
         } elseif ( !in_array($args['default_level'], $level_list) ||
                 !in_array($args['maximum_level'], $level_list) ||
                 $args['default_level'] > $args['maximum_level'] ) {
@@ -1275,7 +1280,7 @@ function crw_delete_crossword() {
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
 
     $user = wp_get_current_user();
-    crw_test_permission( 'review', $user );
+    crw_test_permission( 'review', $user, $project );
 
     // call database
     $success = $wpdb->delete( $data_table_name, array(
@@ -1315,7 +1320,7 @@ function crw_approve_crossword() {
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
 
     $user = wp_get_current_user();
-    crw_test_permission( 'review', $user );
+    crw_test_permission( 'review', $user, $project );
 
     // call database
     $success = $wpdb->update( $data_table_name, array(
