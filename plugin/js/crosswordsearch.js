@@ -726,9 +726,10 @@ crwApp.directive("crwHelpFollow", [ "$document", function($document) {
             helptabs.capabilities = matching.filter("[id*=crw-help-tab-options]");
             helptabs.editor = matching.filter("[id*=crw-help-tab-projects]");
             helptabs.review = matching.filter("[id*=crw-help-tab-review]");
-            scope.$watch("$routeParams.tab", function(tab) {
+            scope.$watch("activeTab", function(tab) {
+                var tabName = /(capabilities|editor|review)/.exec(tab)[0];
                 angular.forEach(helptabs, function(el, id) {
-                    if (id === tab) {
+                    if (id === tabName) {
                         el.addClass("active");
                     } else {
                         el.removeClass("active");

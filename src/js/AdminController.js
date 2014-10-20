@@ -10,9 +10,10 @@ crwApp.directive('crwHelpFollow', ['$document', function ($document) {
             helptabs.review = matching.filter('[id*=crw-help-tab-review]');
 
             // set helptab active on tab selection
-            scope.$watch('$routeParams.tab', function (tab) {
+            scope.$watch('activeTab', function (tab) {
+                var tabName = /(capabilities|editor|review)/.exec(tab)[0];
                 angular.forEach(helptabs, function (el, id) {
-                    if (id === tab) {
+                    if (id === tabName) {
                         el.addClass('active');
                     } else {
                         el.removeClass('active');
