@@ -4,6 +4,7 @@
     -ms-hyphens: none;
     -moz-hyphens: none;
     hyphens: none;
+    counter-reset: instruct;
 }
 .crw-wrapper>* {
     margin: 10px 10px 0;
@@ -40,6 +41,11 @@
     font-style: italic;
     font-weight: bold;
 }
+.crw-instruction:before {
+    content: counter(instruct, disc);
+    margin-right:0.5em;
+    counter-increment: instruct;
+}
 .crw-wrapper textarea {
     width: 90%;
     height: 6em;
@@ -52,8 +58,8 @@ dl.crw-level>dt, dl.crw-level>dd {
     margin-left: 0;
     padding-left: 0;
 }
-dl.crw-level>dt > * {
-    vertical-align: middle;
+dl.crw-level>dt > dl {
+    vertical-align: bottom;
 }
 dl.crw-level .cse.select {
     line-height: 1.3;

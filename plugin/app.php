@@ -9,12 +9,12 @@ if ( 'build' == $mode ) {
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="name">{{crosswordData.name}}</p>
     <form name="meta">
-        <label for ="description"><?php _e('Give a hint which words should be found:', 'crw-text') ?></label><br/>
+        <label class="crw-instruction" for ="description"><?php _e('Describe which words should be found:', 'crw-text') ?></label><br/>
         <textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea>
         <p class="error" ng-show="meta.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></p>
     </form>
     <dl class="crw-level">
-        <dt><span><?php _e('Select a difficulty level:', 'crw-text') ?></span>
+        <dt class="crw-instruction"><span><?php _e('Select a difficulty level:', 'crw-text') ?></span>
             <dl cse-select="level" cse-options="levelList" cse-model="crosswordData.level" display="value + 1"></dl>
         </dt>
 <?php // single solve/preview only shows the name
@@ -55,6 +55,23 @@ if ( 'build' == $mode ) {
             <strong ng-show="!crw.getLevelRestriction('sol')"><?php _e('hidden before found', 'crw-text') ?></strong>
         </dd>
     </dl>
+<?php // usage instruction
+
+if ( 'build' == $mode ) {
+
+?>
+    <p class="crw-instruction"><?php _e('Fill in the the letters and mark the words:', 'crw-text') ?></p>
+<?php
+
+} elseif ( 'solve' == $mode ) {
+
+?>
+    <p class="crw-instruction"><?php _e('Mark the words:', 'crw-text') ?></p>
+<?php
+
+}
+
+?>
     <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide" ng-style="styleCrossword()' : '' ) ?>" ng-controller="SizeController" ng-if="crosswordData">
         <div ng-style="styleGridSize()" class="crw-grid<?php if ( 'build' == $mode ) echo ' divider' ?>">
 <?php // resize handles

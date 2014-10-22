@@ -16,7 +16,6 @@ describe("crwHelpFollow", function() {
             '</div></div>');
         var element = jQuery('#contextual-help-columns');
         var $scope = $rootScope.$new();
-        $scope.$routeParams = { tab: null };
         $compile('<div crw-help-follow></div>')($scope);
         var tabs = {
             capabilities: 'options',
@@ -24,7 +23,7 @@ describe("crwHelpFollow", function() {
             review: 'review'
         };
         for (var t1 in tabs) {
-            $scope.$routeParams.tab = t1;
+            $scope.activeTab = t1;
             $scope.$apply();
             for (var t2 in tabs) {
                 expect(element.find('#tab-link-crw-help-tab-' + tabs[t2]).hasClass('active')).toBe(t1 === t2);
