@@ -353,13 +353,15 @@ describe("TableController", function () {
 
     it("evaluates keydown events", function () {
         $scope.field = {letter: 'A'};
+        basics.letterRegEx = /[a-zA-Z]/;
         spyOn($scope, 'activate');
-        var event = jQuery.Event('keydown');
+        var event;
         $scope.line = 2;
         $scope.column = 2;
         $scope.row = {length: 5};
         $scope.crosswordData = {table: {length: 5}};
         function trigger (keycode) {
+            event = jQuery.Event('keydown');
             $scope.activate.calls.reset();
             $scope.field.letter = 'A';
             event.which = keycode;
@@ -390,16 +392,22 @@ describe("TableController", function () {
         trigger(0x2E);
         expect($scope.field.letter).toBeNull();
         expect(event.isDefaultPrevented()).toBe(true);
+        expect(event.isPropagationStopped()).toBe(true);
         trigger(0x29);
-        event = jQuery.Event('keydown');
         expect(event.isDefaultPrevented()).toBe(false);
+        expect(event.isPropagationStopped()).toBe(false);
+        trigger(0x52);
+        expect($scope.activate).not.toHaveBeenCalled();
+        expect(event.isDefaultPrevented()).toBe(false);
+        expect(event.isPropagationStopped()).toBe(true);
     });
 
     it("evaluates keypress events", function () {
         $scope.field = {letter: null};
         basics.letterRegEx = /[a-zA-Z]/;
-        var event = jQuery.Event('keypress');
+        var event;
         function trigger (keycode) {
+            event = jQuery.Event('keydown');
             $scope.field.letter = null;
             event.which = keycode;
             $scope.type(event);
@@ -412,10 +420,14 @@ describe("TableController", function () {
         expect($scope.field.letter).toBe('R');
         trigger(0x72);
         expect($scope.field.letter).toBe('R');
+        expect(event.isDefaultPrevented()).toBe(true);
+        expect(event.isPropagationStopped()).toBe(true);
         trigger(0xF6);
         expect($scope.field.letter).toBeNull();
         trigger(0x36);
         expect($scope.field.letter).toBeNull();
+        expect(event.isDefaultPrevented()).toBe(false);
+        expect(event.isPropagationStopped()).toBe(false);
         trigger(0x20);
         expect($scope.field.letter).toBeNull();
     });

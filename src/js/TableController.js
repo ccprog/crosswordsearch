@@ -179,38 +179,47 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
 
     // event handler on keydown catches arrow keys and deletion
     $scope.move = function (event) {
-        // extract the letter from event data the best way you can
-        var key = event.charCode || event.keyCode || event.which;
-        switch (key) {
+        switch (event.which) {
         case 0x08: //backspace
         case 0x2E: //delete
             this.field.letter = null;
             event.preventDefault();
+            event.stopPropagation();
             break;
         case 0x25: //left
             if (this.column > 0) {
                 this.activate(this.line,this.column-1);
             }
             event.preventDefault();
+            event.stopPropagation();
             break;
         case 0x26: //up
             if (this.line > 0) {
                 this.activate(this.line-1,this.column);
             }
             event.preventDefault();
+            event.stopPropagation();
             break;
         case 0x27: //right
             if (this.column < this.row.length - 1) {
                 this.activate(this.line,this.column+1);
             }
             event.preventDefault();
+            event.stopPropagation();
             break;
         case 0x28: //down
             if (this.line < this.crosswordData.table.length - 1) {
                 this.activate(this.line+1,this.column);
             }
             event.preventDefault();
+            event.stopPropagation();
             break;
+        }
+        // stop event propagation for letters, even if true handling follows
+        // later, to suppress keyboard shortcuts from other code parts
+        var keychar = String.fromCharCode(event.which);
+        if (basics.letterRegEx.test(keychar)) {
+            event.stopPropagation();
         }
     };
     // event handler on keypress catches letters
@@ -219,13 +228,12 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
     // for compatibility with browsers, OS and hardware
     // if you stray from basic latin script
     $scope.type = function (event) {
-        event.preventDefault();
-        // extract the letter from event data the best way you can
-        var key = event.charCode || event.keyCode || event.which;
-        var keychar = String.fromCharCode(key);
+        var keychar = String.fromCharCode(event.which);
         // if it is an allowed letter, enter into field
         if (basics.letterRegEx.test(keychar)) {
             this.field.letter = keychar.toUpperCase();
+            event.preventDefault();
+            event.stopPropagation();
         }
     };
 }]);
