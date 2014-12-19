@@ -46,6 +46,10 @@
     right: 0px;
     top: 2px;
 }
+.cse.select dt .btn, .cse.select dt .btn:hover, .cse.select dt .btn:focus, .cse.select dt .btn:active {
+    border: none;
+    outline: none;
+}
 .cse.select dt div {
     padding: 0px 2px;
     overflow: hidden;
@@ -98,8 +102,7 @@
     background-position: -80px center;
 }
 .cse.select dd dt {
-    margin-right: 2px;
-    display: inline-block;
+    display: block;
     min-width: 100%;
     padding-right: 0px;
 }
@@ -113,9 +116,11 @@
 .cse.select dd dd {
     display: inline-block;
     position: absolute;
+    left: 100%;
+    top: 0px;
 }
 .cse.select dd dd ul {
-    left: 0px;
+    left: 2px;
     top: 0px;
 }
 .cse.select dd dd div {
