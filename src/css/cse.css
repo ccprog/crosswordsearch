@@ -45,6 +45,8 @@
     bottom: 0px;
     right: 0px;
     top: 2px;
+    margin: 0;
+    padding: 0;
 }
 .cse.select dt .btn, .cse.select dt .btn:hover, .cse.select dt .btn:focus, .cse.select dt .btn:active {
     border: none;
