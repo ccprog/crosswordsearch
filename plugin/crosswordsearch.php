@@ -514,8 +514,9 @@ function crw_shortcode_handler( $atts, $content = null ) {
     include 'app.php';
     include 'immediate.php';
     $app_code = ob_get_clean();
+    $delay_message = '<p ng-hide="true"><strong>' . __('Loading the crossword has yet to start.', 'crw-text') . '</strong></p>';
 
-	return '<div class="crw-wrapper" ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', ' . $restricted . ')">' . $app_code . '</div>';
+	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', ' . $restricted . ')">' . $app_code . '</div>';
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
