@@ -84,7 +84,7 @@ function crw_install () {
     $have_innodb = $wpdb->get_var("
         SHOW VARIABLES LIKE 'have_innodb';
     ");
-    if ('NO' === $have_innodb ) {
+    if (is_null($have_innodb) || 'NO' === $have_innodb ) {
         trigger_error( 'This plugin requires MySQL to support the InnoDB table engine. Please contact your server administrator before you activate this plugin', E_USER_ERROR );
     }
 
