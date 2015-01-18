@@ -318,7 +318,7 @@ function add_crw_scripts ( $hook ) {
 function crw_set_header () {
 	global $post, $crw_has_crossword;
 
-	if ( has_shortcode( $post->post_content, 'crosswordsearch') ) {
+	if ( is_object( $post ) && has_shortcode( $post->post_content, 'crosswordsearch') ) {
         $crw_has_crossword = true;
         add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
         add_action( 'wp_enqueue_scripts', 'add_crw_scripts');
