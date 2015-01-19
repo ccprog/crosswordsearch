@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: crosswordsearch 0.4.1\n"
+"Project-Id-Version: crosswordsearch 0.4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-31 18:01+0100\n"
-"PO-Revision-Date: 2014-12-31 18:01+0100\n"
+"POT-Creation-Date: 2015-01-19 16:22+0100\n"
+"PO-Revision-Date: 2015-01-19 16:22+0100\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: German\n"
@@ -173,7 +173,7 @@ msgstr "In Projekt %1$s gibt es keine Rätsel."
 msgid "There is no crossword with the name %1$s."
 msgstr "Es gibt kein Rätsel mit dem Namen %1$s."
 
-#: plugin/crosswordsearch.php:518
+#: plugin/crosswordsearch.php:517
 msgid "Loading the crossword has yet to start."
 msgstr "Das Laden des Rätsels hat noch nicht begonnen."
 
