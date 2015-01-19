@@ -49,8 +49,11 @@
     padding: 0;
 }
 .cse.select dt .btn, .cse.select dt .btn:hover, .cse.select dt .btn:focus, .cse.select dt .btn:active {
+    background-color: transparent;
     border: none;
     outline: none;
+    transition:none;
+    box-shadow: none;
 }
 .cse.select dt div {
     padding: 0px 2px;
