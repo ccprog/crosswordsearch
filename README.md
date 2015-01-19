@@ -12,7 +12,10 @@ aware that it is still in a beta stage.
 
 Only releases will be in a consistent state. Latest: [![GitHub version](https://badge.fury.io/gh/ccprog%2Fcrosswordsearch.png)](http://badge.fury.io/gh/ccprog%2Fcrosswordsearch)
 
-Crosswordsearch is compatible with Worpress 3.6 and above.
+Crosswordsearch is compatible with Worpress 3.6 and above. It requires PHP 5.3 or above and a
+MySQL DBMS that supports InnoDB tables.
+
+All modern browsers as well as Internet Explorer 8 and newer are supported.
 
 ### Installation in Wordpress
 
@@ -51,47 +54,35 @@ administrative page.
 Editors assigned for projects can review Crosswords from the Settings/Crosswordsearch administrative
 page and moderate (approve or delete) them.
 
-Authors can add a shortcode tag to any page or post to add a Crossword game to that page:
+Authors can add a shortcode tag to any page or post to add a Crossword game to that page.
 
-```
-[crosswordsearch mode="solve" project="MyProject"]
-```
+#### Shortcode usage for game areas that build new crosswords
 
-will add a game area for solving riddles that belong to the project `MyProject`. All saved
-and approved riddles belonging to the project can be loaded through a menu.
+All saved riddles belonging to the project can be loaded.
 
-```
-[crosswordsearch mode="solve" project="MyProject" name="MyFirstCrossword"]
-```
-will show only the crossword `MyFirstCrossword` for solving. No other crossword will be
-selectable.
+1. `[crosswordsearch mode="build" project="MyProject"]`  
+    On page load, the riddle with the alphabetically first name is visible.
 
-```
-[crosswordsearch mode="build" project="MyProject"]
-```
-will add a game area for developing new and editing existing riddles that belong to the
-project `MyProject`. All saved and approved riddles belonging to the project can be
-loaded through a menu. Initially visible will be the riddle with the alphabetically first
-name.
+2. `[crosswordsearch mode="build" project="MyProject" name="MyFirstCrossword"]`  
+    On page load, the crossword saved under the name `MyFirstCrossword` is visible.
 
-```
-[crosswordsearch mode="build" project="MyProject" name="MyFirstCrossword"]
-```
-works as above, but will initially show the crossword saved under the name `MyFirstCrossword`.
-All other riddles can still be loaded through the menu.
+3. `[crosswordsearch mode="build" project="MyProject" name=""]`  
+    On page load, an empty new crossword is visible.
 
-```
-[crosswordsearch mode="build" project="MyProject" name=""]
-```
-works as above, but will initially show an empty new crossword.
+4. `[crosswordsearch mode="build" restricted="1" project="MyProject"]`  
+    The menu has no entry for selecting other riddles, and on page load an empty new
+    crossword is shown.  
+    This is a game area where restricted editors can develop new riddles. They can work
+    on a riddle as long as they stay on the page, but it will not be visible for
+    anyone else.
 
-```
-[crosswordsearch mode="build" restricted="1" project="MyProject"]
-```
-will add a game area for developing new riddles for the project `MyProject` by restricted
-editors. Restricted editors can work on a riddle as long as they stay on the page,
-but it will not be visible for anyone else. No menu for selecting other riddles is
-presented, and on page load an empty new crossword will be shown.
+#### Shortcode usage for game areas in which crosswords can be solved
+
+1. `[crosswordsearch mode="solve" project="MyProject"]`  
+    All saved and approved riddles belonging to the project can be loaded through a menu.
+
+2. `[crosswordsearch mode="solve" project="MyProject" name="MyFirstCrossword"]`  
+    Only the crossword `MyFirstCrossword` is visible. No other crossword can be selected.
 
 #### Custom theming
 
