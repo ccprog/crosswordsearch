@@ -305,6 +305,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     padding: 0;
     border: none;
     font-size: 100%;
+    color: #000;
 }
 .crw-immediate td:first-child {
     width: 8em;
@@ -325,7 +326,6 @@ div.crw-marked.up { background-position: -124px -124px; }
     width: 10em;
 }
 ul.crw-word {
-    list-style-type: none;
     padding-left: 0;
     margin-left: 0;
     padding-top: 0;
@@ -333,6 +333,7 @@ ul.crw-word {
     font-size: 14px;
 }
 ul.crw-word>li {
+    list-style-type: none;
     padding: 2px 0;
     margin-left: 0;
 }
