@@ -118,6 +118,20 @@ module.exports = function(grunt) {
             destdir + 'qantic.angularjs.stylemodel.min.js'
           ],
         }
+      },
+      wp_42: {
+        src: jslist,
+        options: {
+          vendor: [
+            testdir + 'vendor/tv4/tv4.js',
+            testdir + 'vendor/URI.min/index.js',
+            testdir + 'vendor/jquery-1.11.2.min/index.js',
+            destdir + 'angular.min.js',
+            destdir + 'angular-route.min.js',
+            testdir + 'vendor/angular-mocks/index.js',
+            destdir + 'qantic.angularjs.stylemodel.min.js'
+          ],
+        }
       }
     },
     pot: {
