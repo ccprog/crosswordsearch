@@ -15,7 +15,7 @@ if ( 'build' == $mode ) {
                     <table>
                         <tr>
                             <td><label for ="crosswordName"><?php _e('Name:', 'crw-text') ?></label></td>
-                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" ng-maxlength="255" crw-add-parsers="sane unique" crw-unique="namesInProject commands"></td>
+                            <td><input type="text" ng-model="crosswordData.name" name="crosswordName" required="" ng-minlength="4" ng-maxlength="190" crw-add-parsers="sane unique" crw-unique="namesInProject commands"></td>
                         </tr>
                         <tr>
                             <td></td>

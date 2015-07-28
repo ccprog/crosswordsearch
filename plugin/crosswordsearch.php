@@ -33,7 +33,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * Bootstrap
  * ---------------------------------- */
 
-define('CRW_DB_VERSION', '0.4');
+define('CRW_DB_VERSION', '0.5');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
 define('CRW_ROLES_OPTION', 'crw_roles_caps');
@@ -104,7 +104,7 @@ function crw_install () {
 
     dbDelta( "
 CREATE TABLE IF NOT EXISTS $project_table_name (
-  project varchar(255) NOT NULL,
+  project varchar(190) NOT NULL,
   default_level int NOT NULL,
   maximum_level int NOT NULL,
   used_level int NOT NULL,
@@ -114,8 +114,8 @@ CREATE TABLE IF NOT EXISTS $project_table_name (
 
     dbDelta( "
 CREATE TABLE IF NOT EXISTS $data_table_name (
-  project varchar(255) NOT NULL,
-  name varchar(255) NOT NULL,
+  project varchar(190) NOT NULL,
+  name varchar(190) NOT NULL,
   crossword text NOT NULL,
   first_user bigint(20) unsigned NOT NULL,
   last_user bigint(20) unsigned NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS $data_table_name (
 
     dbDelta( "
 CREATE TABLE IF NOT EXISTS $editors_table_name (
-  project varchar(255) NOT NULL,
+  project varchar(190) NOT NULL,
   user_id bigint(20) unsigned NOT NULL,
   PRIMARY KEY (project, user_id)
 ) ENGINE=InnoDB $charset_collate;\n"
@@ -1089,7 +1089,7 @@ function crw_save_project () {
             'maximum_level' => (int)wp_unslash( $_POST['maximum_level']),
         );
 
-        if ( mb_strlen($args['project'], 'UTF-8') > 255 ) {
+        if ( mb_strlen($args['project'], 'UTF-8') > 190 ) {
             crw_send_error( __('You have exceeded the maximum length for a name!', 'crw-text'), $args['project'] );
         } elseif ( mb_strlen($args['project'], 'UTF-8') < 4 ) {
             crw_send_error( __('The name is too short!', 'crw-text'), $args['project'] );

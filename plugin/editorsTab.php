@@ -11,7 +11,7 @@
                 </td>
                 <td><?php _e('Project Name', 'crw-text') ?></td>
                 <td colspan="2" class="projectname aligned">
-                    <input type="text" name="name" ng-model="currentProject.name" ng-minlength="4" ng-maxlength="255" required="" crw-add-parsers="sane unique" crw-unique="getProjectList(selectedProject.name)"></input>
+                    <input type="text" name="name" ng-model="currentProject.name" ng-minlength="4" ng-maxlength="190" required="" crw-add-parsers="sane unique" crw-unique="getProjectList(selectedProject.name)"></input>
                 </td>
             </tr>
             <tr>
