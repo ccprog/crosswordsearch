@@ -6,11 +6,13 @@ if ( current_user_can(CRW_CAP_CONFIRMED) ) {
 if ( current_user_can('edit_users') ) {
     $ref_active = '/editor';
 }
+$header_tag = version_compare( $wp_version, '4.3', '<' ) ? 'h2' : 'h1';
+$nav_tag = 'h3'; // is announced to change to h2 in the near furure
 
 ?>
 <div class="wrap" ng-controller="AdminController" ng-init="prepare('<?php echo $ref_active . "','" . wp_create_nonce(NONCE_SETTINGS) ?>')">
-    <h2><?php _e('Crosswordsearch Administration', 'crw-text') ?></h2>
-    <h3 class="nav-tab-wrapper" crw-help-follow>
+    <<?php echo $header_tag ?>><?php _e('Crosswordsearch Administration', 'crw-text') ?></<?php echo $header_tag ?>>
+    <<?php echo $nav_tag ?> class="nav-tab-wrapper" crw-help-follow>
 <?php
 
 if ( current_user_can('edit_users') ) {
@@ -31,7 +33,7 @@ if ( current_user_can(CRW_CAP_CONFIRMED) ) {
 }
 
 ?>
-    </h3>
+    </<?php echo $nav_tag ?>>
     <p class="crw-global-error" ng-if="globalError">{{globalError.error}}</p>
     <p class="crw-global-error" ng-repeat="msg in globalError.debug">{{msg}}</p>
     <div ng-view></div>

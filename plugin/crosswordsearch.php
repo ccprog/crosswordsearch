@@ -1666,6 +1666,8 @@ add_action( 'wp_ajax_get_option_tab', 'crw_get_option_tab' );
  * @return void
  */
 function crw_show_options() {
+    global $wp_version;
+
 	if ( !current_user_can( CRW_CAP_CONFIRMED ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
