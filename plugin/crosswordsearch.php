@@ -47,6 +47,7 @@ define('NONCE_OPTIONS', 'crw_options_');
 define('NONCE_REVIEW', 'crw_review_');
 define('CRW_CAP_CONFIRMED', 'edit_crossword');
 define('CRW_CAP_UNCONFIRMED', 'push_crossword');
+define('CRW_CAP_ADMINISTRATE', 'list_users'); //WP standard (local) admin capability
 
 define('CRW_PLUGIN_URL', plugins_url( 'crosswordsearch/' ));
 define('CRW_PLUGIN_FILE', WP_PLUGIN_DIR . '/crosswordsearch/' . basename(__FILE__));
@@ -142,14 +143,14 @@ CREATE TABLE IF NOT EXISTS $editors_table_name (
 
     $wpdb->query("
         ALTER TABLE $data_table_name
-        ADD CONSTRAINT project_crossword FOREIGN KEY (project)
+        ADD CONSTRAINT " . $wpdb->prefix . "project_crossword FOREIGN KEY (project)
         REFERENCES $project_table_name (project)
         ON UPDATE CASCADE
     ");
 
     $wpdb->query("
         ALTER TABLE $editors_table_name
-        ADD CONSTRAINT project_editors FOREIGN KEY (project)
+        ADD CONSTRAINT " . $wpdb->prefix . "project_editors FOREIGN KEY (project)
         REFERENCES $project_table_name (project)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -712,11 +713,11 @@ function crw_test_permission ( $for, $user, $project=null ) {
         break;
     case 'cap':
         $nonce_source = NONCE_OPTIONS;
-        $capability = 'edit_users';
+        $capability = CRW_CAP_ADMINISTRATE;
         break;
     case 'admin':
         $nonce_source = NONCE_EDITORS;
-        $capability = 'edit_users';
+        $capability = CRW_CAP_ADMINISTRATE;
         break;
     case 'push':
         // can the user push unconfirmed crosswords?
@@ -1583,7 +1584,7 @@ add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 function crw_add_help_tab () {
     $screen = get_current_screen();
 
-    if ( current_user_can('edit_users') ) {
+    if ( current_user_can(CRW_CAP_ADMINISTRATE) ) {
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-options',
             'title'	=> __('Options', 'crw-text'),
@@ -1645,9 +1646,9 @@ function crw_get_option_tab () {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
 
-    if ('capabilities' == $_GET['tab'] && current_user_can('edit_users') ) {
+    if ('capabilities' == $_GET['tab'] && current_user_can(CRW_CAP_ADMINISTRATE) ) {
         include WP_PLUGIN_DIR . '/crosswordsearch/optionsTab.php';
-    } elseif ('editor' == $_GET['tab'] && current_user_can('edit_users') ) {
+    } elseif ('editor' == $_GET['tab'] && current_user_can(CRW_CAP_ADMINISTRATE) ) {
         include WP_PLUGIN_DIR . '/crosswordsearch/editorsTab.php';
     } elseif ('review' == $_GET['tab'] && current_user_can(CRW_CAP_CONFIRMED) ) {
         include WP_PLUGIN_DIR . '/crosswordsearch/reviewTab.php';
