@@ -77,9 +77,17 @@ $child_css = crw_get_child_stylesheet();
  *
  * @return void
  */
-function crw_install () {
+function crw_install ( $network_wide = null ) {
     global $wp_roles, $wpdb, $charset_collate, $project_table_name, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+    if ( $network_wide ) {
+        trigger_error( 'Please activate the plugin individually on each site.', E_USER_ERROR );
+    }
+
+    if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
+        trigger_error( 'This plugin requires at least version 5.3 of PHP. Please contact your server administrator before you activate this plugin.', E_USER_ERROR );
+    }
 
     $have_innodb = $wpdb->get_var("
         SHOW VARIABLES LIKE 'have_innodb';
@@ -1658,7 +1666,6 @@ add_action( 'wp_ajax_get_option_tab', 'crw_get_option_tab' );
  * @return void
  */
 function crw_show_options() {
-
 	if ( !current_user_can( CRW_CAP_CONFIRMED ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
