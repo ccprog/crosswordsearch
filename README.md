@@ -115,9 +115,9 @@ The following tasks are available for the development process:
 + `grunt writel10n` will compile `l10n.php` from json data that are also used in unit testing
 + `grunt cssmin` will link and minify the files in `src/css/` as `plugin/css/crosswordsearch.css`.
 + `grunt pot` extracts the localizable strings from the `plugin/` `.php` files to the
-  `plugin/languages/crw-text.pot` template.
+  `plugin/languages/crosswordsearch.pot` template.
 + `grunt msgmerge` will update all `.po` files in `plugin/languages/` to reflect
-  `plugin/languages/crw-text.pot`.
+  `plugin/languages/crosswordsearch.pot`.
 + `grunt msgupdate` executes `pot` and `msgmerge` together.
 + `grunt` executes `jshint:main`, `uglify`, `writel10n`, `cssmin` and `msgupdate` together.
 

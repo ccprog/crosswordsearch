@@ -4,17 +4,17 @@
 if ( 'build' == $mode ) {
 
 ?>
-    <div><dl class="menu" cse-select="command" cse-options="commandList" cse-model="entry" is-menu="<?php _e('Riddle...', 'crw-text') ?>" template="crw-menu"></dl></div>
+    <div><dl class="menu" cse-select="command" cse-options="commandList" cse-model="entry" is-menu="<?php _e('Riddle...', 'crosswordsearch') ?>" template="crw-menu"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="name">{{crosswordData.name}}</p>
     <form name="meta">
-        <label class="crw-instruction" for ="description"><?php _e('Describe which words should be found:', 'crw-text') ?></label><br/>
+        <label class="crw-instruction" for ="description"><?php _e('Describe which words should be found:', 'crosswordsearch') ?></label><br/>
         <textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea>
-        <p class="error" ng-show="meta.$error.sane"><?php _e('Dont\'t try to be clever!', 'crw-text') ?></p>
+        <p class="error" ng-show="meta.$error.sane"><?php _e('Dont\'t try to be clever!', 'crosswordsearch') ?></p>
     </form>
     <dl class="crw-level">
-        <dt class="crw-instruction"><span><?php _e('Select a difficulty level:', 'crw-text') ?></span>
+        <dt class="crw-instruction"><span><?php _e('Select a difficulty level:', 'crosswordsearch') ?></span>
             <dl cse-select="level" cse-options="levelList" cse-model="crosswordData.level" display="value + 1"></dl>
         </dt>
 <?php // single solve/preview only shows the name
@@ -30,7 +30,7 @@ if ( 'build' == $mode ) {
     } else {
 
 ?>
-    <div><dl class="name" title="<?php _e('Select a riddle', 'crw-text') ?>" cse-select="load" cse-options="namesInProject" cse-model="loadedName"></dl></div>
+    <div><dl class="name" title="<?php _e('Select a riddle', 'crosswordsearch') ?>" cse-select="load" cse-options="namesInProject" cse-model="loadedName"></dl></div>
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
 
@@ -39,20 +39,20 @@ if ( 'build' == $mode ) {
     }
 
 ?>
-    <p class="crw-description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crw-text') ?></em> {{crosswordData.description}}</p>
+    <p class="crw-description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crosswordsearch') ?></em> {{crosswordData.description}}</p>
     <dl class="crw-level">
-        <dt><?php _e('Difficulty level', 'crw-text') ?> {{crosswordData.level+1}}</dt>
+        <dt><?php _e('Difficulty level', 'crosswordsearch') ?> {{crosswordData.level+1}}</dt>
 <?php
 
 }
 
 ?>
-        <dd><?php _e('Word directions', 'crw-text') ?>:
-            <strong ng-show="crw.getLevelRestriction('dir')"><?php _e('only to the right and down', 'crw-text') ?>,</strong>
-            <strong ng-show="!crw.getLevelRestriction('dir')"><?php _e('any, including the diagonals and backwards', 'crw-text') ?>,</strong>
-            <br /><?php _e('List of words that should be found', 'crw-text') ?>:
-            <strong ng-show="crw.getLevelRestriction('sol')"><?php _e('visible before found', 'crw-text') ?></strong>
-            <strong ng-show="!crw.getLevelRestriction('sol')"><?php _e('hidden before found', 'crw-text') ?></strong>
+        <dd><?php _e('Word directions', 'crosswordsearch') ?>:
+            <strong ng-show="crw.getLevelRestriction('dir')"><?php _e('only to the right and down', 'crosswordsearch') ?>,</strong>
+            <strong ng-show="!crw.getLevelRestriction('dir')"><?php _e('any, including the diagonals and backwards', 'crosswordsearch') ?>,</strong>
+            <br /><?php _e('List of words that should be found', 'crosswordsearch') ?>:
+            <strong ng-show="crw.getLevelRestriction('sol')"><?php _e('visible before found', 'crosswordsearch') ?></strong>
+            <strong ng-show="!crw.getLevelRestriction('sol')"><?php _e('hidden before found', 'crosswordsearch') ?></strong>
         </dd>
     </dl>
 <?php // usage instruction
@@ -60,13 +60,13 @@ if ( 'build' == $mode ) {
 if ( 'build' == $mode ) {
 
 ?>
-    <p class="crw-instruction"><?php _e('Fill in the the letters and mark the words:', 'crw-text') ?></p>
+    <p class="crw-instruction"><?php _e('Fill in the the letters and mark the words:', 'crosswordsearch') ?></p>
 <?php
 
 } elseif ( 'solve' == $mode ) {
 
 ?>
-    <p class="crw-instruction"><?php _e('Mark the words:', 'crw-text') ?></p>
+    <p class="crw-instruction"><?php _e('Mark the words:', 'crosswordsearch') ?></p>
 <?php
 
 }
@@ -80,10 +80,10 @@ if ( 'build' == $mode ) {
 
 ?>
             <div crw-catch-mouse down="startResize" up="stopResize">
-                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-left" transform-multi-style style-name="size-left" ng-style="modLeft.styleObject['handle-left'].style"></div>
-                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-top" transform-multi-style style-name="size-top" ng-style="modTop.styleObject['handle-top'].style"></div>
-                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-right" transform-multi-style style-name="size-right" ng-style="modRight.styleObject['handle-right'].style"></div>
-                <div title="<?php _e('Drag to move the border of the riddle', 'crw-text') ?>" id="handle-bottom" transform-multi-style style-name="size-bottom" ng-style="modBottom.styleObject['handle-bottom'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?>" id="handle-left" transform-multi-style style-name="size-left" ng-style="modLeft.styleObject['handle-left'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?>" id="handle-top" transform-multi-style style-name="size-top" ng-style="modTop.styleObject['handle-top'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?>" id="handle-right" transform-multi-style style-name="size-right" ng-style="modRight.styleObject['handle-right'].style"></div>
+                <div title="<?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?>" id="handle-bottom" transform-multi-style style-name="size-bottom" ng-style="modBottom.styleObject['handle-bottom'].style"></div>
             </div>
 <?php
 
@@ -128,7 +128,7 @@ if ( 'build' == $mode ) {
 
 ?>
         <p ng-style="styleExtras()">
-            <button class="fill" ng-click="randomize()" title="<?php _e('Fill all empty fields with random letters', 'crw-text') ?>" alt="<?php _e('Fill fields', 'crw-text') ?>"></button><button class="empty" ng-click="empty()" title="<?php _e('Empty all fields', 'crw-text') ?>" alt="<?php _e('Empty', 'crw-text') ?>"></button>
+            <button class="fill" ng-click="randomize()" title="<?php _e('Fill all empty fields with random letters', 'crosswordsearch') ?>" alt="<?php _e('Fill fields', 'crosswordsearch') ?>"></button><button class="empty" ng-click="empty()" title="<?php _e('Empty all fields', 'crosswordsearch') ?>" alt="<?php _e('Empty', 'crosswordsearch') ?>"></button>
         </p>
 <?php // controls and output area
 
@@ -147,8 +147,8 @@ if ( 'build' == $mode ) {
                 <dl class="crw-color" template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
                 <span>{{word.fields | joinWord}} (<?php
                 /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
-                printf( __('from line %1$s, column %2$s %3$s', 'crw-text'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localize(word.direction)}}') ?>)</span>
-                <button class="trash" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crw-text') ?>"></button>
+                printf( __('from line %1$s, column %2$s %3$s', 'crosswordsearch'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localize(word.direction)}}') ?>)</span>
+                <button class="trash" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crosswordsearch') ?>"></button>
             </li>
         </ul>
 <?php // preview mode: wordlist
@@ -170,9 +170,9 @@ if ( 'build' == $mode ) {
 ?>
     <div class="crw-controls">
         <p ng-show="crosswordData.name">
-            <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crw-text'), '{{count.solution}}', '{{count.words}}' ) ?></span>
-            <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crw-text'), '{{count.words}}' ) ?></span>
-            <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="<?php _e('Restart solving the riddle', 'crw-text') ?>" alt="<?php _e('Restart', 'crw-text') ?>"></button>
+            <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crosswordsearch'), '{{count.solution}}', '{{count.words}}' ) ?></span>
+            <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crosswordsearch'), '{{count.words}}' ) ?></span>
+            <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="<?php _e('Restart solving the riddle', 'crosswordsearch') ?>" alt="<?php _e('Restart', 'crosswordsearch') ?>"></button>
         </p>
         <ul class="crw-word" ng-class="{'palid': crw.getLevelRestriction('sol')}">
             <li ng-class="{'highlight': isHighlighted(), 'found': word.solved}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:'ID'" ng-controller="EntryController">
@@ -187,4 +187,4 @@ if ( 'build' == $mode ) {
 
 ?>
     </div>
-    <p ng-show="crosswordData.author" class="copyright"><?php _e('Authored by', 'crw-text') ?> {{crosswordData.author}}</p>
+    <p ng-show="crosswordData.author" class="copyright"><?php _e('Authored by', 'crosswordsearch') ?> {{crosswordData.author}}</p>

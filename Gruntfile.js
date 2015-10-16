@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     l10ndir = 'plugin/languages/',
     testdir = 'tests/';
 
-  var text_domain = 'crw-text';
+  var text_domain = 'crosswordsearch';
 
   var jslist = [
     srcdir + 'customSelectElement.js',
@@ -180,7 +180,11 @@ module.exports = function(grunt) {
         expand: true,
       },
     },
-    writel10n: {}
+    writel10n: {
+      options: {
+        text_domain: text_domain,
+      },
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');

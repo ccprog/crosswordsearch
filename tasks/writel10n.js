@@ -4,6 +4,7 @@ module.exports = function(grunt) {
     grunt.registerTask('writel10n', 'write l10n.php file', function() {
         var options = this.options({
             dest: 'plugin/l10n.php',
+            text_domain: 'messages',
             letterFile: 'src/json/letter.json',
             localeFile: 'src/json/locale.json',
             encoding: 'utf8'
@@ -44,7 +45,7 @@ module.exports = function(grunt) {
         var localeData = grunt.file.readJSON(options.localeFile, options.encoding);
         php += "    $locale_data = ";
         recurseObject(localeData, function (str) {
-            return "__('" + str + "','crw-text')";
+            return "__('" + str + "','" + options.text_domain + "')";
         });
 
         php += "    $lang = get_locale();\n" +

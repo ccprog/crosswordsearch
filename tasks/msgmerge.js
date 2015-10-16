@@ -2,7 +2,7 @@
 
 module.exports = function(grunt) {
 
-  // use `msginit -i crw-text.pot -l <ll_CC> -o crw-text-<ll_CC>.po` to start new translations
+  // use `msginit -i crosswordsearch.pot -l <ll_CC> -o crosswordsearch-<ll_CC>.po` to start new translations
   
   grunt.registerMultiTask('msgmerge', 'update .po files from template', function() {
     var options = this.options({

@@ -5,7 +5,8 @@ Plugin URI: https://github.com/ccprog/crosswordsearch
 Version: 0.5.0
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
-Text Domain: crw-text
+Text Domain: crosswordsearch
+Domain Path: /languages
 Description: Adds a wordsearch-style crossword in place of a shortcode. Crosswords can be in building-mode for developing new riddles, which then can be stored for later usage, or they can be in solving-mode, where existing riddles are loaded into the page for readers to solve.
 
 Copyright Claus Colloseus 2014 for RadiJojo.de
@@ -253,7 +254,7 @@ $crw_has_crossword = false;
  * @return void
  */
 function crw_load_text () {
-    load_plugin_textdomain( 'crw-text', false, 'crosswordsearch/languages/' );
+    load_plugin_textdomain( 'crosswordsearch', false, 'crosswordsearch/languages/' );
 }
 add_action('plugins_loaded', 'crw_load_text');
 
@@ -441,28 +442,28 @@ function crw_test_shortcode ($atts, $names_list) {
         WHERE project = %s
     ", $project) );
 
-    $html = '<strong>' . __('The shortcode usage is faulty:', 'crw-text') . '</strong> ';
+    $html = '<strong>' . __('The shortcode usage is faulty:', 'crosswordsearch') . '</strong> ';
 
     if ( !in_array( $mode, array('build', 'solve') ) ) {
         /// translators: argument %1 will be the literal 'mode'
-        return $html . sprintf(__('Attribute %1$s needs to be set to one of "%2$s" or "%3$s".', 'crw-text'), '<em>mode</em>', 'build', 'solve');
+        return $html . sprintf(__('Attribute %1$s needs to be set to one of "%2$s" or "%3$s".', 'crosswordsearch'), '<em>mode</em>', 'build', 'solve');
     }
 
     if ( $restricted && $name ) {
-        return $html . __('If attribute <em>restricted</em> is set, attribute <em>name</em> must be omitted.', 'crw-text');
+        return $html . __('If attribute <em>restricted</em> is set, attribute <em>name</em> must be omitted.', 'crosswordsearch');
     }
 
     if ( false == $project_found ) {
         /// translators: argument %1 will be the literal 'project'
-        return $html . sprintf(__('Attribute %1$s needs to be an existing project.', 'crw-text'), '<em>project</em>');
+        return $html . sprintf(__('Attribute %1$s needs to be an existing project.', 'crosswordsearch'), '<em>project</em>');
     }
 
     if ( 0 == count( $names_list ) && 'solve' == $mode ){
-        return $html . sprintf(__('There is no crossword in project %1$s.', 'crw-text'), $project);
+        return $html . sprintf(__('There is no crossword in project %1$s.', 'crosswordsearch'), $project);
     }
 
     if ( $name && !in_array($name, $names_list ) ) {
-        return $html . sprintf(__('There is no crossword with the name %1$s.', 'crw-text'), '<em>' . $name . '</em>');
+        return $html . sprintf(__('There is no crossword with the name %1$s.', 'crosswordsearch'), '<em>' . $name . '</em>');
     }
     return false;
 }
@@ -523,7 +524,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     include 'app.php';
     include 'immediate.php';
     $app_code = ob_get_clean();
-    $delay_message = '<p ng-hide="true"><strong>' . __('Loading the crossword has yet to start.', 'crw-text') . '</strong></p>';
+    $delay_message = '<p ng-hide="true"><strong>' . __('Loading the crossword has yet to start.', 'crosswordsearch') . '</strong></p>';
 
 	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', ' . $restricted . ')">' . $app_code . '</div>';
 }
@@ -691,7 +692,7 @@ function crw_is_editor ( $user, $project ) {
  * @return boolean True if the user has restricted rights.
  */
 function crw_test_permission ( $for, $user, $project=null ) {
-    $error = __('You do not have permission.', 'crw-text');
+    $error = __('You do not have permission.', 'crosswordsearch');
 
     if ( $user && is_wp_error($user) ) {
         $debug = $user->get_error_messages();
@@ -808,7 +809,7 @@ function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
         ", $project) );
         if ( $success === false ) {
             // not really true, but I can't read error numbers...
-            $error = __('There are still riddles saved for that project. You need to delete them before you can remove the project.', 'crw-text');
+            $error = __('There are still riddles saved for that project. You need to delete them before you can remove the project.', 'crosswordsearch');
             $debug = array( $wpdb->last_error, $wpdb->last_query );
             crw_send_error($error, $debug);
         }
@@ -897,7 +898,7 @@ add_action( 'wp_ajax_get_crw_capabilities', 'crw_send_capabilities' );
  */
 function crw_update_capabilities () {
     global $wp_roles;
-    $error = __('Editing rights could not be updated.', 'crw-text');
+    $error = __('Editing rights could not be updated.', 'crosswordsearch');
 
     crw_test_permission( 'cap', wp_get_current_user() );
 
@@ -950,7 +951,7 @@ add_action( 'wp_ajax_update_crw_capabilities', 'crw_update_capabilities' );
  * @return void
  */
 function crw_update_dimensions () {
-    $error = __('Dimensions could not be updated.', 'crw-text');
+    $error = __('Dimensions could not be updated.', 'crosswordsearch');
 
     crw_test_permission( 'cap', wp_get_current_user() );
 
@@ -1090,7 +1091,7 @@ function crw_save_project () {
 
     if ( 'remove' == $method ) {
         $args =  null;
-        $error = __('The project could not be removed.', 'crw-text');
+        $error = __('The project could not be removed.', 'crosswordsearch');
     } else {
         $args = array(
             'project' => sanitize_text_field( wp_unslash( $_POST['new_name']) ),
@@ -1099,9 +1100,9 @@ function crw_save_project () {
         );
 
         if ( mb_strlen($args['project'], 'UTF-8') > 190 ) {
-            crw_send_error( __('You have exceeded the maximum length for a name!', 'crw-text'), $args['project'] );
+            crw_send_error( __('You have exceeded the maximum length for a name!', 'crosswordsearch'), $args['project'] );
         } elseif ( mb_strlen($args['project'], 'UTF-8') < 4 ) {
-            crw_send_error( __('The name is too short!', 'crw-text'), $args['project'] );
+            crw_send_error( __('The name is too short!', 'crosswordsearch'), $args['project'] );
         } elseif ( !in_array($args['default_level'], $level_list) ||
                 !in_array($args['maximum_level'], $level_list) ||
                 $args['default_level'] > $args['maximum_level'] ) {
@@ -1111,9 +1112,9 @@ function crw_save_project () {
 
         if ( 'add' == $method ) {
             $project = null;
-            $error = __('The project could not be added.', 'crw-text');
+            $error = __('The project could not be added.', 'crosswordsearch');
         } elseif ( 'update' == $method ) {
-            $error = __('The project could not be altered.', 'crw-text');
+            $error = __('The project could not be altered.', 'crosswordsearch');
         }
     }
     $success = crw_change_project_list( $method, $project, $args, $debug );
@@ -1142,7 +1143,7 @@ add_action( 'wp_ajax_save_project', 'crw_save_project' );
  */
 function crw_update_editors () {
     global $wpdb, $editors_table_name, $project_table_name;
-    $error = __('The editors could not be updated.', 'crw-text');
+    $error = __('The editors could not be updated.', 'crosswordsearch');
 
     crw_test_permission( 'admin', wp_get_current_user() );
 
@@ -1283,7 +1284,7 @@ add_action( 'wp_ajax_list_projects_and_riddles', 'crw_list_projects_and_riddles'
  */
 function crw_delete_crossword() {
     global $wpdb, $data_table_name;
-    $error = __('The crossword could not be deleted.', 'crw-text');
+    $error = __('The crossword could not be deleted.', 'crosswordsearch');
 
     // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
@@ -1323,7 +1324,7 @@ add_action( 'wp_ajax_delete_crossword', 'crw_delete_crossword' );
  */
 function crw_approve_crossword() {
     global $wpdb, $data_table_name;
-    $error = __('The crossword could not be approved.', 'crw-text');
+    $error = __('The crossword could not be approved.', 'crosswordsearch');
 
     // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
@@ -1375,7 +1376,7 @@ add_action( 'wp_ajax_approve_crossword', 'crw_approve_crossword' );
  */
 function crw_save_crossword () {
     global $wpdb, $project_table_name, $data_table_name;
-    $error = __('You are not allowed to save the crossword.', 'crw-text');
+    $error = __('You are not allowed to save the crossword.', 'crosswordsearch');
     $debug = NULL;
 
     // sanitize fields
@@ -1437,14 +1438,14 @@ function crw_save_crossword () {
         );
     // errors on asynchronous effects or "blind" writing from restricted page
     } elseif ( 'insert' == $method && $crossword_found ) {
-        $error = __('There is already another riddle with that name!', 'crw-text');
+        $error = __('There is already another riddle with that name!', 'crosswordsearch');
         $debug = $name;
     } elseif ( 'update' == $method && !$crossword_found ) {
-        $error = __('The riddle you tried to update can not be found!', 'crw-text');
+        $error = __('The riddle you tried to update can not be found!', 'crosswordsearch');
         if ( $restricted_page ) {
-            $error .= ' ' . __('A moderator might have deleted it already. You must start a new one.', 'crw-text');
+            $error .= ' ' . __('A moderator might have deleted it already. You must start a new one.', 'crosswordsearch');
         } else {
-            $error .= ' ' . __('Someone else might have renamed or deleted it in the meantime. Look into the list of existing riddles.', 'crw-text');
+            $error .= ' ' . __('Someone else might have renamed or deleted it in the meantime. Look into the list of existing riddles.', 'crosswordsearch');
         }
         $debug = $old_name;
     } else {
@@ -1491,7 +1492,7 @@ function crw_save_crossword () {
                 ) );
             }
         } else {
-            $error = __('The crossword could not be saved to the database.', 'crw-text');
+            $error = __('The crossword could not be saved to the database.', 'crosswordsearch');
             $debug = array( $wpdb->last_error, $wpdb->last_query );
         }
     }
@@ -1522,7 +1523,7 @@ add_action( 'wp_ajax_save_crossword', 'crw_save_crossword' );
  */
 function crw_get_crossword() {
     global $wpdb, $data_table_name, $project_table_name;
-    $error = __('The crossword could not be retrieved.', 'crw-text');
+    $error = __('The crossword could not be retrieved.', 'crosswordsearch');
 
     // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
@@ -1587,26 +1588,26 @@ function crw_add_help_tab () {
     if ( current_user_can(CRW_CAP_ADMINISTRATE) ) {
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-options',
-            'title'	=> __('Options', 'crw-text'),
-            'content'	=> '<p>' . __('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crw-text') . '</p><p>' .
-                __('Full editors can only act on the projects they are assigned to.', 'crw-text') . '</p><p>' .
-                sprintf( __('For custom theming, place a file %1$s with overrides to the default theme into your theme folder.', 'crw-text'), '<code>crosswordsearch.css</code>') . '</p><p>' .
-                __('There are some dimension values that are used in computations during drag operations. If you have a custom theme, you might have to additionally adjust these values.', 'crw-text') . '</p><p>' .
-                __('Dimension settings are pixel values and used uniformly for heights and widths.', 'crw-text') . '</p><p>' . '</p>',
+            'title'	=> __('Options', 'crosswordsearch'),
+            'content'	=> '<p>' . __('Riddles saved by restricted editors need the approval of full editors before they can appear for other users.', 'crosswordsearch') . '</p><p>' .
+                __('Full editors can only act on the projects they are assigned to.', 'crosswordsearch') . '</p><p>' .
+                sprintf( __('For custom theming, place a file %1$s with overrides to the default theme into your theme folder.', 'crosswordsearch'), '<code>crosswordsearch.css</code>') . '</p><p>' .
+                __('There are some dimension values that are used in computations during drag operations. If you have a custom theme, you might have to additionally adjust these values.', 'crosswordsearch') . '</p><p>' .
+                __('Dimension settings are pixel values and used uniformly for heights and widths.', 'crosswordsearch') . '</p><p>' . '</p>',
         ) );
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-projects',
-            'title'	=> __('Projects', 'crw-text'),
-            'content'	=> '<p>' . __('If you change the name of a project, remember that you need to change it also in every shortcode referring to it.', 'crw-text') . '</p><p>' . __('The lowest eligible maximum difficulty level is either the the default level or the highest level used in an existing riddle, whatever is higher.', 'crw-text') . '</p><p>'
-                . __('You need to assign editors to a project in order for them to see its riddles in the <em>Review</em> tab.', 'crw-text') . '</p><p>' .
-                __('If you want to delete a project, you need first to delete all its riddles.', 'crw-text') . '</p>',
+            'title'	=> __('Projects', 'crosswordsearch'),
+            'content'	=> '<p>' . __('If you change the name of a project, remember that you need to change it also in every shortcode referring to it.', 'crosswordsearch') . '</p><p>' . __('The lowest eligible maximum difficulty level is either the the default level or the highest level used in an existing riddle, whatever is higher.', 'crosswordsearch') . '</p><p>'
+                . __('You need to assign editors to a project in order for them to see its riddles in the <em>Review</em> tab.', 'crosswordsearch') . '</p><p>' .
+                __('If you want to delete a project, you need first to delete all its riddles.', 'crosswordsearch') . '</p>',
         ) );
     }
     if ( current_user_can(CRW_CAP_CONFIRMED) ) {
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-review',
-            'title'	=> __('Review', 'crw-text'),
-            'content'	=> '<p>' . __('To preview a riddle, check the <em>Preview</em> box and then click on the name of the riddle', 'crw-text') . '</p>',
+            'title'	=> __('Review', 'crosswordsearch'),
+            'content'	=> '<p>' . __('To preview a riddle, check the <em>Preview</em> box and then click on the name of the riddle', 'crosswordsearch') . '</p>',
         ) );
     }
 }
@@ -1621,7 +1622,7 @@ function crw_add_help_tab () {
  * @return void
  */
 function crw_admin_menu () {
-    $settings_page = add_options_page( __('Crosswordsearch Administration', 'crw-text'), 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
+    $settings_page = add_options_page( __('Crosswordsearch Administration', 'crosswordsearch'), 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
     add_action('load-'.$settings_page, 'crw_add_help_tab');
 };
 add_action('admin_menu', 'crw_admin_menu');
@@ -1641,7 +1642,7 @@ function crw_get_option_tab () {
     global $child_css;
 
     if ('invalid' == $_GET['tab'] ) {
-        wp_die( __( 'You need to hit your browser\'s Reload button.', 'crw-text' ) );
+        wp_die( __( 'You need to hit your browser\'s Reload button.', 'crosswordsearch' ) );
     } elseif ( !wp_verify_nonce( $_GET[CRW_NONCE_NAME], NONCE_SETTINGS ) ) {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
