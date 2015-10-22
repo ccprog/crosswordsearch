@@ -81,7 +81,7 @@ describe("cseOption", function() {
     });
 
     it("handles submenus", function() {
-        compile({}, {group: 'group', menu: 'sub1'});
+        compile({}, {group: ['group'], menu: 'sub1'});
         var sub = element.find('dl');
         expect(sub.attr('cse-select')).toBe('theSelect.sub');
         expect(sub.attr('cse-model')).toBe('head');
@@ -89,7 +89,7 @@ describe("cseOption", function() {
         expect(sub.attr('cse-select')).toBe('theSelect.sub');
         expect(sub.attr('is-group')).toBe('');
         expect(sub.attr('template')).toBe('cse-default');
-        compile({expr: 'expr', 'is-menu': null}, {group: 'group', menu: 'sub2'});
+        compile({expr: 'expr', 'is-menu': null}, {group: ['group'], menu: 'sub2'});
         sub = element.find('dl');
         expect(sub.attr('display')).toBe('expr');
         expect(sub.attr('is-menu')).toBe('sub2');
