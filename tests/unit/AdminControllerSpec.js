@@ -55,11 +55,9 @@ describe("AdminController", function () {
     var $scope, $location, qStore, ajaxFactory, crosswordFactory;
 
     beforeEach(module('crwApp'));
-    beforeEach(inject(function($rootScope, $controller) {
+    beforeEach(inject(function($rootScope, $controller, _$location_) {
         $scope = $rootScope.$new();
-        $location = {
-            path: jasmine.createSpy("path")
-        };
+        $location = _$location_;
         qStore = {
             addStore: jasmine.createSpy("addStore")
         };
@@ -84,23 +82,25 @@ describe("AdminController", function () {
     });
 
     it("inspects location on initial load", function() {
-        $location.path.and.returnValue('');
-        spyOn($scope, "setActive");
-        $scope.prepare('hash', 'nonce');
+        $scope.prepare('/hash', 'nonce');
+        $scope.$apply();
         expect(ajaxFactory.setNonce).toHaveBeenCalledWith('nonce', 'settings');
-        expect($scope.setActive.calls.mostRecent().args[0]).toBe('hash');
+        expect($location.path()).toBe('/hash');
+        expect($scope.activeTab).toBe('/hash');
         delete $scope.activeTab;
-        $location.path.and.returnValue( '/editor');
-        $scope.prepare('hash', 'nonce');
-        expect($scope.setActive.calls.mostRecent().args[0]).toBe('/editor');
+        $location.path('/editor');
+        $scope.prepare('/hash', 'nonce');
+        $scope.$apply();
+        expect($scope.activeTab).toBe('/editor');
         delete $scope.activeTab;
-        $scope.setActive.and.callThrough();
         $scope.setActive('hash2');
-        expect($scope.activeTab).toBe('hash2');
-        expect($location.path.calls.mostRecent().args[0]).toBe('hash2');
+        $scope.$apply();
+        expect($scope.activeTab).toBe('/hash2');
+        expect($location.path()).toBe('/hash2');
     });
 
     it("handles errors", function() {
+        spyOn($location, "path");
         $scope.setError({error: 'error'});
         expect($scope.globalError).toEqual({error: 'error'});
         $scope.setError(null);

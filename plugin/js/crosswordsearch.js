@@ -754,14 +754,17 @@ crwApp.controller("AdminController", [ "$scope", "$location", "qStore", "ajaxFac
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
     $scope.setActive = function(tabHash) {
-        $scope.activeTab = tabHash;
-        $location.path($scope.activeTab);
+        $location.path(tabHash);
     };
+    $scope.$on("$locationChangeStart", function() {
+        $scope.activeTab = $location.path();
+    });
     $scope.prepare = function(tabHash, nonce) {
         ajaxFactory.setNonce(nonce, "settings");
         if (!$scope.activeTab && /^\/(capabilities|editor|review)/.test($location.path())) {
-            $scope.setActive($location.path());
+            $scope.activeTab = $location.path();
         } else {
+            $scope.activeTab = tabHash;
             $scope.setActive(tabHash);
         }
     };

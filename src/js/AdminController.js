@@ -42,15 +42,20 @@ crwApp.controller("AdminController", ['$scope', '$location', 'qStore', 'ajaxFact
     $scope.immediateStore = qStore.addStore();
 
     $scope.setActive = function (tabHash) {
-        $scope.activeTab = tabHash;
-        $location.path($scope.activeTab);
+        $location.path(tabHash);
     };
+
+    // catch location change by history navigation
+    $scope.$on('$locationChangeStart', function () {
+        $scope.activeTab = $location.path();
+    });
 
     $scope.prepare = function (tabHash, nonce) {
         ajaxFactory.setNonce(nonce, 'settings');
         if(!$scope.activeTab && /^\/(capabilities|editor|review)/.test($location.path())) {
-            $scope.setActive($location.path());
+            $scope.activeTab = $location.path();
         } else {
+            $scope.activeTab = tabHash;
             $scope.setActive(tabHash);
         }
     };
