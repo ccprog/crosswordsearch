@@ -8,6 +8,6 @@
     "jquery-1.11.2.min": "http://code.jquery.com/jquery-1.11.2.min.js",
     "angular-mocks": "https://code.angularjs.org/1.2.29/angular-mocks.js",
     "tv4": "~1.2.7",
-    "URI.min": "https://github.com/medialize/URI.js/raw/gh-pages/src/URI.min.js"
+    "uri.js": "~1.16.1"
   }
 }

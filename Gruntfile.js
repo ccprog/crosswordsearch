@@ -96,7 +96,7 @@ module.exports = function(grunt) {
         options: {
           vendor: [
             testdir + 'vendor/tv4/tv4.js',
-            testdir + 'vendor/URI.min/index.js',
+            testdir + 'vendor/uri.js/src/URI.min.js',
             testdir + 'vendor/jquery-1.10.2.min/index.js',
             destdir + 'angular.min.js',
             destdir + 'angular-route.min.js',
@@ -110,7 +110,7 @@ module.exports = function(grunt) {
         options: {
           vendor: [
             testdir + 'vendor/tv4/tv4.js',
-            testdir + 'vendor/URI.min/index.js',
+            testdir + 'vendor/uri.js/src/URI.min.js',
             testdir + 'vendor/jquery-1.11.1.min/index.js',
             destdir + 'angular.min.js',
             destdir + 'angular-route.min.js',
@@ -124,7 +124,7 @@ module.exports = function(grunt) {
         options: {
           vendor: [
             testdir + 'vendor/tv4/tv4.js',
-            testdir + 'vendor/URI.min/index.js',
+            testdir + 'vendor/uri.js/src/URI.min.js',
             testdir + 'vendor/jquery-1.11.2.min/index.js',
             destdir + 'angular.min.js',
             destdir + 'angular-route.min.js',
