@@ -1,4 +1,4 @@
-    <div class="crw-editors" ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_CROSSWORD ) . "','" . wp_create_nonce( NONCE_REVIEW ); ?>')">
+    <div class="crw-editors" ng-cloak ng-controller="ReviewController" ng-init="prepare('<?php echo wp_create_nonce( NONCE_CROSSWORD ) . "','" . wp_create_nonce( NONCE_REVIEW ); ?>')">
         <table class="crw-options">
             <tr>
                 <th class="project"><?php _e('Projects', 'crosswordsearch') ?></th>

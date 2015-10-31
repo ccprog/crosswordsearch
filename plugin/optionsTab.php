@@ -1,4 +1,4 @@
-    <div class="crw-editors" ng-controller="OptionsController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_OPTIONS); ?>')">
+    <div class="crw-editors" ng-cloak ng-controller="OptionsController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_OPTIONS); ?>')">
         <h3><?php _e('Editing rights', 'crosswordsearch') ?></h3>
         <form name="capsEdit">
         <table class="widefat">

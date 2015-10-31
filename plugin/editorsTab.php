@@ -1,4 +1,4 @@
-    <div class="crw-editors" ng-controller="EditorController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_EDITORS); ?>')">
+    <div class="crw-editors" ng-cloak ng-controller="EditorController" ng-init="prepare('<?php echo wp_create_nonce(NONCE_EDITORS); ?>')">
         <form name="projectMod">
         <table class="crw-options">
             <tr>
