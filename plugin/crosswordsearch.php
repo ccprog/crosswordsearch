@@ -362,7 +362,7 @@ function crw_get_child_stylesheet () {
  * @return void
  */
 function crw_compose_style () {
-    global $wp_styles, $child_css;
+    global $wp_styles, $text_direction, $child_css;
 
     $dimensions = get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION );
 
@@ -391,6 +391,9 @@ div.crw-marked {
 }';
 
     wp_enqueue_style('crw', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
+    if ( "rtl" == $text_direction ) {
+        wp_enqueue_style('crw-rtl', CRW_PLUGIN_URL . 'css/rtl.css', array( 'crw' ) );
+    }
     if ( $child_css ) {
         wp_enqueue_style('crw-child', $child_css, 'crw');
         $dep = 'crw-child';

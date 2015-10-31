@@ -67,7 +67,12 @@ module.exports = function(grunt) {
     cssmin: {
       combine: {
         files: {
-          'plugin/css/<%= pkg.name %>.css': ['src/css/*.css']
+          'plugin/css/<%= pkg.name %>.css': ['src/css/<%= pkg.name %>.css', 'src/css/cse.css']
+        }
+      },
+      rtl: {
+        files: {
+          'plugin/css/rtl.css': ['src/css/rtl.css']
         }
       }
     },
