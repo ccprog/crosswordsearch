@@ -183,6 +183,27 @@ crwApp.factory("reduce", function() {
     };
 });
 
+crwApp.filter("localeNumber", function() {
+    var diff, rlo = String.fromCharCode(8238), pdf = String.fromCharCode(8236);
+    var encode = function(d) {
+        return String.fromCharCode(d.charCodeAt(0) + diff);
+    };
+    return function(input) {
+        switch (crwBasics.numerals) {
+          case "arab":
+            diff = 1632 - 48;
+            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+
+          case "arabext":
+            diff = 1776 - 48;
+            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+
+          default:
+            return input;
+        }
+    };
+});
+
 crwApp.factory("basics", [ "reduce", function(reduce) {
     var total = 0;
     var list = reduce(crwBasics.letterDist, "", function(result, value, key) {

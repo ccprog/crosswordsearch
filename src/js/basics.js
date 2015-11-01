@@ -11,6 +11,29 @@ crwApp.factory('reduce', function () {
     };
 });
 
+/* display localized integers in different scripts
+ * (shim for Number.prototype.toLocaleString) */
+crwApp.filter("localeNumber",  function() {
+    var diff,
+        rlo = String.fromCharCode(0x202E),
+        pdf = String.fromCharCode(0x202C);
+    var encode = function (d) {
+        return String.fromCharCode(d.charCodeAt(0) + diff);
+    }
+    return function(input) {
+        switch (crwBasics.numerals) {
+        case "arab":
+            diff = 0x660 - 0x30;
+            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+        case "arabext":
+            diff = 0x6F0 - 0x30;
+            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+        default:
+            return input;
+        }
+    };
+});
+
 /* constants */
 crwApp.factory('basics', ['reduce', function (reduce) {
     var total = 0;

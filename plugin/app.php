@@ -15,7 +15,7 @@ if ( 'build' == $mode ) {
     </form>
     <dl class="crw-level">
         <dt class="crw-instruction"><span><?php _e('Select a difficulty level:', 'crosswordsearch') ?></span>
-            <dl cse-select="level" cse-options="levelList" cse-model="crosswordData.level" display="value + 1"></dl>
+            <dl cse-select="level" cse-options="levelList" cse-model="crosswordData.level" display="value + 1|localeNumber"></dl>
         </dt>
 <?php // single solve/preview only shows the name
 
@@ -147,7 +147,7 @@ if ( 'build' == $mode ) {
                 <dl class="crw-color" template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
                 <span>{{word.fields | joinWord}} (<?php
                 /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
-                printf( __('from line %1$s, column %2$s %3$s', 'crosswordsearch'), '{{word.start.y + 1}}', '{{word.start.x + 1}}', '{{localize(word.direction)}}') ?>)</span>
+                printf( __('from line %1$s, column %2$s %3$s', 'crosswordsearch'), '{{word.start.y + 1|localeNumber}}', '{{word.start.x + 1|localeNumber}}', '{{localize(word.direction)}}') ?>)</span>
                 <button class="trash" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crosswordsearch') ?>"></button>
             </li>
         </ul>
@@ -170,8 +170,8 @@ if ( 'build' == $mode ) {
 ?>
     <div class="crw-controls">
         <p ng-show="crosswordData.name">
-            <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crosswordsearch'), '{{count.solution}}', '{{count.words}}' ) ?></span>
-            <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crosswordsearch'), '{{count.words}}' ) ?></span>
+            <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crosswordsearch'), '{{count.solution|localeNumber}}', '{{count.words|localeNumber}}' ) ?></span>
+            <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crosswordsearch'), '{{count.words|localeNumber}}' ) ?></span>
             <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="<?php _e('Restart solving the riddle', 'crosswordsearch') ?>" alt="<?php _e('Restart', 'crosswordsearch') ?>"></button>
         </p>
         <ul class="crw-word" ng-class="{'palid': crw.getLevelRestriction('sol')}">
