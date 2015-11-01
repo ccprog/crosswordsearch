@@ -6,7 +6,7 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     var size = basics.dimensions.field + basics.dimensions.fieldBorder,
         handleShift = basics.dimensions.handleOutside + basics.dimensions.tableBorder,
         handleSize = basics.dimensions.handleOutside + basics.dimensions.handleInside,
-        t, b, l, r, lg, tg, wg, hg, fwg, fhg;
+        t, b, l, r, lg, rg, tg, wg, hg, fwg, fhg, origin;
 
     // after each drag operation, irrespective of their success,
     // handles and left/top positioning of the table must be reset
@@ -19,12 +19,21 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
         fwg = wg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
         hg = fhg = rows * size;
         fhg = hg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
+        origin = basics.textIsLTR ? 0 : wg;
         $scope.modLeft.transform(l, 0);
         $scope.modTop.transform(0, t);
         $scope.modRight.transform(r, 0);
         $scope.modBottom.transform(0, b);
     };
 
+    // decide anchor side for horizontal styles
+    var addSide = function (style) {
+        if (basics.textIsLTR) {
+            style.left = lg + 'px';
+        } else {
+            style.right = rg + 'px';
+        }
+    };
     // add a style model for each table side
     StyleModelContainer.add('size-left', -Infinity,
         (($scope.crosswordData.size.height - 3)*size), 0, 0);
@@ -81,6 +90,7 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     // style for right table side
     $scope.modRight.addStyle('size-right', function (x, y) {
         r = x;
+        rg = Math.ceil((origin - r) / size) * size;
         wg = Math.floor((r - lg) / size) * size;
         if ($scope.modLeft) {
             $scope.modLeft.maxx = Math.floor(r / size) * size - (3*size);
@@ -120,26 +130,34 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     };
     //background grid size spans changes during resize
     $scope.styleGridSize = function () {
-        return {
-            'left': lg + 'px',
+        var style = {
             'width': (wg - basics.dimensions.fieldBorder) + 'px',
             'top': tg + 'px',
             'height': (hg - basics.dimensions.fieldBorder) + 'px'
         };
+        addSide(style);
+        return style;
     };
     // table and grid position changes during resize
     $scope.styleShift = function () {
-        return {
-            'left': -(lg + basics.dimensions.fieldBorder) + 'px',
+        var style = {
             'top': -(tg + basics.dimensions.fieldBorder) + 'px'
         };
+        if (basics.textIsLTR) {
+            style.left = -(lg + basics.dimensions.fieldBorder) + 'px';
+        } else {
+            style.right = -(rg + basics.dimensions.fieldBorder) + 'px';
+        }
+        return style;
     };
     // fill/empty button position changes during resize
     $scope.styleExtras = function () {
-        return {
-            'left': lg + 'px',
-            'top': (tg + hg + handleShift) + 'px'
+        var style = {
+            'top': (tg + hg + handleShift) + 'px',
+            'width': (wg - basics.dimensions.fieldBorder) + 'px'
         };
+        addSide(style);
+        return style;
     };
 
     var currentSize;

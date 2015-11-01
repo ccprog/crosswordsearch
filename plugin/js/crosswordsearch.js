@@ -194,6 +194,7 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
     });
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
+        textIsLTR: crwBasics.textDirection !== "rtl",
         dimensions: crwBasics.dimensions,
         pluginPath: crwBasics.pluginPath,
         randomColor: function(last) {
@@ -1337,7 +1338,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
 } ]);
 
 crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleModelContainer", function($scope, $document, basics, StyleModelContainer) {
-    var size = basics.dimensions.field + basics.dimensions.fieldBorder, handleShift = basics.dimensions.handleOutside + basics.dimensions.tableBorder, handleSize = basics.dimensions.handleOutside + basics.dimensions.handleInside, t, b, l, r, lg, tg, wg, hg, fwg, fhg;
+    var size = basics.dimensions.field + basics.dimensions.fieldBorder, handleShift = basics.dimensions.handleOutside + basics.dimensions.tableBorder, handleSize = basics.dimensions.handleOutside + basics.dimensions.handleInside, t, b, l, r, lg, rg, tg, wg, hg, fwg, fhg, origin;
     var resetSizes = function(cols, rows) {
         l = t = 0;
         r = cols * size;
@@ -1347,10 +1348,18 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
         fwg = wg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
         hg = fhg = rows * size;
         fhg = hg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
+        origin = basics.textIsLTR ? 0 : wg;
         $scope.modLeft.transform(l, 0);
         $scope.modTop.transform(0, t);
         $scope.modRight.transform(r, 0);
         $scope.modBottom.transform(0, b);
+    };
+    var addSide = function(style) {
+        if (basics.textIsLTR) {
+            style.left = lg + "px";
+        } else {
+            style.right = rg + "px";
+        }
     };
     StyleModelContainer.add("size-left", -Infinity, ($scope.crosswordData.size.height - 3) * size, 0, 0);
     StyleModelContainer.add("size-top", 0, 0, -Infinity, ($scope.crosswordData.size.width - 3) * size);
@@ -1394,6 +1403,7 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
     });
     $scope.modRight.addStyle("size-right", function(x, y) {
         r = x;
+        rg = Math.ceil((origin - r) / size) * size;
         wg = Math.floor((r - lg) / size) * size;
         if ($scope.modLeft) {
             $scope.modLeft.maxx = Math.floor(r / size) * size - 3 * size;
@@ -1425,24 +1435,32 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
         };
     };
     $scope.styleGridSize = function() {
-        return {
-            left: lg + "px",
+        var style = {
             width: wg - basics.dimensions.fieldBorder + "px",
             top: tg + "px",
             height: hg - basics.dimensions.fieldBorder + "px"
         };
+        addSide(style);
+        return style;
     };
     $scope.styleShift = function() {
-        return {
-            left: -(lg + basics.dimensions.fieldBorder) + "px",
+        var style = {
             top: -(tg + basics.dimensions.fieldBorder) + "px"
         };
+        if (basics.textIsLTR) {
+            style.left = -(lg + basics.dimensions.fieldBorder) + "px";
+        } else {
+            style.right = -(rg + basics.dimensions.fieldBorder) + "px";
+        }
+        return style;
     };
     $scope.styleExtras = function() {
-        return {
-            left: lg + "px",
-            top: tg + hg + handleShift + "px"
+        var style = {
+            top: tg + hg + handleShift + "px",
+            width: wg - basics.dimensions.fieldBorder + "px"
         };
+        addSide(style);
+        return style;
     };
     var currentSize;
     var abstractSize = function() {

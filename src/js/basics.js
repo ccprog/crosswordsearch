@@ -26,6 +26,9 @@ crwApp.factory('basics', ['reduce', function (reduce) {
         // the list of marking colors selectable on build page.
         colors: ["black", "red", "green", "blue", "orange", "violet", "aqua"],
 
+        // text direction marker
+        textIsLTR: crwBasics.textDirection !== 'rtl',
+
         // table sizing dimensions in pixels
         dimensions: crwBasics.dimensions,
 

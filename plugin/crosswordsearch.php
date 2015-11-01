@@ -298,7 +298,7 @@ function crw_add_angular_attribute ($attributes) {
  */
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $crw_has_crossword, $child_css;
+    global $crw_has_crossword, $text_direction, $child_css;
 
     $locale_data = crw_get_locale_data();
 
@@ -308,6 +308,7 @@ function add_crw_scripts ( $hook ) {
         wp_enqueue_script('quantic-stylemodel', CRW_PLUGIN_URL . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
         wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch' . (WP_DEBUG ? '' : '.min') . '.js', array( 'angular', 'angular-route', 'quantic-stylemodel' ));
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
+            'textDirection' => $text_direction,
             'pluginPath' => CRW_PLUGIN_URL,
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'dimensions' => get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION )

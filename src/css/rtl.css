@@ -10,6 +10,9 @@ dl.crw-level>dt, dl.crw-level>dd {
     direction: ltr;
     float: right;
 }
+.crw-crossword > p {
+    text-align: right;
+}
 .crw-immediate label {
     margin-right: 0;
     margin-left: 5px;

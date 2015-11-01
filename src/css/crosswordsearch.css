@@ -104,7 +104,6 @@ dl.crw-level>dd {
 .crw-grid {
     -moz-box-sizing: content-box;
     border-sizing: content-box;
-    position: relative;
     border-style: solid;
     border-color: transparent;
 }
