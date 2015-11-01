@@ -41,7 +41,7 @@ if ( 'build' == $mode ) {
 ?>
     <p class="crw-description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crosswordsearch') ?></em> {{crosswordData.description}}</p>
     <dl class="crw-level">
-        <dt><?php _e('Difficulty level', 'crosswordsearch') ?> {{crosswordData.level+1}}</dt>
+        <dt><?php _e('Difficulty level', 'crosswordsearch') ?> {{crosswordData.level+1|localeNumber}}</dt>
 <?php
 
 }

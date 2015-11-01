@@ -106,6 +106,10 @@ dl.crw-level>dd {
     border-sizing: content-box;
     border-style: solid;
     border-color: transparent;
+    position: relative;
+}
+.crw-crossword.wide .crw-grid {
+    position: absolute;
 }
 .crw-grid.divider {
     background-image: url(../images/grid.png);
