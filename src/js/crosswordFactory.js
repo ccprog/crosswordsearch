@@ -299,9 +299,10 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
 
         // test words for easy directions
         this.testDirection = function () {
+            var dir = basics.textIsLTR ? 'right' : 'left';
             var critical = [];
             angular.forEach(crossword.words, function (word, id) {
-                if (word.direction !== 'right' && word.direction !== 'down') {
+                if (word.direction !== dir && word.direction !== 'down') {
                     critical.push(parseInt(id, 10));
                 }
             });

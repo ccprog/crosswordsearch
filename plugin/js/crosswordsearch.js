@@ -562,9 +562,10 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             return critical;
         };
         this.testDirection = function() {
+            var dir = basics.textIsLTR ? "right" : "left";
             var critical = [];
             angular.forEach(crossword.words, function(word, id) {
-                if (word.direction !== "right" && word.direction !== "down") {
+                if (word.direction !== dir && word.direction !== "down") {
                     critical.push(parseInt(id, 10));
                 }
             });
@@ -1552,9 +1553,14 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
     var isMarking = false, currentMarking, mode, lastName;
     $scope.markers = markerFactory.getMarkers();
     function validMarking(newStop) {
-        var dif_x = currentMarking.start.x - newStop.x, dif_y = currentMarking.start.y - newStop.y;
+        var isHorizontal, dif_x = currentMarking.start.x - newStop.x, dif_y = currentMarking.start.y - newStop.y;
         if ($scope.crw.getLevelRestriction("dir")) {
-            return dif_x === 0 && dif_y <= 0 || dif_y === 0 && dif_x <= 0;
+            if (basics.textIsLTR) {
+                isHorizontal = dif_y === 0 && dif_x <= 0;
+            } else {
+                isHorizontal = dif_y === 0 && dif_x >= 0;
+            }
+            return dif_x === 0 && dif_y <= 0 || isHorizontal;
         } else {
             return Math.abs(dif_x) === Math.abs(dif_y) || dif_x === 0 || dif_y === 0;
         }
