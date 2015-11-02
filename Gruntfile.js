@@ -27,6 +27,7 @@ module.exports = function(grunt) {
     context.crwBasics = JSON.stringify({
         locale: localeData.locale,
         letterDist: letterData.en.letterDist,
+        numerals: letterData.en.numerals,
         letterRegEx: letterData.en.letterRegEx,
         pluginPath: 'mock/',
         ajaxUrl: 'mock/admin-ajax.php'

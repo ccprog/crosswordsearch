@@ -274,7 +274,8 @@ describe("TableController", function () {
         expect($scope.markers.setNewMarkers.calls.count(0)).toBe(4);
     });
 
-    it("tests for restricted valid directions", function () {
+    it("tests for restricted valid LTR directions", function () {
+        basics.textIsLTR = true;
         $scope.crw.getLevelRestriction = jasmine.createSpy("getLevelRestriction").and.returnValue(true);
         $scope.setMode('solve');
         $scope.startMark();
@@ -289,6 +290,26 @@ describe("TableController", function () {
         expect($scope.markers.setNewMarkers.calls.count(0)).toBe(3);
         $scope.intoField(0, 1);
         expect($scope.markers.setNewMarkers.calls.count(0)).toBe(3);
+        $scope.intoField(1, 0);
+        expect($scope.markers.setNewMarkers.calls.count(0)).toBe(3);
+    });
+
+    it("tests for restricted valid RTL directions", function () {
+        basics.textIsLTR = false;
+        $scope.crw.getLevelRestriction = jasmine.createSpy("getLevelRestriction").and.returnValue(true);
+        $scope.setMode('solve');
+        $scope.startMark();
+        $scope.outofField(1, 1);
+        $scope.intoField(3, 1);
+        expect($scope.markers.setNewMarkers.calls.count(0)).toBe(2);
+        $scope.intoField(3, 2);
+        expect($scope.markers.setNewMarkers.calls.count(0)).toBe(2);
+        $scope.intoField(3, 3);
+        expect($scope.markers.setNewMarkers.calls.count(0)).toBe(2);
+        $scope.intoField(1, 3);
+        expect($scope.markers.setNewMarkers.calls.count(0)).toBe(2);
+        $scope.intoField(0, 1);
+        expect($scope.markers.setNewMarkers.calls.count(0)).toBe(2);
         $scope.intoField(1, 0);
         expect($scope.markers.setNewMarkers.calls.count(0)).toBe(3);
     });

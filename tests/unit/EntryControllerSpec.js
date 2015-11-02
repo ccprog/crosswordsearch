@@ -33,6 +33,7 @@ describe("EntryController", function () {
     beforeEach(inject(function($rootScope, $controller) {
         basics = {
             colors: ['red', 'green'],
+            textIsLTR: true,
             localize: 'lang'
         };
         $root = $rootScope.$new();
@@ -47,6 +48,7 @@ describe("EntryController", function () {
 
     it("sets up properties", function () {
         expect($scope.colors).toBe(basics.colors);
+        expect($scope.textIsLTR).toBe(basics.textIsLTR);
         expect($scope.localize).toBe(basics.localize);
     });
 

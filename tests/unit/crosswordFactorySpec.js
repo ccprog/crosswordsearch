@@ -1,5 +1,5 @@
 describe("crosswordFactory", function () {
-    var crosswordFactory, ajaxFactory;
+    var crosswordFactory, basics, ajaxFactory;
 
     beforeEach(function () {
         module('crwApp');
@@ -26,6 +26,7 @@ describe("crosswordFactory", function () {
                     deferred = $q.defer();
                     return deferred.promise;
                 };
+                basics = $injector.get('basics');
                 ajaxFactory = $injector.get('ajaxFactory');
                 ajaxFactory.http = http;
                 ajaxFactory.setNonce = jasmine.createSpy();
@@ -272,7 +273,8 @@ describe("crosswordFactory", function () {
             expect(critical).toContain(10);
         });
 
-        it("finds difficult directions", function () {
+        it("finds difficult LTR directions", function () {
+            basics.textIsLTR = true;
             var crossword = crw.getCrosswordData();
             angular.extend(crossword, angular.copy(testdata));
             var critical = crw.testDirection();
@@ -280,6 +282,19 @@ describe("crosswordFactory", function () {
             expect(critical).toContain(2);
             expect(critical).toContain(4);
             expect(critical).toContain(6);
+        });
+
+        it("finds difficult RTL directions", function () {
+            basics.textIsLTR = false;
+            var crossword = crw.getCrosswordData();
+            angular.extend(crossword, angular.copy(testdata));
+            var critical = crw.testDirection();
+            expect(critical.length).toBe(5);
+            expect(critical).toContain(3);
+            expect(critical).toContain(4);
+            expect(critical).toContain(6);
+            expect(critical).toContain(7);
+            expect(critical).toContain(9);
         });
 
         it("changes the size of the crossword", function () {
