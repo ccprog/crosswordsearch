@@ -140,15 +140,10 @@ crwApp.controller("SizeController", ['$scope', '$document', 'basics', 'StyleMode
     };
     // table and grid position changes during resize
     $scope.styleShift = function () {
-        var style = {
-            'top': -(tg + basics.dimensions.fieldBorder) + 'px'
+        return {
+            'top': -(tg + basics.dimensions.fieldBorder) + 'px',
+            'left': -(lg + basics.dimensions.fieldBorder) + 'px'
         };
-        if (basics.textIsLTR) {
-            style.left = -(lg + basics.dimensions.fieldBorder) + 'px';
-        } else {
-            style.right = -(rg + basics.dimensions.fieldBorder) + 'px';
-        }
-        return style;
     };
     // fill/empty button position changes during resize
     $scope.styleExtras = function () {

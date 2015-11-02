@@ -1466,15 +1466,10 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
         return style;
     };
     $scope.styleShift = function() {
-        var style = {
-            top: -(tg + basics.dimensions.fieldBorder) + "px"
+        return {
+            top: -(tg + basics.dimensions.fieldBorder) + "px",
+            left: -(lg + basics.dimensions.fieldBorder) + "px"
         };
-        if (basics.textIsLTR) {
-            style.left = -(lg + basics.dimensions.fieldBorder) + "px";
-        } else {
-            style.right = -(rg + basics.dimensions.fieldBorder) + "px";
-        }
-        return style;
     };
     $scope.styleExtras = function() {
         var style = {
