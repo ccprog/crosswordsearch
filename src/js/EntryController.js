@@ -23,6 +23,7 @@ crwApp.filter('joinWord', ['reduce', function (reduce) {
 crwApp.controller("EntryController", ["$scope", "$filter", 'basics',
         function ($scope, $filter, basics) {
     $scope.colors = basics.colors;
+    $scope.textIsLTR = basics.textIsLTR;
 
     // compare id to the highlight list
     $scope.isHighlighted = function () {

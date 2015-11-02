@@ -1756,6 +1756,7 @@ crwApp.filter("joinWord", [ "reduce", function(reduce) {
 
 crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($scope, $filter, basics) {
     $scope.colors = basics.colors;
+    $scope.textIsLTR = basics.textIsLTR;
     $scope.isHighlighted = function() {
         for (var i = 0; i < $scope.highlight.length; i++) {
             if ($scope.highlight[i] === $scope.word.ID) {

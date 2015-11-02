@@ -147,7 +147,7 @@ if ( 'build' == $mode ) {
                 <dl class="crw-color" template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
                 <span>{{word.fields | joinWord}} (<?php
                 /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
-                printf( __('from line %1$s, column %2$s %3$s', 'crosswordsearch'), '{{word.start.y + 1|localeNumber}}', '{{word.start.x + 1|localeNumber}}', '{{localize(word.direction)}}') ?>)</span>
+                printf( __('from line %1$s, column %2$s %3$s', 'crosswordsearch'), '{{word.start.y + 1|localeNumber}}', '{{textIsLTR ? word.start.x + 1 : crosswordData.size.width - word.start.x|localeNumber}}', '{{localize(word.direction)}}') ?>)</span>
                 <button class="trash" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crosswordsearch') ?>"></button>
             </li>
         </ul>
