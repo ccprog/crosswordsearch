@@ -68,7 +68,6 @@
     z-index: 10000;
 }
 .cse.select dd ul {
-    display: table;
     background-color: #fff;
     border: 1px solid #666;
     color:#000;
@@ -126,6 +125,7 @@
     top: 0px;
 }
 .cse.select dd dd ul {
+    display: table;
     left: 2px;
     top: 0px;
 }
