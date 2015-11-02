@@ -173,16 +173,7 @@ msgstr "کدکوتاه اشتباه است:"
 #: plugin/crosswordsearch.php:448
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
-msgstr ""
-"Attribute %1$s \n"
-"احتیاج به \n"
-"\"%\n"
-"2$s\" \n"
-"یا \n"
-" \"%\n"
-"3$s\" \n"
-"است\n"
-"."
+msgstr "Attribute %1$s احتیاج به \"%2$s\" یا \"%3$s\" است."
 
 #: plugin/crosswordsearch.php:461
 #, php-format
@@ -304,8 +295,8 @@ msgid ""
 "For custom theming, place a file %1$s with overrides to the default theme "
 "into your theme folder."
 msgstr ""
-"برای پوسته دلخواه، پرونده \n"
-"%1$s را با ذکر برتر بودن در پوشه پوسته‌ها قرار دهید."
+"برای پوسته دلخواه، پرونده %1$s را با ذکر برتر بودن در پوشه پوسته‌ها قرار "
+"دهید."
 
 #: plugin/crosswordsearch.php:1595
 msgid ""
@@ -347,11 +338,8 @@ msgid ""
 "To preview a riddle, check the <em>Preview</em> box and then click on the "
 "name of the riddle"
 msgstr ""
-"برای دیدن پیش نمایش جدول \n"
-"<em>\n"
-" پیش نمایش\n"
-"<em/>\n"
-" را تیک بزنید و بر نام آن در جدول کلیک کنید."
+"برای دیدن پیش نمایش جدول <em> پیش نمایش<em/> را تیک بزنید و بر نام آن در "
+"جدول کلیک کنید."
 
 #: plugin/crosswordsearch.php:1624 plugin/settings.php:14
 msgid "Crosswordsearch Administration"
@@ -502,9 +490,7 @@ msgstr "کلمات نشان شده مناسب با سطح دشواری تعیی�
 #: plugin/immediate.php:90
 #, php-format
 msgid "The marked word %1$s is not part of the solution."
-msgstr ""
-"<red> \n"
-"%1$s </red> از کلمات جدول نیست."
+msgstr "%1$s از کلمات جدول نیست."
 
 #: plugin/immediate.php:91
 msgid "Congratulation, you have solved the riddle!"
@@ -522,18 +508,12 @@ msgstr "حذف "
 #: plugin/immediate.php:99
 #, php-format
 msgid "Delete crossword %1$s from project %2$s"
-msgstr ""
-"جدول \n"
-"%1$s از پروژه \n"
-"%2$s حذف شد"
+msgstr "جدول %1$s از پروژه %2$s حذف شد"
 
 #: plugin/immediate.php:100
 #, php-format
 msgid "Approve crossword %1$s for project %2$s"
-msgstr ""
-"جدول \n"
-"%1$s\n"
-" از پروژه  %2$s تایید شد\n"
+msgstr "جدول %1$s از پروژه  %2$s تایید شد\n"
 
 #: plugin/immediate.php:106
 msgid "Please be patient for the crossword being loaded."
