@@ -38,12 +38,12 @@ describe ("localeNumber filter", function () {
 
     it("returns arabic numerals", function () {
         crwBasics.numerals = "arab";
-        expect(localeNumber(1234)).toBe(String.fromCharCode(0x202E, 0x661, 0x662, 0x663, 0x664, 0x202C));
+        expect(localeNumber(1234)).toBe('١٢٣٤');
     });
 
     it("returns arabic extended numerals", function () {
         crwBasics.numerals = "arabext";
-        expect(localeNumber(1234)).toBe(String.fromCharCode(0x202E, 0x6F1, 0x6F2, 0x6F3, 0x6F4, 0x202C));
+        expect(localeNumber(1234)).toBe('۱۲۳۴');
     });
 });
 

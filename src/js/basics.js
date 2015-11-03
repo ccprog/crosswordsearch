@@ -19,15 +19,15 @@ crwApp.filter("localeNumber",  function() {
         pdf = String.fromCharCode(0x202C);
     var encode = function (d) {
         return String.fromCharCode(d.charCodeAt(0) + diff);
-    }
+    };
     return function(input) {
         switch (crwBasics.numerals) {
         case "arab":
             diff = 0x660 - 0x30;
-            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+            return input.toString(10).replace(/[0-9]/g, encode);
         case "arabext":
             diff = 0x6F0 - 0x30;
-            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+            return input.toString(10).replace(/[0-9]/g, encode);
         default:
             return input;
         }

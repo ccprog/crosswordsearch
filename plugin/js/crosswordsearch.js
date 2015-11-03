@@ -192,11 +192,11 @@ crwApp.filter("localeNumber", function() {
         switch (crwBasics.numerals) {
           case "arab":
             diff = 1632 - 48;
-            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+            return input.toString(10).replace(/[0-9]/g, encode);
 
           case "arabext":
             diff = 1776 - 48;
-            return rlo + input.toString(10).replace(/[0-9]/g, encode) + pdf;
+            return input.toString(10).replace(/[0-9]/g, encode);
 
           default:
             return input;
