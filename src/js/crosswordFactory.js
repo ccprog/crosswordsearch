@@ -246,7 +246,17 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // fields: [ {x: ..., y: ...}, ... ] }
         // each field will get matched with its letter content
         // and the enhanced object is mirrored back
+        // returns false instead if the word has already been saved.
         this.setWord = function (marking) {
+            var exists = false;
+            angular.forEach(crossword.words, function (word) {
+                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop)) {
+                    exists = true;
+                }
+            });
+            if (exists) {
+                return false;
+            }
             angular.forEach(marking.fields, function (field) {
                 field.word = crossword.table[field.y][field.x];
             });
@@ -258,9 +268,10 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // look up whether a field sequence (format see above)
         // matches an entry in the words list. The sequence is added to the
         // solution list in any case. If it is not found in words,
-        // .solved is set to false. Otherwise it is set to true and
-        // the id is set to that from words to preserve ordering.
-        // .markingId is added to identify the incoming object
+        // .solved is set to false. Otherwise it is set to 
+        // - null if the word has allready been solved, otherwise
+        // - true and the id is set to that from words to preserve
+        //   ordering. .markingId is added to identify the incoming object
         // The altered object is mirrored back.
         this.probeWord = function (marking) {
             var entry = marking;
@@ -270,8 +281,12 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             entry.solved = false;
             angular.forEach(crossword.words, function (word) {
                 if (angular.equals(word.start, entry.start) && angular.equals(word.stop, entry.stop)) {
-                    entry = word;
-                    word.solved = true;
+                    if (word.solved) {
+                        entry.solved = null;
+                    } else {
+                        entry = word;
+                        word.solved = true;
+                    }
                 }
             });
             entry.markingId = marking.ID;

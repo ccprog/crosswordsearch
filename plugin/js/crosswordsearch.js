@@ -531,6 +531,15 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             });
         };
         this.setWord = function(marking) {
+            var exists = false;
+            angular.forEach(crossword.words, function(word) {
+                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop)) {
+                    exists = true;
+                }
+            });
+            if (exists) {
+                return false;
+            }
             angular.forEach(marking.fields, function(field) {
                 field.word = crossword.table[field.y][field.x];
             });
@@ -545,8 +554,12 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             entry.solved = false;
             angular.forEach(crossword.words, function(word) {
                 if (angular.equals(word.start, entry.start) && angular.equals(word.stop, entry.stop)) {
-                    entry = word;
-                    word.solved = true;
+                    if (word.solved) {
+                        entry.solved = null;
+                    } else {
+                        entry = word;
+                        word.solved = true;
+                    }
                 }
             });
             entry.markingId = marking.ID;
@@ -1631,17 +1644,24 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         currentMarking.color = mode === "build" ? $scope.crw.randomColor() : "grey";
     };
     $scope.stopMark = function() {
+        var word;
         if (!isMarking) {
             return;
         }
         isMarking = false;
         if (!angular.equals(currentMarking.start, currentMarking.stop)) {
             if (mode === "build") {
-                $scope.crw.setWord(currentMarking);
+                word = $scope.crw.setWord(currentMarking);
+                if (!word) {
+                    $scope.markers.deleteMarking(currentMarking.ID);
+                }
             } else {
-                var word = $scope.crw.probeWord(currentMarking);
+                word = $scope.crw.probeWord(currentMarking);
                 if (word.solved) {
                     $scope.count.solution++;
+                } else if (word.solved === null) {
+                    $scope.crw.deleteWord(currentMarking.ID, "solution");
+                    $scope.markers.deleteMarking(currentMarking.ID);
                 } else {
                     $scope.setHighlight([ word.ID ]);
                     $scope.immediateStore.newPromise("falseWord", word.fields).then(function() {

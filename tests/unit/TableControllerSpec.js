@@ -317,7 +317,6 @@ describe("TableController", function () {
     it("does not set a word before multiple fields are set", function () {
         $scope.crw.setWord = jasmine.createSpy("setWord");
         $scope.setMode('build');
-        $scope.stopMark();
         $scope.startMark();
         $scope.outofField(1, 1);
         $scope.stopMark();
@@ -327,6 +326,31 @@ describe("TableController", function () {
         $scope.intoField(2, 1);
         $scope.stopMark();
         expect($scope.crw.setWord).toHaveBeenCalled();
+    });
+
+    it("prevents double markings in build mode", function () {
+        $scope.crw.setWord = jasmine.createSpy("setWord").and.returnValue(false);
+        $scope.setMode('build');
+        $scope.startMark();
+        $scope.outofField(1, 1);
+        $scope.intoField(2, 1);
+        $scope.stopMark();
+        expect($scope.markers.deleteMarking).toHaveBeenCalled();
+    });
+
+    it("prevents double markings in solve mode", function () {
+        $scope.crw.probeWord = jasmine.createSpy("probeWord").and.returnValue({solved: null});
+        $scope.crw.deleteWord = jasmine.createSpy("probeWord");
+        $scope.count = {solution: 0};
+        $scope.setMode('solve');
+        $scope.startMark();
+        $scope.outofField(1, 1);
+        $scope.intoField(2, 1);
+        $scope.stopMark();
+        expect($scope.crw.probeWord).toHaveBeenCalled();
+        expect($scope.crw.deleteWord).toHaveBeenCalled();
+        expect($scope.markers.deleteMarking).toHaveBeenCalled();
+        expect($scope.count.solution).toBe(0);
     });
 
     it("probes words in solve mode and counts on valid", function () {

@@ -135,6 +135,8 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
     // event handler on mouseup in a field:
     // stop marking and evaluate
     $scope.stopMark = function () {
+        var word;
+
         if (!isMarking) {
             return;
         }
@@ -143,12 +145,20 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         if (!angular.equals(currentMarking.start, currentMarking.stop)) {
             if (mode === 'build') {
                 // on build page save new marking as word
-                $scope.crw.setWord(currentMarking);
+                word = $scope.crw.setWord(currentMarking);
+                if (!word) {
+                    // drop silently if word was marked previously
+                    $scope.markers.deleteMarking(currentMarking.ID);
+                }
             } else {
                 // on solve page test if marking is a valid solution
-                var word = $scope.crw.probeWord(currentMarking);
+                word = $scope.crw.probeWord(currentMarking);
                 if (word.solved) {
                     $scope.count.solution++;
+                } else if (word.solved === null) {
+                    // drop silently if solution was found previously
+                    $scope.crw.deleteWord(currentMarking.ID, 'solution');
+                    $scope.markers.deleteMarking(currentMarking.ID);
                 } else {
                     // if not, highlight invalid solution and delete the marking on confirmation
                     $scope.setHighlight([word.ID]);

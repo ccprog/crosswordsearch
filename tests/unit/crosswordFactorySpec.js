@@ -214,6 +214,21 @@ describe("crosswordFactory", function () {
             expect(crossword.words[11]).toBe(marking);
             compareLetters(crossword.table, word);
         });
+        
+        it("does not save a double marking as a word", function () {
+            var crossword = crw.getCrosswordData();
+            angular.extend(crossword, angular.copy(testdata));
+            var marking = {
+                ID: 11,
+                color: 'color',
+                start: {"x":4,"y":5},
+                stop: {"x":0,"y":5},
+                fields: [ {"x":4,"y":5}, {"x":3,"y":5}, {"x":2,"y":5}, {"x":1,"y":5}, {"x":0,"y":5} ]
+            };
+            var word = crw.setWord(marking);
+            expect(crossword.words[11]).toBeUndefined();
+            expect(word).toBe(false);
+        });
 
         it("probes a marking to be a solution", function () {
             var crossword = crw.getCrosswordData();
@@ -242,6 +257,23 @@ describe("crosswordFactory", function () {
             expect(word).toBe(crossword.words[4]);
             expect(word.solved).toBe(true);
             expect(word.markingId).toBe(12);
+        });
+
+        it("does not identify a double marking as a solution", function () {
+            var crossword = crw.getCrosswordData();
+            angular.extend(crossword, angular.copy(testdata));
+            crossword.words[4].solved = true;
+            crossword.solution[4] = crossword.words[4];
+            marking = {
+                ID: 12,
+                color: 'color',
+                start: {x: 0, y: 0},
+                stop: {x: 4, y: 4},
+                fields: []
+            };
+            word = crw.probeWord(marking);
+            expect(crossword.solution[12]).toBe(marking);
+            expect(word.solved).toBeNull();
         });
 
         it("finds critical size changes", function () {
