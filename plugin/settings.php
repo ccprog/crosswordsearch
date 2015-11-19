@@ -7,7 +7,7 @@ if ( current_user_can(CRW_CAP_ADMINISTRATE) ) {
     $ref_active = '/editor';
 }
 $header_tag = version_compare( $wp_version, '4.3', '<' ) ? 'h2' : 'h1';
-$nav_tag = 'h3'; // is announced to change to h2 in the near furure
+$nav_tag = version_compare( $wp_version, '4.4', '<' ) ? 'h3' : 'h2';
 
 ?>
 <div class="wrap" ng-cloak ng-controller="AdminController" ng-init="prepare('<?php echo $ref_active . "','" . wp_create_nonce(NONCE_SETTINGS) ?>')">
