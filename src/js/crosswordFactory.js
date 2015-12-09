@@ -246,11 +246,14 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // fields: [ {x: ..., y: ...}, ... ] }
         // each field will get matched with its letter content
         // and the enhanced object is mirrored back
-        // returns false instead if the word has already been saved.
+        // returns false instead if the word has already been saved with a different ID.
         this.setWord = function (marking) {
             var exists = false;
             angular.forEach(crossword.words, function (word) {
-                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop)) {
+                // identical IDs are only possible on calls from crosswordController
+                // during model update, where overwriting is needed.
+                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop) &&
+                        word.ID !== marking.ID) {
                     exists = true;
                 }
             });

@@ -533,7 +533,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         this.setWord = function(marking) {
             var exists = false;
             angular.forEach(crossword.words, function(word) {
-                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop)) {
+                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop) && word.ID !== marking.ID) {
                     exists = true;
                 }
             });

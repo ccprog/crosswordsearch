@@ -215,7 +215,7 @@ describe("crosswordFactory", function () {
             compareLetters(crossword.table, word);
         });
         
-        it("does not save a double marking as a word", function () {
+        it("saves a double marking as a word only if IDs are identical", function () {
             var crossword = crw.getCrosswordData();
             angular.extend(crossword, angular.copy(testdata));
             var marking = {
@@ -228,6 +228,9 @@ describe("crosswordFactory", function () {
             var word = crw.setWord(marking);
             expect(crossword.words[11]).toBeUndefined();
             expect(word).toBe(false);
+            marking.ID = 2;
+            word = crw.setWord(marking);
+            expect(crossword.words[2]).toBe(marking);
         });
 
         it("probes a marking to be a solution", function () {
