@@ -58,7 +58,7 @@ crwApp.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, non
                 _crwnonce: nonces[context]
             }, data);
         var config = angular.extend({
-            data: bodyData,
+            data: bodyData
         }, httpDefaults);
         return $http(config);
     };

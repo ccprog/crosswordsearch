@@ -16,7 +16,7 @@ module.exports = function(grunt) {
 
         var recurseObject = function (obj, wrapFn, key) {
             if (key) {
-                php += "'" + key + "' => "
+                php += "'" + key + "' => ";
             }
             var kind = grunt.util.kindOf(obj);
             switch (kind) {
