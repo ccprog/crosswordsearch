@@ -86,7 +86,7 @@ module.exports = function(grunt) {
         src: jslist
       },
       spec: {
-        jshintrc: '.jshintrc_spec',
+        jshintrc: testdir + '.jshintrc',
         src: testdir + 'unit/*Spec.js',
       }
     },
