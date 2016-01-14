@@ -72,6 +72,10 @@ describe("crosswordFactory", function () {
         }));
 
         it("loads unrestricted crossword data", inject(function ($rootScope) {
+            expect(crw.getCount()).toEqual({
+                words: 0,
+                solution: 0
+            });
             var crossword = crw.getCrosswordData();
             crw.setProject('project', 'editnonce', null, false);
             expect(ajaxFactory.setNonce.calls.count()).toBe(1);
@@ -91,6 +95,10 @@ describe("crosswordFactory", function () {
             expect(crw.getNamesList()).toBe(namesList);
             expect(crossword.level).toBe(1);
             expect(crw.getLevelList()).toEqual([0,1,2,3]);
+            expect(crw.getCount()).toEqual({
+                words: 9,
+                solution: 0
+            });
         }));
 
         it("calls ajax for saving crossword data", inject(function ($rootScope) {

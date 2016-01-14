@@ -227,6 +227,23 @@ describe("TableController", function () {
         });
     });
 
+    it("starts marking depending on timer state", function () {
+        $scope.setMode('solve');
+        $scope.startMark();
+        $scope.stopMark();
+        expect($scope.markers.deleteMarking.calls.count()).toBe(1);
+        $scope.timer = {
+            state: 'waiting'
+        };
+        $scope.startMark();
+        $scope.stopMark();
+        expect($scope.markers.deleteMarking.calls.count()).toBe(1);
+        $scope.timer.state = 'playing';
+        $scope.startMark();
+        $scope.stopMark();
+        expect($scope.markers.deleteMarking.calls.count()).toBe(2);
+    });
+
     it("selects a color dependent on mode", function () {
         $scope.setMode('solve');
         $scope.startMark();

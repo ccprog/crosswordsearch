@@ -147,6 +147,10 @@ describe("ImmediateController", function () {
         var $root = $rootScope.$new();
         var listener = jasmine.createSpy("listener");
         $root.$on('immediateReady', listener);
+        $root.count = {
+            words: 3,
+            solution: 3
+        };
         $scope = $root.$new();
         inject(function ($injector) {
             $scope.immediateStore = $injector.get('qStore').addStore();
@@ -303,7 +307,26 @@ describe("ImmediateController", function () {
             which: 'solved_completely',
             buttons: {
                 'ok': true
-            }
+            },
+            time: 'false'
+        });
+        $scope.immediateStore.newPromise('solvedCompletely', '25.3');
+        expect($scope.message).toEqual({
+            which: 'solved_completely',
+            buttons: {
+                'ok': true
+            },
+            time: '25.3'
+        });
+        $scope.count.solution = 2;
+        $scope.immediateStore.newPromise('solvedCompletely', '25.3');
+        expect($scope.message).toEqual({
+            which: 'solved_incomplete',
+            buttons: {
+                'ok': true
+            },
+            words: 3,
+            solution: 2
         });
     });
 
