@@ -101,6 +101,9 @@ dl.crw-level>dd {
 .crw-crossword.wide {
     margin: 72px;
 }
+.crw-grid.invisible, .crw-mask.invisible {
+    visibility: hidden;
+}
 .crw-grid {
     -moz-box-sizing: content-box;
     box-sizing: content-box;
@@ -238,6 +241,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     width: 31px;
     height:31px;
     border: none;
+    background-color: transparent;
     background-image: url(../images/controls.png);
 }
 .crw-crossword button.fill {
@@ -260,13 +264,7 @@ div.crw-marked.up { background-position: -124px -124px; }
     width: 30em;
 }
 .crw-controls button {
-    margin: 0;
-    padding: 0;
-    border: none;
-    width: 31px;
     height:23px;
-    background-color: transparent;
-    background-image: url(../images/controls.png);
 }
 .crw-controls button.trash {
     background-position: -62px -35px;
@@ -274,12 +272,32 @@ div.crw-marked.up { background-position: -124px -124px; }
 .crw-controls button.trash:hover {
     background-position: -62px -4px;
 }
+.crw-controls button.waiting, .crw-controls button.scored {
+    background-position: -124px -35px;
+    vertical-align: middle;
+}
+.crw-controls button.waiting:hover, .crw-controls button.scored:hover {
+    background-position: -124px -4px;
+}
+.crw-controls button.playing {
+    background-position: -155px -4px;
+    vertical-align: middle;
+}
+.crw-controls button.final {
+    background-position: -155px -35px;
+    vertical-align: middle;
+}
 .crw-controls button.restart {
     background-position: -93px -35px;
     vertical-align: middle;
 }
 .crw-controls button.restart:hover {
     background-position: -93px -4px;
+}
+.crw-controls tt {
+    display: inline-block;
+    width: 2em;
+    text-align: center;
 }
 .crw-immediate>.blocker {
     position: fixed;
