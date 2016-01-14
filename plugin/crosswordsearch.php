@@ -1553,7 +1553,7 @@ function crw_get_crossword() {
     // sanitize fields
     $project = sanitize_text_field( wp_unslash($_POST['project']) );
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
-    $restricted_page = (bool)wp_unslash($_POST['restricted']);
+    $restricted_page = ('true' === wp_unslash($_POST['restricted']));
 
     $restricted_permission = crw_test_permission( 'crossword', null, $project );
 
