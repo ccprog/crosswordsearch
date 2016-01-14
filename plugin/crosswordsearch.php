@@ -1594,6 +1594,64 @@ function crw_get_crossword() {
 add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
 add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
+/**
+ * Notify about submitted solution
+ *
+ * @return void
+ */
+function crw_submit_solution() {
+    global $wpdb, $project_table_name, $data_table_name;
+    $error = __('Your solution could not be submitted.', 'crosswordsearch');
+    $debug = NULL;
+
+    // sanitize fields
+    $project = sanitize_text_field( wp_unslash($_POST['project']) );
+    $name = sanitize_text_field( wp_unslash($_POST['name']) );
+    $time = (float)wp_unslash($_POST['time']);
+    $solved = (int)wp_unslash($_POST['solved']);
+    $total = (int)wp_unslash($_POST['total']);
+
+    crw_test_permission( 'crossword', null, $project );
+
+    $crossword_found = $wpdb->get_var( $wpdb->prepare("
+        SELECT count(*)
+        FROM $data_table_name
+        WHERE project = %s AND name = %s
+    ", $submission['project'], $submission['name'] ) );
+    if (!$crossword_found) {
+        $debug = array(
+            'Crossword not found',
+            $submission['project'] . ': ' . $submission['name']
+        );
+    }
+    if ($submission['time'] <= 0) {
+        $debug = array( 'No sensible time', wp_unslash($_POST['time']) );
+    }
+    if ($submission['solved'] + $submission['total'] == 0) {
+        $debug = array(
+            'No sensible number of words',
+            wp_unslash($_POST['solved']) . ' of ' . wp_unslash($_POST['total'])
+        );
+    }
+    if ($debug) {
+        crw_send_error($error, $debug);
+    }
+
+    /**
+     * Fires if a solution for a crossword is submitted
+     *
+     * @param array $submission Submission details as array(
+     *     'project'
+     *     'name'
+     *     'time' time needed for complete solution in seconds, includes one decimal place
+     *     'solved' number of found words
+     *     'total' total number of words
+     * )
+     */
+    do_action( 'crw_solution_submitted', compact( 'project', 'name', 'time', 'solved', 'total' ) );
+}
+add_action( 'wp_ajax_submit_solution', 'crw_submit_solution' );
+
 /* ----------------------------------
  * Settings Page Load Routines
  * ---------------------------------- */
