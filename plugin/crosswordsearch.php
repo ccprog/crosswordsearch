@@ -458,18 +458,18 @@ function crw_test_shortcode ($atts, $names_list) {
         return $html . sprintf(__('If attribute %1$s is set, attribute %2$s must be omitted.', 'crosswordsearch'), '<em>restricted</em>', '<em>name</em>');
     }
 
-    if ( strlen($competitive) && 'solve' != $mode ) {
-        return $html . sprintf(__('Attribute %1$s is only allowed in solve mode.', 'crosswordsearch'), '<em>competitive</em>');
+    if ( strlen($timer) && 'solve' != $mode ) {
+        return $html . sprintf(__('Attribute %1$s is only allowed in solve mode.', 'crosswordsearch'), '<em>timer</em>');
     }
 
-    if ( strlen($competitive) && !preg_match( '/^\d/', trim($competitive) ) ) {
-        /// translators: argument %1 will be the literal 'competitive'
-        return $html . sprintf(__('Attribute %1$s must be a non-negative integer.', 'crosswordsearch'), '<em>competitive</em>');
+    if ( strlen($timer) && !preg_match( '/^\d/', trim($timer) ) ) {
+        /// translators: argument %1 will be the literal 'timer'
+        return $html . sprintf(__('Attribute %1$s must be a non-negative integer.', 'crosswordsearch'), '<em>timer</em>');
     }
 
-    if ( $submiting && !strlen($competitive) ) {
-        /// translators: argument %1 will be the literal 'submiting', %2 the literal 'competitive'
-        return $html . sprintf(__('If attribute %1$s is set, attribute %2$s must also be set.', 'crosswordsearch'), '<em>submiting</em>', '<em>competitive</em>');
+    if ( $submiting && !strlen($timer) ) {
+        /// translators: argument %1 will be the literal 'submiting', %2 the literal 'timer'
+        return $html . sprintf(__('If attribute %1$s is set, attribute %2$s must also be set.', 'crosswordsearch'), '<em>submiting</em>', '<em>timer</em>');
     }
 
     if ( false == $project_found ) {
@@ -501,7 +501,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
         'restricted' => 0,
-        'competitive' => '',
+        'timer' => '',
         'submiting' => 0,
         'project' => '',
         'name' => '',
@@ -526,13 +526,13 @@ function crw_shortcode_handler( $atts, $content = null ) {
             $is_single = true;
         }
     }
-    $countdown = (int)$competitive;
-    $competitive = strlen($competitive);
+    $countdown = (int)$timer;
+    $timer = strlen($timer);
     $prep_1 = esc_js($project);
     $prep_2 = wp_create_nonce( NONCE_CROSSWORD );
     $prep_3 = wp_create_nonce( ($restricted ? NONCE_PUSH : NONCE_EDIT) . $project );
     $prep_4 = esc_js($selected_name);
-    $prep_5 = $restricted ? 'restricted' : ($competitive ? 'timer' : '');
+    $prep_5 = $restricted ? 'restricted' : ($timer ? 'timer' : '');
 
     $current_user = wp_get_current_user();
     $is_auth = is_user_logged_in();

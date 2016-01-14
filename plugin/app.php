@@ -174,7 +174,7 @@ if ( 'build' == $mode ) {
             <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crosswordsearch'), '{{count.words|localeNumber}}' ) ?></span>
 <?php // competetive mode, inner elements only transport localized strings
 
-    if ( $competitive ) {
+    if ( $timer ) {
 
 ?>
             <span crw-timer-element="timer" countdown="<?php echo $countdown ?>" <?php if ($submiting) { echo 'submiting'; } ?>>

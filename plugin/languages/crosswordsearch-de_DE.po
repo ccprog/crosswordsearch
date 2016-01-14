@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.6.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-14 08:29+0100\n"
-"PO-Revision-Date: 2016-01-14 08:29+0100\n"
+"POT-Creation-Date: 2016-01-14 18:30+0100\n"
+"PO-Revision-Date: 2016-01-14 18:30+0100\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: German\n"
@@ -186,13 +186,13 @@ msgstr ""
 msgid "Attribute %1$s is only allowed in solve mode."
 msgstr "Das Attribut %1$s ist nur im solve-Mode erlaubt."
 
-#. / translators: argument %1 will be the literal 'competitive'
+#. / translators: argument %1 will be the literal 'timer'
 #: plugin/crosswordsearch.php:467
 #, php-format
 msgid "Attribute %1$s must be a non-negative integer."
 msgstr "Das Attribut %1$s muss eine nicht-negative Ganzzahl sein."
 
-#. / translators: argument %1 will be the literal 'submiting', %2 the literal 'competitive'
+#. / translators: argument %1 will be the literal 'submiting', %2 the literal 'timer'
 #: plugin/crosswordsearch.php:472
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must also be set."
