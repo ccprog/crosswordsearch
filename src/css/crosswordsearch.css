@@ -93,6 +93,13 @@ dl.crw-level>dd {
     transition:none;
     box-shadow: none;
 }
+.crw-crossword button, .crw-controls button {
+    margin: 0;
+    padding: 0;
+    width: 31px;
+    height:31px;
+    background-image: url(../images/controls.png);
+}
 
 .crw-crossword>* {
     position: absolute;
@@ -235,15 +242,6 @@ div.crw-marked.corner-down-left { background-position: -62px -93px; }
 div.crw-marked.vertical { background-position: -124px -93px; }
 div.crw-marked.up-left { background-position: -62px -124px; }
 div.crw-marked.up { background-position: -124px -124px; }
-.crw-crossword button {
-    margin: 0;
-    padding: 0;
-    width: 31px;
-    height:31px;
-    border: none;
-    background-color: transparent;
-    background-image: url(../images/controls.png);
-}
 .crw-crossword button.fill {
     background-position: 0px -31px;
 }

@@ -73,7 +73,7 @@ if ( 'build' == $mode ) {
 
 ?>
     <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide" ng-style="styleCrossword()' : '' ) ?>" ng-controller="SizeController" ng-if="crosswordData">
-        <div ng-style="styleGridSize()" ng-class="{crw-grid: true, divider: <?php echo ( 'build' == $mode ) ?>, invisible: tableVisible}">
+        <div ng-style="styleGridSize()" ng-class="{'crw-grid': true, divider: <?php echo ( 'build' == $mode ? 'true' : 'false' ) ?> || !tableVisible}">
 <?php // resize handles
 
 if ( 'build' == $mode ) {

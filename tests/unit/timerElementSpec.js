@@ -89,7 +89,7 @@ describe("crwTimerElement", function() {
     it("inits timer object", function() {
         compile(0);
         expect($isolate.timer).toEqual({});
-        $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         expect($isolate.timer).toEqual({
             countdown: false,
             submiting: false,
@@ -101,18 +101,18 @@ describe("crwTimerElement", function() {
 
     it("inits timer acoording to attributes", function() {
         compile(10);
-        $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         expect($isolate.timer.countdown).toBe(true);
         expect($isolate.timer.submiting).toBe(false);
         compile(0, true);
-        $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         expect($isolate.timer.countdown).toBe(false);
         expect($isolate.timer.submiting).toBe(true);
     });
 
     it("sets classes and attributes according to state", function() {
         compile(0);
-        $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         var button = element.children('button');
         var tt = element.children('tt');
         expect(button.hasClass('waiting')).toBe(true);
@@ -144,7 +144,7 @@ describe("crwTimerElement", function() {
 
     it("sets title attribute for countdown", function() {
         compile(10);
-        $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         var tt = element.children('tt');
         expect(tt.attr('title')).toBe('Remaining time');
     });
@@ -152,7 +152,7 @@ describe("crwTimerElement", function() {
     it("evaluates button click", function() {
         compile(0);
         spyOn($isolate, '$interval').and.callThrough();
-         $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         $isolate.play();
         expect($scope.timer.state).toBe('playing');
         expect($isolate.$interval.calls.count()).toBe(1);
@@ -172,33 +172,33 @@ describe("crwTimerElement", function() {
     it("starts and stops positive timekeeping", function() {
         spyOn($interval, 'cancel').and.callThrough();
         compile(0);
-        $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         $isolate.play();
         expect($scope.timer.time).toBe(0);
         time.addToStamp(200);
         $interval.flush(250);
         expect($scope.timer.time).toBe(200);
         time.addToStamp(400);
-        $scope.$broadcast('timerStop');
+        $scope.$apply('$broadcast("timerStop")');
         expect($scope.timer.time).toBe(600);
         expect($interval.cancel).toHaveBeenCalled();
         expect($scope.timer.state).toBe('scored');
         time.addToStamp(300);
-        $scope.$broadcast('timerStop');
+        $scope.$apply('$broadcast("timerStop")');
         expect($scope.timer.time).toBe(600);
     });
 
     it("starts and stops negative timekeeping", function() {
         spyOn($interval, 'cancel').and.callThrough();
         compile(1, true);
-        $scope.$broadcast('timerInit');
+        $scope.$apply('$broadcast("timerInit")');
         $isolate.play();
         expect($scope.timer.time).toBe(1000);
         time.addToStamp(200);
         $interval.flush(250);
         expect($scope.timer.time).toBe(800);
         time.addToStamp(400);
-        $scope.$broadcast('timerStop');
+        $scope.$apply('$broadcast("timerStop")');
         expect($scope.timer.time).toBe(400);
         expect($interval.cancel).toHaveBeenCalled();
         expect($scope.timer.state).toBe('final');

@@ -1269,7 +1269,6 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                     state: "waiting",
                     time: null
                 };
-                scope.$apply();
             }
             scope.$on("timerInit", init);
             scope.getTitle = function() {
@@ -1464,7 +1463,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
     $scope.load = function(name) {
         $scope.loadError = null;
-        if (name && name.length && name === $scope.crosswordData.name) {
+        if (name && name.length && $scope.crosswordData && name === $scope.crosswordData.name) {
             $scope.restart();
         } else if (name || typeof name === "string") {
             $scope.immediateStore.newPromise("loadCrossword", name).then(updateModel, function(error) {

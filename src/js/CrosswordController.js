@@ -213,7 +213,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // load a crossword
     $scope.load = function (name) {
         $scope.loadError = null;
-        if (name && name.length && name === $scope.crosswordData.name) {
+        if (name && name.length && $scope.crosswordData && name === $scope.crosswordData.name) {
             // do not reload unnecessarily
             $scope.restart();
         } else if (name || typeof name === 'string') {

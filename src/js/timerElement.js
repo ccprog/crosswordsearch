@@ -74,7 +74,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             }
             scope.$on('timerStop', stop);
 
-            // init timer object, triggered by deletion of the old by parent controller
+            // init timer object, triggered by event broadcast
             function init () {
                 scope.timer = {
                     countdown: countdown > 0,
@@ -82,7 +82,6 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
                     state: 'waiting',
                     time: null
                 };
-                scope.$apply();
             }
             scope.$on('timerInit', init);
 
