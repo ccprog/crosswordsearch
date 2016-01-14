@@ -14,6 +14,7 @@ module.exports = function(grunt) {
     srcdir + 'crosswordFactory.js',
     srcdir + 'markerFactory.js',
     srcdir + 'AdminController.js',
+    srcdir + 'timerElement.js',
     srcdir + 'CrosswordController.js',
     srcdir + 'SizeController.js',
     srcdir + 'TableController.js',

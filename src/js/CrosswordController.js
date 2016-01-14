@@ -60,11 +60,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // preview: bypasses command list for load
     $scope.commandState = 'full';
     $scope.highlight = [];
-    $scope.count = {
-        words: 0,
-        solution: 0
-    };
     $scope.levelList = $scope.crw.getLevelList();
+    $scope.tableVisible = true;
 
     // build page only: data object for command menu
     // move the namesIn Project list into the command sub-menu
@@ -83,14 +80,43 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     };
 
     // init crossword at page load time
-    $scope.prepare = function (project, nonceCrossword, nonceEdit, name, restricted) {
-        $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
-        // init command data object and menu
-        if (restricted) {
+    $scope.prepare = function (project, nonceCrossword, nonceEdit, name, attr) {
+        $scope.crw.setProject(project, nonceCrossword, nonceEdit, attr === 'restricted');
+        switch (attr) {
+        case 'restricted': // restricted build mode
             $scope.commandState = 'restricted';
             delete $scope.commands.load;
             delete $scope.commands.insert;
+            break;
+        case 'timer': // competitive solve mode
+            $scope.tableVisible = false;
+            $scope.$watch('timer.state', function (newState, oldState) {
+                if (newState === 'playing') {
+                    // make riddle visible
+                    $scope.tableVisible = true;
+                } else if (oldState === 'scored' && newState === 'waiting') {
+                    // restart an already solved riddle
+                    $scope.restart();
+                } else if (oldState === 'playing') {
+                    // user feedback after game stops
+                    var answ = $scope.immediateStore.newPromise(
+                        'solvedCompletely',
+                        $scope.count.words > $scope.count.solution ? null : $scope.timer.time
+                    );
+                    // submit result to server
+                    if ($scope.timer.submiting) {
+                        var time = $scope.timer.countdown ?
+                            $scope.timer.countdown - $scope.timer.time :
+                            $scope.timer.time;
+                        time = (time / 1000).toFixed(1);
+                        answ.then($scope.crw.submitSolution(time));
+                    }
+                }
+            });
+            $scope.$broadcast('timerInit');
+            break;
         }
+        // init command data object and menu
         $scope.commandList = jQuery.map($scope.commands, function (value, command) {
             var obj = basics.localize(command);
             obj.value = command;
@@ -173,15 +199,11 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     var updateModel = function () {
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.levelList = $scope.crw.getLevelList();
+        $scope.count = $scope.crw.getCount();
         updateNames();
-        $scope.count.words = 0;
-        angular.forEach($scope.crosswordData.words, function(word) {
-            // count words in words/solution object
-            $scope.count.words++;
-            // refresh data binding for word objects
-            $scope.crw.setWord(word);
-        });
-        $scope.count.solution = 0;
+        if (typeof $scope.timer === 'object') {
+            $scope.tableVisible = false;
+        }
     };
 
     $scope.setHighlight = function (h) {
@@ -191,9 +213,12 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // load a crossword
     $scope.load = function (name) {
         $scope.loadError = null;
-        // if the page shortcode explicitely sets name='', it will be routed
-        // through by $scope.prepare.
-        if (name || typeof name === 'string') {
+        if (name && name.length && name === $scope.crosswordData.name) {
+            // do not reload unnecessarily
+            $scope.restart();
+        } else if (name || typeof name === 'string') {
+            // if the page shortcode explicitely sets name='', it will be routed
+            // through by $scope.prepare.
             $scope.immediateStore.newPromise('loadCrossword', name).then(
                 updateModel,
                 function (error) {
@@ -213,6 +238,12 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
 
     // solve page only: restart the loaded riddle
     $scope.restart = function () {
+        if ($scope.timer) {
+            if ($scope.timer.submiting) {
+                return;
+            }
+            $scope.$broadcast('timerInit');
+        }
         if (!$scope.crw.getLevelRestriction('sol')) {
             $scope.crosswordData.solution = {};
         } else {
@@ -226,7 +257,11 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // solve page only: notify on complete solution
     $scope.$watch('count.solution', function(s) {
         if (s > 0 && s === $scope.count.words) {
-            $scope.immediateStore.newPromise('solvedCompletely');
+            if ($scope.timer) {
+                $scope.$broadcast('timerStop');
+            } else {
+                $scope.immediateStore.newPromise('solvedCompletely');
+            }
         }
     });
 

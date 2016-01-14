@@ -357,6 +357,10 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         var namesList = [];
         var project = "";
         var restricted = false;
+        var count = {
+            words: 0,
+            solution: 0
+        };
         var _loadDefault = function() {
             angular.extend(crossword, {
                 name: "",
@@ -381,6 +385,21 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
               case "sol":
                 return !(crossword.level & 2);
             }
+        };
+        var _setWord = function(marking) {
+            var exists = false;
+            angular.forEach(crossword.words, function(word) {
+                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop) && word.ID !== marking.ID) {
+                    exists = true;
+                }
+            });
+            if (exists) {
+                return false;
+            }
+            angular.forEach(marking.fields, function(field) {
+                field.word = crossword.table[field.y][field.x];
+            });
+            return crossword.words[marking.ID] = marking;
         };
         var addRows = function(number, top) {
             if (number > 0) {
@@ -461,26 +480,36 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             }
         };
         this.loadDefault = _loadDefault;
+        function onLoaded(data) {
+            stdLevel = data.default_level;
+            maxLevel = data.maximum_level;
+            namesList = data.namesList;
+            if (angular.isObject(data.crossword)) {
+                angular.extend(crossword, data.crossword);
+                if (_getLevelRestriction("sol")) {
+                    crossword.solution = angular.copy(crossword.words);
+                }
+            } else {
+                _loadDefault();
+            }
+            count.words = 0;
+            count.solution = 0;
+            angular.forEach(crossword.words, function(word) {
+                count.words++;
+                _setWord(word);
+            });
+            return true;
+        }
         this.loadCrosswordData = function(name) {
             return ajaxFactory.http({
                 action: "get_crossword",
                 project: project,
                 name: name,
                 restricted: restricted
-            }, crwContext).then(function(data) {
-                stdLevel = data.default_level;
-                maxLevel = data.maximum_level;
-                namesList = data.namesList;
-                if (angular.isObject(data.crossword)) {
-                    angular.extend(crossword, data.crossword);
-                    if (_getLevelRestriction("sol")) {
-                        crossword.solution = angular.copy(crossword.words);
-                    }
-                } else {
-                    _loadDefault();
-                }
-                return true;
-            });
+            }, crwContext).then(onLoaded);
+        };
+        this.getCount = function() {
+            return count;
         };
         this.saveCrosswordData = function(name, action, username, password) {
             crossword.solution = {};
@@ -503,6 +532,16 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 namesList = data.namesList;
                 return true;
             });
+        };
+        this.submitSolution = function(time) {
+            return ajaxFactory.http({
+                action: "submit_solution",
+                project: project,
+                name: crossword.name,
+                time: time,
+                solved: count.solution,
+                total: count.words
+            }, crwContext);
         };
         this.getHighId = function() {
             return reduce(crossword.words, 0, function(result, word) {
@@ -530,21 +569,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 this.letter = null;
             });
         };
-        this.setWord = function(marking) {
-            var exists = false;
-            angular.forEach(crossword.words, function(word) {
-                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop) && word.ID !== marking.ID) {
-                    exists = true;
-                }
-            });
-            if (exists) {
-                return false;
-            }
-            angular.forEach(marking.fields, function(field) {
-                field.word = crossword.table[field.y][field.x];
-            });
-            return crossword.words[marking.ID] = marking;
-        };
+        this.setWord = _setWord;
         this.getLevelRestriction = _getLevelRestriction;
         this.probeWord = function(marking) {
             var entry = marking;
@@ -1176,6 +1201,98 @@ crwApp.config([ "$routeProvider", "nonces", function($routeProvider, nonces) {
     });
 } ]);
 
+crwApp.filter("duration", function() {
+    return function(input) {
+        if (typeof input === "number" && input >= 0) {
+            var tenth = Math.round(input / 100), secs = (Math.floor(tenth % 600) / 1e3).toFixed(3).split(".")[1];
+            return Math.floor(tenth / 600) + ":" + secs.substring(0, 2) + "." + secs.substring(2);
+        } else {
+            return null;
+        }
+    };
+});
+
+crwApp.factory("time", function() {
+    return {
+        getStamp: function() {
+            return new Date().getTime();
+        }
+    };
+});
+
+crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $interval) {
+    return {
+        restrict: "A",
+        transclude: true,
+        scope: {
+            timer: "=crwTimerElement"
+        },
+        link: function(scope, element, attrs, ctrl, transcludeFn) {
+            var fixedTime = null, stopTime, countdown = parseInt(attrs.countdown, 10) * 1e3, submiting = angular.isDefined(attrs.submiting);
+            scope.$interval = $interval;
+            scope.timer = {};
+            scope.texts = {};
+            angular.element(transcludeFn()).each(function(idx, elem) {
+                scope.texts[elem.getAttribute("state")] = {
+                    alt: elem.getAttribute("alt"),
+                    title: elem.textContent
+                };
+            });
+            function timing() {
+                if (countdown > 0) {
+                    scope.timer.time = fixedTime - time.getStamp();
+                    if (scope.timer.time <= 0) {
+                        stop();
+                    }
+                } else {
+                    scope.timer.time = time.getStamp() - fixedTime;
+                }
+            }
+            function stop() {
+                if (scope.timer.state === "playing") {
+                    if (countdown > 0) {
+                        scope.timer.time = fixedTime - time.getStamp();
+                    } else {
+                        scope.timer.time = time.getStamp() - fixedTime;
+                    }
+                    scope.$interval.cancel(stopTime);
+                    stopTime = undefined;
+                    fixedTime = null;
+                    scope.timer.state = submiting ? "final" : "scored";
+                }
+            }
+            scope.$on("timerStop", stop);
+            function init() {
+                scope.timer = {
+                    countdown: countdown > 0,
+                    submiting: submiting,
+                    state: "waiting",
+                    time: null
+                };
+                scope.$apply();
+            }
+            scope.$on("timerInit", init);
+            scope.getTitle = function() {
+                return scope.texts[scope.timer.countdown ? "down" : "up"].title;
+            };
+            scope.getDisabled = function() {
+                return [ "waiting", "scored" ].indexOf(scope.timer.state) < 0;
+            };
+            scope.play = function() {
+                if (scope.timer.state === "waiting") {
+                    fixedTime = time.getStamp() + countdown;
+                    scope.timer.time = countdown;
+                    scope.timer.state = "playing";
+                    stopTime = scope.$interval(timing, 200);
+                } else if (scope.timer.state === "scored") {
+                    scope.timer.state = "waiting";
+                }
+            };
+        },
+        template: '<button ng-class="timer.state" ' + 'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' + 'ng-disabled="getDisabled()" ng-click="play()"></button>' + '<tt title="{{getTitle()}}">{{timer.time | duration}}</tt>'
+    };
+} ]);
+
 crwApp.directive("crwCatchMouse", [ "$document", function($document) {
     return {
         link: function(scope, element, attrs) {
@@ -1225,11 +1342,8 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     }
     $scope.commandState = "full";
     $scope.highlight = [];
-    $scope.count = {
-        words: 0,
-        solution: 0
-    };
     $scope.levelList = $scope.crw.getLevelList();
+    $scope.tableVisible = true;
     function updateLoadList(names) {
         jQuery.grep($scope.commandList, function(command) {
             return command.value === "load";
@@ -1242,12 +1356,33 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         insert: 'save("insert")',
         reload: "load(loadedName)"
     };
-    $scope.prepare = function(project, nonceCrossword, nonceEdit, name, restricted) {
-        $scope.crw.setProject(project, nonceCrossword, nonceEdit, restricted);
-        if (restricted) {
+    $scope.prepare = function(project, nonceCrossword, nonceEdit, name, attr) {
+        $scope.crw.setProject(project, nonceCrossword, nonceEdit, attr === "restricted");
+        switch (attr) {
+          case "restricted":
             $scope.commandState = "restricted";
             delete $scope.commands.load;
             delete $scope.commands.insert;
+            break;
+
+          case "timer":
+            $scope.tableVisible = false;
+            $scope.$watch("timer.state", function(newState, oldState) {
+                if (newState === "playing") {
+                    $scope.tableVisible = true;
+                } else if (oldState === "scored" && newState === "waiting") {
+                    $scope.restart();
+                } else if (oldState === "playing") {
+                    var answ = $scope.immediateStore.newPromise("solvedCompletely", $scope.count.words > $scope.count.solution ? null : $scope.timer.time);
+                    if ($scope.timer.submiting) {
+                        var time = $scope.timer.countdown ? $scope.timer.countdown - $scope.timer.time : $scope.timer.time;
+                        time = (time / 1e3).toFixed(1);
+                        answ.then($scope.crw.submitSolution(time));
+                    }
+                }
+            });
+            $scope.$broadcast("timerInit");
+            break;
         }
         $scope.commandList = jQuery.map($scope.commands, function(value, command) {
             var obj = basics.localize(command);
@@ -1318,20 +1453,20 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     var updateModel = function() {
         $scope.crosswordData = $scope.crw.getCrosswordData();
         $scope.levelList = $scope.crw.getLevelList();
+        $scope.count = $scope.crw.getCount();
         updateNames();
-        $scope.count.words = 0;
-        angular.forEach($scope.crosswordData.words, function(word) {
-            $scope.count.words++;
-            $scope.crw.setWord(word);
-        });
-        $scope.count.solution = 0;
+        if (typeof $scope.timer === "object") {
+            $scope.tableVisible = false;
+        }
     };
     $scope.setHighlight = function(h) {
         $scope.highlight = h;
     };
     $scope.load = function(name) {
         $scope.loadError = null;
-        if (name || typeof name === "string") {
+        if (name && name.length && name === $scope.crosswordData.name) {
+            $scope.restart();
+        } else if (name || typeof name === "string") {
             $scope.immediateStore.newPromise("loadCrossword", name).then(updateModel, function(error) {
                 $scope.loadError = error;
             });
@@ -1344,6 +1479,12 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         $scope.load(name);
     });
     $scope.restart = function() {
+        if ($scope.timer) {
+            if ($scope.timer.submiting) {
+                return;
+            }
+            $scope.$broadcast("timerInit");
+        }
         if (!$scope.crw.getLevelRestriction("sol")) {
             $scope.crosswordData.solution = {};
         } else {
@@ -1355,7 +1496,11 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
     $scope.$watch("count.solution", function(s) {
         if (s > 0 && s === $scope.count.words) {
-            $scope.immediateStore.newPromise("solvedCompletely");
+            if ($scope.timer) {
+                $scope.$broadcast("timerStop");
+            } else {
+                $scope.immediateStore.newPromise("solvedCompletely");
+            }
         }
     });
     $scope.save = function(action) {
@@ -1637,7 +1782,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         $scope.$broadcast("setFocus", row, col);
     };
     $scope.startMark = function() {
-        isMarking = true;
+        isMarking = $scope.timer ? $scope.timer.state === "playing" : true;
         currentMarking = {
             ID: currentMarking.ID + 1
         };
@@ -1948,7 +2093,7 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
         };
         $scope.immediate = "dialogue";
     });
-    $scope.immediateStore.register("solvedCompletely", function(solvedDeferred) {
+    $scope.immediateStore.register("solvedCompletely", function(solvedDeferred, time) {
         deferred = solvedDeferred;
         $scope.message = {
             which: "solved_completely",
@@ -1956,6 +2101,13 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
                 ok: true
             }
         };
+        if ($scope.count.words > $scope.count.solution) {
+            $scope.message.which = "solved_incomplete";
+            $scope.message.words = $scope.count.words;
+            $scope.message.solution = $scope.count.solution;
+        } else {
+            $scope.message.time = time || "false";
+        }
         $scope.immediate = "dialogue";
     });
     $scope.immediateStore.register("actionConfirmation", function(actionDeferred, message) {

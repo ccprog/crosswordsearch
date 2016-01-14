@@ -454,7 +454,22 @@ function crw_test_shortcode ($atts, $names_list) {
     }
 
     if ( $restricted && $name ) {
-        return $html . __('If attribute <em>restricted</em> is set, attribute <em>name</em> must be omitted.', 'crosswordsearch');
+        /// translators: argument %1 will be the literal 'restricted', %2 the literal 'name'
+        return $html . sprintf(__('If attribute %1$s is set, attribute %2$s must be omitted.', 'crosswordsearch'), '<em>restricted</em>', '<em>name</em>');
+    }
+
+    if ( strlen($competitive) && 'solve' != $mode ) {
+        return $html . sprintf(__('Attribute %1$s is only allowed in solve mode.', 'crosswordsearch'), '<em>competitive</em>');
+    }
+
+    if ( strlen($competitive) && !preg_match( '/^\d/', trim($competitive) ) ) {
+        /// translators: argument %1 will be the literal 'competitive'
+        return $html . sprintf(__('Attribute %1$s must be a non-negative integer.', 'crosswordsearch'), '<em>competitive</em>');
+    }
+
+    if ( $submiting && !strlen($competitive) ) {
+        /// translators: argument %1 will be the literal 'submiting', %2 the literal 'competitive'
+        return $html . sprintf(__('If attribute %1$s is set, attribute %2$s must also be set.', 'crosswordsearch'), '<em>submiting</em>', '<em>competitive</em>');
     }
 
     if ( false == $project_found ) {
@@ -486,10 +501,13 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
         'restricted' => 0,
+        'competitive' => '',
+        'submiting' => 0,
         'project' => '',
         'name' => '',
 	), $atts, 'crosswordsearch' );
     $filtered_atts['restricted'] = (int)$filtered_atts['restricted'];
+    $filtered_atts['submiting'] = (int)$filtered_atts['submiting'];
 	extract( $filtered_atts );
 
     $names_list = crw_get_names_list($project);
@@ -508,10 +526,13 @@ function crw_shortcode_handler( $atts, $content = null ) {
             $is_single = true;
         }
     }
+    $countdown = (int)$competitive;
+    $competitive = strlen($competitive);
     $prep_1 = esc_js($project);
     $prep_2 = wp_create_nonce( NONCE_CROSSWORD );
     $prep_3 = wp_create_nonce( ($restricted ? NONCE_PUSH : NONCE_EDIT) . $project );
     $prep_4 = esc_js($selected_name);
+    $prep_5 = $restricted ? 'restricted' : ($competitive ? 'timer' : '');
 
     $current_user = wp_get_current_user();
     $is_auth = is_user_logged_in();
@@ -530,7 +551,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $app_code = ob_get_clean();
     $delay_message = '<p ng-hide="true"><strong>' . __('Loading the crossword has yet to start.', 'crosswordsearch') . '</strong></p>';
 
-	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', ' . $restricted . ')">' . $app_code . '</div>';
+	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', ' . $prep_5 . ')">' . $app_code . '</div>';
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 

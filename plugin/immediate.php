@@ -80,15 +80,18 @@ if ( 'build' == $mode ) {
                     'one': '<?php _e('The marked word no longer fits into the crossword area. For a successful resize you must delete this word.', 'crosswordsearch') ?>',
                     'other': '<?php _e('The marked words no longer fit into the crossword area. For a successful resize you must delete these words.', 'crosswordsearch') ?>'}"></p>
                 <p ng-switch-when="invalid_directions" ng-pluralize count="message.count" when="{
-                    'one': '<?php printf( __('The marked word goes into a direction that is excluded for difficulty level %1$s. For a successful level change you must delete this word.', 'crosswordsearch'), '{{message.level + 1}}' ) ?>',
-                    'other': '<?php printf( __('The marked words go into directions that are excluded for difficulty level %1$s. For a successful level change you must delete these words.', 'crosswordsearch'), '{{message.level + 1}}' ) ?>'}"></p>
+                    'one': '<?php printf( __('The marked word goes into a direction that is excluded for difficulty level %1$s. For a successful level change you must delete this word.', 'crosswordsearch'), '{{message.level + 1|localeNumber}}' ) ?>',
+                    'other': '<?php printf( __('The marked words go into directions that are excluded for difficulty level %1$s. For a successful level change you must delete these words.', 'crosswordsearch'), '{{message.level + 1|localeNumber}}' ) ?>'}"></p>
 <?php
 
 } elseif ( 'solve' == $mode ) {
 
 ?>
                 <p ng-switch-when="false_word"><?php printf( __('The marked word %1$s is not part of the solution.', 'crosswordsearch'), '{{message.word | joinWord}}' ) ?></p>
-                <p ng-switch-when="solved_completely"><?php _e('Congratulation, you have solved the riddle!', 'crosswordsearch') ?></p>
+                <p ng-switch-when="solved_completely"  ng-switch="message.time"><span
+                    ng-switch-when="false"><?php _e('Congratulation, you have solved the riddle!', 'crosswordsearch') ?></span><span
+                    ng-switch-default><?php printf( __('Congratulation, you have solved the riddle in $1s!', 'crosswordsearch'), '{{message.time | duration}}') ?></span></p>
+                <p ng-switch-when="solved_incomplete"><?php printf( __('You have found $1s of $1s hidden words during the alloted time.', 'crosswordsearch'), '{{message.solution|localeNumber}}', '{{message.words|localeNumber}}') ?></p>
 <?php
 
 } elseif ( 'admin' == $mode ) {

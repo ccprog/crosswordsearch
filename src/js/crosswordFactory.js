@@ -15,6 +15,11 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         var project = '';
         // restriction context
         var restricted = false;
+        // word count
+        var count = {
+            words: 0,
+            solution: 0
+        };
 
         // default empty crossword object
         var _loadDefault = function () {
@@ -48,6 +53,35 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 // show word before found
                 return !(crossword.level & 2);
             }
+        };
+
+        // save a field sequence in the words list
+        // marking must be an object of the form
+        // { ID: ...,
+        // color: ...,
+        // start: {x: ..., y: ...},
+        // stop: {x: ..., y: ...},
+        // fields: [ {x: ..., y: ...}, ... ] }
+        // each field will get matched with its letter content
+        // and the enhanced object is mirrored back
+        // returns false instead if the word has already been saved with a different ID.
+        var _setWord = function (marking) {
+            var exists = false;
+            angular.forEach(crossword.words, function (word) {
+                // identical IDs are only possible on calls from crosswordController
+                // during model update, where overwriting is needed.
+                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop) &&
+                        word.ID !== marking.ID) {
+                    exists = true;
+                }
+            });
+            if (exists) {
+                return false;
+            }
+            angular.forEach(marking.fields, function (field) {
+                field.word = crossword.table[field.y][field.x];
+            });
+            return (crossword.words[marking.ID] = marking);
         };
 
         // add or delete the given number of rows
@@ -152,27 +186,40 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         this.loadDefault = _loadDefault;
 
         // load a crossword
+        function onLoaded (data) {
+            // if an empty string is sent for name, no object is returned
+            stdLevel = data.default_level;
+            maxLevel = data.maximum_level;
+            namesList = data.namesList;
+            if (angular.isObject(data.crossword)) {
+                angular.extend(crossword, data.crossword);
+                if (_getLevelRestriction('sol')) {
+                    crossword.solution = angular.copy(crossword.words);
+                }
+            } else {
+                _loadDefault();
+            }
+            count.words = 0;
+            count.solution = 0;
+            angular.forEach(crossword.words, function(word) {
+                // count words in words/solution object
+                count.words++;
+                // refresh data binding for word objects
+                _setWord(word);
+            });
+            return true;
+        }
         this.loadCrosswordData = function (name) {
             return ajaxFactory.http({
                 action: 'get_crossword',
                 project: project,
                 name: name,
                 restricted: restricted
-            }, crwContext).then(function(data) {
-                // if an empty string is sent for name, no object is returned
-                stdLevel = data.default_level;
-                maxLevel = data.maximum_level;
-                namesList = data.namesList;
-                if (angular.isObject(data.crossword)) {
-                    angular.extend(crossword, data.crossword);
-                    if (_getLevelRestriction('sol')) {
-                        crossword.solution = angular.copy(crossword.words);
-                    }
-                } else {
-                    _loadDefault();
-                }
-                return true;
-            });
+            }, crwContext).then(onLoaded);
+        };
+
+        this.getCount = function () {
+            return count;
         };
 
         // save a crossword
@@ -197,6 +244,18 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 namesList = data.namesList;
                 return true;
             });
+        };
+
+        // submit a solution to the server
+        this.submitSolution = function (time) {
+            return ajaxFactory.http({
+                action: 'submit_solution',
+                project: project,
+                name: crossword.name,
+                time: time,
+                solved: count.solution,
+                total: count.words
+            }, crwContext);
         };
 
         // return the highest id used for words
@@ -237,34 +296,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             });
         };
 
-        // save a field sequence in the words list
-        // marking must be an object of the form
-        // { ID: ...,
-        // color: ...,
-        // start: {x: ..., y: ...},
-        // stop: {x: ..., y: ...},
-        // fields: [ {x: ..., y: ...}, ... ] }
-        // each field will get matched with its letter content
-        // and the enhanced object is mirrored back
-        // returns false instead if the word has already been saved with a different ID.
-        this.setWord = function (marking) {
-            var exists = false;
-            angular.forEach(crossword.words, function (word) {
-                // identical IDs are only possible on calls from crosswordController
-                // during model update, where overwriting is needed.
-                if (angular.equals(word.start, marking.start) && angular.equals(word.stop, marking.stop) &&
-                        word.ID !== marking.ID) {
-                    exists = true;
-                }
-            });
-            if (exists) {
-                return false;
-            }
-            angular.forEach(marking.fields, function (field) {
-                field.word = crossword.table[field.y][field.x];
-            });
-            return (crossword.words[marking.ID] = marking);
-        };
+        this.setWord = _setWord;
 
         this.getLevelRestriction = _getLevelRestriction;
 

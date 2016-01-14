@@ -207,7 +207,7 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
 
     // solve page only: deferred handler for user dialogue on completed solution
     // register
-    $scope.immediateStore.register('solvedCompletely', function (solvedDeferred) {
+    $scope.immediateStore.register('solvedCompletely', function (solvedDeferred, time) {
         deferred = solvedDeferred;
         $scope.message = {
             which: 'solved_completely',
@@ -215,6 +215,15 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
                 'ok': true
             }
         };
+        if ($scope.count.words > $scope.count.solution) {
+            // incomplete solution
+            $scope.message.which = 'solved_incomplete';
+            $scope.message.words = $scope.count.words;
+            $scope.message.solution = $scope.count.solution;
+        } else {
+            // complete solution might have time
+            $scope.message.time = time || 'false';
+        }
         $scope.immediate = 'dialogue';
     });
 

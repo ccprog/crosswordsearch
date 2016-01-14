@@ -125,7 +125,7 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
     // event handler on mousedown in a field:
     // choose a color and start marking
     $scope.startMark = function () {
-        isMarking = true;
+        isMarking = $scope.timer ? $scope.timer.state === 'playing' : true;
         currentMarking = { ID: currentMarking.ID+1 };
         // during build markings get a random color,
         // unconfirmed markings during solve remain grey
