@@ -140,10 +140,18 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         case 'command':
             $scope.$evalAsync($scope.commands[value]);
             break;
-        // execute load command on submenu selection
+        // execute load command on build submenu selection
         case 'command.sub':
-        case 'load':
             $scope.$evalAsync('load("' + value + '")');
+            break;
+        // execute restart or load on solve menu selection
+        case 'load':
+            // do not reload unnecessarily
+            if ($scope.crosswordData && (value === $scope.loadedName)) {
+                $scope.$evalAsync('restart()');
+            } else {
+                $scope.$evalAsync('load("' + value + '")');
+            }
             break;
         // build page only: test directions on level downgrade
         case 'level':
@@ -213,12 +221,9 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // load a crossword
     $scope.load = function (name) {
         $scope.loadError = null;
-        if (name && name.length && $scope.crosswordData && name === $scope.crosswordData.name) {
-            // do not reload unnecessarily
-            $scope.restart();
-        } else if (name || typeof name === 'string') {
-            // if the page shortcode explicitely sets name='', it will be routed
-            // through by $scope.prepare.
+        // if the page shortcode explicitely sets name='', it will be routed
+        // through by $scope.prepare.
+       if (name || typeof name === 'string') {
             $scope.immediateStore.newPromise('loadCrossword', name).then(
                 updateModel,
                 function (error) {

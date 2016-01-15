@@ -270,8 +270,7 @@ describe("CrosswordController", function () {
             $child.$emit('cseSelect', 'command', 'update');
             $child.$emit('cseSelect', 'command', 'insert');
             $child.$emit('cseSelect', 'command', 'reload');
-            $child.$emit('cseSelect', 'load', 'name2');
-            $child.$emit('cseSelect', 'command.sub', 'name3');
+            $child.$emit('cseSelect', 'command.sub', 'name2');
             expect($scope.load).not.toHaveBeenCalled();
             expect($scope.save).not.toHaveBeenCalled();
             $scope.$apply();
@@ -280,7 +279,23 @@ describe("CrosswordController", function () {
             expect($scope.save).toHaveBeenCalledWith('insert');
             expect($scope.load).toHaveBeenCalledWith('name1');
             expect($scope.load).toHaveBeenCalledWith('name2');
-            expect($scope.load).toHaveBeenCalledWith('name3');
+            expect(listener).not.toHaveBeenCalled();
+        });
+
+        it("routes reloads to restart in solve mode conditionally", function () {
+            $scope.loadedName = 'name1';
+            expect($scope.crosswordData).toBeDefined();
+            var listener = jasmine.createSpy("listener");
+            $root.$on('cseSelect', listener);
+            spyOn($scope, 'load');
+            spyOn($scope, 'restart');
+            $child.$emit('cseSelect', 'load', 'name1');
+            $child.$emit('cseSelect', 'load', 'name2');
+            expect($scope.load).not.toHaveBeenCalled();
+            expect($scope.restart).not.toHaveBeenCalled();
+            $scope.$apply();
+            expect($scope.load).toHaveBeenCalledWith('name2');
+            expect($scope.restart).toHaveBeenCalled();
             expect(listener).not.toHaveBeenCalled();
         });
 
@@ -391,11 +406,9 @@ describe("CrosswordController", function () {
                 word: 3,
                 solution: 3
             };
-            spyOn($scope, 'restart');
             $scope.load();
             expect($scope.loadError).toBeNull();
             expect($scope.crw.loadDefault).toHaveBeenCalled();
-            expect($scope.restart).not.toHaveBeenCalled();
             expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
             expect($scope.crosswordData.name).toBe('name2');
             expect($scope.crosswordData.words).toBeDefined();
@@ -408,17 +421,12 @@ describe("CrosswordController", function () {
             expect($scope.count.solution).toBe(0);
             $scope.load('');
             expect($scope.crw.loadDefault.calls.count()).toBe(1);
-            expect($scope.restart).not.toHaveBeenCalled();
             expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', '');
             expect($scope.crw.getLevelList.calls.count()).toBe(1);
             deferred.resolve();
             $scope.$apply();
             expect($scope.crw.getLevelList.calls.count()).toBe(2);
             $scope.load('name2');
-            expect($scope.restart).toHaveBeenCalled();
-            $scope.crosswordData.name = $scope.loadedName = namesList[0];
-            $scope.load('name2');
-            expect($scope.restart.calls.count()).toBe(1);
             expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', 'name2');
             deferred.reject('error2');
             $scope.$apply();

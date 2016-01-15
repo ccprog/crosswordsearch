@@ -1405,8 +1405,15 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             break;
 
           case "command.sub":
-          case "load":
             $scope.$evalAsync('load("' + value + '")');
+            break;
+
+          case "load":
+            if ($scope.crosswordData && value === $scope.loadedName) {
+                $scope.$evalAsync("restart()");
+            } else {
+                $scope.$evalAsync('load("' + value + '")');
+            }
             break;
 
           case "level":
@@ -1463,9 +1470,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
     $scope.load = function(name) {
         $scope.loadError = null;
-        if (name && name.length && $scope.crosswordData && name === $scope.crosswordData.name) {
-            $scope.restart();
-        } else if (name || typeof name === "string") {
+        if (name || typeof name === "string") {
             $scope.immediateStore.newPromise("loadCrossword", name).then(updateModel, function(error) {
                 $scope.loadError = error;
             });
