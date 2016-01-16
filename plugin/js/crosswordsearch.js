@@ -1228,7 +1228,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
             timer: "=crwTimerElement"
         },
         link: function(scope, element, attrs, ctrl, transcludeFn) {
-            var fixedTime = null, stopTime, countdown = parseInt(attrs.countdown, 10) * 1e3, submiting = angular.isDefined(attrs.submiting);
+            var fixedTime = null, clock, countdown = parseInt(attrs.countdown, 10) * 1e3, submiting = angular.isDefined(attrs.submiting);
             scope.$interval = $interval;
             scope.timer = {};
             scope.texts = {};
@@ -1248,6 +1248,13 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                     scope.timer.time = time.getStamp() - fixedTime;
                 }
             }
+            function cancelClock() {
+                if (clock) {
+                    scope.$interval.cancel(clock);
+                    clock = undefined;
+                }
+                fixedTime = null;
+            }
             function stop() {
                 if (scope.timer.state === "playing") {
                     if (countdown > 0) {
@@ -1255,14 +1262,13 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                     } else {
                         scope.timer.time = time.getStamp() - fixedTime;
                     }
-                    scope.$interval.cancel(stopTime);
-                    stopTime = undefined;
-                    fixedTime = null;
+                    cancelClock();
                     scope.timer.state = submiting ? "final" : "scored";
                 }
             }
             scope.$on("timerStop", stop);
             function init() {
+                cancelClock();
                 scope.timer = {
                     countdown: countdown > 0,
                     submiting: submiting,
@@ -1282,11 +1288,12 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                     fixedTime = time.getStamp() + countdown;
                     scope.timer.time = countdown;
                     scope.timer.state = "playing";
-                    stopTime = scope.$interval(timing, 200);
+                    clock = scope.$interval(timing, 200);
                 } else if (scope.timer.state === "scored") {
                     scope.timer.state = "waiting";
                 }
             };
+            scope.$on("$destroy", cancelClock);
         },
         template: '<button class="crw-control-button" ng-class="timer.state" ' + 'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' + 'ng-disabled="getDisabled()" ng-click="play()"></button>' + '<tt title="{{getTitle()}}">{{timer.time | duration}}</tt>'
     };
@@ -1371,8 +1378,8 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
                     $scope.tableVisible = true;
                 } else if (oldState === "scored" && newState === "waiting") {
                     $scope.restart();
-                } else if (oldState === "playing") {
-                    var answ = $scope.immediateStore.newPromise("solvedCompletely", $scope.count.words > $scope.count.solution ? null : $scope.timer.time);
+                } else if (oldState === "playing" && newState !== "waiting") {
+                    var answ = $scope.immediateStore.newPromise("solvedCompletely", $scope.timer.time);
                     if ($scope.timer.submiting) {
                         var time = $scope.timer.countdown ? $scope.timer.countdown - $scope.timer.time : $scope.timer.time;
                         time = (time / 1e3).toFixed(1);
@@ -1487,6 +1494,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             if ($scope.timer.submiting) {
                 return;
             }
+            $scope.tableVisible = false;
             $scope.$broadcast("timerInit");
         }
         if (!$scope.crw.getLevelRestriction("sol")) {

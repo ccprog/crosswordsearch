@@ -30,7 +30,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
         },
 
         link: function (scope, element, attrs, ctrl, transcludeFn) {
-            var fixedTime = null, stopTime,
+            var fixedTime = null, clock,
                 countdown = parseInt(attrs.countdown, 10) * 1000, // 0 means free time
                 submiting = angular.isDefined(attrs.submiting);
 
@@ -58,6 +58,14 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
                 }
             }
 
+            function cancelClock() {
+                if (clock) {
+                    scope.$interval.cancel(clock);
+                    clock = undefined;
+                }
+                fixedTime = null;
+            }
+
             // alter state on game end and cancel interval
             function stop () {
                 if (scope.timer.state === 'playing') {
@@ -66,9 +74,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
                      } else {
                         scope.timer.time = time.getStamp() - fixedTime;
                     }
-                    scope.$interval.cancel(stopTime);
-                    stopTime = undefined;
-                    fixedTime = null;
+                    cancelClock();
                     scope.timer.state = submiting ? 'final' : 'scored';
                 }
             }
@@ -76,6 +82,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
 
             // init timer object, triggered by event broadcast
             function init () {
+                cancelClock();
                 scope.timer = {
                     countdown: countdown > 0,
                     submiting: submiting,
@@ -102,12 +109,14 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
                     fixedTime = time.getStamp() + countdown;
                     scope.timer.time = countdown;
                     scope.timer.state = 'playing';
-                    stopTime = scope.$interval(timing, 200);
+                    clock = scope.$interval(timing, 200);
                 } else if (scope.timer.state === 'scored') {
                     // return to pre-game state
                     scope.timer.state = 'waiting';
                 }
             };
+
+            scope.$on('$destroy', cancelClock);
         },
 
         template: '<button class="crw-control-button" ng-class="timer.state" ' +

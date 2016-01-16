@@ -97,11 +97,11 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
                 } else if (oldState === 'scored' && newState === 'waiting') {
                     // restart an already solved riddle
                     $scope.restart();
-                } else if (oldState === 'playing') {
+                } else if (oldState === 'playing' && newState !== 'waiting') {
                     // user feedback after game stops
                     var answ = $scope.immediateStore.newPromise(
                         'solvedCompletely',
-                        $scope.count.words > $scope.count.solution ? null : $scope.timer.time
+                        $scope.timer.time
                     );
                     // submit result to server
                     if ($scope.timer.submiting) {
@@ -247,6 +247,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             if ($scope.timer.submiting) {
                 return;
             }
+            $scope.tableVisible = false;
             $scope.$broadcast('timerInit');
         }
         if (!$scope.crw.getLevelRestriction('sol')) {
