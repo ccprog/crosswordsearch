@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.6.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-14 18:30+0100\n"
-"PO-Revision-Date: 2016-01-14 18:30+0100\n"
+"POT-Creation-Date: 2016-01-16 03:07+0100\n"
+"PO-Revision-Date: 2016-01-16 03:07+0100\n"
 "Last-Translator: مرتضی نجاتی جزه <mortazanejatijeze56@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: Persian\n"
@@ -82,83 +82,83 @@ msgstr "حروف را پر کنید و کلمات را نشان دهید."
 msgid "Mark the words:"
 msgstr "کلمات نشان دار:"
 
-#: plugin/app.php:83 plugin/app.php:84 plugin/app.php:85 plugin/app.php:86
+#: plugin/app.php:76
+#, fuzzy
+msgid "Start"
+msgstr "از نو"
+
+#: plugin/app.php:76
+#, fuzzy
+msgid "Start solving the riddle"
+msgstr "از نو جدول را حل کنید."
+
+#: plugin/app.php:77
+msgid "Time"
+msgstr ""
+
+#: plugin/app.php:78 plugin/app.php:196
+msgid "Restart"
+msgstr "از نو"
+
+#: plugin/app.php:78 plugin/app.php:196
+msgid "Restart solving the riddle"
+msgstr "از نو جدول را حل کنید."
+
+#: plugin/app.php:79
+msgid "Result"
+msgstr ""
+
+#: plugin/app.php:80
+msgid "Remaining time"
+msgstr ""
+
+#: plugin/app.php:81
+msgid "Time used"
+msgstr ""
+
+#: plugin/app.php:98 plugin/app.php:99 plugin/app.php:100 plugin/app.php:101
 msgid "Drag to move the border of the riddle"
 msgstr "برای تغییر اندازه جدول لبه را بکشید."
 
-#: plugin/app.php:131
+#: plugin/app.php:146
 msgid "Fill all empty fields with random letters"
 msgstr "جاهای خالی با حروف اتفاقی پر شوند."
 
-#: plugin/app.php:131
+#: plugin/app.php:146
 msgid "Fill fields"
 msgstr "پر کردن زمینه‌ها"
 
-#: plugin/app.php:131
+#: plugin/app.php:146
 msgid "Empty all fields"
 msgstr "پاک کردن همه زمینه‌ها"
 
-#: plugin/app.php:131
+#: plugin/app.php:146
 msgid "Empty"
 msgstr "خالی"
 
 #. / translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
-#: plugin/app.php:150
+#: plugin/app.php:165
 #, php-format
 msgid "from line %1$s, column %2$s %3$s"
 msgstr "از خط %1$s, ستون %2$s %3$s"
 
-#: plugin/app.php:151 plugin/immediate.php:112
+#: plugin/app.php:166 plugin/immediate.php:112
 msgid "Delete"
 msgstr "حذف"
 
-#: plugin/app.php:173
+#: plugin/app.php:188
 #, php-format
 msgid "You have found %1$s of %2$s words"
 msgstr ""
 "شما %1$s از %2$s را یافته‌اید.\n"
 "\n"
 
-#: plugin/app.php:174
+#: plugin/app.php:189
 #, php-format
 msgid "You have found all %1$s words!"
 msgstr "شما همه  %1$s کلمه را یافتید."
 
-#: plugin/app.php:181
-#, fuzzy
-msgid "Start"
-msgstr "از نو"
-
-#: plugin/app.php:181
-#, fuzzy
-msgid "Start solving the riddle"
-msgstr "از نو جدول را حل کنید."
-
-#: plugin/app.php:182
-msgid "Time"
-msgstr ""
-
-#: plugin/app.php:183 plugin/app.php:193
-msgid "Restart"
-msgstr "از نو"
-
-#: plugin/app.php:183 plugin/app.php:193
-msgid "Restart solving the riddle"
-msgstr "از نو جدول را حل کنید."
-
-#: plugin/app.php:184
-msgid "Result"
-msgstr ""
-
-#: plugin/app.php:185
-msgid "Remaining time"
-msgstr ""
-
-#: plugin/app.php:186
-msgid "Time used"
-msgstr ""
-
-#: plugin/app.php:213
+#: plugin/app.php:216
 msgid "Authored by"
 msgstr "مولف"
 
@@ -543,13 +543,13 @@ msgid "Congratulation, you have solved the riddle!"
 msgstr "مبارک باد! شما جدول را حل کردید."
 
 #: plugin/immediate.php:93
-#, fuzzy
-msgid "Congratulation, you have solved the riddle in $1s!"
+#, fuzzy, php-format
+msgid "Congratulation, you have solved the riddle in %1$s!"
 msgstr "مبارک باد! شما جدول را حل کردید."
 
 #: plugin/immediate.php:94
-#, fuzzy
-msgid "You have found $1s of $1s hidden words during the alloted time."
+#, fuzzy, php-format
+msgid "You have found %1$s of %2$s hidden words during the alloted time."
 msgstr ""
 "شما %1$s از %2$s را یافته‌اید.\n"
 "\n"

@@ -90,8 +90,8 @@ if ( 'build' == $mode ) {
                 <p ng-switch-when="false_word"><?php printf( __('The marked word %1$s is not part of the solution.', 'crosswordsearch'), '{{message.word | joinWord}}' ) ?></p>
                 <p ng-switch-when="solved_completely"  ng-switch="message.time"><span
                     ng-switch-when="false"><?php _e('Congratulation, you have solved the riddle!', 'crosswordsearch') ?></span><span
-                    ng-switch-default><?php printf( __('Congratulation, you have solved the riddle in $1s!', 'crosswordsearch'), '{{message.time | duration}}') ?></span></p>
-                <p ng-switch-when="solved_incomplete"><?php printf( __('You have found $1s of $1s hidden words during the alloted time.', 'crosswordsearch'), '{{message.solution|localeNumber}}', '{{message.words|localeNumber}}') ?></p>
+                    ng-switch-default><?php printf( __('Congratulation, you have solved the riddle in %1$s!', 'crosswordsearch'), '{{message.time | duration}}') ?></span></p>
+                <p ng-switch-when="solved_incomplete"><?php printf( __('You have found %1$s of %2$s hidden words during the alloted time.', 'crosswordsearch'), '{{message.solution|localeNumber}}', '{{message.words|localeNumber}}') ?></p>
 <?php
 
 } elseif ( 'admin' == $mode ) {
