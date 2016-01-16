@@ -99,6 +99,15 @@ describe("crwTimerElement", function() {
         expect($scope.timer).toBe($isolate.timer);
     });
 
+    it("cancels runing clock on init", function() {
+        spyOn($interval, 'cancel').and.callThrough();
+        compile(0);
+        $scope.$apply('$broadcast("timerInit")');
+        $isolate.play();
+        $scope.$apply('$broadcast("timerInit")');
+        expect($interval.cancel).toHaveBeenCalled();
+    });
+
     it("inits timer acoording to attributes", function() {
         compile(10);
         $scope.$apply('$broadcast("timerInit")');

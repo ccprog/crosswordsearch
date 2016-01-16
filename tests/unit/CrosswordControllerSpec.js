@@ -191,73 +191,77 @@ describe("CrosswordController", function () {
 
         it("inits competitive solve mode", function () {
             $scope.crw.setProject = jasmine.createSpy("setProject");
-            spyOn($scope, '$broadcast');
             $scope.prepare('project', 'nc', 'ne', 'name', 'timer');
             expect($scope.crw.setProject).toHaveBeenCalledWith('project', 'nc', 'ne', false);
             expect($scope.tableVisible).toBe(false);
-            expect($scope.$broadcast).toHaveBeenCalledWith('timerInit');
         });
 
-        it("watches timer state in competitive solve mode", function () {
-            spyOn($scope, 'restart');
-            $scope.crw.setProject = jasmine.createSpy("setProject");
-            $scope.crw.submitSolution = jasmine.createSpy("submitSolution");
-            $scope.prepare('project', 'nc', 'ne', 'name', 'timer');
-            $scope.timer = {
-                countdown: false,
-                submiting: false,
-                state: 'waiting',
-                time: null
-            };
-            expect($scope.tableVisible).toBe(false);
-            expect($scope.restart).not.toHaveBeenCalled();
-            expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
-            $scope.timer.state = 'playing';
-            $scope.$apply();
-            expect($scope.tableVisible).toBe(true);
-            expect($scope.restart).not.toHaveBeenCalled();
-            expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
-            $scope.timer.time = 64263;
-            $scope.count = {
-                words: 2,
-                solution: 1
-            };
-            $scope.timer.state = 'scored';
-            $scope.$apply();
-            expect($scope.tableVisible).toBe(true);
-            expect($scope.restart).not.toHaveBeenCalled();
-            expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('solvedCompletely', null);
-            deferred.resolve();
-            $scope.$apply();
-            expect($scope.crw.submitSolution).not.toHaveBeenCalled();
-            $scope.timer.state = 'waiting';
-            $scope.$apply();
-            expect($scope.restart).toHaveBeenCalled();
-            $scope.timer.state = 'playing';
-            $scope.$apply();
-            $scope.immediateStore.newPromise.calls.reset();
-            $scope.count.solution = 2;
-            $scope.timer.state = 'scored';
-            $scope.$apply();
-            expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('solvedCompletely', 64263);
-            deferred.resolve();
-            $scope.$apply();
-            $scope.timer.submiting = true;
-            $scope.timer.state = 'playing';
-            $scope.$apply();
-            $scope.timer.state = 'final';
-            $scope.$apply();
-            deferred.resolve();
-            $scope.$apply();
-            expect($scope.crw.submitSolution).toHaveBeenCalledWith('64.3');
-            $scope.timer.countdown = 90000;
-            $scope.timer.state = 'playing';
-            $scope.$apply();
-            $scope.timer.state = 'final';
-            $scope.$apply();
-            deferred.resolve();
-            $scope.$apply();
-            expect($scope.crw.submitSolution).toHaveBeenCalledWith('25.7');
+        describe("watches timer state", function () {
+            beforeEach(function () {
+                spyOn($scope, 'restart');
+                $scope.crw.setProject = jasmine.createSpy("setProject");
+                $scope.crw.submitSolution = jasmine.createSpy("submitSolution");
+                $scope.prepare('project', 'nc', 'ne', 'name', 'timer');
+                $scope.timer = {
+                    countdown: false,
+                    submiting: false,
+                    time: 64263
+                };
+                $scope.count = {
+                    words: 2,
+                    solution: 1
+                };
+            });
+
+            it("from waiting to playing", function () {
+                $scope.$apply('timer.state="waiting"');
+                expect($scope.tableVisible).toBe(false);
+                expect($scope.restart).not.toHaveBeenCalled();
+                expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
+                $scope.$apply('timer.state="playing"');
+                expect($scope.tableVisible).toBe(true);
+                expect($scope.restart).not.toHaveBeenCalled();
+                expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
+            });
+
+            it("from playing to scored", function () {
+                $scope.$apply('timer.state="playing"');
+                $scope.$apply('timer.state="scored"');
+                expect($scope.tableVisible).toBe(true);
+                expect($scope.restart).not.toHaveBeenCalled();
+                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('solvedCompletely', 64263);
+                deferred.resolve();
+                $scope.$apply();
+                expect($scope.crw.submitSolution).not.toHaveBeenCalled();
+            });
+
+            it("from scored to waiting", function () {
+                $scope.$apply('timer.state="scored"');
+                $scope.$apply('timer.state="waiting"');
+                expect($scope.restart).toHaveBeenCalled();
+            });
+
+            it("from playing to waiting", function () {
+                $scope.$apply('timer.state="playing"');
+                $scope.$apply('timer.state="waiting"');
+                expect($scope.restart).not.toHaveBeenCalled();
+                expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
+            });
+
+            it("from playing to final (submitting)", function () {
+                $scope.timer.submiting = true;
+                $scope.$apply('timer.state="playing"');
+                $scope.$apply('timer.state="final"');
+                deferred.resolve();
+                $scope.$apply();
+                expect($scope.crw.submitSolution).toHaveBeenCalledWith('64.3');
+                $scope.timer.countdown = 90000;
+                $scope.$apply('timer.state="playing"');
+                $scope.$apply('timer.state="final"');
+                deferred.resolve();
+                $scope.$apply();
+                expect($scope.crw.submitSolution).toHaveBeenCalledWith('25.7');
+            });
         });
 
         it("evaluates menu commands asynchronously", function () {
@@ -377,61 +381,85 @@ describe("CrosswordController", function () {
             expect($scope.highlight).toBe('highlight');
         });
 
-        it("loads crossword data", function () {
-            $scope.namesInProject = ['name1', 'name3'];
+        describe("Crossword loading", function () {
             var namesList = ['name1', 'name2'];
-            $scope.crosswordData.name = $scope.loadedName = namesList[0];
-            $scope.crw.getCrosswordData = function () {
-                return {
-                    name: namesList[1],
-                    words: ['word1', 'word2']
+
+            beforeEach(function () {
+                $scope.namesInProject = ['name1', 'name3'];
+                $scope.crosswordData.name = $scope.loadedName = namesList[0];
+                $scope.crw.getCrosswordData = function () {
+                    return {
+                        name: namesList[1],
+                        words: ['word1', 'word2']
+                    };
                 };
-            };
-            $scope.crw.getNamesList =  function () {
-                return namesList;
-            };
-            $scope.crw.getCount =  function () {
-                return {
-                    words: 2,
-                    solution: 0
+                $scope.crw.getNamesList =  function () {
+                    return namesList;
                 };
-            };
-            $scope.levelList = 'levelList1';
-            $scope.crw.getLevelList = jasmine.createSpy("getLevelList").and.returnValue('levelList2');
-            $scope.crw.setWord = jasmine.createSpy("setWord");
-            $scope.crw.loadDefault = jasmine.createSpy("loadDefault");
-            $scope.commandList = [{value: 'load'}];
-            $scope.loadError = 'error1';
-            $scope.count = {
-                word: 3,
-                solution: 3
-            };
-            $scope.load();
-            expect($scope.loadError).toBeNull();
-            expect($scope.crw.loadDefault).toHaveBeenCalled();
-            expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
-            expect($scope.crosswordData.name).toBe('name2');
-            expect($scope.crosswordData.words).toBeDefined();
-            expect($scope.levelList).toBe('levelList2');
-            expect($scope.namesInProject).toBe(namesList);
-            expect($scope.commandList[0].group).toBe(namesList);
-            expect($scope.loadedName).toBe('name2');
-            expect($scope.highlight).toEqual([]);
-            expect($scope.count.words).toBe(2);
-            expect($scope.count.solution).toBe(0);
-            $scope.load('');
-            expect($scope.crw.loadDefault.calls.count()).toBe(1);
-            expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', '');
-            expect($scope.crw.getLevelList.calls.count()).toBe(1);
-            deferred.resolve();
-            $scope.$apply();
-            expect($scope.crw.getLevelList.calls.count()).toBe(2);
-            $scope.load('name2');
-            expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', 'name2');
-            deferred.reject('error2');
-            $scope.$apply();
-            expect($scope.crw.getLevelList.calls.count()).toBe(2);
-            expect($scope.loadError).toBe('error2');
+                $scope.crw.getCount =  function () {
+                    return {
+                        words: 2,
+                        solution: 0
+                    };
+                };
+                $scope.levelList = 'levelList1';
+                $scope.crw.getLevelList = jasmine.createSpy("getLevelList").and.returnValue('levelList2');
+                $scope.crw.setWord = jasmine.createSpy("setWord");
+                $scope.crw.loadDefault = jasmine.createSpy("loadDefault");
+                $scope.commandList = [{value: 'load'}];
+                $scope.loadError = 'error1';
+                $scope.count = {
+                    word: 3,
+                    solution: 3
+                };
+            });
+
+            it("loads default crossword data", function () {
+                $scope.load();
+                expect($scope.loadError).toBeNull();
+                expect($scope.crw.loadDefault).toHaveBeenCalled();
+                expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
+                expect($scope.crosswordData.name).toBe('name2');
+                expect($scope.crosswordData.words).toBeDefined();
+                expect($scope.levelList).toBe('levelList2');
+                expect($scope.namesInProject).toBe(namesList);
+                expect($scope.commandList[0].group).toBe(namesList);
+                expect($scope.loadedName).toBe('name2');
+                expect($scope.highlight).toEqual([]);
+                expect($scope.count.words).toBe(2);
+                expect($scope.count.solution).toBe(0);
+            });
+
+            it("updates on async response", function () {
+                $scope.load('');
+                expect($scope.crw.loadDefault).not.toHaveBeenCalled();
+                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', '');
+                expect($scope.crw.getLevelList).not.toHaveBeenCalled();
+                deferred.resolve();
+                $scope.$apply();
+                expect($scope.crw.getLevelList).toHaveBeenCalled();
+                expect($scope.tableVisible).toBe(true);
+            });
+
+            it("does not update on async error", function () {
+                $scope.load('name2');
+                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', 'name2');
+                deferred.reject('error2');
+                $scope.$apply();
+                expect($scope.crw.getLevelList).not.toHaveBeenCalled();
+                expect($scope.loadError).toBe('error2');
+            });
+
+            it("inits timer on load", function () {
+                $scope.timer = {};
+                spyOn($scope, '$broadcast');
+                $scope.load('');
+                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', '');
+                deferred.resolve();
+                $scope.$apply();
+                expect($scope.tableVisible).toBe(false);
+                expect($scope.$broadcast).toHaveBeenCalledWith('timerInit');
+            });
         });
 
         it("sets crossword on preview message", function () {
@@ -464,12 +492,15 @@ describe("CrosswordController", function () {
             $scope.timer = {
                 submiting: true
             };
+            $scope.tableVisible = true;
             $scope.crw.getLevelRestriction.calls.reset();
             $scope.restart();
+            expect($scope.tableVisible).toBe(true);
             expect($scope.$broadcast).not.toHaveBeenCalled();
             expect($scope.crw.getLevelRestriction).not.toHaveBeenCalled();
             $scope.timer.submiting = false;
             $scope.restart();
+            expect($scope.tableVisible).toBe(false);
             expect($scope.$broadcast).toHaveBeenCalledWith('timerInit');
             expect($scope.crw.getLevelRestriction).toHaveBeenCalled();
         });
