@@ -1288,7 +1288,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                 }
             };
         },
-        template: '<button ng-class="timer.state" ' + 'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' + 'ng-disabled="getDisabled()" ng-click="play()"></button>' + '<tt title="{{getTitle()}}">{{timer.time | duration}}</tt>'
+        template: '<button class="crw-control-button" ng-class="timer.state" ' + 'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' + 'ng-disabled="getDisabled()" ng-click="play()"></button>' + '<tt title="{{getTitle()}}">{{timer.time | duration}}</tt>'
     };
 } ]);
 

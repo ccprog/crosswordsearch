@@ -67,13 +67,28 @@ if ( 'build' == $mode ) {
 
 ?>
     <p class="crw-instruction"><?php _e('Mark the words:', 'crosswordsearch') ?></p>
+<?php // competetive mode, inner elements only transport localized strings
+
+    if ( $timer ) {
+
+?>
+    <div crw-timer-element="timer" countdown="<?php echo $countdown ?>" <?php if ($submiting) { echo 'submiting'; } ?>>
+        <span state="waiting" alt="<?php _e('Start', 'crosswordsearch') ?>"><?php _e('Start solving the riddle', 'crosswordsearch') ?></span>
+        <span state="playing" alt="<?php _e('Time', 'crosswordsearch') ?>"></span>
+        <span state="scored" alt="<?php _e('Restart', 'crosswordsearch') ?>"><?php _e('Restart solving the riddle', 'crosswordsearch') ?></span>
+        <span state="final" alt="<?php _e('Result', 'crosswordsearch') ?>"></span>
+        <span state="down"><?php _e('Remaining time', 'crosswordsearch') ?></span>
+        <span state="up"><?php _e('Time used', 'crosswordsearch') ?></span>
+    </div>
 <?php
+
+    }
 
 }
 
 ?>
     <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide" ng-style="styleCrossword()' : '' ) ?>" ng-controller="SizeController" ng-if="crosswordData">
-        <div ng-style="styleGridSize()" ng-class="{'crw-grid': true, divider: <?php echo ( 'build' == $mode ? 'true' : 'false' ) ?> || !tableVisible}">
+        <div ng-style="styleGridSize()" class="crw-grid" ng-class="{divider: <?php echo ( 'build' == $mode ? 'true' : 'false' ) ?> || !tableVisible}">
 <?php // resize handles
 
 if ( 'build' == $mode ) {
@@ -128,7 +143,7 @@ if ( 'build' == $mode ) {
 
 ?>
         <p ng-style="styleExtras()">
-            <button class="fill" ng-click="randomize()" title="<?php _e('Fill all empty fields with random letters', 'crosswordsearch') ?>" alt="<?php _e('Fill fields', 'crosswordsearch') ?>"></button><button class="empty" ng-click="empty()" title="<?php _e('Empty all fields', 'crosswordsearch') ?>" alt="<?php _e('Empty', 'crosswordsearch') ?>"></button>
+            <button class="crw-control-button fill" ng-click="randomize()" title="<?php _e('Fill all empty fields with random letters', 'crosswordsearch') ?>" alt="<?php _e('Fill fields', 'crosswordsearch') ?>"></button><button class="crw-control-button empty" ng-click="empty()" title="<?php _e('Empty all fields', 'crosswordsearch') ?>" alt="<?php _e('Empty', 'crosswordsearch') ?>"></button>
         </p>
 <?php // controls and output area
 
@@ -148,7 +163,7 @@ if ( 'build' == $mode ) {
                 <span>{{word.fields | joinWord}} (<?php
                 /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
                 printf( __('from line %1$s, column %2$s %3$s', 'crosswordsearch'), '{{word.start.y + 1|localeNumber}}', '{{textIsLTR ? word.start.x + 1 : crosswordData.size.width - word.start.x|localeNumber}}', '{{localize(word.direction)}}') ?>)</span>
-                <button class="trash" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crosswordsearch') ?>"></button>
+                <button class="crw-control-button trash" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crosswordsearch') ?>"></button>
             </li>
         </ul>
 <?php // preview mode: wordlist
@@ -168,29 +183,17 @@ if ( 'build' == $mode ) {
 } else {
 
 ?>
-    <div class="crw-controls">
+    <div class="crw-controls" ng-class="{invisible: !tableVisible}">
         <p ng-show="crosswordData.name">
             <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crosswordsearch'), '{{count.solution|localeNumber}}', '{{count.words|localeNumber}}' ) ?></span>
             <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crosswordsearch'), '{{count.words|localeNumber}}' ) ?></span>
-<?php // competetive mode, inner elements only transport localized strings
 
-    if ( $timer ) {
-
-?>
-            <span crw-timer-element="timer" countdown="<?php echo $countdown ?>" <?php if ($submiting) { echo 'submiting'; } ?>>
-                <span state="waiting" alt="<?php _e('Start', 'crosswordsearch') ?>"><?php _e('Start solving the riddle', 'crosswordsearch') ?></span>
-                <span state="playing" alt="<?php _e('Time', 'crosswordsearch') ?>"></span>
-                <span state="scored" alt="<?php _e('Restart', 'crosswordsearch') ?>"><?php _e('Restart solving the riddle', 'crosswordsearch') ?></span>
-                <span state="final" alt="<?php _e('Result', 'crosswordsearch') ?>"></span>
-                <span state="down"><?php _e('Remaining time', 'crosswordsearch') ?></span>
-                <span state="up"><?php _e('Time used', 'crosswordsearch') ?></span>
-            </span>
 <?php // normal solve mode
 
-    } else {
+    if ( !$timer ) {
 
 ?>
-            <button class="restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="<?php _e('Restart solving the riddle', 'crosswordsearch') ?>" alt="<?php _e('Restart', 'crosswordsearch') ?>"></button>
+            <button class="crw-control-button restart" ng-click="restart()" ng-disabled="loadedName!=crosswordData.name" title="<?php _e('Restart solving the riddle', 'crosswordsearch') ?>" alt="<?php _e('Restart', 'crosswordsearch') ?>"></button>
 <?php
 
     }

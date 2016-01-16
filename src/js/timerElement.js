@@ -110,7 +110,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             };
         },
 
-        template: '<button ng-class="timer.state" ' +
+        template: '<button class="crw-control-button" ng-class="timer.state" ' +
             'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' +
             'ng-disabled="getDisabled()" ng-click="play()"></button>' +
             '<tt title="{{getTitle()}}">{{timer.time | duration}}</tt>'
