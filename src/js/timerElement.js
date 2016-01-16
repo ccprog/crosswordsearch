@@ -39,7 +39,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             scope.timer = {};
             // extract localized texts from child elements
             scope.texts = {};
-            angular.element(transcludeFn()).each(function (idx, elem) {
+            angular.element(transcludeFn()).filter('span').each(function (idx, elem) {
                 scope.texts[elem.getAttribute('state')] = {
                     alt: elem.getAttribute('alt'),
                     title: elem.textContent

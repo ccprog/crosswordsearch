@@ -113,7 +113,6 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
                     }
                 }
             });
-            $scope.$broadcast('timerInit');
             break;
         }
         // init command data object and menu
@@ -211,6 +210,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         updateNames();
         if (typeof $scope.timer === 'object') {
             $scope.tableVisible = false;
+            $scope.$broadcast('timerInit');
         }
     };
 

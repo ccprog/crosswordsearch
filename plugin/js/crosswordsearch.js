@@ -1232,7 +1232,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
             scope.$interval = $interval;
             scope.timer = {};
             scope.texts = {};
-            angular.element(transcludeFn()).each(function(idx, elem) {
+            angular.element(transcludeFn()).filter("span").each(function(idx, elem) {
                 scope.texts[elem.getAttribute("state")] = {
                     alt: elem.getAttribute("alt"),
                     title: elem.textContent
@@ -1380,7 +1380,6 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
                     }
                 }
             });
-            $scope.$broadcast("timerInit");
             break;
         }
         $scope.commandList = jQuery.map($scope.commands, function(value, command) {
@@ -1463,6 +1462,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         updateNames();
         if (typeof $scope.timer === "object") {
             $scope.tableVisible = false;
+            $scope.$broadcast("timerInit");
         }
     };
     $scope.setHighlight = function(h) {
