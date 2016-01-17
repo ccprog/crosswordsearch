@@ -99,18 +99,9 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
                     $scope.restart();
                 } else if (oldState === 'playing' && newState !== 'waiting') {
                     // user feedback after game stops
-                    var answ = $scope.immediateStore.newPromise(
-                        'solvedCompletely',
-                        $scope.timer.time
-                    );
-                    // submit result to server
-                    if ($scope.timer.submiting) {
-                        var time = $scope.timer.countdown ?
-                            $scope.timer.countdown - $scope.timer.time :
-                            $scope.timer.time;
-                        time = (time / 1000).toFixed(1);
-                        answ.then($scope.crw.submitSolution(time));
-                    }
+                    var dialogue = $scope.timer.submiting ?
+                        'submitSolution' : 'solvedCompletely';
+                    $scope.immediateStore.newPromise(dialogue, $scope.timer.time);
                 }
             });
             break;

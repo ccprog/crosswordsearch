@@ -330,6 +330,65 @@ describe("ImmediateController", function () {
         });
     });
 
+    it("handles submission resolution", inject(function ($sce) {
+        var deferredData = $q.defer();
+        $scope.crw.submitSolution = jasmine.createSpy("saveCrosswordData").and.returnValue(deferredData.promise);
+        $scope.finish.and.stub();
+        $scope.immediateStore.newPromise('submitSolution', 25330);
+        expect($scope.immediate).toBe('submit_solution');
+        expect($scope.progress).toBe(0);
+        expect($scope.message).toEqual({
+            which: 'solved_completely',
+            buttons: {
+                'ok': true
+            },
+            time: 25330
+        });
+        $scope.submit('username', 'password');
+        expect($scope.progress).toBe(1);
+        expect($scope.crw.submitSolution).toHaveBeenCalledWith('25.3', 'username', 'password');
+        deferredData.resolve('message <em>now>/em>');
+        $scope.$apply();
+        expect($scope.progress).toBe(2);
+        expect($sce.getTrustedHtml($scope.message.feedback)).toBe('message <em>now>/em>');
+        expect($scope.finish).not.toHaveBeenCalled();
+        $scope.submit();
+        expect($scope.finish).toHaveBeenCalledWith(true);
+    }));
+
+    it("handles submission resolution without message", function () {
+        var deferredData = $q.defer();
+        $scope.crw.submitSolution = jasmine.createSpy("saveCrosswordData").and.returnValue(deferredData.promise);
+        $scope.finish.and.stub();
+        $scope.immediateStore.newPromise('submitSolution', 25330);
+        expect($scope.immediate).toBe('submit_solution');
+        expect($scope.progress).toBe(0);
+        $scope.submit('username', 'password');
+        expect($scope.progress).toBe(1);
+        expect($scope.crw.submitSolution).toHaveBeenCalledWith('25.3', 'username', 'password');
+        deferredData.resolve('');
+        $scope.$apply();
+        expect($scope.finish).toHaveBeenCalledWith(true);
+    });
+
+    it("handles submission rejection", function () {
+        var deferredData = $q.defer();
+        $scope.crw.submitSolution = jasmine.createSpy("saveCrosswordData").and.returnValue(deferredData.promise);
+        $scope.finish.and.stub();
+        $scope.immediateStore.newPromise('submitSolution', 25330);
+        expect($scope.immediate).toBe('submit_solution');
+        expect($scope.progress).toBe(0);
+        $scope.submit('username', 'password');
+        expect($scope.progress).toBe(1);
+        expect($scope.crw.submitSolution).toHaveBeenCalledWith('25.3', 'username', 'password');
+        deferredData.reject({error: 'error', debug: 'debug'});
+        $scope.$apply();
+        expect($scope.saveError).toBe('error');
+        expect($scope.saveDebug).toBe('debug');
+        expect($scope.progress).toBe(0);
+        expect($scope.finish).not.toHaveBeenCalled();
+    });
+
     it("handles security confirmation", function () {
         $scope.immediateStore.newPromise('actionConfirmation', {text: 'text'});
         expect($scope.immediate).toBe('dialogue');

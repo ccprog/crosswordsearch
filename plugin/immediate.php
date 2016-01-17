@@ -33,7 +33,22 @@ if ( 'build' == $mode ) {
                         </tr>
 <?php
 
-    if (!$is_auth) {
+} elseif ( $timer ) {
+
+?>
+            <div ng-switch-when="submit_solution">
+                <form name="uploader" crw-has-password>
+                    <p ng-switch on="message.which">
+                        <span ng-switch-when="solved_incomplete"><?php printf( __('You have found %1$s of %2$s hidden words during the alloted time.', 'crosswordsearch'), '{{message.solution|localeNumber}}', '{{message.words|localeNumber}}') ?></span>
+                        <span ng-switch-when="solved_completely"><?php printf( __('Congratulation, you have solved the riddle in %1$s!', 'crosswordsearch'), '{{message.time | duration}}') ?></span>
+                    </p>
+                    <p ng-show="progress<2"><?php _e('Do you want to submit your result?', 'crosswordsearch') ?></p>
+                    <table>
+<?php
+
+}
+
+if ( ( 'build' === $mode ) || ( $timer && !$is_auth ) ) {
 
 ?>
                         <tr>
@@ -52,15 +67,39 @@ if ( 'build' == $mode ) {
                         </tr>
 <?php
 
-    }
+}
+
+if ( 'build' == $mode ) {
 
 ?>
                     </table>
                     <p class="error" ng-show="uploader.$error.sane"><?php _e('Dont\'t try to be clever!', 'crosswordsearch') ?></p>
                     <p class="actions">
-                        <input type="submit" ng-disabled="!uploader.$valid" ng-click="upload(username, password)" value="<?php _e('Save', 'crosswordsearch') ?>"></input>
+                        <input type="submit" ng-disabled="!uploader.$valid" ng-click="upload(username, password)" value="<?php _e('Save', 'crosswordsearch') ?>" />
                         <button ng-click="finish(false)"><?php echo _e('Abort', 'crosswordsearch') ?></button>
                     </p>
+<?php
+
+} elseif ( $timer ) {
+
+?>
+                    </table>
+                    <p class="error" ng-show="uploader.$error.sane"><?php _e('Dont\'t try to be clever!', 'crosswordsearch') ?></p>
+                    <p ng-show="progress==2" ng-bind-html="message.feedback"></p>
+                    <p class="actions">
+                        <input type="submit" ng-disabled="!uploader.$valid || (progress==1)" ng-click="submit(username, password)" value="{{['<?php
+                            _e('Submit', 'crosswordsearch') ?>','<?php
+                            _e('Loading...', 'crosswordsearch') ?>','<?php
+                            _e('OK', 'crosswordsearch') ?>'][progress]}}" />
+                        <button ng-show="progress==0" ng-click="finish(false)"><?php _e('Abort', 'crosswordsearch') ?></button>
+                    </p>
+<?php
+
+}
+
+if ( ( 'build' === $mode ) || $timer ) {
+
+?>
                     <p class="error" ng-show="saveError">{{saveError}}</p>
                     <p class="error" ng-repeat="msg in saveDebug">{{msg}}</p>
                 </form>
@@ -70,7 +109,7 @@ if ( 'build' == $mode ) {
 }
 
 ?>
-            <div ng-switch-when="dialogue" ng-switch="message.which">
+            <div ng-switch-when="dialogue" ng-switch on="message.which">
 <?php
 
 if ( 'build' == $mode ) {
@@ -88,7 +127,7 @@ if ( 'build' == $mode ) {
 
 ?>
                 <p ng-switch-when="false_word"><?php printf( __('The marked word %1$s is not part of the solution.', 'crosswordsearch'), '{{message.word | joinWord}}' ) ?></p>
-                <p ng-switch-when="solved_completely"  ng-switch="message.time"><span
+                <p ng-switch-when="solved_completely"  ng-switch on="message.time"><span
                     ng-switch-when="false"><?php _e('Congratulation, you have solved the riddle!', 'crosswordsearch') ?></span><span
                     ng-switch-default><?php printf( __('Congratulation, you have solved the riddle in %1$s!', 'crosswordsearch'), '{{message.time | duration}}') ?></span></p>
                 <p ng-switch-when="solved_incomplete"><?php printf( __('You have found %1$s of %2$s hidden words during the alloted time.', 'crosswordsearch'), '{{message.solution|localeNumber}}', '{{message.words|localeNumber}}') ?></p>

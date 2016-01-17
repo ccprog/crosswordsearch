@@ -533,15 +533,19 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 return true;
             });
         };
-        this.submitSolution = function(time) {
+        this.submitSolution = function(time, username, password) {
             return ajaxFactory.http({
                 action: "submit_solution",
                 project: project,
                 name: crossword.name,
                 time: time,
                 solved: count.solution,
-                total: count.words
-            }, crwContext);
+                total: count.words,
+                username: username,
+                password: password
+            }, crwContext).then(function(data) {
+                return data.submitted.toString();
+            });
         };
         this.getHighId = function() {
             return reduce(crossword.words, 0, function(result, word) {
@@ -1379,12 +1383,8 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
                 } else if (oldState === "scored" && newState === "waiting") {
                     $scope.restart();
                 } else if (oldState === "playing" && newState !== "waiting") {
-                    var answ = $scope.immediateStore.newPromise("solvedCompletely", $scope.timer.time);
-                    if ($scope.timer.submiting) {
-                        var time = $scope.timer.countdown ? $scope.timer.countdown - $scope.timer.time : $scope.timer.time;
-                        time = (time / 1e3).toFixed(1);
-                        answ.then($scope.crw.submitSolution(time));
-                    }
+                    var dialogue = $scope.timer.submiting ? "submitSolution" : "solvedCompletely";
+                    $scope.immediateStore.newPromise(dialogue, $scope.timer.time);
                 }
             });
             break;
@@ -2033,7 +2033,7 @@ crwApp.directive("crwHasPassword", function() {
     };
 });
 
-crwApp.controller("ImmediateController", [ "$scope", function($scope) {
+crwApp.controller("ImmediateController", [ "$scope", "$sce", function($scope, $sce) {
     var deferred;
     $scope.immediate = null;
     $scope.finish = function(resolution) {
@@ -2083,16 +2083,33 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
         };
         $scope.immediate = "dialogue";
     });
+    function showSaveError(error) {
+        $scope.progress = 0;
+        $scope.saveError = error.error;
+        $scope.saveDebug = error.debug;
+    }
+    function setupSolutionMessage(time) {
+        $scope.message = {
+            which: "solved_completely",
+            buttons: {
+                ok: true
+            }
+        };
+        if ($scope.count.words > $scope.count.solution) {
+            $scope.message.which = "solved_incomplete";
+            $scope.message.words = $scope.count.words;
+            $scope.message.solution = $scope.count.solution;
+        } else {
+            $scope.message.time = time || "false";
+        }
+    }
     $scope.immediateStore.register("saveCrossword", function(saveDeferred, action) {
         deferred = saveDeferred;
         $scope.immediate = "save_crossword";
         $scope.action = action;
     });
     $scope.upload = function(username, password) {
-        $scope.crw.saveCrosswordData($scope.action === "update" ? $scope.loadedName : $scope.crosswordData.name, $scope.loadedName === $scope.crosswordData.name ? "update" : $scope.action, username, password).then($scope.finish, function(error) {
-            $scope.saveError = error.error;
-            $scope.saveDebug = error.debug;
-        });
+        $scope.crw.saveCrosswordData($scope.action === "update" ? $scope.loadedName : $scope.crosswordData.name, $scope.loadedName === $scope.crosswordData.name ? "update" : $scope.action, username, password).then($scope.finish, showSaveError);
     };
     $scope.immediateStore.register("falseWord", function(falseDeferred, word) {
         deferred = falseDeferred;
@@ -2107,21 +2124,36 @@ crwApp.controller("ImmediateController", [ "$scope", function($scope) {
     });
     $scope.immediateStore.register("solvedCompletely", function(solvedDeferred, time) {
         deferred = solvedDeferred;
-        $scope.message = {
-            which: "solved_completely",
-            buttons: {
-                ok: true
-            }
-        };
-        if ($scope.count.words > $scope.count.solution) {
-            $scope.message.which = "solved_incomplete";
-            $scope.message.words = $scope.count.words;
-            $scope.message.solution = $scope.count.solution;
-        } else {
-            $scope.message.time = time || "false";
-        }
+        setupSolutionMessage(time);
         $scope.immediate = "dialogue";
     });
+    $scope.immediateStore.register("submitSolution", function(submitDeferred, time) {
+        deferred = submitDeferred;
+        setupSolutionMessage(time);
+        $scope.progress = 0;
+        $scope.immediate = "submit_solution";
+    });
+    $scope.submit = function(username, password) {
+        switch ($scope.progress) {
+          case 0:
+            $scope.saveError = undefined;
+            $scope.saveDebug = undefined;
+            $scope.progress = 1;
+            $scope.crw.submitSolution(($scope.message.time / 1e3).toFixed(1), username, password).then(function(message) {
+                if (message.length) {
+                    $scope.progress = 2;
+                    $scope.message.feedback = $sce.trustAsHtml(message);
+                } else {
+                    $scope.finish(true);
+                }
+            }, showSaveError);
+            break;
+
+          case 2:
+            $scope.finish(true);
+            break;
+        }
+    };
     $scope.immediateStore.register("actionConfirmation", function(actionDeferred, message) {
         deferred = actionDeferred;
         $scope.message = angular.extend(message, {

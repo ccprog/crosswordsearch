@@ -40,6 +40,7 @@ if ( current_user_can(CRW_CAP_CONFIRMED) ) {
 <?php
 
 $mode = 'admin';
+$timer = false;
 include 'immediate.php';
 
 ?>

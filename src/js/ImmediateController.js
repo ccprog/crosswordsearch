@@ -100,7 +100,7 @@ crwApp.directive('crwHasPassword', function () {
 });
 
 /* controller for modal area */
-crwApp.controller("ImmediateController", ['$scope', function ($scope) {
+crwApp.controller("ImmediateController", ['$scope', '$sce', function ($scope, $sce) {
     var deferred;
     $scope.immediate = null;
 
@@ -165,6 +165,30 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
         $scope.immediate = 'dialogue';
     });
 
+    function showSaveError (error) {
+        $scope.progress = 0;
+        $scope.saveError = error.error;
+        $scope.saveDebug = error.debug;
+    }
+
+    function setupSolutionMessage (time) {
+        $scope.message = {
+            which: 'solved_completely',
+            buttons: {
+                'ok': true
+            }
+        };
+        if ($scope.count.words > $scope.count.solution) {
+            // incomplete solution
+            $scope.message.which = 'solved_incomplete';
+            $scope.message.words = $scope.count.words;
+            $scope.message.solution = $scope.count.solution;
+        } else {
+            // complete solution might have time
+            $scope.message.time = time || 'false';
+        }
+    }
+
     // build page only: deferred handler for user dialogue on data upload
     // register
     $scope.immediateStore.register('saveCrossword', function (saveDeferred, action) {
@@ -181,13 +205,7 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
             $scope.loadedName === $scope.crosswordData.name ? 'update' : $scope.action,
             // username and password are empty for logged-in editors
             username, password
-        ).then(
-            $scope.finish,
-            function (error) {
-                $scope.saveError = error.error;
-                $scope.saveDebug = error.debug;
-            }
-        );
+        ).then($scope.finish, showSaveError);
     };
 
     // solve page only: deferred handler for user dialogue in case of
@@ -209,23 +227,41 @@ crwApp.controller("ImmediateController", ['$scope', function ($scope) {
     // register
     $scope.immediateStore.register('solvedCompletely', function (solvedDeferred, time) {
         deferred = solvedDeferred;
-        $scope.message = {
-            which: 'solved_completely',
-            buttons: {
-                'ok': true
-            }
-        };
-        if ($scope.count.words > $scope.count.solution) {
-            // incomplete solution
-            $scope.message.which = 'solved_incomplete';
-            $scope.message.words = $scope.count.words;
-            $scope.message.solution = $scope.count.solution;
-        } else {
-            // complete solution might have time
-            $scope.message.time = time || 'false';
-        }
+        setupSolutionMessage(time);
         $scope.immediate = 'dialogue';
     });
+
+    // solve page only: deferred handler for user dialogue on solution submission
+    $scope.immediateStore.register('submitSolution', function (submitDeferred, time) {
+        deferred = submitDeferred;
+        setupSolutionMessage(time);
+        $scope.progress = 0;
+        $scope.immediate = 'submit_solution';
+    });
+    // event handler for "submit" button
+    $scope.submit = function (username, password) {
+        switch ($scope.progress) {
+        case 0:
+            $scope.saveError = undefined;
+            $scope.saveDebug = undefined;
+            $scope.progress = 1;
+            $scope.crw.submitSolution(
+                ($scope.message.time / 1000).toFixed(1),
+                username, password
+            ).then(function (message) {
+                if (message.length) {
+                    $scope.progress = 2;
+                    $scope.message.feedback = $sce.trustAsHtml(message);
+                } else {
+                    $scope.finish(true);
+                }
+            }, showSaveError);
+            break;
+        case 2:
+            $scope.finish(true);
+            break;
+        }
+    };
 
     // admin page only: deferred handler for security confirmation user dialogue
     // register

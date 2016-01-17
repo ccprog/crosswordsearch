@@ -1617,17 +1617,17 @@ function crw_submit_solution() {
         SELECT count(*)
         FROM $data_table_name
         WHERE project = %s AND name = %s
-    ", $submission['project'], $submission['name'] ) );
+    ", $project, $name ) );
     if (!$crossword_found) {
         $debug = array(
             'Crossword not found',
-            $submission['project'] . ': ' . $submission['name']
+            $project . ': ' . $name
         );
     }
-    if ($submission['time'] <= 0) {
+    if ($time <= 0) {
         $debug = array( 'No sensible time', wp_unslash($_POST['time']) );
     }
-    if ($submission['solved'] + $submission['total'] == 0) {
+    if ($solved + $total == 0) {
         $debug = array(
             'No sensible number of words',
             wp_unslash($_POST['solved']) . ' of ' . wp_unslash($_POST['total'])
@@ -1637,6 +1637,7 @@ function crw_submit_solution() {
         crw_send_error($error, $debug);
     }
 
+    $submission = compact( 'project', 'name', 'time', 'solved', 'total' );
     /**
      * Fires if a solution for a crossword is submitted
      *
@@ -1648,7 +1649,27 @@ function crw_submit_solution() {
      *     'total' total number of words
      * )
      */
-    do_action( 'crw_solution_submitted', compact( 'project', 'name', 'time', 'solved', 'total' ) );
+    do_action( 'crw_solution_submitted', $submission );
+
+    /**
+     * Filters the message confirming that a solution has been registered.
+     * Defaults to no message.
+     *
+     * @param string $message=''
+     *
+     * @param array $submission Submission details as array(
+     *     'project'
+     *     'name'
+     *     'time' time needed for complete solution in seconds, includes one decimal place
+     *     'solved' number of found words
+     *     'total' total number of words
+     * )
+     */
+    $message = wp_kses_post( apply_filters( 'crw_solution_message', '', $submission ) );
+    wp_send_json( array(
+        'submitted' => $message,
+        CRW_NONCE_NAME => wp_create_nonce( NONCE_CROSSWORD . $project )
+    ) );
 }
 add_action( 'wp_ajax_submit_solution', 'crw_submit_solution' );
 

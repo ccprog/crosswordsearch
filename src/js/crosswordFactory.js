@@ -247,15 +247,19 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         };
 
         // submit a solution to the server
-        this.submitSolution = function (time) {
+        this.submitSolution = function (time, username, password) {
             return ajaxFactory.http({
                 action: 'submit_solution',
                 project: project,
                 name: crossword.name,
                 time: time,
                 solved: count.solution,
-                total: count.words
-            }, crwContext);
+                total: count.words,
+                username: username,
+                password: password
+            }, crwContext).then(function(data) {
+                return data.submitted.toString();
+            });
         };
 
         // return the highest id used for words

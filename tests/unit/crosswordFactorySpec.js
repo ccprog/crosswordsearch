@@ -135,6 +135,31 @@ describe("crosswordFactory", function () {
             }));
         }));
 
+        it("calls ajax for submitting a solution", inject(function ($rootScope) {
+            crw.loadDefault();
+            var crossword = crw.getCrosswordData();
+            crossword.name = 'name';
+            crw.setProject('project', null, 'crwnonce', false);
+            var resolver = jasmine.createSpy('resolver');
+            crw.submitSolution('time', 'username', 'password').then(resolver);
+            expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual(jasmine.objectContaining({
+                action: 'submit_solution',
+                project: 'project',
+                name: 'name',
+                time: 'time',
+                solved: 0,
+                total: 0,
+                username: 'username',
+                password: 'password'
+            }));
+            expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('crossword');
+            deferred.resolve({
+                submitted: 'message'
+            });
+            $rootScope.$apply();
+            expect(resolver).toHaveBeenCalledWith('message');
+        }));
+
         it("gets highest word ID", function () {
             var crossword = crw.getCrosswordData();
             crw.loadDefault();

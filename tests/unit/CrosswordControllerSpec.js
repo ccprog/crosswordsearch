@@ -254,13 +254,7 @@ describe("CrosswordController", function () {
                 $scope.$apply('timer.state="final"');
                 deferred.resolve();
                 $scope.$apply();
-                expect($scope.crw.submitSolution).toHaveBeenCalledWith('64.3');
-                $scope.timer.countdown = 90000;
-                $scope.$apply('timer.state="playing"');
-                $scope.$apply('timer.state="final"');
-                deferred.resolve();
-                $scope.$apply();
-                expect($scope.crw.submitSolution).toHaveBeenCalledWith('25.7');
+                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('submitSolution', 64263);
             });
         });
 
