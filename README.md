@@ -84,7 +84,71 @@ All saved riddles belonging to the project can be loaded.
 2. `[crosswordsearch mode="solve" project="MyProject" name="MyFirstCrossword"]`  
     Only the crossword `MyFirstCrossword` is visible. No other crossword can be selected.
 
-#### Custom theming
+3. `[crosswordsearch mode="solve" project="MyProject" timer=0]`  
+    A newly loaded crossword will be hidden until a "Start" button is hit. Then, the
+    solving will be timed until the user has found all words. (combination with `name`
+    attribute is possible.)
+
+4. `[crosswordsearch mode="solve" project="MyProject" timer=60]`  
+    After hitting the "Start" button, the timer will run backwards from 60 seconds
+    (or whatever number greater than 0 is entered) to zero. After that, no
+    more words can be marked. (combination with `name` attribute is possible.)
+
+5. `[crosswordsearch mode="solve" project="MyProject" timer=0 submiting=1]`  
+    At the end of a timed game, the user is given the opportunity to submit his (partial)
+    result to the server. (`timer` attribute is needed, combination with `name`
+    attribute is possible.)  
+    If the results are sent in, the plugin will not by itself process them in any way.
+    It will be the job of add-on plugins to consume the submissions. See below for
+    details.
+
+### Submisson API
+
+The plugin publishes 3 hooks on result submissions. In order of execution:
+
+1. **Filter** `crw_solution_permission`  
+    Filters the permission to submit a solution. Return false to
+    deny submission.  
+    Parameters:
+    + `bool $permitted=true`
+    + `WP_User $user` User object for submitter
+    + `string $project` project solution relates to
+
+2. **Action** `crw_solution_submitted`  
+    Fires if a solution for a crossword is submitted  
+    Parameters:
+    + `WP_User $user` User object for submitter
+    + `array $submission` Submission details as
+    ```
+    array(
+         'project',
+         'name',
+         'time',   //time needed for complete solution in seconds,
+                   // includes one decimal place
+         'solved', //number of found words
+         'total'   //total number of words
+    )
+    ```
+
+3. **Filter** `crw_solution_message`  
+    Filters the message confirming that a solution has been registered.
+    Defaults to no message.  
+    Parameters:
+    + `string $message=''`
+    + `WP_User $user` User object for submitter
+    + `array $submission` Submission details as
+    ```
+    array(
+         'project',
+         'name',
+         'time',   //time needed for complete solution in seconds,
+                   // includes one decimal place
+         'solved', //number of found words
+         'total'   //total number of words
+    )
+    ```
+
+### Custom theming
 
 It is possible to override the design for this plugin by placing a file
 `crosswordsearch.css` into the base folder of the active theme. It will be loaded
