@@ -132,6 +132,17 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         currentMarking.color = mode === 'build' ? $scope.crw.randomColor() : 'grey';
     };
 
+    function dropMarking () {
+        if (isMarking) {
+            if (mode === 'solve') {
+                $scope.crw.deleteWord(currentMarking.ID, 'solution');
+            }
+            $scope.markers.deleteMarking(currentMarking.ID);
+            isMarking = false;
+        }
+    }
+    $scope.$on('markingStop', dropMarking);
+
     // event handler on mouseup in a field:
     // stop marking and evaluate
     $scope.stopMark = function () {
@@ -140,7 +151,6 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         if (!isMarking) {
             return;
         }
-        isMarking = false;
         // is the marking longer than only one field
         if (!angular.equals(currentMarking.start, currentMarking.stop)) {
             if (mode === 'build') {
@@ -148,7 +158,7 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
                 word = $scope.crw.setWord(currentMarking);
                 if (!word) {
                     // drop silently if word was marked previously
-                    $scope.markers.deleteMarking(currentMarking.ID);
+                    dropMarking();
                 }
             } else {
                 // on solve page test if marking is a valid solution
@@ -157,8 +167,7 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
                     $scope.count.solution++;
                 } else if (word.solved === null) {
                     // drop silently if solution was found previously
-                    $scope.crw.deleteWord(currentMarking.ID, 'solution');
-                    $scope.markers.deleteMarking(currentMarking.ID);
+                    dropMarking();
                 } else {
                     // if not, highlight invalid solution and delete the marking on confirmation
                     $scope.setHighlight([word.ID]);
@@ -172,6 +181,7 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
             // delete one-field markings
             $scope.markers.deleteMarking(currentMarking.ID);
         }
+        isMarking = false;
     };
 
     // event handler on mouseenter

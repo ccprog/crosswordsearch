@@ -64,10 +64,11 @@ describe("crwIndexChecker", function() {
 });
 
 describe("TableController", function () {
-    var $scope, basics;
+    var $rootScope, $scope, basics;
 
     beforeEach(module('crwApp'));
-    beforeEach(inject(function($rootScope, $controller) {
+    beforeEach(inject(function(_$rootScope_, $controller) {
+        $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         $scope.crosswordData = {name: 'name'};
         $scope.setHighlight = jasmine.createSpy("setHighlight");
@@ -329,6 +330,30 @@ describe("TableController", function () {
         expect($scope.markers.setNewMarkers.calls.count(0)).toBe(2);
         $scope.intoField(1, 0);
         expect($scope.markers.setNewMarkers.calls.count(0)).toBe(3);
+    });
+
+    it("drops marking on markingStop event", function () {
+        $scope.crw.setWord = jasmine.createSpy("setWord");
+        $scope.crw.deleteWord = jasmine.createSpy("deleteWord");
+        $scope.setMode('build');
+        $scope.startMark();
+        $scope.outofField(1, 1);
+        $scope.intoField(2, 1);
+        $rootScope.$broadcast('markingStop');
+        $scope.$apply();
+        expect($scope.markers.deleteMarking.calls.argsFor(0)[0]).toBe(2);
+        $scope.stopMark();
+        expect($scope.crw.setWord).not.toHaveBeenCalled();
+        $scope.setMode('solve');
+        $scope.startMark();
+        $scope.outofField(1, 1);
+        $scope.intoField(2, 1);
+        $rootScope.$broadcast('markingStop');
+        $scope.$apply();
+        expect($scope.crw.deleteWord).toHaveBeenCalledWith(2, 'solution');
+        expect($scope.markers.deleteMarking.calls.argsFor(1)[0]).toBe(2);
+        $scope.stopMark();
+        expect($scope.crw.setWord).not.toHaveBeenCalled();
     });
 
     it("does not set a word before multiple fields are set", function () {

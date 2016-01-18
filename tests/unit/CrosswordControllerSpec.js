@@ -225,10 +225,12 @@ describe("CrosswordController", function () {
             });
 
             it("from playing to scored", function () {
+                spyOn($scope, '$broadcast');
                 $scope.$apply('timer.state="playing"');
                 $scope.$apply('timer.state="scored"');
                 expect($scope.tableVisible).toBe(true);
                 expect($scope.restart).not.toHaveBeenCalled();
+                expect($scope.$broadcast).toHaveBeenCalledWith('markingStop');
                 expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('solvedCompletely', 64263);
                 deferred.resolve();
                 $scope.$apply();

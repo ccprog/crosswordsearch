@@ -1378,6 +1378,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
                 } else if (oldState === "scored" && newState === "waiting") {
                     $scope.restart();
                 } else if (oldState === "playing" && newState !== "waiting") {
+                    $scope.$broadcast("markingStop");
                     var dialogue = $scope.timer.submiting ? "submitSolution" : "solvedCompletely";
                     $scope.immediateStore.newPromise(dialogue, $scope.timer.time);
                 }
@@ -1795,25 +1796,39 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         };
         currentMarking.color = mode === "build" ? $scope.crw.randomColor() : "grey";
     };
+    function dropMarking() {
+        if (isMarking) {
+            switch (mode) {
+              case "build":
+                $scope.markers.deleteMarking(currentMarking.ID);
+                break;
+
+              case "solve":
+                $scope.crw.deleteWord(currentMarking.ID, "solution");
+                $scope.markers.deleteMarking(currentMarking.ID);
+                break;
+            }
+        }
+        isMarking = false;
+    }
+    $scope.$on("markingStop", dropMarking);
     $scope.stopMark = function() {
         var word;
         if (!isMarking) {
             return;
         }
-        isMarking = false;
         if (!angular.equals(currentMarking.start, currentMarking.stop)) {
             if (mode === "build") {
                 word = $scope.crw.setWord(currentMarking);
                 if (!word) {
-                    $scope.markers.deleteMarking(currentMarking.ID);
+                    dropMarking();
                 }
             } else {
                 word = $scope.crw.probeWord(currentMarking);
                 if (word.solved) {
                     $scope.count.solution++;
                 } else if (word.solved === null) {
-                    $scope.crw.deleteWord(currentMarking.ID, "solution");
-                    $scope.markers.deleteMarking(currentMarking.ID);
+                    dropMarking();
                 } else {
                     $scope.setHighlight([ word.ID ]);
                     $scope.immediateStore.newPromise("falseWord", word.fields).then(function() {
@@ -1825,6 +1840,7 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         } else {
             $scope.markers.deleteMarking(currentMarking.ID);
         }
+        isMarking = false;
     };
     $scope.intoField = function(row, col) {
         var newStop = {
