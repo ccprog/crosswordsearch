@@ -34,6 +34,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * Bootstrap
  * ---------------------------------- */
 
+define('CRW_VERSION', '0.7.0');
 define('CRW_DB_VERSION', '0.5');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
@@ -1611,7 +1612,13 @@ function crw_submit_solution() {
     $solved = (int)wp_unslash($_POST['solved']);
     $total = (int)wp_unslash($_POST['total']);
 
-    crw_test_permission( 'crossword', null, $project );
+    // if a username is sent, use it for authentication
+    if ( $_POST['username'] ) {
+        $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
+    } else {
+        $user = wp_get_current_user();
+    }
+    crw_test_permission( 'crossword', $user, $project );
 
     $crossword_found = $wpdb->get_var( $wpdb->prepare("
         SELECT count(*)
@@ -1633,6 +1640,17 @@ function crw_submit_solution() {
             wp_unslash($_POST['solved']) . ' of ' . wp_unslash($_POST['total'])
         );
     }
+    /**
+     * Filters the permission to submit a solution. Return false to
+     * deny submission.
+     *
+     * @param bool $permitted=true
+     * @param WP_User $user User object for submitter
+     * @param string $project project solution relates to
+     */
+    if ( !apply_filters( 'crw_solution_permission', true, $user, $project ) ) {
+        $debug = 'Permission denied by consumer';
+    }
     if ($debug) {
         crw_send_error($error, $debug);
     }
@@ -1641,6 +1659,7 @@ function crw_submit_solution() {
     /**
      * Fires if a solution for a crossword is submitted
      *
+     * @param WP_User $user User object for submitter
      * @param array $submission Submission details as array(
      *     'project'
      *     'name'
@@ -1649,14 +1668,14 @@ function crw_submit_solution() {
      *     'total' total number of words
      * )
      */
-    do_action( 'crw_solution_submitted', $submission );
+    do_action( 'crw_solution_submitted', $user, $submission );
 
     /**
      * Filters the message confirming that a solution has been registered.
      * Defaults to no message.
      *
      * @param string $message=''
-     *
+     * @param WP_User $user User object for submitter
      * @param array $submission Submission details as array(
      *     'project'
      *     'name'
@@ -1665,12 +1684,13 @@ function crw_submit_solution() {
      *     'total' total number of words
      * )
      */
-    $message = wp_kses_post( apply_filters( 'crw_solution_message', '', $submission ) );
+    $message = wp_kses_post( apply_filters( 'crw_solution_message', '', $user, $submission ) );
     wp_send_json( array(
         'submitted' => $message,
         CRW_NONCE_NAME => wp_create_nonce( NONCE_CROSSWORD . $project )
     ) );
 }
+add_action( 'wp_ajax_nopriv_submit_solution', 'crw_submit_solution' );
 add_action( 'wp_ajax_submit_solution', 'crw_submit_solution' );
 
 /* ----------------------------------
