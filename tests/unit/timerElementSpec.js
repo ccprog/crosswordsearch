@@ -94,7 +94,7 @@ describe("crwTimerElement", function() {
             countdown: false,
             submiting: false,
             state: 'waiting',
-            time: null
+            time: undefined
         });
         expect($scope.timer).toBe($isolate.timer);
     });
@@ -129,6 +129,7 @@ describe("crwTimerElement", function() {
         expect(button.attr('title')).toBe('Start solving the riddle');
         expect(button.prop('disabled')).toBe(false);
         expect(tt.attr('title')).toBe('Time used');
+        expect(tt.text()).toBe('');
         $isolate.timer.state = 'playing';
         $isolate.timer.time = 1600;
         $scope.$apply();
@@ -156,6 +157,10 @@ describe("crwTimerElement", function() {
         $scope.$apply('$broadcast("timerInit")');
         var tt = element.children('tt');
         expect(tt.attr('title')).toBe('Remaining time');
+        $isolate.timer.state = 'playing';
+        $isolate.timer.time = 1600;
+        $scope.$apply();
+        expect(tt.text()).toBe('0:08.4');
     });
 
     it("evaluates button click", function() {
@@ -202,13 +207,13 @@ describe("crwTimerElement", function() {
         compile(1, true);
         $scope.$apply('$broadcast("timerInit")');
         $isolate.play();
-        expect($scope.timer.time).toBe(1000);
+        expect($scope.timer.time).toBe(0);
         time.addToStamp(200);
         $interval.flush(250);
-        expect($scope.timer.time).toBe(800);
+        expect($scope.timer.time).toBe(200);
         time.addToStamp(400);
         $scope.$apply('$broadcast("timerStop")');
-        expect($scope.timer.time).toBe(400);
+        expect($scope.timer.time).toBe(600);
         expect($interval.cancel).toHaveBeenCalled();
         expect($scope.timer.state).toBe('final');
     });

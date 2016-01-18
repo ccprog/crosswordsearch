@@ -48,13 +48,9 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
 
             // interval callback updates time and stops on countdown
             function timing () {
-                if (countdown > 0) {
-                    scope.timer.time = fixedTime - time.getStamp();
-                    if (scope.timer.time <= 0) {
-                        stop();
-                    }
-                } else {
-                    scope.timer.time = time.getStamp() - fixedTime;
+                scope.timer.time = time.getStamp() - fixedTime;
+                if (countdown > 0 && scope.timer.time >= countdown) {
+                    stop();
                 }
             }
 
@@ -69,11 +65,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             // alter state on game end and cancel interval
             function stop () {
                 if (scope.timer.state === 'playing') {
-                    if (countdown > 0) {
-                        scope.timer.time = fixedTime - time.getStamp();
-                     } else {
-                        scope.timer.time = time.getStamp() - fixedTime;
-                    }
+                    scope.timer.time = time.getStamp() - fixedTime;
                     cancelClock();
                     scope.timer.state = submiting ? 'final' : 'scored';
                 }
@@ -87,17 +79,22 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
                     countdown: countdown > 0,
                     submiting: submiting,
                     state: 'waiting',
-                    time: null
+                    time: undefined
                 };
             }
             scope.$on('timerInit', init);
+
+            // title attribute for time display
+            scope.getTime = function () {
+                return Math.abs(countdown - scope.timer.time);
+            };
 
             // title attribute for time display
             scope.getTitle = function () {
                 return scope.texts[scope.timer.countdown ? 'down' : 'up'].title;
             };
 
-            // title attribute for time display
+            // state of button
             scope.getDisabled = function () {
                 return ['waiting', 'scored'].indexOf(scope.timer.state) < 0;
             };
@@ -106,8 +103,8 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             scope.play = function () {
                 if (scope.timer.state === 'waiting') {
                     // start game, init interval
-                    fixedTime = time.getStamp() + countdown;
-                    scope.timer.time = countdown;
+                    fixedTime = time.getStamp();
+                    scope.timer.time = 0;
                     scope.timer.state = 'playing';
                     clock = scope.$interval(timing, 200);
                 } else if (scope.timer.state === 'scored') {
@@ -122,6 +119,6 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
         template: '<button class="crw-control-button" ng-class="timer.state" ' +
             'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' +
             'ng-disabled="getDisabled()" ng-click="play()"></button>' +
-            '<tt title="{{getTitle()}}">{{timer.time | duration}}</tt>'
+            '<tt title="{{getTitle()}}">{{getTime() | duration}}</tt>'
     };
 }]);
