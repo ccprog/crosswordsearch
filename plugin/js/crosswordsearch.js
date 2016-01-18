@@ -1798,18 +1798,12 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
     };
     function dropMarking() {
         if (isMarking) {
-            switch (mode) {
-              case "build":
-                $scope.markers.deleteMarking(currentMarking.ID);
-                break;
-
-              case "solve":
+            if (mode === "solve") {
                 $scope.crw.deleteWord(currentMarking.ID, "solution");
-                $scope.markers.deleteMarking(currentMarking.ID);
-                break;
             }
+            $scope.markers.deleteMarking(currentMarking.ID);
+            isMarking = false;
         }
-        isMarking = false;
     }
     $scope.$on("markingStop", dropMarking);
     $scope.stopMark = function() {
@@ -2110,9 +2104,8 @@ crwApp.controller("ImmediateController", [ "$scope", "$sce", function($scope, $s
             $scope.message.which = "solved_incomplete";
             $scope.message.words = $scope.count.words;
             $scope.message.solution = $scope.count.solution;
-        } else {
-            $scope.message.time = time || "false";
         }
+        $scope.message.time = time || "false";
     }
     $scope.immediateStore.register("saveCrossword", function(saveDeferred, action) {
         deferred = saveDeferred;

@@ -326,7 +326,8 @@ describe("ImmediateController", function () {
                 'ok': true
             },
             words: 3,
-            solution: 2
+            solution: 2,
+            time: '25.3'
         });
     });
 

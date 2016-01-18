@@ -183,10 +183,9 @@ crwApp.controller("ImmediateController", ['$scope', '$sce', function ($scope, $s
             $scope.message.which = 'solved_incomplete';
             $scope.message.words = $scope.count.words;
             $scope.message.solution = $scope.count.solution;
-        } else {
-            // complete solution might have time
-            $scope.message.time = time || 'false';
         }
+        // complete solution might have time
+        $scope.message.time = time || 'false';
     }
 
     // build page only: deferred handler for user dialogue on data upload
