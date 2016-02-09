@@ -91,7 +91,7 @@ crwApp.directive('crwDimension', function () {
     };
 });
 
-/* controller for Options tab: assign capabilities to roles */
+/* controller for Options tab: capabilities, CSS dimensions, submittents */
 crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {
     var optionsContext = 'options';
@@ -101,9 +101,11 @@ crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
         if ($scope.dimEdit) {
             $scope.dimEdit.$setPristine();
         }
+        $scope.submissions.$setPristine();
         $scope.setError(false);
         $scope.capabilities = data.capabilities;
         $scope.dimensions = data.dimensions;
+        $scope.subscribers = data.subscribers;
     };
 
     $scope.update = function (part) {

@@ -39,6 +39,7 @@ define('CRW_DB_VERSION', '0.5');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
 define('CRW_ROLES_OPTION', 'crw_roles_caps');
+define('CRW_SUBSCRIBERS_OPTION', 'crw_subscribers');
 define('CRW_NONCE_NAME', '_crwnonce');
 define('NONCE_CROSSWORD', 'crw_crossword_');
 define('NONCE_EDIT', 'crw_edit_');
@@ -179,6 +180,14 @@ function crw_update () {
     );
     add_option( CRW_DIMENSIONS_OPTION, $dimensions );
     add_option( CRW_CUSTOM_DIMENSIONS_OPTION, $dimensions );
+    // v0.6.1 -> v0.7.0
+    $subscribers = get_option( CRW_SUBSCRIBERS_OPTION, array() );
+    update_option( CRW_SUBSCRIBERS_OPTION, wp_parse_args( $subscribers, array(
+        'custom-logging-service' => array(
+            'name' => 'Custom Logging Service',
+            'active' => false
+        )
+    ) ) );
 }
 add_action( 'plugins_loaded', 'crw_update' );
 
@@ -258,6 +267,27 @@ function crw_load_text () {
     load_plugin_textdomain( 'crosswordsearch', false, 'crosswordsearch/languages/' );
 }
 add_action('plugins_loaded', 'crw_load_text');
+
+function crw_activate_subscribers () {
+    $subscribers = get_option( CRW_SUBSCRIBERS_OPTION );
+
+    foreach ( $subscribers as $slug => &$plugin ) {
+        switch ( $slug ) {
+        case 'custom-logging-service': 
+            $loaded =  defined( 'CLGS' );
+            $file = 'clgs.php';
+            break;
+        }
+
+        $plugin['loaded'] = $loaded;
+        if ( $loaded && $plugin['active'] ) {
+            require_once( CRW_PLUGIN_DIR . $file );
+        }
+    }
+
+    update_option(CRW_SUBSCRIBERS_OPTION, $subscribers );
+}
+add_action( 'init', 'crw_activate_subscribers' );
 
 /**
  * Add attributes needed for Angular to html tag.
@@ -905,6 +935,7 @@ function crw_send_capabilities () {
     wp_send_json( array(
         'capabilities' => $capabilities,
         'dimensions' => get_option(CRW_CUSTOM_DIMENSIONS_OPTION),
+        'subscribers' => get_option(CRW_SUBSCRIBERS_OPTION),
         CRW_NONCE_NAME => wp_create_nonce(NONCE_OPTIONS)
     ) );
 }
@@ -1005,6 +1036,38 @@ function crw_update_dimensions () {
     crw_send_capabilities();
 }
 add_action( 'wp_ajax_update_crw_dimensions', 'crw_update_dimensions' );
+
+/**
+ * Update subscribers list in option entry.
+ *
+ * Hooked to wp_ajax_update_crw_subscribers.
+ * Calls crw_send_capabilities() to send data.
+ *
+ * @see crw_send_capabilities()
+ *
+ * @return void
+ */
+function crw_update_subscribers () {
+    $error = __('Subscription options could not be updated.', 'crosswordsearch');
+
+    crw_test_permission( 'cap', wp_get_current_user() );
+
+    $subscribers_raw = json_decode( wp_unslash( $_POST['subscribers'] ), true );
+    if ( !is_array($subscribers_raw) ) {
+        $debug = 'invalid data: no array';
+        crw_send_error($error, $debug);
+    } else {
+        $subscribers = get_option( CRW_SUBSCRIBERS_OPTION );
+        foreach ( $subscribers as $key => $val ) {
+            $subscribers[$key]['active'] = (bool)$subscribers_raw[$key]['active'];
+        }
+    }
+
+    update_option( CRW_SUBSCRIBERS_OPTION, $subscribers );
+
+    crw_send_capabilities();
+}
+add_action( 'wp_ajax_update_crw_subscribers', 'crw_update_subscribers' );
 
 /**
  * Answer request for Projects tab data.
@@ -1717,7 +1780,8 @@ function crw_add_help_tab () {
                 __('Full editors can only act on the projects they are assigned to.', 'crosswordsearch') . '</p><p>' .
                 sprintf( __('For custom theming, place a file %1$s with overrides to the default theme into your theme folder.', 'crosswordsearch'), '<code>crosswordsearch.css</code>') . '</p><p>' .
                 __('There are some dimension values that are used in computations during drag operations. If you have a custom theme, you might have to additionally adjust these values.', 'crosswordsearch') . '</p><p>' .
-                __('Dimension settings are pixel values and used uniformly for heights and widths.', 'crosswordsearch') . '</p><p>' . '</p>',
+                __('Dimension settings are pixel values and used uniformly for heights and widths.', 'crosswordsearch') . '</p><p>' .
+                __('Solution submissions can either be processed by one of the plugins listed below, or another plugin can subscribe to them through the API.', 'crosswordsearch') . '</p><p>' . '</p>',
         ) );
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-projects',

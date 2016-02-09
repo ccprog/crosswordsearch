@@ -70,4 +70,15 @@ if ( $child_css ) {
 }
 
 ?>
+        <h3><?php _e('Solution submissions', 'crosswordsearch') ?></h3>
+        <form name="submissions">
+        <p><?php _e('Install and activate a plugin to submit a solution to it.', 'crosswordsearch') ?></p>
+        <p><?php _e('Log submissions with:', 'crosswordsearch') ?></p>
+        <ul>
+            <li ng-repeat="(slug, plugin) in subscribers"><label for="crw-{{slug}}"><input id="crw-{{slug}}" type="checkbox" ng-model="plugin.active" ng-enabled="plugin.loaded" />
+                <a ng-href="<?php echo admin_url('plugin-install.php') ?>?tab=plugin-information&plugin={{slug}}&TB_iframe=true&width=600&height=550" class="thickbox">{{plugin.name}}</a>
+            </label></li>
+        </ul>
+        <p><button class="text" title="<?php _e('Save the submission targets', 'crosswordsearch') ?>" ng-click="update('subscribers')" ng-disabled="submissions.$pristine"><?php _e('Save', 'crosswordsearch') ?></button>
+        </form>
     </div>

@@ -869,9 +869,11 @@ crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scop
         if ($scope.dimEdit) {
             $scope.dimEdit.$setPristine();
         }
+        $scope.submissions.$setPristine();
         $scope.setError(false);
         $scope.capabilities = data.capabilities;
         $scope.dimensions = data.dimensions;
+        $scope.subscribers = data.subscribers;
     };
     $scope.update = function(part) {
         var data = {

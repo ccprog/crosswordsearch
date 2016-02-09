@@ -146,7 +146,7 @@ describe("crwDimension", function() {
 });
 
 describe("OptionsController", function () {
-    var $scope, ajaxFactory, deferred, capabilities;
+    var $scope, ajaxFactory, deferred, options = {};
 
     beforeEach(module('crwApp'));
     beforeEach(inject(function ($rootScope, $controller, $q) {
@@ -163,10 +163,12 @@ describe("OptionsController", function () {
             $scope: $scope,
             ajaxFactory: ajaxFactory
         });
-        capabilities = $scope.capabilities = {data:"data1"};
-        dimensions = $scope.dimensions = {data:"data2"};
+        options.capabilities = $scope.capabilities = {data:"data1"};
+        options.dimensions = $scope.dimensions = {data:"data2"};
+        options.subscribers = $scope.subscribers = {data:"data2"};
         $scope.capsEdit = {$setPristine: jasmine.createSpy()};
         $scope.dimEdit = {$setPristine: jasmine.createSpy()};
+        $scope.submissions = {$setPristine: jasmine.createSpy()};
         $scope.setError = jasmine.createSpy("setError");
     }));
 
@@ -177,10 +179,11 @@ describe("OptionsController", function () {
             action: 'get_crw_capabilities'
         });
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
-        deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
+        deferred.resolve({capabilities: 'cap', dimensions: 'dim', subscribers: 'subs'});
         $scope.$apply();
         expect($scope.capabilities).toBe('cap');
         expect($scope.dimensions).toBe('dim');
+        expect($scope.subscribers).toBe('subs');
         expect($scope.setError).toHaveBeenCalledWith(false);
     });
 
@@ -188,55 +191,38 @@ describe("OptionsController", function () {
         $scope.prepare('nonce');
         deferred.reject('error');
         $scope.$apply();
-        expect($scope.capabilities).toBe(capabilities);
-        expect($scope.dimensions).toBe(dimensions);
+        expect($scope.capabilities).toBe(options.capabilities);
+        expect($scope.dimensions).toBe(options.dimensions);
+        expect($scope.subscribers).toBe(options.subscribers);
         expect($scope.setError).toHaveBeenCalledWith('error');
     });
 
-    it("calls for capabilities update", function () {
-        $scope.update('capabilities');
-        expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual({
-            action: 'update_crw_capabilities',
-            capabilities: JSON.stringify(capabilities)
+    ['capabilities', 'dimensions', 'subscribers'].forEach(function(option) {
+        it("calls for " + option + " update", function () {
+            $scope.update(option);
+            var call = {
+                action: 'update_crw_' + option
+            };
+            call[option] =  JSON.stringify(options[option]);
+            expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual(call);
+            expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
+            var resp = {capabilities: 'cap', dimensions: 'dim', subscribers: 'subs'};
+            deferred.resolve(resp);
+            $scope.$apply();
+            expect($scope.setError).toHaveBeenCalledWith(false);
+            expect($scope.capsEdit.$setPristine).toHaveBeenCalled();
+            expect($scope.dimEdit.$setPristine).toHaveBeenCalled();
+            expect($scope.submissions.$setPristine).toHaveBeenCalled();
+            expect($scope[option]).toBe(resp[option]);
         });
-        expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
-        deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
-        $scope.$apply();
-        expect($scope.setError).toHaveBeenCalledWith(false);
-        expect($scope.capsEdit.$setPristine).toHaveBeenCalled();
-        expect($scope.dimEdit.$setPristine).toHaveBeenCalled();
-        expect($scope.capabilities).toBe('cap');
-    });
 
-    it("reacts on capabilities update failure", function () {
-        $scope.update('capabilities');
-        deferred.reject('error');
-        $scope.$apply();
-        expect($scope.setError).toHaveBeenCalledWith('error');
-        expect($scope.capabilities).toBe(capabilities);
-    });
-
-    it("calls for dimensions update", function () {
-        $scope.update('dimensions');
-        expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual({
-            action: 'update_crw_dimensions',
-            dimensions: JSON.stringify(dimensions)
+        it("reacts on " + option + " update failure", function () {
+            $scope.update(option);
+            deferred.reject('error');
+            $scope.$apply();
+            expect($scope.setError).toHaveBeenCalledWith('error');
+            expect($scope[option]).toBe(options[option]);
         });
-        expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('options');
-        deferred.resolve({capabilities: 'cap', dimensions: 'dim'});
-        $scope.$apply();
-        expect($scope.setError).toHaveBeenCalledWith(false);
-        expect($scope.capsEdit.$setPristine).toHaveBeenCalled();
-        expect($scope.dimEdit.$setPristine).toHaveBeenCalled();
-        expect($scope.dimensions).toBe('dim');
-    });
-
-    it("reacts on dimensions update failure", function () {
-        $scope.update('dimensions');
-        deferred.reject('error');
-        $scope.$apply();
-        expect($scope.setError).toHaveBeenCalledWith('error');
-        expect($scope.dimensions).toBe(dimensions);
     });
 });
 

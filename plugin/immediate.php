@@ -34,6 +34,13 @@ if ( 'build' == $mode ) {
 <?php
 
 } elseif ( $timer ) {
+    /**
+     * Filters the message displayed when a user is prompted to submit his solution.
+     * It is added after after informing the user about his result.
+     *
+     * @param string $message='Do you want to submit your result?'
+     */
+    $message = wp_kses_post( apply_filters( 'crw_submission_message', __('Do you want to submit your result?', 'crosswordsearch') ) );
 
 ?>
             <div ng-switch-when="submit_solution">
@@ -42,7 +49,7 @@ if ( 'build' == $mode ) {
                         <span ng-switch-when="solved_incomplete"><?php printf( __('You have found %1$s of %2$s hidden words during the alloted time.', 'crosswordsearch'), '{{message.solution|localeNumber}}', '{{message.words|localeNumber}}') ?></span>
                         <span ng-switch-when="solved_completely"><?php printf( __('Congratulation, you have solved the riddle in %1$s!', 'crosswordsearch'), '{{message.time | duration}}') ?></span>
                     </p>
-                    <p ng-show="progress<2"><?php _e('Do you want to submit your result?', 'crosswordsearch') ?></p>
+                    <p ng-show="progress<2"><?php echo $message; ?></p>
                     <table>
 <?php
 
