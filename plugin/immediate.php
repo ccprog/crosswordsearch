@@ -92,7 +92,7 @@ if ( 'build' == $mode ) {
 ?>
                     </table>
                     <p class="error" ng-show="uploader.$error.sane"><?php _e('Dont\'t try to be clever!', 'crosswordsearch') ?></p>
-                    <p ng-show="progress==2" ng-bind-html="message.feedback"></p>
+                    <div ng-show="progress==2" ng-bind-html="message.feedback"></div>
                     <p class="actions">
                         <input type="submit" ng-disabled="!uploader.$valid || (progress==1)" ng-click="submit(username, password)" value="{{['<?php
                             _e('Submit', 'crosswordsearch') ?>','<?php

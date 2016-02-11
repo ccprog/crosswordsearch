@@ -40,6 +40,7 @@
 .crw-wrapper p.name {
     font-style: italic;
     font-weight: bold;
+    clear: both;
 }
 .crw-instruction:before {
     content: counter(instruct, disc);

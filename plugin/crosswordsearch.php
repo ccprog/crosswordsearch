@@ -186,6 +186,10 @@ function crw_update () {
         'custom-logging-service' => array(
             'name' => 'Custom Logging Service',
             'active' => false
+        ),
+        'badgeos' => array(
+            'name' => 'BadgeOS',
+            'active' => false
         )
     ) ) );
 }
@@ -276,6 +280,10 @@ function crw_activate_subscribers () {
         case 'custom-logging-service': 
             $loaded =  defined( 'CLGS' );
             $file = 'clgs.php';
+            break;
+        case 'badgeos': 
+            $loaded =  isset( $GLOBALS['badgeos'] );
+            $file = 'badgeos.php';
             break;
         }
 
@@ -1749,7 +1757,7 @@ function crw_submit_solution() {
      */
     $message = wp_kses_post( apply_filters( 'crw_solution_message', '', $user, $submission ) );
     wp_send_json( array(
-        'submitted' => $message,
+        'submitted' => wpautop( $message ),
         CRW_NONCE_NAME => wp_create_nonce( NONCE_CROSSWORD . $project )
     ) );
 }
