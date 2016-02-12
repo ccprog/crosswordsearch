@@ -272,6 +272,13 @@ function crw_load_text () {
 }
 add_action('plugins_loaded', 'crw_load_text');
 
+/**
+ * Check for submission subscribers, load specific file and update option
+ *
+ * Hooked to init.
+ *
+ * @return void
+ */
 function crw_activate_subscribers () {
     $subscribers = get_option( CRW_SUBSCRIBERS_OPTION );
 
@@ -1668,6 +1675,8 @@ add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 /**
  * Notify about submitted solution
+ *
+ * Hooked to wp_ajax_submit_solution and wp_ajax_nopriv_submit_solution.
  *
  * @return void
  */

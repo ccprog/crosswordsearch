@@ -1,10 +1,22 @@
 <?php
+/**
+ * act on crossword submission
+ *
+ * Hooked to crw_solution_submitted filter
+ *
+ * @param WP_User $user
+ * @param array $submission
+ *
+ * @return void
+ */
 function crw_clgs_log ( $user, $submission ) {
     $category = 'Crosswordsearch submissions';
     extract( $submission );
 
+    // register category
     clgs_register( $category, __('User submitted solutions for crosswordsearch riddles', 'crosswordsearch' ) );
 
+    // submit log entry
     $text = sprintf(__('Solution submitted for crossword %1$s in project %2$s:', 'crosswordsearch'),
             '<strong>' . $name . '</strong>', '<strong>' . $project . '</strong>' ) . '<br/>';
     if ( $total >  $solved ) {

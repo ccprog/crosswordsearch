@@ -91,7 +91,7 @@ crwApp.directive('crwDimension', function () {
     };
 });
 
-/* controller for Options tab: capabilities, CSS dimensions, submittents */
+/* controller for Options tab: capabilities, CSS dimensions, submiscribers */
 crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {
     var optionsContext = 'options';

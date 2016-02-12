@@ -2,6 +2,7 @@
 define( 'CRW_BADGEOS_PREFIX', '_crw_badgeos_rules_' );
 $crw_badgeos_singular_name = __( 'CRW Riddle', 'crosswordsearch' );
 
+// register achievement type
 if ( !get_page_by_title( $crw_badgeos_singular_name, 'OBJECT', 'achievement-type' ) ) {
     $crw_badgeos_type = wp_insert_post( array(
         'post_title'   => $crw_badgeos_singular_name,
@@ -15,6 +16,15 @@ if ( !get_page_by_title( $crw_badgeos_singular_name, 'OBJECT', 'achievement-type
     update_post_meta( $crw_badgeos_type, '_badgeos_show_in_menu', true );
 }
 
+/**
+ * add types to selection
+ *
+ * Hooked to badgeos_achievement_earned_by filter
+ *
+ * @param array $types
+ *
+ * @return array
+ */
 function crw_badgeos_earned_types ( $types ) {
     $types[] = array( 'name' => __( 'Crosswordsearch Submission (Reviewed)', 'crosswordsearch' ), 'value' => 'crw' );
     $types[] = array( 'name' => __( 'Crosswordsearch Submission (Auto-accepted)', 'crosswordsearch' ), 'value' => 'crw_auto' );
@@ -22,6 +32,15 @@ function crw_badgeos_earned_types ( $types ) {
 }
 add_filter( 'badgeos_achievement_earned_by', 'crw_badgeos_earned_types' );
 
+/**
+ * enqueue edit screen script
+ *
+ * Hooked to admin_print_scripts-post.php and admin_print_scripts-post-new.php
+ *
+ * @param array $types
+ *
+ * @return array
+ */
 function crw_badgeos_admin_script() {
     global $post_type;
     if ( in_array( $post_type, badgeos_get_achievement_types_slugs() ) ) {
@@ -31,6 +50,15 @@ function crw_badgeos_admin_script() {
 add_action( 'admin_print_scripts-post-new.php', 'crw_badgeos_admin_script', 11 );
 add_action( 'admin_print_scripts-post.php', 'crw_badgeos_admin_script', 11 );
 
+/**
+ * define achievement config metabox
+ *
+ * Hooked to cmb_meta_boxes filter
+ *
+ * @param array $meta_boxes
+ *
+ * @return array
+ */
 function crw_badgeos_metabox ( array $meta_boxes ) {
 	$meta_boxes[] = array(
 		'id'         => 'crw_badgeos_rules',
@@ -79,6 +107,14 @@ function crw_badgeos_metabox ( array $meta_boxes ) {
 }
 add_filter( 'cmb_meta_boxes', 'crw_badgeos_metabox' );
 
+/**
+ * metabox sanitation function
+ *
+ * @param mixed $meta_value
+ * @param string $field
+ *
+ * @return mixed
+ */
 function crw_badgeos_sanitize ( $meta_value, $field ) {
 
     if ( is_numeric( $meta_value ) && $meta_value >= 0 ) {
@@ -88,10 +124,21 @@ function crw_badgeos_sanitize ( $meta_value, $field ) {
     }
 }
 
+/**
+ * act on crossword submission
+ *
+ * Hooked to crw_solution_submitted filter
+ *
+ * @param WP_User $user
+ * @param array $submission
+ *
+ * @return void
+ */
 function crw_badgeos_submit ( $user, $submission ) {
     global $crw_badgeos_singular_name;
     extract( $submission );
 
+    // identify achievement from referer
     $achievement_id = url_to_postid( wp_get_referer() );
     if ( !badgeos_is_achievement( $achievement_id) ) {
         return;
@@ -103,6 +150,7 @@ function crw_badgeos_submit ( $user, $submission ) {
 
     $answer = '';
     if ( 'review' == $options['method'] ) {
+        // handle as submission, construct comment text
         $title = $crw_badgeos_singular_name . ': ' . get_post_field( 'post_title', $achievement_id );
         $text = sprintf(__('Solution submitted for crossword %1$s in project %2$s:', 'crosswordsearch'),
                 '<strong>' . $name . '</strong>', '<strong>' . $project . '</strong>' ) . '<br/>';
@@ -116,11 +164,13 @@ function crw_badgeos_submit ( $user, $submission ) {
         badgeos_create_submission( $achievement_id, $title, $text, $user->ID );
         $answer = __('Submission saved successfully.', 'crosswordsearch');
     } else {
+        // check achievement rules
         if ( ( $options['solved'] && $solved == $total ) || $solved >= $options['count'] ) {
             badgeos_maybe_award_achievement_to_user( $achievement_id, $user->ID );
         }
         $answer = badgeos_render_earned_achievement_text( $achievement_id, $user->ID );
     }
+    // enqueue feedback text for user dialogue
     add_filter('crw_solution_message', function ( $message ) use ( $answer ) {
         if ( !empty( $message ) ) {
             $message .= '\n\n';
