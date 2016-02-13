@@ -187,6 +187,10 @@ function crw_update () {
             'name' => 'Custom Logging Service',
             'active' => false
         ),
+        'simple-history' => array(
+            'name' => 'Simple History',
+            'active' => false
+        ),
         'badgeos' => array(
             'name' => 'BadgeOS',
             'active' => false
@@ -288,6 +292,10 @@ function crw_activate_subscribers () {
             $loaded =  defined( 'CLGS' );
             $file = 'clgs.php';
             break;
+        case 'simple-history': 
+            $loaded =  function_exists( 'SimpleLogger' );
+            $file = 'simple-history.php';
+            break;
         case 'badgeos': 
             $loaded =  isset( $GLOBALS['badgeos'] );
             $file = 'badgeos.php';
@@ -302,7 +310,7 @@ function crw_activate_subscribers () {
 
     update_option(CRW_SUBSCRIBERS_OPTION, $subscribers );
 }
-add_action( 'init', 'crw_activate_subscribers' );
+add_action( 'plugins_loaded', 'crw_activate_subscribers' );
 
 /**
  * Add attributes needed for Angular to html tag.
@@ -1693,7 +1701,7 @@ function crw_log_text ( $submission ) {
     extract( $submission );
 
     $text = sprintf(__('Solution submitted for crossword %1$s in project %2$s:', 'crosswordsearch'),
-            '<strong>' . $name . '</strong>', '<strong>' . $project . '</strong><br/>' );
+            '<strong>' . $name . '</strong>', '<strong>' . $project . '</strong>' ) . '<br/>';
     if ( $total >  $solved ) {
         $text .= sprintf(__('%1$s of %2$s words were found in %3$s seconds.', 'crosswordsearch'),
                 $solved, $total, $time );
