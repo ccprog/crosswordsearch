@@ -94,7 +94,7 @@ All saved riddles belonging to the project can be loaded.
     (or whatever number greater than 0 is entered) to zero. After that, no
     more words can be marked. (combination with `name` attribute is possible.)
 
-5. `[crosswordsearch mode="solve" project="MyProject" timer=0 submiting=1]`  
+5. `[crosswordsearch mode="solve" project="MyProject" timer=0 submitting=1]`  
     At the end of a timed game, the user is given the opportunity to submit his (partial)
     result to the server. (`timer` attribute is needed, combination with `name`
     attribute is possible.)  

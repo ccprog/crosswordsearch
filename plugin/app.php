@@ -72,7 +72,7 @@ if ( 'build' == $mode ) {
     if ( $timer ) {
 
 ?>
-    <div crw-timer-element="timer" countdown="<?php echo $countdown ?>" <?php if ($submiting) { echo 'submiting'; } ?>>
+    <div crw-timer-element="timer" countdown="<?php echo $countdown ?>" <?php if ($submitting) { echo 'submitting'; } ?>>
         <span state="waiting" alt="<?php _e('Start', 'crosswordsearch') ?>"><?php _e('Start solving the riddle', 'crosswordsearch') ?></span>
         <span state="playing" alt="<?php _e('Time', 'crosswordsearch') ?>"></span>
         <span state="scored" alt="<?php _e('Restart', 'crosswordsearch') ?>"><?php _e('Restart solving the riddle', 'crosswordsearch') ?></span>

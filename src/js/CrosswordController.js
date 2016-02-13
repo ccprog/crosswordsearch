@@ -100,7 +100,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
                 } else if (oldState === 'playing' && newState !== 'waiting') {
                     $scope.$broadcast('markingStop');
                     // user feedback after game stops
-                    var dialogue = $scope.timer.submiting ?
+                    var dialogue = $scope.timer.submitting ?
                         'submitSolution' : 'solvedCompletely';
                     $scope.immediateStore.newPromise(dialogue, $scope.timer.time);
                 }
@@ -236,7 +236,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // solve page only: restart the loaded riddle
     $scope.restart = function () {
         if ($scope.timer) {
-            if ($scope.timer.submiting) {
+            if ($scope.timer.submitting) {
                 return;
             }
             $scope.tableVisible = false;

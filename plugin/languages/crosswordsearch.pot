@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.6.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-13 01:34+0100\n"
+"POT-Creation-Date: 2016-02-13 17:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -255,7 +255,7 @@ msgstr ""
 msgid "Attribute %1$s must be a non-negative integer."
 msgstr ""
 
-#. / translators: argument %1 will be the literal 'submiting', %2 the literal 'timer'
+#. / translators: argument %1 will be the literal 'submitting', %2 the literal 'timer'
 #: plugin/crosswordsearch.php:526
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must also be set."

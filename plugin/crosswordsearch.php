@@ -521,9 +521,9 @@ function crw_test_shortcode ($atts, $names_list) {
         return $html . sprintf(__('Attribute %1$s must be a non-negative integer.', 'crosswordsearch'), '<em>timer</em>');
     }
 
-    if ( $submiting && !strlen($timer) ) {
-        /// translators: argument %1 will be the literal 'submiting', %2 the literal 'timer'
-        return $html . sprintf(__('If attribute %1$s is set, attribute %2$s must also be set.', 'crosswordsearch'), '<em>submiting</em>', '<em>timer</em>');
+    if ( $submitting && !strlen($timer) ) {
+        /// translators: argument %1 will be the literal 'submitting', %2 the literal 'timer'
+        return $html . sprintf(__('If attribute %1$s is set, attribute %2$s must also be set.', 'crosswordsearch'), '<em>submitting</em>', '<em>timer</em>');
     }
 
     if ( false == $project_found ) {
@@ -556,12 +556,12 @@ function crw_shortcode_handler( $atts, $content = null ) {
 		'mode' => 'build',
         'restricted' => 0,
         'timer' => '',
-        'submiting' => 0,
+        'submitting' => 0,
         'project' => '',
         'name' => '',
 	), $atts, 'crosswordsearch' );
     $filtered_atts['restricted'] = (int)$filtered_atts['restricted'];
-    $filtered_atts['submiting'] = (int)$filtered_atts['submiting'];
+    $filtered_atts['submitting'] = (int)$filtered_atts['submitting'];
 	extract( $filtered_atts );
 
     $names_list = crw_get_names_list($project);

@@ -204,7 +204,7 @@ describe("CrosswordController", function () {
                 $scope.prepare('project', 'nc', 'ne', 'name', 'timer');
                 $scope.timer = {
                     countdown: false,
-                    submiting: false,
+                    submitting: false,
                     time: 64263
                 };
                 $scope.count = {
@@ -251,7 +251,7 @@ describe("CrosswordController", function () {
             });
 
             it("from playing to final (submitting)", function () {
-                $scope.timer.submiting = true;
+                $scope.timer.submitting = true;
                 $scope.$apply('timer.state="playing"');
                 $scope.$apply('timer.state="final"');
                 deferred.resolve();
@@ -486,7 +486,7 @@ describe("CrosswordController", function () {
             expect($scope.count.solution).toBe(0);
             expect($scope.crosswordData.solution).toEqual({});
             $scope.timer = {
-                submiting: true
+                submitting: true
             };
             $scope.tableVisible = true;
             $scope.crw.getLevelRestriction.calls.reset();
@@ -494,7 +494,7 @@ describe("CrosswordController", function () {
             expect($scope.tableVisible).toBe(true);
             expect($scope.$broadcast).not.toHaveBeenCalled();
             expect($scope.crw.getLevelRestriction).not.toHaveBeenCalled();
-            $scope.timer.submiting = false;
+            $scope.timer.submitting = false;
             $scope.restart();
             expect($scope.tableVisible).toBe(false);
             expect($scope.$broadcast).toHaveBeenCalledWith('timerInit');

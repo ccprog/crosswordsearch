@@ -32,7 +32,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
         link: function (scope, element, attrs, ctrl, transcludeFn) {
             var fixedTime = null, clock,
                 countdown = parseInt(attrs.countdown, 10) * 1000, // 0 means free time
-                submiting = angular.isDefined(attrs.submiting);
+                submitting = angular.isDefined(attrs.submitting);
 
             // published for testing
             scope.$interval = $interval;
@@ -67,7 +67,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
                 if (scope.timer.state === 'playing') {
                     scope.timer.time = time.getStamp() - fixedTime;
                     cancelClock();
-                    scope.timer.state = submiting ? 'final' : 'scored';
+                    scope.timer.state = submitting ? 'final' : 'scored';
                 }
             }
             scope.$on('timerStop', stop);
@@ -77,7 +77,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
                 cancelClock();
                 scope.timer = {
                     countdown: countdown > 0,
-                    submiting: submiting,
+                    submitting: submitting,
                     state: 'waiting',
                     time: undefined
                 };

@@ -1234,7 +1234,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
             timer: "=crwTimerElement"
         },
         link: function(scope, element, attrs, ctrl, transcludeFn) {
-            var fixedTime = null, clock, countdown = parseInt(attrs.countdown, 10) * 1e3, submiting = angular.isDefined(attrs.submiting);
+            var fixedTime = null, clock, countdown = parseInt(attrs.countdown, 10) * 1e3, submitting = angular.isDefined(attrs.submitting);
             scope.$interval = $interval;
             scope.timer = {};
             scope.texts = {};
@@ -1261,7 +1261,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                 if (scope.timer.state === "playing") {
                     scope.timer.time = time.getStamp() - fixedTime;
                     cancelClock();
-                    scope.timer.state = submiting ? "final" : "scored";
+                    scope.timer.state = submitting ? "final" : "scored";
                 }
             }
             scope.$on("timerStop", stop);
@@ -1269,7 +1269,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                 cancelClock();
                 scope.timer = {
                     countdown: countdown > 0,
-                    submiting: submiting,
+                    submitting: submitting,
                     state: "waiting",
                     time: undefined
                 };
@@ -1381,7 +1381,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
                     $scope.restart();
                 } else if (oldState === "playing" && newState !== "waiting") {
                     $scope.$broadcast("markingStop");
-                    var dialogue = $scope.timer.submiting ? "submitSolution" : "solvedCompletely";
+                    var dialogue = $scope.timer.submitting ? "submitSolution" : "solvedCompletely";
                     $scope.immediateStore.newPromise(dialogue, $scope.timer.time);
                 }
             });
@@ -1489,7 +1489,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     });
     $scope.restart = function() {
         if ($scope.timer) {
-            if ($scope.timer.submiting) {
+            if ($scope.timer.submitting) {
                 return;
             }
             $scope.tableVisible = false;

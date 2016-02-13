@@ -42,12 +42,12 @@ describe("crwTimerElement", function() {
         };
     }
 
-    function compile (countdown, submiting) {
+    function compile (countdown, submitting) {
         $scope = $root.$new();
         var html = '<span crw-timer-element="timer" ';
         html += 'countdown="' + countdown + '"';
-        if (submiting) {
-            html += 'submiting ';
+        if (submitting) {
+            html += 'submitting ';
         }
         html += '><span state="waiting" alt="Start">Start solving the riddle</span>' +
             '<span state="playing" alt="Time"></span>' +
@@ -92,7 +92,7 @@ describe("crwTimerElement", function() {
         $scope.$apply('$broadcast("timerInit")');
         expect($isolate.timer).toEqual({
             countdown: false,
-            submiting: false,
+            submitting: false,
             state: 'waiting',
             time: undefined
         });
@@ -112,11 +112,11 @@ describe("crwTimerElement", function() {
         compile(10);
         $scope.$apply('$broadcast("timerInit")');
         expect($isolate.timer.countdown).toBe(true);
-        expect($isolate.timer.submiting).toBe(false);
+        expect($isolate.timer.submitting).toBe(false);
         compile(0, true);
         $scope.$apply('$broadcast("timerInit")');
         expect($isolate.timer.countdown).toBe(false);
-        expect($isolate.timer.submiting).toBe(true);
+        expect($isolate.timer.submitting).toBe(true);
     });
 
     it("sets classes and attributes according to state", function() {
