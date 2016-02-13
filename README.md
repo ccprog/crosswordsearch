@@ -99,16 +99,16 @@ All saved riddles belonging to the project can be loaded.
     result to the server. (`timer` attribute is needed, combination with `name`
     attribute is possible.)  
     If the results are sent in, the plugin will not by itself process them in any way.
-    It will be the job of add-on plugins to consume the submissions. See below for
+    It will be the job of other plugins to consume the submissions. See below for
     details.
 
 ### Submisson API
 
-The plugin publishes 3 hooks on result submissions. In order of execution:
+The plugin publishes 4 hooks on result submissions. In order of execution:
 
 1. **Filter** `crw_solution_permission`  
     Filters the permission to submit a solution. Return false to
-    deny submission.  
+    deny submission. This will be displayed as an error to the user.  
     Parameters:
     + `bool $permitted=true`
     + `WP_User $user` User object for submitter
@@ -123,14 +123,20 @@ The plugin publishes 3 hooks on result submissions. In order of execution:
     array(
          'project',
          'name',
-         'time',   //time needed for complete solution in seconds,
+         'time',   // time needed for complete solution in seconds,
                    // includes one decimal place
-         'solved', //number of found words
-         'total'   //total number of words
+         'solved', // number of found words
+         'total'   // total number of words
     )
     ```
 
-3. **Filter** `crw_solution_message`  
+3. **Filter** `crw_submission_message`  
+    Filters the message displayed when a user is prompted to submit his solution.
+    It is added after after informing the user about his result.
+    Parameters:
+    + `string $message='Do you want to submit your result?'`
+
+4. **Filter** `crw_solution_message`  
     Filters the message confirming that a solution has been registered.
     Defaults to no message.  
     Parameters:

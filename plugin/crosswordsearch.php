@@ -1762,7 +1762,7 @@ function crw_submit_solution() {
     }
     /**
      * Filters the permission to submit a solution. Return false to
-     * deny submission.
+     * deny submission. This will be displayed as an error to the user.
      *
      * @param bool $permitted=true
      * @param WP_User $user User object for submitter
