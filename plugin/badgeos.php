@@ -152,15 +152,7 @@ function crw_badgeos_submit ( $user, $submission ) {
     if ( 'review' == $options['method'] ) {
         // handle as submission, construct comment text
         $title = $crw_badgeos_singular_name . ': ' . get_post_field( 'post_title', $achievement_id );
-        $text = sprintf(__('Solution submitted for crossword %1$s in project %2$s:', 'crosswordsearch'),
-                '<strong>' . $name . '</strong>', '<strong>' . $project . '</strong>' ) . '<br/>';
-        if ( $total >  $solved ) {
-            $text .= sprintf(__('%1$s of %2$s words were found in %3$s seconds.', 'crosswordsearch'),
-                    $solved, $total, $time );
-        } else {
-            $text .= sprintf(__('All %1$s words were found in %2$s seconds.', 'crosswordsearch'),
-                    $total, $time );
-        }
+        $text = crw_log_text( $submission );
         badgeos_create_submission( $achievement_id, $title, $text, $user->ID );
         $answer = __('Submission saved successfully.', 'crosswordsearch');
     } else {

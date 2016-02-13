@@ -1683,6 +1683,29 @@ add_action( 'wp_ajax_nopriv_get_crossword', 'crw_get_crossword' );
 add_action( 'wp_ajax_get_crossword', 'crw_get_crossword' );
 
 /**
+ * constructs a common log message
+ *
+ * @param array $submission
+ *
+ * @return string
+ */
+function crw_log_text ( $submission ) {
+    extract( $submission );
+
+    $text = sprintf(__('Solution submitted for crossword %1$s in project %2$s:', 'crosswordsearch'),
+            '<strong>' . $name . '</strong>', '<strong>' . $project . '</strong><br/>' );
+    if ( $total >  $solved ) {
+        $text .= sprintf(__('%1$s of %2$s words were found in %3$s seconds.', 'crosswordsearch'),
+                $solved, $total, $time );
+    } else {
+        $text .= sprintf(__('All %1$s words were found in %2$s seconds.', 'crosswordsearch'),
+                $total, $time );
+    }
+
+    return $text;
+}
+
+/**
  * Notify about submitted solution
  *
  * Hooked to wp_ajax_submit_solution and wp_ajax_nopriv_submit_solution.
