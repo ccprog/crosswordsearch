@@ -947,10 +947,16 @@ function crw_send_capabilities () {
         ) );
     };
 
+    $subscribers = get_option(CRW_SUBSCRIBERS_OPTION);
+    // a plugin not loaded may be active in option, but display it as inactive
+    foreach ( $subscribers as &$plugin ) {
+        $plugin['active'] = $plugin['active'] && $plugin['loaded'];
+    }
+
     wp_send_json( array(
         'capabilities' => $capabilities,
         'dimensions' => get_option(CRW_CUSTOM_DIMENSIONS_OPTION),
-        'subscribers' => get_option(CRW_SUBSCRIBERS_OPTION),
+        'subscribers' => $subscribers,
         CRW_NONCE_NAME => wp_create_nonce(NONCE_OPTIONS)
     ) );
 }
@@ -1073,8 +1079,11 @@ function crw_update_subscribers () {
         crw_send_error($error, $debug);
     } else {
         $subscribers = get_option( CRW_SUBSCRIBERS_OPTION );
-        foreach ( $subscribers as $key => $val ) {
-            $subscribers[$key]['active'] = (bool)$subscribers_raw[$key]['active'];
+        foreach ( $subscribers as $slug => &$plugin ) {
+            // no option update for plugins not loaded
+            if ( $subscribers_raw[$slug]['loaded'] ) {
+                $plugin['active'] = (bool)$subscribers_raw[$slug]['active'];
+            }
         }
     }
 
