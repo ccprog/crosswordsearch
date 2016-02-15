@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.6.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-13 17:44+0100\n"
+"POT-Creation-Date: 2016-02-15 18:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -222,6 +222,10 @@ msgstr ""
 
 #: plugin/badgeos.php:157
 msgid "Submission saved successfully."
+msgstr ""
+
+#: plugin/badgeos.php:166
+msgid "You have not earned this achievement."
 msgstr ""
 
 #: plugin/clgs.php:16 plugin/simple-history.php:11

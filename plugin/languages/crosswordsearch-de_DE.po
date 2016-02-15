@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.6.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-13 17:44+0100\n"
-"PO-Revision-Date: 2016-02-13 17:44+0100\n"
+"POT-Creation-Date: 2016-02-15 18:47+0100\n"
+"PO-Revision-Date: 2016-02-15 18:47+0100\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: German\n"
@@ -235,6 +235,10 @@ msgstr ""
 #: plugin/badgeos.php:157
 msgid "Submission saved successfully."
 msgstr "Einsendung erfolgreich gespeichert."
+
+#: plugin/badgeos.php:166
+msgid "You have not earned this achievement."
+msgstr "Du hast die Aufgabe nicht gelöst."
 
 #: plugin/clgs.php:16 plugin/simple-history.php:11
 msgid "User submitted solutions for crosswordsearch riddles"

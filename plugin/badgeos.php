@@ -160,7 +160,11 @@ function crw_badgeos_submit ( $user, $submission ) {
         if ( ( $options['solved'] && $solved == $total ) || $solved >= $options['count'] ) {
             badgeos_maybe_award_achievement_to_user( $achievement_id, $user->ID );
         }
-        $answer = badgeos_render_earned_achievement_text( $achievement_id, $user->ID );
+        if ( badgeos_get_user_achievements( array( 'user_id' => $user->ID, 'achievement_id' => $achievement_id ) ) ) {
+            $answer = badgeos_render_earned_achievement_text( $achievement_id, $user->ID );
+        } else {
+            $answer = __( 'You have not earned this achievement.', 'crosswordsearch' );
+        }
     }
     // enqueue feedback text for user dialogue
     add_filter('crw_solution_message', function ( $message ) use ( $answer ) {
