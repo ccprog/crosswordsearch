@@ -505,7 +505,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 action: "get_crossword",
                 project: project,
                 name: name,
-                restricted: restricted
+                restricted: restricted + 0
             }, crwContext).then(onLoaded);
         };
         this.getCount = function() {
@@ -517,7 +517,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 action: "save_crossword",
                 method: action,
                 project: project,
-                restricted: restricted,
+                restricted: restricted + 0,
                 crossword: angular.toJson(crossword),
                 username: username,
                 password: password
@@ -2035,6 +2035,9 @@ crwApp.directive("crwHasPassword", function() {
         link: function(scope, element, attrs, ctrl) {
             element.find("input[type=submit]").on("click", function() {
                 scope.password = null;
+            });
+            element.on("$destroy", function() {
+                element.find("[required]").prop("required", false);
             });
         }
     };

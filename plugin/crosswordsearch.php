@@ -1739,6 +1739,9 @@ function crw_submit_solution() {
         $user = wp_get_current_user();
     }
     crw_test_permission( 'crossword', $user, $project );
+    if ( $user && $user->ID == 0 ) {
+        crw_send_error($error, 'No authenticated user');
+    }
 
     $crossword_found = $wpdb->get_var( $wpdb->prepare("
         SELECT count(*)
@@ -1750,16 +1753,13 @@ function crw_submit_solution() {
             'Crossword not found',
             $project . ': ' . $name
         );
-    }
-    if ($time <= 0) {
+    } elseif ($time <= 0) {
         $debug = array( 'No sensible time', wp_unslash($_POST['time']) );
-    }
-    if ($solved + $total == 0) {
+    } elseif ($solved + $total == 0) {
         $debug = array(
             'No sensible number of words',
             wp_unslash($_POST['solved']) . ' of ' . wp_unslash($_POST['total'])
         );
-    }
     /**
      * Filters the permission to submit a solution. Return false to
      * deny submission. This will be displayed as an error to the user.
@@ -1768,7 +1768,7 @@ function crw_submit_solution() {
      * @param WP_User $user User object for submitter
      * @param string $project project solution relates to
      */
-    if ( !apply_filters( 'crw_solution_permission', true, $user, $project ) ) {
+    } elseif ( !apply_filters( 'crw_solution_permission', true, $user, $project ) ) {
         $debug = 'Permission denied by consumer';
     }
     if ($debug) {

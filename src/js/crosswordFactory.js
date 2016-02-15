@@ -214,7 +214,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 action: 'get_crossword',
                 project: project,
                 name: name,
-                restricted: restricted
+                restricted: restricted + 0
             }, crwContext).then(onLoaded);
         };
 
@@ -229,7 +229,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 action: 'save_crossword',
                 method: action,
                 project: project,
-                restricted: restricted,
+                restricted: restricted + 0,
                 crossword: angular.toJson(crossword),
                 username: username,
                 password: password

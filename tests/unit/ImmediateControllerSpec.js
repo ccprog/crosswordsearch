@@ -136,6 +136,18 @@ describe("crwHasPassword", function() {
         element.find('#btn').trigger('click');
         expect($scope.password).toBeNull();
     }));
+
+    it("discards requirements on destroy", inject(function($rootScope, $compile) {
+        var $scope = $rootScope.$new();
+        var element = $compile('<form crw-has-password>' +
+            '<input id="txt" type="text" required=""></input>' +
+            '</form>')($scope);
+        var required = element.find('#txt');
+        expect(required.prop('required')).toBe(true);
+        element.trigger('$destroy');
+        $scope.$apply();
+        expect(required.prop('required')).toBe(false);
+    }));
 });
 
 describe("ImmediateController", function () {

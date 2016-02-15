@@ -55,7 +55,7 @@ describe("crosswordFactory", function () {
                 action: 'get_crossword',
                 project: 'project',
                 name: 'name',
-                restricted: true
+                restricted: 1
             }, 'crossword']);
             expect(crossword).toEqual({});
 
@@ -110,7 +110,7 @@ describe("crosswordFactory", function () {
                 action: 'save_crossword',
                 method: 'insert',
                 project: 'project',
-                restricted: false,
+                restricted: 0,
                 username: 'username',
                 password: 'password',
                 name: 'old'

@@ -50,12 +50,12 @@ if ( 'build' == $mode ) {
                         <span ng-switch-when="solved_completely"><?php printf( __('Congratulation, you have solved the riddle in %1$s!', 'crosswordsearch'), '{{message.time | duration}}') ?></span>
                     </p>
                     <p ng-show="progress<2"><?php echo $message; ?></p>
-                    <table>
+                    <table ng-show="progress<2">
 <?php
 
 }
 
-if ( ( 'build' === $mode ) || ( $timer && !$is_auth ) ) {
+if ( ( 'build' === $mode || $timer ) && !$is_auth ) {
 
 ?>
                         <tr>
@@ -94,7 +94,7 @@ if ( 'build' == $mode ) {
                     <p class="error" ng-show="uploader.$error.sane"><?php _e('Dont\'t try to be clever!', 'crosswordsearch') ?></p>
                     <div ng-show="progress==2" ng-bind-html="message.feedback"></div>
                     <p class="actions">
-                        <input type="submit" ng-disabled="!uploader.$valid || (progress==1)" ng-click="submit(username, password)" value="{{['<?php
+                        <input type="submit" ng-disabled="[!uploader.$valid, true, false][progress]" ng-click="submit(username, password)" value="{{['<?php
                             _e('Submit', 'crosswordsearch') ?>','<?php
                             _e('Loading...', 'crosswordsearch') ?>','<?php
                             _e('OK', 'crosswordsearch') ?>'][progress]}}" />
