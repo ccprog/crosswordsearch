@@ -106,7 +106,13 @@ All saved riddles belonging to the project can be loaded.
 
 The plugin publishes 4 hooks on result submissions. In order of execution:
 
-1. **Filter** `crw_solution_permission`  
+1. **Filter** `crw_submission_message`  
+    Filters the message displayed when a user is prompted to submit his solution.
+    It is added after after informing the user about his result.
+    Parameters:
+    + `string $message='Do you want to submit your result?'`
+
+2. **Filter** `crw_solution_permission`  
     Filters the permission to submit a solution. Return false to
     deny submission. This will be displayed as an error to the user.  
     Parameters:
@@ -114,8 +120,8 @@ The plugin publishes 4 hooks on result submissions. In order of execution:
     + `WP_User $user` User object for submitter
     + `string $project` project solution relates to
 
-2. **Action** `crw_solution_submitted`  
-    Fires if a solution for a crossword is submitted  
+3. **Action** `crw_solution_submitted`  
+    Fires if a permitted solution for a crossword is submitted  
     Parameters:
     + `WP_User $user` User object for submitter
     + `array $submission` Submission details as
@@ -129,12 +135,6 @@ The plugin publishes 4 hooks on result submissions. In order of execution:
          'total'   // total number of words
     )
     ```
-
-3. **Filter** `crw_submission_message`  
-    Filters the message displayed when a user is prompted to submit his solution.
-    It is added after after informing the user about his result.
-    Parameters:
-    + `string $message='Do you want to submit your result?'`
 
 4. **Filter** `crw_solution_message`  
     Filters the message confirming that a solution has been registered.
