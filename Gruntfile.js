@@ -118,7 +118,7 @@ module.exports = function(grunt) {
           vendor: [
             testdir + 'vendor/tv4/tv4.js',
             testdir + 'vendor/uri.js/src/URI.min.js',
-            testdir + 'vendor/jquery-1.11.3.min/index.js',
+            testdir + 'vendor/jquery-1.12.2.min/index.js',
             destdir + 'angular.min.js',
             destdir + 'angular-route.min.js',
             testdir + 'vendor/angular-mocks/index.js',
