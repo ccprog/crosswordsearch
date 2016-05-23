@@ -2,7 +2,7 @@
 /*
 Plugin Name: crosswordsearch
 Plugin URI: https://github.com/ccprog/crosswordsearch
-Version: 0.7.1
+Version: 0.7.2
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
 Text Domain: crosswordsearch
@@ -34,7 +34,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * Bootstrap
  * ---------------------------------- */
 
-define('CRW_VERSION', '0.7.0');
+define('CRW_VERSION', '0.7.2');
 define('CRW_DB_VERSION', '0.5');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
