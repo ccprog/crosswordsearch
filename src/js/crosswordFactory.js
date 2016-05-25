@@ -2,7 +2,10 @@
 crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         function (basics, reduce, ajaxFactory) {
     function Crw () {
-        var crwContext = 'crossword', editContext = 'edit';
+        // nonce keys are unique for every crossword instance
+        var crwId = ajaxFactory.getId();
+        var crwContext = 'crossword' + crwId,
+            editContext = 'edit' + crwId;
         // parent data object
         var crossword = {};
         // default level for new crosswords

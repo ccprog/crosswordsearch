@@ -281,6 +281,7 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
 crwApp.constant("nonces", {});
 
 crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
+    var crwID = 0;
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     var httpDefaults = {
         transformRequest: jQuery.param,
@@ -331,6 +332,9 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, non
         return $http(config);
     };
     return {
+        getId: function() {
+            return crwID++;
+        },
         setNonce: function(nonce, context) {
             nonces[context] = nonce;
         },
@@ -350,7 +354,8 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, non
 
 crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function(basics, reduce, ajaxFactory) {
     function Crw() {
-        var crwContext = "crossword", editContext = "edit";
+        var crwId = ajaxFactory.getId();
+        var crwContext = "crossword" + crwId, editContext = "edit" + crwId;
         var crossword = {};
         var stdLevel = 1;
         var maxLevel = 3;

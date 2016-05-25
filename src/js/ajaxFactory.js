@@ -2,6 +2,9 @@ crwApp.constant('nonces', {});
 
 /* wrapper for $http service */
 crwApp.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, nonces) {
+    //counter for crossword instances
+    var crwID = 0;
+
     // defaults for all communication
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     var httpDefaults = {
@@ -64,6 +67,10 @@ crwApp.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, non
     };
 
     return {
+        getId: function () {
+            return crwID++;
+        },
+
         // for initial nonces transmitted with html code
         setNonce: function (nonce, context) {
             nonces[context] = nonce;
