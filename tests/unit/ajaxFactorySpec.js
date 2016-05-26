@@ -16,6 +16,12 @@ describe("ajaxFactory", function () {
         $httpBackend.verifyNoOutstandingRequest();
     });
 
+    it("provides unique ids - loose test", function () {
+            expect(ajaxFactory.getId()).toBe(0);
+            expect(ajaxFactory.getId()).toBe(1);
+            expect(ajaxFactory.getId()).toBe(2);
+    });
+
     it("sets Content-Type header", function () {
         ajaxFactory.setNonce('nonce1', 'context');
         $httpBackend.expectPOST(crwBasics.ajaxUrl, undefined, function(headers) {

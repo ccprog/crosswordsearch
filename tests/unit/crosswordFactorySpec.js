@@ -1,10 +1,29 @@
 describe("crosswordFactory", function () {
-    var crosswordFactory, basics, ajaxFactory;
+    var crosswordFactory, basics, ajaxFactory, deferred;
 
     beforeEach(function () {
         module('crwApp');
-        inject(function ($injector) {
-            crosswordFactory = $injector.get('crosswordFactory');
+        module(function($provide) {
+            $provide.factory('ajaxFactory', function ($q) {
+                var crwId = 0;
+                return {
+                    getId: function () {
+                        return crwId++;
+                    },
+                    setNonce: jasmine.createSpy(),
+                    http: function (data) {
+                        deferred = $q.defer();
+                        return deferred.promise;
+                    }
+                };
+            });
+        });
+        inject(function (_basics_, _ajaxFactory_, _crosswordFactory_) {
+            basics = _basics_;
+            ajaxFactory = _ajaxFactory_;
+            spyOn(ajaxFactory, 'getId').and.callThrough();
+            spyOn(ajaxFactory, 'http').and.callThrough();
+            crosswordFactory = _crosswordFactory_;
         });
     });
 
@@ -16,22 +35,25 @@ describe("crosswordFactory", function () {
         expect(crw1).not.toBe(crw2);
     });
 
+    it("uses multiple nonce keys for multiple instances" , function () {
+        var crw1 = crosswordFactory.getCrw();
+        expect(ajaxFactory.getId.calls.count()).toBe(1);
+        var crw2 = crosswordFactory.getCrw();
+        expect(ajaxFactory.getId.calls.count()).toBe(2);
+        crw1.loadCrosswordData('name1');
+        crw2.loadCrosswordData('name2');
+        expect(ajaxFactory.http.calls.argsFor(0)[1]).not.toEqual(ajaxFactory.http.calls.argsFor(1)[1]);
+        ajaxFactory.http.calls.reset();
+        crw1.saveCrosswordData('name1', 'method', 'user', 'password');
+        crw2.saveCrosswordData('name2', 'method', 'user', 'password');
+        expect(ajaxFactory.http.calls.argsFor(0)[1]).not.toEqual(ajaxFactory.http.calls.argsFor(1)[1]);
+    });
+
     describe("crosswordFactory instance", function () {
-        var crw, deferred;
+        var crw;
 
         beforeEach(function () {
             crw = crosswordFactory.getCrw();
-            inject(function ($q, $injector) {
-                var http = function (data) {
-                    deferred = $q.defer();
-                    return deferred.promise;
-                };
-                basics = $injector.get('basics');
-                ajaxFactory = $injector.get('ajaxFactory');
-                ajaxFactory.http = http;
-                ajaxFactory.setNonce = jasmine.createSpy();
-                spyOn(ajaxFactory, 'http').and.callThrough();
-            });
             expect(crw.getCrosswordData()).toEqual({});
         });
 
@@ -49,14 +71,14 @@ describe("crosswordFactory", function () {
             var crossword = crw.getCrosswordData();
             crw.setProject('project', 'crwnonce', null, true);
             expect(ajaxFactory.setNonce.calls.count()).toBe(1);
-            expect(ajaxFactory.setNonce).toHaveBeenCalledWith('crwnonce', 'crossword');
+            expect(ajaxFactory.setNonce).toHaveBeenCalledWith('crwnonce', 'crossword0');
             crw.loadCrosswordData('name');
             expect(ajaxFactory.http.calls.argsFor(0)).toEqual([{
                 action: 'get_crossword',
                 project: 'project',
                 name: 'name',
                 restricted: 1
-            }, 'crossword']);
+            }, 'crossword0']);
             expect(crossword).toEqual({});
 
             deferred.resolve({
@@ -79,7 +101,7 @@ describe("crosswordFactory", function () {
             var crossword = crw.getCrosswordData();
             crw.setProject('project', 'editnonce', null, false);
             expect(ajaxFactory.setNonce.calls.count()).toBe(1);
-            expect(ajaxFactory.setNonce).toHaveBeenCalledWith('editnonce', 'crossword');
+            expect(ajaxFactory.setNonce).toHaveBeenCalledWith('editnonce', 'crossword0');
             crw.loadCrosswordData('test');
 
             var namesList = ['test', 'more'];
@@ -115,7 +137,7 @@ describe("crosswordFactory", function () {
                 password: 'password',
                 name: 'old'
             }));
-            expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('edit');
+            expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('edit0');
             var json = ajaxFactory.http.calls.argsFor(0)[0].crossword;
             expect(JSON.parse(json)).toEqual(crossword);
 
@@ -152,7 +174,7 @@ describe("crosswordFactory", function () {
                 username: 'username',
                 password: 'password'
             }));
-            expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('crossword');
+            expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('crossword0');
             deferred.resolve({
                 submitted: 'message'
             });
