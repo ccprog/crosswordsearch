@@ -31,14 +31,14 @@ if ( 'build' == $mode ) {
 
 ?>
     <div><dl class="name" title="<?php _e('Select a riddle', 'crosswordsearch') ?>" cse-select="load" cse-options="namesInProject" cse-model="loadedName"></dl></div>
-    <p class="error" ng-if="loadError">{{loadError.error}}</p>
-    <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
 
 <?php
 
     }
 
 ?>
+    <p class="error" ng-if="loadError">{{loadError.error}}</p>
+    <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="crw-description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crosswordsearch') ?></em> {{crosswordData.description}}</p>
     <dl class="crw-level">
         <dt><?php _e('Difficulty level', 'crosswordsearch') ?> {{crosswordData.level+1|localeNumber}}</dt>
