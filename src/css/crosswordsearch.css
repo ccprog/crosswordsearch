@@ -85,6 +85,8 @@ dl.crw-level>dd {
     width: 31px;
     height:23px;
     background-image: url(../images/controls.png);
+    background-position: 31px 0px;
+    background-repeat: no-repeat;
 }
 .crw-crossword .crw-control-button {
     height:31px;
