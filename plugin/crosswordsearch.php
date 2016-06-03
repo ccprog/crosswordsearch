@@ -458,6 +458,33 @@ div.crw-marked {
         $wp_styles->add_inline_style( $dep, $code );
 }
 
+function crw_add_wizzard_button () {
+
+?>
+    <a id="crw-shortcode-button" href="#TB_inline?width=600&height=550&inlineId=crw-shortcode-wizzard" title="<?php _e('Insert a Crosswordsearch shortcode'); ?>" class="thickbox button"><?php _e('Crosswordsearch Shortcode'); ?></a>	
+<?php
+
+}
+
+function crw_add_wizzard_modal () {
+    require( CRW_PLUGIN_DIR . 'wizzard.php' );
+}
+
+/**
+ * Hook up script loading and wizzard thickbox for post editing.
+ *
+ * Hooked to load-settings_page_crw_options.
+ *
+ * @return void
+ */
+function crw_set_editor_wizzard () {
+    wp_enqueue_script( 'wizzard', CRW_PLUGIN_URL . 'js/wizzard.js', array( 'jquery', 'media-upload', 'shortcode' ) );
+    add_action( 'media_buttons', 'crw_add_wizzard_button' );
+    add_action( 'admin_footer', 'crw_add_wizzard_modal' );
+}
+add_action( 'load-post.php', 'crw_set_editor_wizzard');
+add_action( 'load-post-new.php', 'crw_set_editor_wizzard');
+
 /**
  * Hook up attribute addition and script loading for settings pages.
  *
