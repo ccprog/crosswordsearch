@@ -1,7 +1,9 @@
-crwApp.constant('nonces', {});
+var crwAjax = angular.module('crwAjax', []);
+
+crwAjax.constant('nonces', {});
 
 /* wrapper for $http service */
-crwApp.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, nonces) {
+crwAjax.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, nonces) {
     //counter for crossword instances
     var crwID = 0;
 

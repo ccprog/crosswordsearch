@@ -1,110 +1,197 @@
-jQuery(document).ready(function ($) {
-    var wizzard = $('#crw-shortcode-wizzard'),
-        mode = wizzard.find('input[name=crw-option-mode]'),
-        projects = wizzard.find('select[name=crw-option-project]'),
-        names = wizzard.find('select[name=crw-option-name]'),
-        restricted = wizzard.find('input[name=crw-option-restricted]'),
-        timer = wizzard.find('select[name=crw-option-timer]'),
-        timer_value = wizzard.find('input[name=crw-option-timer-value]'),
-        submitting = wizzard.find('input[name=crw-option-submitting]'),
-        for_solve = wizzard.find('.crw-for-solve'),
-        for_build = wizzard.find('.crw-for-build'),
-        nonce = wizzard.data('crwNonce'); //TODO: test for IE8
+/*
+crosswordsearch Wordpress plugin v0.7.3
+Copyright Claus Colloseus 2014 for RadiJojo.de
 
-    function is_mode (m) {
-        return mode.filter(':checked').val() === m;
-    }
+This program is free software: Redistribution and use, with or
+without modification, are permitted provided that the following
+conditions are met:
+ * If you redistribute this code, either as source code or in
+   minimized, compacted or obfuscated form, you must retain the
+   above copyright notice, this list of conditions and the
+   following disclaimer.
+ * If you modify this code, distributions must not misrepresent
+   the origin of those parts of the code that remain unchanged,
+   and you must retain the above copyright notice and the following
+   disclaimer.
+ * If you modify this code, distributions must include a license
+   which is compatible to the terms and conditions of this license.
 
-    function on_public_list (data) {
-        projects.empty();
-        $.each(data, function (project, crosswords) {
-            var option = $('<option value="' + project + '">' + project + '</option>')
-                .data('crosswords', crosswords);
-            option.appendTo(projects);
-        });
-        projects.change();
-    }
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
+var crwAjax = angular.module("crwAjax", []);
 
-    $('#crw-shortcode-button').click(function () {
-        $.post(ajaxurl, {
-            action: 'get_crw_public_list',
-            _crwnonce: nonce
-        }, on_public_list, 'json');
+crwAjax.constant("nonces", {});
+
+crwAjax.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
+    var crwID = 0;
+    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    var httpDefaults = {
+        transformRequest: jQuery.param,
+        method: "POST",
+        url: crwBasics.ajaxUrl
+    };
+    jQuery(document).on("heartbeat-tick", function(e, data) {
+        if (data["wp-auth-check"] === false) {
+            angular.forEach(nonces, function(val, key) {
+                delete nonces[key];
+            });
+        }
     });
+    var serverError = function(response) {
+        if (response.heartbeat) {
+            return $q.reject(response);
+        } else {
+            return $q.reject({
+                error: "server error",
+                debug: [ "status " + response.status ]
+            });
+        }
+    };
+    var inspectResponse = function(response, context) {
+        var error = false;
+        if (typeof response.data !== "object") {
+            error = {
+                error: "malformed request"
+            };
+        } else if (response.data.error) {
+            error = response.data;
+        }
+        if (error) {
+            return $q.reject(error);
+        }
+        if (response.data.nonce) {
+            nonces[context] = response.data.nonce;
+        }
+        return response.data;
+    };
+    var request = function(data, context) {
+        var bodyData = angular.extend({
+            _crwnonce: nonces[context]
+        }, data);
+        var config = angular.extend({
+            data: bodyData
+        }, httpDefaults);
+        return $http(config);
+    };
+    return {
+        getId: function() {
+            return crwID++;
+        },
+        setNonce: function(nonce, context) {
+            nonces[context] = nonce;
+        },
+        http: function(data, context) {
+            if (nonces[context]) {
+                return request(data, context).then(function(response) {
+                    return inspectResponse(response, context);
+                }, serverError);
+            } else {
+                return $q.reject({
+                    heartbeat: true
+                });
+            }
+        }
+    };
+} ]);
 
-    projects.change(function () {
-        names.children().not('.crw-basic').remove();
-        $.each($(this).children(':selected').data('crosswords'), function (idx, name) {
-            $('<option value="' + name + '">' + name + '</option>').appendTo(names);
-        });
-        names.val(is_mode('solve') ? 'no' : 'new');
+var crwApp = angular.module("crwApp", [ "crwAjax" ]);
+
+crwApp.directive("crwLaunch", [ "ajaxFactory", function(ajaxFactory) {
+    return {
+        link: function(scope, element, attrs) {
+            angular.element(element).click(function launch() {
+                ajaxFactory.http({
+                    action: "get_crw_public_list"
+                }, "wizzard").then(function(data) {
+                    scope.$broadcast("publicList", data);
+                });
+            });
+        }
+    };
+} ]);
+
+crwApp.controller("WizzardController", [ "$scope", "ajaxFactory", function($scope, ajaxFactory) {
+    var basicNames = [ "new", "dft", "no" ];
+    $scope.projects = [];
+    $scope.mode = "solve";
+    $scope.timer = "none";
+    $scope.prepare = function(nonce) {
+        ajaxFactory.setNonce(nonce, "wizzard");
+    };
+    $scope.$on("publicList", function(event, data) {
+        $scope.projects = data.projects;
+        $scope.project = $scope.projects[0];
     });
-
-    function on_mode () {
-        if (is_mode('solve')) {
-            for_solve.show();
-            for_build.hide();
-            timer_value.add(submitting).prop('disabled', false);
-            switch(timer.children(':selected').val()) {
-            case 'none':
-                timer_value.val('');
-                timer_value.add(submitting).prop('disabled', true);
-                break;
-            case 'forward':
-                timer_value.val(0);
-                break;
-            case 'backward':
-                timer_value.val(60);
-                break;
+    function constructNames() {
+        var isDismissable = basicNames.indexOf($scope.crossword) >= 0 || !$scope.crossword;
+        if ($scope.mode === "build") {
+            $scope.names = {
+                "new": crwBasics.l10nEmpty,
+                dft: crwBasics.l10nDefault
+            };
+            if (isDismissable) {
+                $scope.crossword = "new";
             }
         } else {
-            for_solve.hide();
-            for_build.show();
+            $scope.names = {
+                no: crwBasics.l10nChoose
+            };
+            if (isDismissable) {
+                $scope.crossword = "no";
+            }
         }
-        if (names.children(':selected').hasClass('crw-basic')) {
-            names.val(is_mode('solve') ? 'no' : 'new');
+        if ($scope.project) {
+            angular.forEach($scope.project.crosswords, function(name) {
+                $scope.names[name] = name;
+            });
         }
     }
-    mode.add(timer).change(on_mode);
+    $scope.$watch("project", constructNames);
+    $scope.$watch("mode", constructNames);
+    $scope.$watch("timer", function(newTimer) {
+        switch (newTimer) {
+          case "none":
+            $scope.timerValue = null;
+            break;
 
-    on_mode();
+          case "forward":
+            $scope.timerValue = 0;
+            break;
 
-    $('#crw_insert').click(function () {
+          case "backward":
+            $scope.timerValue = 60;
+            break;
+        }
+    });
+    $scope.insert = function() {
         var code = {
-            tag: 'crosswordsearch',
-            type: 'single',
+            tag: "crosswordsearch",
+            type: "single",
             attrs: {
-                mode: mode.filter(':checked').val(),
-                project: projects.children(':selected').val()
+                mode: $scope.mode,
+                project: $scope.project.name
             }
         };
-        switch (names.children(':selected').val()) {
-        case 'no':
-        case 'dft':
-            // nothing entered
-            break;
-        case 'new':
-            code.attrs.name = '';
-            break;
-        default:
-            code.attrs.name = names.children(':selected').val();
+        var basic = basicNames.indexOf($scope.crossword);
+        if (basic === 0) {
+            code.attrs.name = "";
+        } else if (basic < 0) {
+            code.attrs.name = $scope.crossword;
         }
-        if (code.attrs.mode === 'build' && restricted.filter(':checked').val()) {
+        if ($scope.mode === "build" && $scope.restricted) {
             code.attrs.restricted = 1;
-        }
-        var timing = timer.children(':selected').val() || 'none';
-        var period = parseInt(timer_value.val(), 10) || 60;
-        if (code.attrs.mode === 'solve' && timing !== 'none') {
-            code.attrs.timer = timing === 'forward' ? 0 : period;
-            if (submitting.filter(':checked').val()) {
+        } else if ($scope.timer !== "none") {
+            code.attrs.timer = $scope.timerValue;
+            if ($scope.submitting) {
                 code.attrs.submitting = 1;
             }
         }
         window.send_to_editor(wp.shortcode.string(code));
         tb_remove();
-    });
-
-    $('#crw_cancel').click(function () {
+    };
+    $scope.cancel = function() {
         tb_remove();
-    });
-});
+    };
+} ]);

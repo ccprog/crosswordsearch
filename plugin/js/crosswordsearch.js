@@ -20,6 +20,82 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
+var crwAjax = angular.module("crwAjax", []);
+
+crwAjax.constant("nonces", {});
+
+crwAjax.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
+    var crwID = 0;
+    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    var httpDefaults = {
+        transformRequest: jQuery.param,
+        method: "POST",
+        url: crwBasics.ajaxUrl
+    };
+    jQuery(document).on("heartbeat-tick", function(e, data) {
+        if (data["wp-auth-check"] === false) {
+            angular.forEach(nonces, function(val, key) {
+                delete nonces[key];
+            });
+        }
+    });
+    var serverError = function(response) {
+        if (response.heartbeat) {
+            return $q.reject(response);
+        } else {
+            return $q.reject({
+                error: "server error",
+                debug: [ "status " + response.status ]
+            });
+        }
+    };
+    var inspectResponse = function(response, context) {
+        var error = false;
+        if (typeof response.data !== "object") {
+            error = {
+                error: "malformed request"
+            };
+        } else if (response.data.error) {
+            error = response.data;
+        }
+        if (error) {
+            return $q.reject(error);
+        }
+        if (response.data.nonce) {
+            nonces[context] = response.data.nonce;
+        }
+        return response.data;
+    };
+    var request = function(data, context) {
+        var bodyData = angular.extend({
+            _crwnonce: nonces[context]
+        }, data);
+        var config = angular.extend({
+            data: bodyData
+        }, httpDefaults);
+        return $http(config);
+    };
+    return {
+        getId: function() {
+            return crwID++;
+        },
+        setNonce: function(nonce, context) {
+            nonces[context] = nonce;
+        },
+        http: function(data, context) {
+            if (nonces[context]) {
+                return request(data, context).then(function(response) {
+                    return inspectResponse(response, context);
+                }, serverError);
+            } else {
+                return $q.reject({
+                    heartbeat: true
+                });
+            }
+        }
+    };
+} ]);
+
 var customSelectElement = angular.module("customSelectElement", []);
 
 customSelectElement.directive("cseDefault", function() {
@@ -172,7 +248,7 @@ customSelectElement.directive("cseSelect", [ "$document", "$timeout", function($
     };
 } ]);
 
-var crwApp = angular.module("crwApp", [ "ngRoute", "qantic.angularjs.stylemodel", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "ngRoute", "qantic.angularjs.stylemodel", "crwAjax", "customSelectElement" ]);
 
 crwApp.factory("reduce", function() {
     return function(array, initial, func) {
@@ -274,80 +350,6 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
         },
         localize: function(str) {
             return crwBasics.locale[str] || str;
-        }
-    };
-} ]);
-
-crwApp.constant("nonces", {});
-
-crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
-    var crwID = 0;
-    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    var httpDefaults = {
-        transformRequest: jQuery.param,
-        method: "POST",
-        url: crwBasics.ajaxUrl
-    };
-    jQuery(document).on("heartbeat-tick", function(e, data) {
-        if (data["wp-auth-check"] === false) {
-            angular.forEach(nonces, function(val, key) {
-                delete nonces[key];
-            });
-        }
-    });
-    var serverError = function(response) {
-        if (response.heartbeat) {
-            return $q.reject(response);
-        } else {
-            return $q.reject({
-                error: "server error",
-                debug: [ "status " + response.status ]
-            });
-        }
-    };
-    var inspectResponse = function(response, context) {
-        var error = false;
-        if (typeof response.data !== "object") {
-            error = {
-                error: "malformed request"
-            };
-        } else if (response.data.error) {
-            error = response.data;
-        }
-        if (error) {
-            return $q.reject(error);
-        }
-        if (response.data.nonce) {
-            nonces[context] = response.data.nonce;
-        }
-        return response.data;
-    };
-    var request = function(data, context) {
-        var bodyData = angular.extend({
-            _crwnonce: nonces[context]
-        }, data);
-        var config = angular.extend({
-            data: bodyData
-        }, httpDefaults);
-        return $http(config);
-    };
-    return {
-        getId: function() {
-            return crwID++;
-        },
-        setNonce: function(nonce, context) {
-            nonces[context] = nonce;
-        },
-        http: function(data, context) {
-            if (nonces[context]) {
-                return request(data, context).then(function(response) {
-                    return inspectResponse(response, context);
-                }, serverError);
-            } else {
-                return $q.reject({
-                    heartbeat: true
-                });
-            }
         }
     };
 } ]);

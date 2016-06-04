@@ -458,29 +458,37 @@ div.crw-marked {
         $wp_styles->add_inline_style( $dep, $code );
 }
 
-function crw_add_wizzard_button () {
-
-?>
-    <a id="crw-shortcode-button" href="#TB_inline?width=600&height=550&inlineId=crw-shortcode-wizzard" title="<?php _e('Insert a Crosswordsearch shortcode', 'crosswordsearch'); ?>" class="thickbox button"><?php _e('Crosswordsearch Shortcode', 'crosswordsearch'); ?></a>	
-<?php
-
-}
-
-function crw_add_wizzard_modal () {
-    require( CRW_PLUGIN_DIR . 'wizzard.php' );
-}
-
 /**
  * Hook up script loading and wizzard thickbox for post editing.
  *
- * Hooked to load-settings_page_crw_options.
+ * Hooked to load-post.php and load-post-new.php.
  *
  * @return void
  */
 function crw_set_editor_wizzard () {
-    wp_enqueue_script( 'wizzard', CRW_PLUGIN_URL . 'js/wizzard.js', array( 'jquery', 'media-upload', 'shortcode' ) );
-    add_action( 'media_buttons', 'crw_add_wizzard_button' );
-    add_action( 'admin_footer', 'crw_add_wizzard_modal' );
+    add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
+    add_action( 'admin_enqueue_scripts', function () {
+        wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js', array( 'jquery' ));
+        wp_enqueue_script( 'crw-js', CRW_PLUGIN_URL . 'js/wizzard.js', array( 'angular', 'media-upload', 'shortcode' ) );
+        wp_localize_script('crw-js', 'crwBasics', array(
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'l10nEmpty' => '&lt;' .__('Empty Crossword', 'crosswordsearch') . '&gt;',
+            'l10nDefault' => '&lt;' .__('First crossword', 'crosswordsearch') . '&gt;',
+            'l10nChoose' => '&lt;' .__('Choose from all', 'crosswordsearch') . '&gt;'
+        ));
+    } );
+    add_action( 'media_buttons', function () {
+
+?>
+    <a id="crw-shortcode-button" href="#TB_inline?width=600&height=550&inlineId=crw-shortcode-wizzard"
+        title="<?php _e('Insert a Crosswordsearch shortcode', 'crosswordsearch'); ?>"
+        class="thickbox button" crw-launch><?php _e('Crosswordsearch Shortcode', 'crosswordsearch'); ?></a>	
+<?php
+
+    } );
+    add_action( 'admin_footer', function () {
+        require( CRW_PLUGIN_DIR . 'wizzard.php' );
+    } );
 }
 add_action( 'load-post.php', 'crw_set_editor_wizzard');
 add_action( 'load-post-new.php', 'crw_set_editor_wizzard');
@@ -957,7 +965,7 @@ function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
  *
  * @return void
  */
-function crw_send_public_list ($project) {
+function crw_send_public_list ( $project ) {
     global $wpdb, $data_table_name, $editors_table_name;
 
     $user = wp_get_current_user();
@@ -972,14 +980,20 @@ function crw_send_public_list ($project) {
     ");
 
     $public_list = array();
-    array_walk( $list, function ($entry) use (&$public_list) {
-        if ( !array_key_exists($entry->project, $public_list) ) {
-            $public_list[$entry->project] = array();
+    array_walk( $list, function ( $entry ) use ( &$public_list ) {
+        if ( !array_key_exists( $entry->project, $public_list ) ) {
+            $public_list[$entry->project] = array(
+                'name' => $entry->project,
+                'crosswords' => array()
+            );
         }
-        array_push( $public_list[$entry->project], $entry->name );
+        array_push( $public_list[$entry->project]['crosswords'] , $entry->name );
     } );
 
-    wp_send_json( $public_list );
+    wp_send_json( array(
+        'projects' => array_values( $public_list ),
+        CRW_NONCE_NAME => wp_create_nonce( NONCE_REVIEW )
+    ) );
 }
 add_action( 'wp_ajax_get_crw_public_list', 'crw_send_public_list' );
 

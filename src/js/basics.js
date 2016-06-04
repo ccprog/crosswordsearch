@@ -1,5 +1,6 @@
 /* crwApp setup */
-var crwApp = angular.module('crwApp', ['ngRoute', 'qantic.angularjs.stylemodel', 'customSelectElement']);
+var crwApp = angular.module('crwApp',
+            ['ngRoute', 'qantic.angularjs.stylemodel', 'crwAjax', 'customSelectElement']);
 
 /* reduce implementation */
 crwApp.factory('reduce', function () {

@@ -8,9 +8,9 @@ module.exports = function(grunt) {
   var text_domain = 'crosswordsearch';
 
   var jslist = [
+    srcdir + 'ajaxFactory.js',
     srcdir + 'customSelectElement.js',
     srcdir + 'basics.js',
-    srcdir + 'ajaxFactory.js',
     srcdir + 'crosswordFactory.js',
     srcdir + 'markerFactory.js',
     srcdir + 'AdminController.js',
@@ -20,7 +20,11 @@ module.exports = function(grunt) {
     srcdir + 'TableController.js',
     srcdir + 'EntryController.js',
     srcdir + 'ImmediateController.js'
-  ];
+  ],
+    wzlist = [
+      srcdir + 'ajaxFactory.js',
+      srcdir + 'WizzardController.js'
+    ];
 
   var processJasmineTemplate = function (grunt, task, context) {
     var letterData = grunt.file.readJSON('src/json/letter.json', {encoding:'utf8'}),
@@ -48,13 +52,15 @@ module.exports = function(grunt) {
         banner: '/*\n<%= licence %>*/\n'
       },
       readable: {
-          options: {
-            mangle: false,
-            compress: false,
-            beautify: true
-          },
-        src: jslist,
-        dest: destdir + '<%= pkg.name %>.js'
+        options: {
+          mangle: false,
+          compress: false,
+          beautify: true
+        },
+        files: [
+          { src: jslist, dest: destdir + '<%= pkg.name %>.js' },
+          { src: wzlist, dest: destdir + 'wizzard.js' }
+        ]
       },
       mini: {
         options: {
@@ -62,8 +68,10 @@ module.exports = function(grunt) {
             drop_console: true
           }
         },
-        src: jslist,
-        dest: destdir + '<%= pkg.name %>.min.js'
+        files: [
+          { src: jslist, dest: destdir + '<%= pkg.name %>.min.js' },
+          { src: wzlist, dest: destdir + 'wizzard.min.js' }
+        ]
       }
     },
     cssmin: {
