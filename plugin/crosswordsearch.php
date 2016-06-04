@@ -461,7 +461,7 @@ div.crw-marked {
 function crw_add_wizzard_button () {
 
 ?>
-    <a id="crw-shortcode-button" href="#TB_inline?width=600&height=550&inlineId=crw-shortcode-wizzard" title="<?php _e('Insert a Crosswordsearch shortcode'); ?>" class="thickbox button"><?php _e('Crosswordsearch Shortcode'); ?></a>	
+    <a id="crw-shortcode-button" href="#TB_inline?width=600&height=550&inlineId=crw-shortcode-wizzard" title="<?php _e('Insert a Crosswordsearch shortcode', 'crosswordsearch'); ?>" class="thickbox button"><?php _e('Crosswordsearch Shortcode', 'crosswordsearch'); ?></a>	
 <?php
 
 }
@@ -934,6 +934,54 @@ function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
     $debug = array( $wpdb->last_error, $wpdb->last_query );
     return $success;
 }
+
+/* ----------------------------------
+ * Ajax Communication: Shortcode wizzard
+ * ---------------------------------- */
+
+/**
+ * Answer request for existing project and crossword names.
+ *
+ * Sends JSON data:
+ * 
+ *     object {
+ *         array <project name> [
+ *             string name
+ *         ],
+ *         ...
+ *     }
+ *
+ * @global wpdb $wpdb
+ * @global string $data_table_name
+ * @global string $editors_table_name
+ *
+ * @return void
+ */
+function crw_send_public_list ($project) {
+    global $wpdb, $data_table_name, $editors_table_name;
+
+    $user = wp_get_current_user();
+    crw_test_permission( 'review', $user );
+
+    $list = $wpdb->get_results("
+        SELECT dt.project AS project, dt.name AS name
+        FROM $data_table_name AS dt
+        INNER JOIN $editors_table_name as et
+        ON et.project = dt.project
+        WHERE et.user_id = $user->ID AND NOT dt.pending
+    ");
+
+    $public_list = array();
+    array_walk( $list, function ($entry) use (&$public_list) {
+        if ( !array_key_exists($entry->project, $public_list) ) {
+            $public_list[$entry->project] = array();
+        }
+        array_push( $public_list[$entry->project], $entry->name );
+    } );
+
+    wp_send_json( $public_list );
+}
+add_action( 'wp_ajax_get_crw_public_list', 'crw_send_public_list' );
 
 /* ----------------------------------
  * Ajax Communication: Settings page
