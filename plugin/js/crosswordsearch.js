@@ -822,6 +822,18 @@ crwApp.directive("crwBindTrusted", [ "$sce", function($sce) {
     };
 } ]);
 
+crwApp.directive("crwCatchThickboxLink", function($sce) {
+    return {
+        link: function(scope, element, attrs) {
+            var data = jQuery.hasData(element[0]) && jQuery._data(element[0]);
+            angular.forEach(data.events.click, function(event) {
+                element.parent().on("click", ".thickbox", event.handler);
+            });
+            element.off("click");
+        }
+    };
+});
+
 crwApp.controller("AdminController", [ "$scope", "$location", "qStore", "ajaxFactory", "crosswordFactory", function($scope, $location, qStore, ajaxFactory, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();

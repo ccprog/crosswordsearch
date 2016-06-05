@@ -42,6 +42,8 @@ if ( current_user_can(CRW_CAP_CONFIRMED) ) {
 $mode = 'admin';
 $timer = false;
 include 'immediate.php';
+add_thickbox();
 
 ?>
+<div class="thickbox open-plugin-details-modal ng-hide" crw-catch-thickbox-link />
 </div>

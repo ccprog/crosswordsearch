@@ -352,7 +352,7 @@ function crw_add_angular_attribute ($attributes) {
  */
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $crw_has_crossword, $text_direction, $child_css;
+    global $plugin_page, $crw_has_crossword, $text_direction, $child_css;
 
     $locale_data = crw_get_locale_data();
 
@@ -360,7 +360,11 @@ function add_crw_scripts ( $hook ) {
         wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js', array( 'jquery' ));
         wp_enqueue_script('angular-route', CRW_PLUGIN_URL . 'js/angular-route.min.js', array( 'angular' ));
         wp_enqueue_script('quantic-stylemodel', CRW_PLUGIN_URL . 'js/qantic.angularjs.stylemodel.min.js', array( 'angular' ));
-        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch' . (WP_DEBUG ? '' : '.min') . '.js', array( 'angular', 'angular-route', 'quantic-stylemodel' ));
+        $deps = array( 'angular', 'angular-route', 'quantic-stylemodel' );
+        if ( 'crw_options' == $plugin_page ) {
+            array_push( $deps, 'plugin-install' );
+        }
+        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . 'js/crosswordsearch' . (WP_DEBUG ? '' : '.min') . '.js', $deps);
         wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
             'textDirection' => $text_direction,
             'pluginPath' => CRW_PLUGIN_URL,
