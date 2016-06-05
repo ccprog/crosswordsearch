@@ -971,13 +971,12 @@ function crw_send_public_list ( $project ) {
     $user = wp_get_current_user();
     crw_test_permission( 'review', $user );
 
-    // TODO: include empty projects
     $list = $wpdb->get_results("
-        SELECT dt.project AS project, dt.name AS name
-        FROM $data_table_name AS dt
-        INNER JOIN $editors_table_name as et
+        SELECT et.project AS project, dt.name AS name
+        FROM (SELECT project, name FROM $data_table_name WHERE NOT pending) AS dt
+        RIGHT JOIN $editors_table_name AS et
         ON et.project = dt.project
-        WHERE et.user_id = $user->ID AND NOT dt.pending
+        WHERE et.user_id = $user->ID
     ");
 
     $public_list = array();
@@ -988,7 +987,9 @@ function crw_send_public_list ( $project ) {
                 'crosswords' => array()
             );
         }
-        array_push( $public_list[$entry->project]['crosswords'] , $entry->name );
+        if ( $entry->name ) {
+            array_push( $public_list[$entry->project]['crosswords'] , $entry->name );
+        }
     } );
 
     wp_send_json( array(
