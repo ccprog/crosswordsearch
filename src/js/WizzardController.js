@@ -14,10 +14,26 @@ crwApp.directive("crwLaunch", ['ajaxFactory', function (ajaxFactory) {
     };
 }]);
 
+crwApp.directive('crwTimeValue', function () {
+    return {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                if (scope.timer === 'backward') {
+                    var num = parseInt(viewValue, 10);
+                    ctrl.$setValidity('time', num.toString() === viewValue && num > 0);
+                }
+                return viewValue;
+            });
+        }
+    };
+});
+
 crwApp.controller("WizzardController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {
     var basicNames = ['new', 'dft', 'no'];
 
+    $scope.noData = true;
     $scope.projects = [];
     $scope.mode = 'solve';
     $scope.timer = 'none';
@@ -28,10 +44,12 @@ crwApp.controller("WizzardController", ['$scope', 'ajaxFactory',
 
     $scope.$on('publicList', function (event, data) {
         $scope.projects = data.projects;
-        $scope.project = $scope.projects[0];
+        $scope.project = $scope.projects[0]; // TODO: better preserve old values
+        $scope.noData = false;
     });
 
     function constructNames () {
+        // TODO: better preserve old values
         var isDismissable = (basicNames.indexOf($scope.crossword) >= 0  || !$scope.crossword);
         if ($scope.mode === 'build') {
             $scope.names = {
@@ -71,6 +89,11 @@ crwApp.controller("WizzardController", ['$scope', 'ajaxFactory',
             break;
         }
     });
+
+    $scope.invalid = function () {
+        return $scope.noData || !$scope.projects.length || ($scope.mode === 'solve' ?
+            !$scope.crwForm.$valid : $scope.crwForm.$error.required);
+    };
 
     $scope.insert = function () {
         var code = {

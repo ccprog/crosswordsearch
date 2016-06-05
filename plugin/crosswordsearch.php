@@ -971,6 +971,7 @@ function crw_send_public_list ( $project ) {
     $user = wp_get_current_user();
     crw_test_permission( 'review', $user );
 
+    // TODO: include empty projects
     $list = $wpdb->get_results("
         SELECT dt.project AS project, dt.name AS name
         FROM $data_table_name AS dt
