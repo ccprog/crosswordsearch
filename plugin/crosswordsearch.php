@@ -468,6 +468,8 @@ div.crw-marked {
 function crw_set_editor_wizzard () {
     add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
     add_action( 'admin_enqueue_scripts', function () {
+        global $wp_styles;
+
         wp_enqueue_script('angular', CRW_PLUGIN_URL . 'js/angular.min.js', array( 'jquery' ));
         wp_enqueue_script( 'crw-js', CRW_PLUGIN_URL . 'js/wizzard.js', array( 'angular', 'media-upload', 'shortcode' ) );
         wp_localize_script('crw-js', 'crwBasics', array(
@@ -476,6 +478,8 @@ function crw_set_editor_wizzard () {
             'l10nDefault' => '&lt;' .__('First crossword', 'crosswordsearch') . '&gt;',
             'l10nChoose' => '&lt;' .__('Choose from all', 'crosswordsearch') . '&gt;'
         ));
+        // fix for .form-table outside #wpbody
+        $wp_styles->add_inline_style( 'thickbox', '@media screen and (max-width: 782px) { #TB_window .form-table td select { height: 40px; } }' );
     } );
     add_action( 'media_buttons', function () {
 

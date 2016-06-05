@@ -215,3 +215,11 @@ crwApp.controller("WizzardController", [ "$scope", "ajaxFactory", function($scop
         tb_remove();
     };
 } ]);
+
+(function($) {
+    var old_position = tb_position;
+    tb_position = function() {
+        old_position();
+        $("#TB_ajaxContent").attr("style", null);
+    };
+})(jQuery);

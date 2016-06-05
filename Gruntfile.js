@@ -23,7 +23,8 @@ module.exports = function(grunt) {
   ],
     wzlist = [
       srcdir + 'ajaxFactory.js',
-      srcdir + 'WizzardController.js'
+      srcdir + 'WizzardController.js',
+      srcdir + 'thickbox-size-hack.js'
     ];
 
   var processJasmineTemplate = function (grunt, task, context) {
