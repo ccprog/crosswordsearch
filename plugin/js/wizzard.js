@@ -101,7 +101,7 @@ var crwApp = angular.module("crwApp", [ "crwAjax" ]);
 crwApp.directive("crwLaunch", [ "ajaxFactory", function(ajaxFactory) {
     return {
         link: function(scope, element, attrs) {
-            angular.element(element).click(function launch() {
+            element.click(function launch() {
                 ajaxFactory.http({
                     action: "get_crw_public_list"
                 }, "wizzard").then(function(data) {
@@ -202,7 +202,7 @@ crwApp.controller("WizzardController", [ "$scope", "ajaxFactory", function($scop
         }
         if ($scope.mode === "build" && $scope.restricted) {
             code.attrs.restricted = 1;
-        } else if ($scope.timer !== "none") {
+        } else if ($scope.mode === "solve" && $scope.timer !== "none") {
             code.attrs.timer = $scope.timerValue;
             if ($scope.submitting) {
                 code.attrs.submitting = 1;

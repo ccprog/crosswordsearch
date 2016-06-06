@@ -44,7 +44,7 @@ crwApp.directive('crwCatchThickboxLink', function ($sce) {
             angular.forEach(data.events.click, function (event) {
                 element.parent().on('click', '.thickbox', event.handler);
             });
-            element.off('click');
+            element.remove();
         }
     };
 });
