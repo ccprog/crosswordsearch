@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 0.7.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-25 21:32+0200\n"
+"POT-Creation-Date: 2016-06-06 22:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -232,247 +232,267 @@ msgstr ""
 msgid "User submitted solutions for crosswordsearch riddles"
 msgstr ""
 
-#: plugin/crosswordsearch.php:503
+#: plugin/crosswordsearch.php:484
+msgid "Empty Crossword"
+msgstr ""
+
+#: plugin/crosswordsearch.php:485
+msgid "First crossword"
+msgstr ""
+
+#: plugin/crosswordsearch.php:486
+msgid "Choose from all"
+msgstr ""
+
+#: plugin/crosswordsearch.php:495
+msgid "Insert a Crosswordsearch shortcode"
+msgstr ""
+
+#: plugin/crosswordsearch.php:496
+msgid "Crosswordsearch Shortcode"
+msgstr ""
+
+#: plugin/crosswordsearch.php:549
 msgid "The shortcode usage is faulty:"
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'mode'
-#: plugin/crosswordsearch.php:507
+#: plugin/crosswordsearch.php:553
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'restricted', %2 the literal 'name'
-#: plugin/crosswordsearch.php:512
+#: plugin/crosswordsearch.php:558
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must be omitted."
 msgstr ""
 
-#: plugin/crosswordsearch.php:516
+#: plugin/crosswordsearch.php:562
 #, php-format
 msgid "Attribute %1$s is only allowed in solve mode."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'timer'
-#: plugin/crosswordsearch.php:521
+#: plugin/crosswordsearch.php:567
 #, php-format
 msgid "Attribute %1$s must be a non-negative integer."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'submitting', %2 the literal 'timer'
-#: plugin/crosswordsearch.php:526
+#: plugin/crosswordsearch.php:572
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must also be set."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'project'
-#: plugin/crosswordsearch.php:531
+#: plugin/crosswordsearch.php:577
 #, php-format
 msgid "Attribute %1$s needs to be an existing project."
 msgstr ""
 
-#: plugin/crosswordsearch.php:535
+#: plugin/crosswordsearch.php:581
 #, php-format
 msgid "There is no crossword in project %1$s."
 msgstr ""
 
-#: plugin/crosswordsearch.php:539
+#: plugin/crosswordsearch.php:585
 #, php-format
 msgid "There is no crossword with the name %1$s."
 msgstr ""
 
-#: plugin/crosswordsearch.php:606
+#: plugin/crosswordsearch.php:652
 msgid "Loading the crossword has yet to start."
 msgstr ""
 
-#: plugin/crosswordsearch.php:774
+#: plugin/crosswordsearch.php:820
 msgid "You do not have permission."
 msgstr ""
 
-#: plugin/crosswordsearch.php:891
+#: plugin/crosswordsearch.php:937
 msgid ""
 "There are still riddles saved for that project. You need to delete them "
 "before you can remove the project."
 msgstr ""
 
-#: plugin/crosswordsearch.php:987
+#: plugin/crosswordsearch.php:1089
 msgid "Editing rights could not be updated."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1040
+#: plugin/crosswordsearch.php:1142
 msgid "Dimensions could not be updated."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1080
+#: plugin/crosswordsearch.php:1182
 msgid "Subscription options could not be updated."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1215
+#: plugin/crosswordsearch.php:1317
 msgid "The project could not be removed."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1224 plugin/editorsTab.php:22
+#: plugin/crosswordsearch.php:1326 plugin/editorsTab.php:22
 #: plugin/immediate.php:25
 msgid "You have exceeded the maximum length for a name!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1226 plugin/editorsTab.php:21
+#: plugin/crosswordsearch.php:1328 plugin/editorsTab.php:21
 #: plugin/immediate.php:24
 msgid "The name is too short!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1236
+#: plugin/crosswordsearch.php:1338
 msgid "The project could not be added."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1238
+#: plugin/crosswordsearch.php:1340
 msgid "The project could not be altered."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1267
+#: plugin/crosswordsearch.php:1369
 msgid "The editors could not be updated."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1408
+#: plugin/crosswordsearch.php:1510
 msgid "The crossword could not be deleted."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1448
+#: plugin/crosswordsearch.php:1550
 msgid "The crossword could not be approved."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1500
+#: plugin/crosswordsearch.php:1602
 msgid "You are not allowed to save the crossword."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1562 plugin/immediate.php:26
+#: plugin/crosswordsearch.php:1664 plugin/immediate.php:26
 msgid "There is already another riddle with that name!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1565
+#: plugin/crosswordsearch.php:1667
 msgid "The riddle you tried to update can not be found!"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1567
+#: plugin/crosswordsearch.php:1669
 msgid "A moderator might have deleted it already. You must start a new one."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1569
+#: plugin/crosswordsearch.php:1671
 msgid ""
 "Someone else might have renamed or deleted it in the meantime. Look into the "
 "list of existing riddles."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1616
+#: plugin/crosswordsearch.php:1718
 msgid "The crossword could not be saved to the database."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1647
+#: plugin/crosswordsearch.php:1749
 msgid "The crossword could not be retrieved."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1703
+#: plugin/crosswordsearch.php:1805
 #, php-format
 msgid "Solution submitted for crossword %1$s in project %2$s:"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1706
+#: plugin/crosswordsearch.php:1808
 #, php-format
 msgid "%1$s of %2$s words were found in %3$s seconds."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1709
+#: plugin/crosswordsearch.php:1811
 #, php-format
 msgid "All %1$s words were found in %2$s seconds."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1725
+#: plugin/crosswordsearch.php:1827
 msgid "Your solution could not be submitted."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1835 plugin/settings.php:21
+#: plugin/crosswordsearch.php:1937 plugin/settings.php:21
 msgid "Options"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1836
+#: plugin/crosswordsearch.php:1938
 msgid ""
 "Riddles saved by restricted editors need the approval of full editors before "
 "they can appear for other users."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1837
+#: plugin/crosswordsearch.php:1939
 msgid "Full editors can only act on the projects they are assigned to."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1838
+#: plugin/crosswordsearch.php:1940
 #, php-format
 msgid ""
 "For custom theming, place a file %1$s with overrides to the default theme "
 "into your theme folder."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1839
+#: plugin/crosswordsearch.php:1941
 msgid ""
 "There are some dimension values that are used in computations during drag "
 "operations. If you have a custom theme, you might have to additionally "
 "adjust these values."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1840
+#: plugin/crosswordsearch.php:1942
 msgid ""
 "Dimension settings are pixel values and used uniformly for heights and "
 "widths."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1841
+#: plugin/crosswordsearch.php:1943
 msgid ""
 "Solution submissions can either be processed by one of the plugins listed "
 "below, or another plugin can subscribe to them through the API."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1845 plugin/editorsTab.php:5
+#: plugin/crosswordsearch.php:1947 plugin/editorsTab.php:5
 #: plugin/reviewTab.php:4
 msgid "Projects"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1846
+#: plugin/crosswordsearch.php:1948
 msgid ""
 "If you change the name of a project, remember that you need to change it "
 "also in every shortcode referring to it."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1846
+#: plugin/crosswordsearch.php:1948
 msgid ""
 "The lowest eligible maximum difficulty level is either the the default level "
 "or the highest level used in an existing riddle, whatever is higher."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1847
+#: plugin/crosswordsearch.php:1949
 msgid ""
 "You need to assign editors to a project in order for them to see its riddles "
 "in the <em>Review</em> tab."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1848
+#: plugin/crosswordsearch.php:1950
 msgid ""
 "If you want to delete a project, you need first to delete all its riddles."
 msgstr ""
 
-#: plugin/crosswordsearch.php:1854
+#: plugin/crosswordsearch.php:1956
 msgid "Review"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1855
+#: plugin/crosswordsearch.php:1957
 msgid ""
 "To preview a riddle, check the <em>Preview</em> box and then click on the "
 "name of the riddle"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1870 plugin/settings.php:14
+#: plugin/crosswordsearch.php:1972 plugin/settings.php:14
 msgid "Crosswordsearch Administration"
 msgstr ""
 
-#: plugin/crosswordsearch.php:1890
+#: plugin/crosswordsearch.php:1992
 msgid "You need to hit your browser's Reload button."
 msgstr ""
 
@@ -897,4 +917,98 @@ msgstr ""
 
 #: plugin/simple-history.php:10
 msgid "Crosswordsearch submissions"
+msgstr ""
+
+#: plugin/wizzard.php:6
+msgid "Waiting for data..."
+msgstr ""
+
+#: plugin/wizzard.php:7
+msgid "No projects found."
+msgstr ""
+
+#: plugin/wizzard.php:11
+msgid "Mode"
+msgstr ""
+
+#: plugin/wizzard.php:12
+msgid "Design crosswords"
+msgstr ""
+
+#: plugin/wizzard.php:13
+msgid "Solve crosswords"
+msgstr ""
+
+#: plugin/wizzard.php:14 plugin/wizzard.php:19 plugin/wizzard.php:26
+msgid "Select something."
+msgstr ""
+
+#: plugin/wizzard.php:17
+msgid "Project"
+msgstr ""
+
+#: plugin/wizzard.php:22
+msgid "Crossword"
+msgstr ""
+
+#: plugin/wizzard.php:24
+msgid "Select one or let the user choose from all crosswords."
+msgstr ""
+
+#: plugin/wizzard.php:25
+msgid ""
+"Preselect the crossword initially displayed. All crosswords remain "
+"selectable."
+msgstr ""
+
+#: plugin/wizzard.php:29
+msgid "Save opportunities"
+msgstr ""
+
+#: plugin/wizzard.php:30
+msgid "Restricted"
+msgstr ""
+
+#: plugin/wizzard.php:31
+msgid "Uploads by restricted users must be reviewed."
+msgstr ""
+
+#: plugin/wizzard.php:34
+msgid "Display timer"
+msgstr ""
+
+#: plugin/wizzard.php:36
+msgid "None"
+msgstr ""
+
+#: plugin/wizzard.php:37
+msgid "Open-ended"
+msgstr ""
+
+#: plugin/wizzard.php:38
+msgid "Countdown"
+msgstr ""
+
+#: plugin/wizzard.php:40
+msgid "Allowed time"
+msgstr ""
+
+#: plugin/wizzard.php:42
+msgid "Give time in seconds (a positive integer)."
+msgstr ""
+
+#: plugin/wizzard.php:45
+msgid "Submission"
+msgstr ""
+
+#: plugin/wizzard.php:46
+msgid "Let users submit their result"
+msgstr ""
+
+#: plugin/wizzard.php:51
+msgid "Insert Shortcode"
+msgstr ""
+
+#: plugin/wizzard.php:52
+msgid "Cancel"
 msgstr ""
