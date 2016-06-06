@@ -33,6 +33,7 @@ describe("crwHelpFollow", function() {
         element.remove();
     }));
 });
+
 describe("crwBindTrusted", function() {
     beforeEach(module('crwApp'));
 
@@ -48,6 +49,32 @@ describe("crwBindTrusted", function() {
         $scope.value = "&#248;";
         $scope.$apply();
         expect(element.html()).toBe("ø");
+    }));
+});
+
+describe("crwCatchThickboxLink", function() {
+    beforeEach(module('crwApp'));
+
+    it("moves event handler", inject(function($rootScope, $compile) {
+        var $scope = $rootScope.$new();
+        var parent = jQuery('<div id="parent">' +
+            '<ul>' +
+            '<li ng-repeat="(key, value) in list"><a id="{{key}}" class="thickbox">{{value}}</a></li>' +
+            '</ul>' +
+            '<div id="origin" class="thickbox open-plugin-details-modal" crw-catch-thickbox-link></div>' +
+            '</div>');
+        var handler = jasmine.createSpy('handler');
+        parent.find( '.thickbox.open-plugin-details-modal' ).on( 'click', handler);
+        jQuery('body').append(parent);
+        $compile(parent)($scope);
+        $scope.list = {first: 1, second: 2};
+        $scope.$apply();
+        expect(jQuery('#origin').length).toBe(0);
+        parent.find('#first').trigger('click');
+        expect(handler.calls.mostRecent().args[0].target.id).toBe('first');
+        parent.find('#second').trigger('click');
+        expect(handler.calls.mostRecent().args[0].target.id).toBe('second');
+        parent.remove();
     }));
 });
 

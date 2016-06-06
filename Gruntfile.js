@@ -21,11 +21,21 @@ module.exports = function(grunt) {
     srcdir + 'EntryController.js',
     srcdir + 'ImmediateController.js'
   ],
-    wzlist = [
-      srcdir + 'ajaxFactory.js',
-      srcdir + 'WizzardController.js',
-      srcdir + 'thickbox-size-hack.js'
-    ];
+  wzlist = [
+    srcdir + 'ajaxFactory.js',
+    srcdir + 'WizzardController.js',
+    srcdir + 'thickbox-size-hack.js'
+  ],
+  vendor = [
+    testdir + 'vendor/tv4/tv4.js',
+    testdir + 'vendor/uri.js/src/URI.min.js',
+    destdir + 'angular.min.js',
+    destdir + 'angular-route.min.js',
+    testdir + 'vendor/angular-mocks/index.js',
+    destdir + 'qantic.angularjs.stylemodel.min.js'
+  ],
+  vendor_3 = [testdir + 'vendor/jquery-1.10.2.min/index.js'].concat(vendor),
+  vendor_4 = [testdir + 'vendor/jquery-1.12.2.min/index.js'].concat(vendor);
 
   var processJasmineTemplate = function (grunt, task, context) {
     var letterData = grunt.file.readJSON('src/json/letter.json', {encoding:'utf8'}),
@@ -103,38 +113,43 @@ module.exports = function(grunt) {
     jasmine: {
       options: {
         template: { process: processJasmineTemplate },
-        specs: testdir + 'unit/*Spec.js',
         outfile: testdir + '_SpecRunner.html',
 //        keepRunner: true
       },
-      wp_3: {
+      app_wp_3: {
         src: jslist,
         options: {
-          vendor: [
-            testdir + 'vendor/tv4/tv4.js',
-            testdir + 'vendor/uri.js/src/URI.min.js',
-            testdir + 'vendor/jquery-1.10.2.min/index.js',
-            destdir + 'angular.min.js',
-            destdir + 'angular-route.min.js',
-            testdir + 'vendor/angular-mocks/index.js',
-            destdir + 'qantic.angularjs.stylemodel.min.js'
-          ],
+          specs: testdir + 'unit/*Spec.js',
+          vendor: vendor_3
         }
       },
-      wp_4: {
+      wizzard_wp_3: {
+        src:  [
+          srcdir + 'ajaxFactory.js',
+          srcdir + 'WizzardController.js',
+        ],
+        options: {
+          specs: testdir + 'unit/*Spec2.js',
+          vendor: vendor_3
+        }
+      },
+      app_wp_4: {
         src: jslist,
         options: {
-          vendor: [
-            testdir + 'vendor/tv4/tv4.js',
-            testdir + 'vendor/uri.js/src/URI.min.js',
-            testdir + 'vendor/jquery-1.12.2.min/index.js',
-            destdir + 'angular.min.js',
-            destdir + 'angular-route.min.js',
-            testdir + 'vendor/angular-mocks/index.js',
-            destdir + 'qantic.angularjs.stylemodel.min.js'
-          ],
+          specs: testdir + 'unit/*Spec.js',
+          vendor: vendor_4
         }
-      }
+      },
+      wizzard_wp_4: {
+        src:  [
+          srcdir + 'ajaxFactory.js',
+          srcdir + 'WizzardController.js',
+        ],
+        options: {
+          specs: testdir + 'unit/*Spec2.js',
+          vendor: vendor_4
+        }
+      },
     },
     pot: {
         options: {
