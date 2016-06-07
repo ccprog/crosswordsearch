@@ -419,9 +419,11 @@ function crw_get_child_stylesheet () {
  * @global WP_Styles $wp_styles
  * @global boolean $child_css
  *
+ * @param boolean $admin Optional, defaults to false. Used on an admin page?
+ *
  * @return void
  */
-function crw_compose_style () {
+function crw_compose_style ( $admin = false ) {
     global $wp_styles, $text_direction, $child_css;
 
     $dimensions = get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION );
@@ -450,7 +452,7 @@ div.crw-marked {
     height: ' . ($dimensions['field'] + $dimensions['fieldBorder']) . 'px;
 }';
 
-    wp_enqueue_style('crw', CRW_PLUGIN_URL . 'css/crosswordsearch.css');
+    wp_enqueue_style('crw', CRW_PLUGIN_URL . 'css/crosswordsearch.css', $admin ? array( 'wp-admin' ) : null );
     if ( "rtl" == $text_direction ) {
         wp_enqueue_style('crw-rtl', CRW_PLUGIN_URL . 'css/rtl.css', array( 'crw' ) );
     }
@@ -514,7 +516,7 @@ add_action( 'load-post-new.php', 'crw_set_editor_wizzard');
 function crw_set_admin_header () {
     add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
     add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
-    crw_compose_style();
+    crw_compose_style( true );
 }
 add_action( 'load-settings_page_crw_options', 'crw_set_admin_header');
 
