@@ -359,8 +359,8 @@ describe("CrosswordController", function () {
 
         it("sets project on preview message", function () {
             $scope.crw.setProject = jasmine.createSpy("setProject");
-            $root.$broadcast('previewProject', 'project');
-            expect($scope.crw.setProject).toHaveBeenCalledWith('project');
+            $root.$broadcast('previewProject', 'project', 'crosswordNonce');
+            expect($scope.crw.setProject).toHaveBeenCalledWith('project', 'crosswordNonce');
         });
 
         it("maps words to array", function () {

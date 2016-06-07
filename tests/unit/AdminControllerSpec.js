@@ -633,7 +633,6 @@ describe("ReviewController", function () {
 
     it("loads initial data", function () {
         $scope.prepare('nonceCrossword', 'nonceReview');
-        expect(ajaxFactory.setNonce).toHaveBeenCalledWith('nonceCrossword', 'crossword');
         expect(ajaxFactory.setNonce).toHaveBeenCalledWith('nonceReview', 'review');
         expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual({
             action: 'list_projects_and_riddles'
@@ -771,6 +770,7 @@ describe("ReviewController", function () {
         var crosswordListener = jasmine.createSpy('crosswordListener');
         $child.$on('previewProject', projectListener);
         $child.$on('previewCrossword', crosswordListener);
+        $scope.prepare('nonceCrossword', 'nonceReview');
         $scope.projects = projects;
         $scope.activeGroup = 'confirmed';
         $scope.selectedProject = projects[1];
@@ -784,6 +784,7 @@ describe("ReviewController", function () {
         expect(projectListener.calls.count()).toBe(1);
         expect(crosswordListener.calls.count()).toBe(1);
         expect(projectListener.calls.argsFor(0)[1]).toBe(projects[1].name);
+        expect(projectListener.calls.argsFor(0)[2]).toBe('nonceCrossword');
         expect($scope.previewCrossword).toBe(projects[1].confirmed[1]);
         expect(crosswordListener.calls.argsFor(0)[1]).toBe(projects[1].confirmed[1]);
         $scope.selectedProject = projects[0];
@@ -792,6 +793,7 @@ describe("ReviewController", function () {
         expect(projectListener.calls.count()).toBe(2);
         expect(crosswordListener.calls.count()).toBe(2);
         expect(projectListener.calls.argsFor(1)[1]).toBe(projects[0].name);
+        expect(projectListener.calls.argsFor(1)[2]).toBe('nonceCrossword');
         expect(crosswordListener.calls.argsFor(1)[1]).toBe(projects[0].confirmed[0]);
         $scope.previewCrossword = projects[0].confirmed[1];
         $scope.$apply(); // crossword change, crossword event from 'previewCrossword' watch

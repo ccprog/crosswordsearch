@@ -118,12 +118,12 @@ describe("ajaxFactory-dependent", function() {
             expect($scope.projects).toBe(list);
             expect($scope.project).toBe(list[0]);
             expect($scope.noData).toBe(false);
-            expect($scope.names).toEqual({
-                'no': 'choose',
-                'crossword1': 'crossword1',
-                'crossword2': 'crossword2',
-                'crossword3': 'crossword3'
-            });
+            expect($scope.names).toEqual([
+                { key: 'no', label: 'choose' },
+                { key: 'crossword1', label: 'crossword1'},
+                { key: 'crossword2', label: 'crossword2'},
+                { key: 'crossword3', label: 'crossword3'}
+            ]);
             expect($scope.crossword).toBe('no');
         });
 
@@ -133,20 +133,20 @@ describe("ajaxFactory-dependent", function() {
             });
             $scope.$apply("project=projects[1]");
             $scope.$apply();
-            expect($scope.names).toEqual({
-                'no': 'choose'
-            });
+            expect($scope.names).toEqual([
+                { key: 'no', label: 'choose' }
+            ]);
             expect($scope.crossword).toBe('no');
         });
 
         it("sets names basic options on mode change", function() {
-            var basicSolve = {
-                'no': 'choose'
-            };
-            var basicBuild = {
-                'new': 'empty',
-                'dft': 'default'
-            };
+            var basicSolve = [
+                { key: 'no', label: 'choose' }
+            ];
+            var basicBuild = [
+                { key: 'new', label: 'empty' },
+                { key: 'dft', label: 'default' }
+            ];
             $rootScope.$broadcast('publicList', {
                 projects: list
             });
