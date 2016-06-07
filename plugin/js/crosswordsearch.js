@@ -1096,7 +1096,7 @@ crwApp.directive("crwOptionClick", function() {
 });
 
 crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", function($scope, $filter, ajaxFactory) {
-    var reviewContext = "review";
+    var reviewContext = "review", crosswordNonce;
     $scope.selectedCrossword = {
         confirmed: null,
         pending: null
@@ -1160,7 +1160,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
     $scope.$watch("selectedProject", function(newSel) {
         if (newSel) {
             if ($scope.preview) {
-                $scope.$broadcast("previewProject", newSel.name);
+                $scope.$broadcast("previewProject", newSel.name, crosswordNonce);
             }
             angular.forEach($scope.selectedCrossword, function(name, group) {
                 if (!name || jQuery.inArray(name, newSel[group]) < 0) {
@@ -1172,7 +1172,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
     $scope.$watch("preview", function(newPre) {
         if (newPre && $scope.selectedProject) {
             $scope.$evalAsync(function(scope) {
-                $scope.$broadcast("previewProject", $scope.selectedProject.name);
+                $scope.$broadcast("previewProject", $scope.selectedProject.name, crosswordNonce);
                 $scope.previewCrossword = $scope.selectedCrossword[$scope.activeGroup];
                 $scope.$broadcast("previewCrossword", $scope.previewCrossword);
             });
@@ -1187,7 +1187,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
         }
     });
     $scope.prepare = function(nonceCrossword, nonceReview) {
-        ajaxFactory.setNonce(nonceCrossword, "crossword");
+        crosswordNonce = nonceCrossword;
         ajaxFactory.setNonce(nonceReview, reviewContext);
         ajaxFactory.http({
             action: "list_projects_and_riddles"
@@ -1461,8 +1461,8 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             break;
         }
     });
-    $scope.$on("previewProject", function(event, project) {
-        $scope.crw.setProject(project);
+    $scope.$on("previewProject", function(event, project, nonceCrossword) {
+        $scope.crw.setProject(project, nonceCrossword);
     });
     $scope.wordsToArray = function(words) {
         var arr = [];

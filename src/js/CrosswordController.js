@@ -170,8 +170,8 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     });
 
     // preview page only: set current project on message sent by PreviewController
-    $scope.$on('previewProject', function (event, project) {
-        $scope.crw.setProject(project);
+    $scope.$on('previewProject', function (event, project, nonceCrossword) {
+        $scope.crw.setProject(project, nonceCrossword);
     });
 
     // tweak: since ordering on object entries seems not to really work,

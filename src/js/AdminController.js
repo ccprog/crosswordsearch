@@ -374,7 +374,7 @@ crwApp.directive('crwOptionClick', function () {
 /* controller for Review tab: review, approve or delete crosswords */
 crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 		function ($scope, $filter, ajaxFactory) {
-    var reviewContext = 'review';
+    var reviewContext = 'review', crosswordNonce;
     $scope.selectedCrossword = { confirmed: null, pending: null };
     $scope.activeGroup = 'confirmed';
 
@@ -446,7 +446,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
         if (newSel) {
             // alert preview CrosswordController of new project
             if ($scope.preview) {
-                $scope.$broadcast('previewProject', newSel.name);
+                $scope.$broadcast('previewProject', newSel.name, crosswordNonce);
             }
             // adjust crossword selection
             angular.forEach($scope.selectedCrossword, function (name, group) {
@@ -461,7 +461,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
     $scope.$watch('preview', function (newPre) {
         if (newPre && $scope.selectedProject) {
             $scope.$evalAsync(function (scope) {
-                $scope.$broadcast('previewProject', $scope.selectedProject.name);
+                $scope.$broadcast('previewProject', $scope.selectedProject.name, crosswordNonce);
                 $scope.previewCrossword = $scope.selectedCrossword[$scope.activeGroup];
                 $scope.$broadcast('previewCrossword', $scope.previewCrossword);
             });
@@ -483,7 +483,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 
     // initial load
     $scope.prepare = function (nonceCrossword, nonceReview) {
-        ajaxFactory.setNonce(nonceCrossword, 'crossword');
+        crosswordNonce = nonceCrossword;
         ajaxFactory.setNonce(nonceReview, reviewContext);
         ajaxFactory.http({
             action: 'list_projects_and_riddles'
