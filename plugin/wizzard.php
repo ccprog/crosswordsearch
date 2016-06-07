@@ -20,7 +20,7 @@
         </tr>
         <tr>
             <th><label for="optionName"><?php _e('Crossword', 'crosswordsearch') ?></label></th>
-            <td><select name="optionName" ng-model="crossword" ng-options="key as value for (key, value) in names" required></select><br/>
+            <td><select name="optionName" ng-model="crossword" ng-options="obj.key as obj.label for obj in names" required></select><br/>
             <span class="description" ng-if="mode=='solve'"><?php _e('Select one or let the user choose from all crosswords.', 'crosswordsearch') ?></span>
             <span class="description" ng-if="mode=='build'"><?php _e('Preselect the crossword initially displayed. All crosswords remain selectable.', 'crosswordsearch') ?></span><br>
             <span class="description" style="color:red;" ng-show="!crwForm.optionName.$valid"><?php _e('Select something.', 'crosswordsearch') ?></span>&nbsp;</td>
