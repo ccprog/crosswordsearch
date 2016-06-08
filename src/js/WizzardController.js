@@ -1,4 +1,4 @@
-var crwApp = angular.module('crwApp', ['crwAjax']);
+var crwApp = angular.module('crwApp', ['crwCommon']);
 
 crwApp.directive("crwLaunch", ['ajaxFactory', function (ajaxFactory) {
     return {
@@ -13,21 +13,6 @@ crwApp.directive("crwLaunch", ['ajaxFactory', function (ajaxFactory) {
         }
     };
 }]);
-
-crwApp.directive('crwTimeValue', function () {
-    return {
-        require: 'ngModel',
-        link: function (scope, element, attrs, ctrl) {
-            ctrl.$parsers.unshift(function(viewValue) {
-                if (scope.timer === 'backward') {
-                    var num = parseInt(viewValue, 10);
-                    ctrl.$setValidity('time', num.toString() === viewValue && num > 0);
-                }
-                return viewValue;
-            });
-        }
-    };
-});
 
 crwApp.controller("WizzardController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {

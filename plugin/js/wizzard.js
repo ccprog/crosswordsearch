@@ -20,11 +20,32 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
-var crwAjax = angular.module("crwAjax", []);
+var crwCommon = angular.module("crwCommon", []);
 
-crwAjax.constant("nonces", {});
+crwCommon.constant("nonces", {});
 
-crwAjax.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
+crwCommon.directive("crwInteger", function() {
+    return {
+        require: "ngModel",
+        link: function(scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                if (element.prop("disabled")) {
+                    return viewValue;
+                }
+                var val = parseInt(viewValue, 10);
+                if (isNaN(val) || val < attrs.min || val.toString() !== viewValue) {
+                    ctrl.$setValidity(attrs.crwInteger, false);
+                    return undefined;
+                } else {
+                    ctrl.$setValidity(attrs.crwInteger, true);
+                    return val;
+                }
+            });
+        }
+    };
+});
+
+crwCommon.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
     var crwID = 0;
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     var httpDefaults = {
@@ -96,7 +117,7 @@ crwAjax.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, no
     };
 } ]);
 
-var crwApp = angular.module("crwApp", [ "crwAjax" ]);
+var crwApp = angular.module("crwApp", [ "crwCommon" ]);
 
 crwApp.directive("crwLaunch", [ "ajaxFactory", function(ajaxFactory) {
     return {
@@ -111,21 +132,6 @@ crwApp.directive("crwLaunch", [ "ajaxFactory", function(ajaxFactory) {
         }
     };
 } ]);
-
-crwApp.directive("crwTimeValue", function() {
-    return {
-        require: "ngModel",
-        link: function(scope, element, attrs, ctrl) {
-            ctrl.$parsers.unshift(function(viewValue) {
-                if (scope.timer === "backward") {
-                    var num = parseInt(viewValue, 10);
-                    ctrl.$setValidity("time", num.toString() === viewValue && num > 0);
-                }
-                return viewValue;
-            });
-        }
-    };
-});
 
 crwApp.controller("WizzardController", [ "$scope", "ajaxFactory", function($scope, ajaxFactory) {
     var basicNames = [ "new", "dft", "no" ];

@@ -1,9 +1,64 @@
+describe("crwInteger", function() {
+    var $scope, $compile, element, model;
+    var testArray = [
+        { val: null, integer: false },
+        { val: '-2', integer: true },
+        { val: '-1', integer: true },
+        { val: '0', integer: true },
+        { val: '1', integer: true },
+        { val: '1.3', integer: false },
+        { val: '563', integer: true },
+        { val: 'abc', integer: false },
+        { val: '3s', integer: false }
+    ];
+
+    function compile (min) {
+        element = $compile('<form name="frm"><input name="dim" type="text" ng-model="value" ' +
+            'ng-disabled="disabled" crw-integer="type" min="' + min + '"></input></form>')($scope);
+        model = element.find('input').controller('ngModel');
+    }
+
+    beforeEach(module('crwCommon'));
+    beforeEach(inject(function($rootScope, _$compile_) {
+        $compile = _$compile_;
+        $scope = $rootScope.$new();
+        $scope.value = 1;
+    }));
+
+    [0, 1].forEach(function (min) {
+        it("accepts only integers of " + min + " and above", function() {
+            compile(min);
+        $scope.$apply('disabled=false');
+            testArray.forEach(function (test) {
+                model.$setViewValue(test.val);
+                if (test.integer && test.val * 1 >= min) {
+                    expect($scope.frm.dim.$valid).toBe(true);
+                    expect($scope.value).toBe(test.val * 1);
+                } else {
+                    expect($scope.frm.dim.$error.type).toBe(true);
+                    expect($scope.value).toBe(undefined);
+                }
+            });
+        });
+    });
+
+    it("does not test if disabled", function() {
+        compile(0);
+        $scope.$apply('disabled=true');
+        testArray.forEach(function (test) {
+            model.$setViewValue(test.val);
+            expect($scope.frm.dim.$valid).toBe(true);
+            expect($scope.value).toBe(test.val);
+        });
+    });
+});
+
 describe("ajaxFactory", function () {
     var $httpBackend, ajaxFactory, answer;
 
     beforeEach(function () {
         answer = {nonce: 'nonce2'};
-        module('crwApp');
+        module('crwCommon');
         inject(function ($injector) {
             $httpBackend = $injector.get('$httpBackend');
             $httpBackend.when('POST', crwBasics.ajaxUrl).respond(JSON.stringify(answer));

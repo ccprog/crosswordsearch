@@ -38,7 +38,7 @@
                 <option value="backward"><?php _e('Countdown', 'crosswordsearch') ?></option>
             </select>&emsp;
             <label for="optionTimerValue"><?php _e('Allowed time', 'crosswordsearch') ?></label>
-            <input type="text" name="optionTimerValue" size="2" ng-model="timerValue" ng-disabled="timer!='backward'" ng-required="timer!='none'" crw-time-value />&nbsp;s<br>
+            <input type="text" name="optionTimerValue" size="2" ng-model="timerValue" ng-disabled="timer!='backward'" ng-required="timer!='none'" crw-integer="time" min="1" />&nbsp;s<br>
             <span class="description" style="color:red;" ng-show="!crwForm.optionTimerValue.$valid"><?php _e('Give time in seconds (a positive integer).', 'crosswordsearch') ?></span>&nbsp;</td>
         </tr>
         <tr ng-show="mode=='solve'">

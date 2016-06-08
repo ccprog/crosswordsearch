@@ -63,7 +63,7 @@ describe("crwAddParsers", function() {
     describe("uniques", function () {
         afterEach(function () {
             model.$setViewValue('three');
-            expect($scope.frm.txt.$error.unique).toBe(false);
+            expect($scope.frm.txt.$error.unique).toBeFalsy();
             expect($scope.value).toBe('three');
             model.$setViewValue('one');
             expect($scope.frm.txt.$error.unique).toBe(true);
@@ -103,19 +103,19 @@ describe("crwAddParsers", function() {
 
         it("sanitizes like WordPress", function() {
             model.$setViewValue('simple');
-            expect($scope.frm.txt.$error.sane).toBe(false);
+            expect($scope.frm.txt.$error.sane).toBeFalsy();
             expect($scope.value).toBe('simple');
             model.$setViewValue('octal %d3');
             expect($scope.frm.txt.$error.sane).toBe(true);
             expect($scope.value).toBeUndefined();
             model.$setViewValue('nonoctal %t8');
-            expect($scope.frm.txt.$error.sane).toBe(false);
+            expect($scope.frm.txt.$error.sane).toBeFalsy();
             expect($scope.value).toBe('nonoctal %t8');
             model.$setViewValue('<entity');
             expect($scope.frm.txt.$error.sane).toBe(true);
             expect($scope.value).toBeUndefined();
             model.$setViewValue('nonentity>');
-            expect($scope.frm.txt.$error.sane).toBe(false);
+            expect($scope.frm.txt.$error.sane).toBeFalsy();
             expect($scope.value).toBe('nonentity>');
         });
     });
@@ -143,10 +143,10 @@ describe("crwHasPassword", function() {
             '<input id="txt" type="text" required=""></input>' +
             '</form>')($scope);
         var required = element.find('#txt');
-        expect(required.prop('required')).toBe(true);
+        expect(required.attr('required')).toBeDefined();
         element.trigger('$destroy');
         $scope.$apply();
-        expect(required.prop('required')).toBe(false);
+        expect(required.attr('required')).toBeUndefined();
     }));
 });
 

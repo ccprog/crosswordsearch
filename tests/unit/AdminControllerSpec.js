@@ -137,41 +137,6 @@ describe("AdminController", function () {
     });
 });
 
-describe("crwDimension", function() {
-    var $scope, $compile, element, model;
-
-    beforeEach(module('crwApp'));
-    beforeEach(inject(function($rootScope, _$compile_) {
-        $compile = _$compile_;
-        $scope = $rootScope.$new();
-        $scope.value = 1;
-        element = $compile('<form name="frm"><input name="dim" type="text" ng-model="value" ' +
-            'crw-dimension></input></form>')($scope);
-        model = element.find('input').controller('ngModel');
-    }));
-
-    it("accepts only integers of 0 and above", function() {
-        model.$setViewValue('0');
-        expect($scope.frm.dim.$error.dimension).toBe(false);
-        expect($scope.value).toBe(0);
-        model.$setViewValue('1.3');
-        expect($scope.frm.dim.$error.dimension).toBe(true);
-        expect($scope.value).toBeUndefined();
-        model.$setViewValue('1');
-        expect($scope.frm.dim.$error.dimension).toBe(false);
-        expect($scope.value).toBe(1);
-        model.$setViewValue('-2');
-        expect($scope.frm.dim.$error.dimension).toBe(true);
-        expect($scope.value).toBeUndefined();
-        model.$setViewValue('563');
-        expect($scope.frm.dim.$error.dimension).toBe(false);
-        expect($scope.value).toBe(563);
-        model.$setViewValue('abc');
-        expect($scope.frm.dim.$error.dimension).toBe(true);
-        expect($scope.value).toBeUndefined();
-    });
-});
-
 describe("OptionsController", function () {
     var $scope, ajaxFactory, deferred, options = {};
 

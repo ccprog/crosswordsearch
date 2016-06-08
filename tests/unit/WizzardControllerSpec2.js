@@ -1,32 +1,5 @@
 var tb_remove, send_to_editor, wp;
 
-describe("crwTimeValue", function() {
-    beforeEach(module('crwApp'));
-
-    it("tests for positive integer", inject(function($rootScope, $compile) {
-        var $scope = $rootScope.$new();
-        $scope.value = 'neutral';
-        $scope.timer = 'backward';
-        var element = $compile('<form name="frm">' +
-            '<input name="txt" type="text" ng-model="value" ' +
-            'crw-time-value></input>' +
-            '</form>')($scope);
-        var model = element.find('input').controller('ngModel');
-        model.$setViewValue('txt');
-        expect($scope.frm.txt.$valid).toBe(false);
-        expect($scope.value).toBe('txt');
-        model.$setViewValue('-1');
-        expect($scope.frm.txt.$valid).toBe(false);
-        expect($scope.value).toBe('-1');
-        model.$setViewValue('0');
-        expect($scope.frm.txt.$valid).toBe(false);
-        model.$setViewValue('1');
-        expect($scope.frm.txt.$valid).toBe(true);
-        model.$setViewValue('1.5');
-        expect($scope.frm.txt.$valid).toBe(false);
-    }));
-});
-
 describe("ajaxFactory-dependent", function() {
     var ajaxFactory, deferred;
 

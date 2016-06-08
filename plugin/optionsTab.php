@@ -36,23 +36,23 @@ if ( $child_css ) {
         <table class="form-table">
             <tr>
                 <th><label for="tableBorder">a) <?php _e('Outer border size', 'crosswordsearch') ?></label></th>
-                <td><input class="small-text" type="text" name="tableBorder" ng-model="dimensions.tableBorder" crw-dimension></input> px</td>
+                <td><input class="small-text" type="text" name="tableBorder" ng-model="dimensions.tableBorder" crw-integer="dimension" min="0"></input> px</td>
             </tr>
             <tr>
                 <th><label for="field">b) <?php _e('Field size without borders', 'crosswordsearch') ?></label></th>
-                <td><input class="small-text" type="text" name="field" ng-model="dimensions.field" crw-dimension></input> px</td>
+                <td><input class="small-text" type="text" name="field" ng-model="dimensions.field" crw-integer="dimension" min="0"></input> px</td>
             </tr>
             <tr>
                 <th><label for="fieldBorder">c) <?php _e('Border size between adjecent fields', 'crosswordsearch') ?></label></th>
-                <td><input class="small-text" type="text" name="fieldBorder" ng-model="dimensions.fieldBorder" crw-dimension></input> px</td>
+                <td><input class="small-text" type="text" name="fieldBorder" ng-model="dimensions.fieldBorder" crw-integer="dimension" min="0"></input> px</td>
             </tr>
             <tr>
                 <th><label for="handleOutside">d) <?php _e('Size of the drag handle outside the grid borders', 'crosswordsearch') ?></label></th>
-                <td><input class="small-text" type="text" name="handleOutside" ng-model="dimensions.handleOutside" crw-dimension></input> px</td>
+                <td><input class="small-text" type="text" name="handleOutside" ng-model="dimensions.handleOutside" crw-integer="dimension" min="0"></input> px</td>
             </tr>
             <tr>
                 <th><label for="handleInside">e) <?php _e('Size of the drag handle inside the grid borders', 'crosswordsearch') ?></label></th>
-                <td><input class="small-text" type="text" name="handleInside" ng-model="dimensions.handleInside" crw-dimension></input> px</td>
+                <td><input class="small-text" type="text" name="handleInside" ng-model="dimensions.handleInside" crw-integer="dimension" min="0"></input> px</td>
             </tr>
         </table>
         <p class="error" ng-if="dimEdit.$invalid"><?php _e('Each dimension needs to be an integer of 0 or more', 'crosswordsearch') ?></p>

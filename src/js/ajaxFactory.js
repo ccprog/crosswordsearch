@@ -1,9 +1,31 @@
-var crwAjax = angular.module('crwAjax', []);
+var crwCommon = angular.module('crwCommon', []);
 
-crwAjax.constant('nonces', {});
+crwCommon.constant('nonces', {});
+
+/* input validity parser for dimensions */
+crwCommon.directive('crwInteger', function () {
+    return {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                if (element.prop('disabled')) {
+                    return viewValue;
+                }
+                var val = parseInt(viewValue, 10);
+                if (isNaN(val) || val < attrs.min || val.toString() !== viewValue) {
+                    ctrl.$setValidity(attrs.crwInteger, false);
+                    return undefined;
+                } else {
+                    ctrl.$setValidity(attrs.crwInteger, true);
+                    return val;
+                }
+            });
+        }
+    };
+});
 
 /* wrapper for $http service */
-crwAjax.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, nonces) {
+crwCommon.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, nonces) {
     //counter for crossword instances
     var crwID = 0;
 

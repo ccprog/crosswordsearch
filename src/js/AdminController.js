@@ -86,25 +86,6 @@ crwApp.controller("AdminController", ['$scope', '$location', 'qStore', 'ajaxFact
     };
 }]);
 
-/* input validity parser for dimensions */
-crwApp.directive('crwDimension', function () {
-    return {
-        require: 'ngModel',
-        link: function (scope, element, attrs, ctrl) {
-            ctrl.$parsers.unshift(function(viewValue) {
-                var val = parseInt(viewValue, 10);
-                if (isNaN(val) || val < 0 || val.toString() !== viewValue) {
-                    ctrl.$setValidity('dimension', false);
-                    return undefined;
-                } else {
-                    ctrl.$setValidity('dimension', true);
-                    return val;
-                }
-            });
-        }
-    };
-});
-
 /* controller for Options tab: capabilities, CSS dimensions, submiscribers */
 crwApp.controller("OptionsController", ['$scope', 'ajaxFactory',
 		function ($scope, ajaxFactory) {

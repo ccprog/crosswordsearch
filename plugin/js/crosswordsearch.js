@@ -20,11 +20,32 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
-var crwAjax = angular.module("crwAjax", []);
+var crwCommon = angular.module("crwCommon", []);
 
-crwAjax.constant("nonces", {});
+crwCommon.constant("nonces", {});
 
-crwAjax.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
+crwCommon.directive("crwInteger", function() {
+    return {
+        require: "ngModel",
+        link: function(scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                if (element.prop("disabled")) {
+                    return viewValue;
+                }
+                var val = parseInt(viewValue, 10);
+                if (isNaN(val) || val < attrs.min || val.toString() !== viewValue) {
+                    ctrl.$setValidity(attrs.crwInteger, false);
+                    return undefined;
+                } else {
+                    ctrl.$setValidity(attrs.crwInteger, true);
+                    return val;
+                }
+            });
+        }
+    };
+});
+
+crwCommon.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
     var crwID = 0;
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     var httpDefaults = {
@@ -248,7 +269,7 @@ customSelectElement.directive("cseSelect", [ "$document", "$timeout", function($
     };
 } ]);
 
-var crwApp = angular.module("crwApp", [ "ngRoute", "qantic.angularjs.stylemodel", "crwAjax", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "ngRoute", "qantic.angularjs.stylemodel", "crwCommon", "customSelectElement" ]);
 
 crwApp.factory("reduce", function() {
     return function(array, initial, func) {
@@ -862,24 +883,6 @@ crwApp.controller("AdminController", [ "$scope", "$location", "qStore", "ajaxFac
         }
     };
 } ]);
-
-crwApp.directive("crwDimension", function() {
-    return {
-        require: "ngModel",
-        link: function(scope, element, attrs, ctrl) {
-            ctrl.$parsers.unshift(function(viewValue) {
-                var val = parseInt(viewValue, 10);
-                if (isNaN(val) || val < 0 || val.toString() !== viewValue) {
-                    ctrl.$setValidity("dimension", false);
-                    return undefined;
-                } else {
-                    ctrl.$setValidity("dimension", true);
-                    return val;
-                }
-            });
-        }
-    };
-});
 
 crwApp.controller("OptionsController", [ "$scope", "ajaxFactory", function($scope, ajaxFactory) {
     var optionsContext = "options";
