@@ -4,4 +4,4 @@ node_modules/
 .grunt/
 typings/
 tests/vendor/
-tests/_SpecRunner.html
+tests/_SpecRunner*.html

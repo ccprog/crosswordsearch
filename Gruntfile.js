@@ -8,7 +8,7 @@ module.exports = function(grunt) {
   var text_domain = 'crosswordsearch';
 
   var jslist = [
-    srcdir + 'ajaxFactory.js',
+    srcdir + 'common.js',
     srcdir + 'customSelectElement.js',
     srcdir + 'basics.js',
     srcdir + 'crosswordFactory.js',
@@ -22,17 +22,17 @@ module.exports = function(grunt) {
     srcdir + 'ImmediateController.js'
   ],
   wzlist = [
-    srcdir + 'ajaxFactory.js',
+    srcdir + 'common.js',
     srcdir + 'WizzardController.js',
     srcdir + 'thickbox-size-hack.js'
   ],
   vendor = [
     testdir + 'vendor/tv4/tv4.js',
     testdir + 'vendor/uri.js/src/URI.min.js',
-    destdir + 'angular.min.js',
-    destdir + 'angular-route.min.js',
+    destdir + 'angular.js',
+    destdir + 'angular-route.js',
     testdir + 'vendor/angular-mocks/index.js',
-    destdir + 'qantic.angularjs.stylemodel.min.js'
+    destdir + 'qantic.angularjs.stylemodel.js'
   ],
   vendor_3 = [testdir + 'vendor/jquery-1.10.2.min/index.js'].concat(vendor),
   vendor_4 = [testdir + 'vendor/jquery-1.12.2.min/index.js'].concat(vendor);
@@ -113,41 +113,44 @@ module.exports = function(grunt) {
     jasmine: {
       options: {
         template: { process: processJasmineTemplate },
-        outfile: testdir + '_SpecRunner.html',
 //        keepRunner: true
       },
       app_wp_3: {
         src: jslist,
         options: {
           specs: testdir + 'unit/*Spec.js',
-          vendor: vendor_3
+          vendor: vendor_3,
+          outfile: testdir + '_SpecRunner-app.html'
         }
       },
       wizzard_wp_3: {
         src:  [
-          srcdir + 'ajaxFactory.js',
+          srcdir + 'common.js',
           srcdir + 'WizzardController.js',
         ],
         options: {
           specs: testdir + 'unit/*Spec2.js',
-          vendor: vendor_3
+          vendor: vendor_3,
+          outfile: testdir + '_SpecRunner-wizzard.html'
         }
       },
       app_wp_4: {
         src: jslist,
         options: {
           specs: testdir + 'unit/*Spec.js',
-          vendor: vendor_4
+          vendor: vendor_4,
+          outfile: testdir + '_SpecRunner-app.html'
         }
       },
       wizzard_wp_4: {
         src:  [
-          srcdir + 'ajaxFactory.js',
+          srcdir + 'common.js',
           srcdir + 'WizzardController.js',
         ],
         options: {
           specs: testdir + 'unit/*Spec2.js',
-          vendor: vendor_4
+          vendor: vendor_4,
+          outfile: testdir + '_SpecRunner-wizzard.html'
         }
       },
     },
