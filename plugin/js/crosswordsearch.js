@@ -965,18 +965,19 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     $scope.addProject = function() {
         $scope.selectedProject = null;
     };
+    var emptyProject = $scope.currentProject = {
+        name: "",
+        default_level: 1,
+        maximum_level: 3,
+        used_level: 0,
+        editors: []
+    };
     $scope.$watch("selectedProject", function(newSel) {
         if (newSel) {
             $scope.currentProject = angular.copy(newSel);
             $scope.currentEditors = angular.copy(newSel.editors);
         } else {
-            $scope.currentProject = {
-                name: "",
-                default_level: 1,
-                maximum_level: 3,
-                used_level: 0,
-                editors: []
-            };
+            $scope.currentProject = emptyProject;
             $scope.currentEditors = [];
         }
         $scope.projectMod.$setPristine();

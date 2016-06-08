@@ -1,6 +1,6 @@
 var tb_remove, send_to_editor, wp;
 
-describe("ajaxFactory-dependent", function() {
+describe("Wizzard", function() {
     var ajaxFactory, deferred;
 
     beforeEach(function () {
