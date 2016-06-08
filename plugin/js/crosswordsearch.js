@@ -823,9 +823,9 @@ crwApp.directive("crwHelpFollow", [ "$document", function($document) {
                 var tabName = /(capabilities|editor|review)/.exec(tab)[0];
                 angular.forEach(helptabs, function(el, id) {
                     if (id === tabName) {
-                        el.addClass("active");
+                        el.addClass("active").filter("[id*=tab-panel]").attr("style", null);
                     } else {
-                        el.removeClass("active");
+                        el.removeClass("active").filter("[id*=tab-panel]").css("display", "none");
                     }
                 });
             });
