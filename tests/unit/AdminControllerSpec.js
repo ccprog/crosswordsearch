@@ -189,7 +189,7 @@ describe("OptionsController", function () {
         expect($scope.setError).toHaveBeenCalledWith('error');
     });
 
-    ['capabilities', 'dimensions', 'subscribers'].forEach(function(option) {
+    angular.forEach(['capabilities', 'dimensions', 'subscribers'], function(option) {
         it("calls for " + option + " update", function () {
             $scope.update(option);
             var call = {

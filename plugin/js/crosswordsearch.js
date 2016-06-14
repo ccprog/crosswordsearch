@@ -1263,9 +1263,10 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
             scope.timer = {};
             scope.texts = {};
             angular.element(transcludeFn()).filter("span").each(function(idx, elem) {
-                scope.texts[elem.getAttribute("state")] = {
-                    alt: elem.getAttribute("alt"),
-                    title: elem.textContent
+                var element = angular.element(elem);
+                scope.texts[element.attr("state")] = {
+                    alt: element.attr("alt"),
+                    title: element.text()
                 };
             });
             function timing() {
@@ -1306,7 +1307,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                 return scope.texts[scope.timer.countdown ? "down" : "up"].title;
             };
             scope.getDisabled = function() {
-                return [ "waiting", "scored" ].indexOf(scope.timer.state) < 0;
+                return jQuery.inArray(scope.timer.state, [ "waiting", "scored" ]) < 0;
             };
             scope.play = function() {
                 if (scope.timer.state === "waiting") {
@@ -2061,7 +2062,7 @@ crwApp.directive("crwHasPassword", function() {
                 scope.password = null;
             });
             element.on("$destroy", function() {
-                element.find("[required]").prop("required", false);
+                element.find("[required]").attr("required", null);
             });
         }
     };

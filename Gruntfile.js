@@ -31,11 +31,21 @@ module.exports = function(grunt) {
     testdir + 'vendor/uri.js/src/URI.min.js',
     destdir + 'angular.js',
     destdir + 'angular-route.js',
-    testdir + 'vendor/angular-mocks/index.js',
     destdir + 'qantic.angularjs.stylemodel.js'
   ],
-  vendor_3 = [testdir + 'vendor/jquery-1.10.2.min/index.js'].concat(vendor),
-  vendor_4 = [testdir + 'vendor/jquery-1.12.2.min/index.js'].concat(vendor);
+  vendor_3 = [testdir + 'vendor/jquery-1.10.2.min/index.js'].concat(vendor)
+             .concat([testdir + 'vendor/angular-mocks-1.5.6/index.js']),
+  vendor_4 = [testdir + 'vendor/jquery-1.12.2.min/index.js'].concat(vendor)
+             .concat([testdir + 'vendor/angular-mocks-1.5.6/index.js']),
+  vendor_ie8 = [
+    testdir + 'vendor/jquery-1.12.2.min/index.js',
+    testdir + 'vendor/tv4/tv4.js',
+    testdir + 'vendor/uri.js/src/URI.min.js',
+    destdir + 'angular-1.2.29.js',
+    destdir + 'angular-route-1.2.29.js',
+    testdir + 'vendor/angular-mocks-1.2.29/index.js',
+    destdir + 'qantic.angularjs.stylemodel.js'
+  ];
 
   var processJasmineTemplate = function (grunt, task, context) {
     var letterData = grunt.file.readJSON('src/json/letter.json', {encoding:'utf8'}),
@@ -151,6 +161,27 @@ module.exports = function(grunt) {
           specs: testdir + 'unit/*Spec2.js',
           vendor: vendor_4,
           outfile: testdir + '_SpecRunner-wizzard.html'
+        }
+      },
+      app_ie8: {
+        src: jslist,
+        options: {
+          specs: testdir + 'unit/*Spec.js',
+          vendor: vendor_ie8,
+          outfile: testdir + '_SpecRunner-app-ie8.html',
+          keepRunner: true
+        }
+      },
+      wizzard_ie8: {
+        src:  [
+          srcdir + 'common.js',
+          srcdir + 'WizzardController.js',
+        ],
+        options: {
+          specs: testdir + 'unit/*Spec2.js',
+          vendor: vendor_ie8,
+          outfile: testdir + '_SpecRunner-wizzard-ie8.html',
+          keepRunner: true
         }
       },
     },

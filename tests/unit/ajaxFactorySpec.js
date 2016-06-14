@@ -25,11 +25,11 @@ describe("crwInteger", function() {
         $scope.value = 1;
     }));
 
-    [0, 1].forEach(function (min) {
+    angular.forEach([0, 1], function (min) {
         it("accepts only integers of " + min + " and above", function() {
             compile(min);
-        $scope.$apply('disabled=false');
-            testArray.forEach(function (test) {
+            $scope.$apply('disabled=false');
+            angular.forEach(testArray, function (test) {
                 model.$setViewValue(test.val);
                 if (test.integer && test.val * 1 >= min) {
                     expect($scope.frm.dim.$valid).toBe(true);
@@ -45,7 +45,7 @@ describe("crwInteger", function() {
     it("does not test if disabled", function() {
         compile(0);
         $scope.$apply('disabled=true');
-        testArray.forEach(function (test) {
+        angular.forEach(testArray, function (test) {
             model.$setViewValue(test.val);
             expect($scope.frm.dim.$valid).toBe(true);
             expect($scope.value).toBe(test.val);

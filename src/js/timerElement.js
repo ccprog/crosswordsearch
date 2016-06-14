@@ -40,9 +40,10 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             // extract localized texts from child elements
             scope.texts = {};
             angular.element(transcludeFn()).filter('span').each(function (idx, elem) {
-                scope.texts[elem.getAttribute('state')] = {
-                    alt: elem.getAttribute('alt'),
-                    title: elem.textContent
+                var element = angular.element(elem);
+                scope.texts[element.attr('state')] = {
+                    alt: element.attr('alt'),
+                    title: element.text()
                 };
             });
 
@@ -96,7 +97,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
 
             // state of button
             scope.getDisabled = function () {
-                return ['waiting', 'scored'].indexOf(scope.timer.state) < 0;
+                return jQuery.inArray(scope.timer.state, ['waiting', 'scored']) < 0;
             };
 
             // button click

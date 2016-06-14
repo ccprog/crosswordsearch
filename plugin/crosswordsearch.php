@@ -34,7 +34,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * Bootstrap
  * ---------------------------------- */
 
-define('CRW_VERSION', '0.7.2');
+define('CRW_VERSION', '0.7.3');
 define('CRW_DB_VERSION', '0.5');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
@@ -352,27 +352,55 @@ function crw_add_angular_attribute ($attributes) {
  */
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $crw_has_crossword, $text_direction, $child_css;
+    global $wp_styles, $crw_has_crossword, $text_direction, $child_css;
+
+    $edits_post = 'post.php' == $hook || 'post-new.php' == $hook;
+    if ( !$crw_has_crossword && 'settings_page_crw_options' != $hook && !$edits_post ) return;
 
 	$suffix = SCRIPT_DEBUG ? '' : '.min';
     $locale_data = crw_get_locale_data();
+    $scripts = array( );
+    $angular_deps = array ( 'jquery' );
+    $localize = array( );
+
+    if ( 'settings_page_crw_options' == $hook ) {
+        array_push( $angular_deps, 'plugin-install' );
+    }
+    if ( strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 8.0' ) !== false ) {
+        $scripts['angular'] = array( 'file' => 'angular-1.2.29', 'ver' => null );
+        $scripts['angular-route'] = array( 'file' => 'angular-route-1.2.29', 'ver' => null );
+    } else {
+        $scripts['angular'] = array( 'file' => 'angular', 'ver' => '1.5.6' );
+        $scripts['angular-route'] = array( 'file' => 'angular-route', 'ver' => '1.5.6' );
+    }
+    $scripts['angular']['deps'] =  $angular_deps;
+    $scripts['angular-route']['deps'] =  array ( 'angular' );
 
 	if ( $crw_has_crossword || 'settings_page_crw_options' == $hook ) {
-        $deps = array( 'jquery' );
-        if ( 'settings_page_crw_options' == $hook ) {
-            array_push( $deps, 'plugin-install' );
-        }
-        wp_enqueue_script('angular', CRW_PLUGIN_URL . "js/angular$suffix.js", $deps);
-        wp_enqueue_script('angular-route', CRW_PLUGIN_URL . "js/angular-route$suffix.js", array( 'angular' ));
-        wp_enqueue_script('quantic-stylemodel', CRW_PLUGIN_URL . "js/qantic.angularjs.stylemodel$suffix.js", array( 'angular' ));
-        wp_enqueue_script('crw-js', CRW_PLUGIN_URL . "js/crosswordsearch$suffix.js", array( 'angular', 'angular-route', 'quantic-stylemodel' ));
-        wp_localize_script('crw-js', 'crwBasics', array_merge($locale_data, array(
+        $scripts['quantic-stylemodel'] = array( 'file' => 'qantic.angularjs.stylemodel', 'deps' => array( 'angular' ), 'ver' => null );
+        $scripts['crw-js'] = array( 'file' => 'crosswordsearch', 'deps' => array( 'angular', 'angular-route', 'quantic-stylemodel' ), 'ver' => CRW_VERSION );
+        $localize = array_merge($locale_data, array(
             'textDirection' => $text_direction,
             'pluginPath' => CRW_PLUGIN_URL,
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'dimensions' => get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION )
-        )));
-	}
+        ));
+	} else if ( $edits_post ) {
+        unset( $scripts['angular-route'] );
+        $scripts['crw-js'] = array( 'file' => 'wizzard', 'deps' => array( 'angular', 'media-upload', 'shortcode' ), 'ver' => CRW_VERSION );
+        $localize = array(
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'l10nEmpty' => '&lt;' .__('Empty Crossword', 'crosswordsearch') . '&gt;',
+            'l10nDefault' => '&lt;' .__('First crossword', 'crosswordsearch') . '&gt;',
+            'l10nChoose' => '&lt;' .__('Choose from all', 'crosswordsearch') . '&gt;'
+        );
+        // fix for .form-table outside #wpbody
+        $wp_styles->add_inline_style( 'thickbox', '@media screen and (max-width: 782px) { #TB_window .form-table td select { height: 40px; } }' );
+    }
+    foreach ( $scripts as $slug => $script ) {
+        wp_enqueue_script($slug, CRW_PLUGIN_URL . 'js/' . $script['file'] . $suffix . '.js', $script['deps'], $script['ver'] );
+    }
+    wp_localize_script('crw-js', 'crwBasics', $localize );
 }
 
 /**
@@ -473,23 +501,8 @@ div.crw-marked {
  * @return void
  */
 function crw_set_editor_wizzard () {
-    add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
-    add_action( 'admin_enqueue_scripts', function () {
-        global $wp_styles;
-
-	    $suffix = SCRIPT_DEBUG ? '' : '.min';
-
-        wp_enqueue_script('angular', CRW_PLUGIN_URL . "js/angular$suffix.js", array( 'jquery' ));
-        wp_enqueue_script( 'crw-js', CRW_PLUGIN_URL . "js/wizzard$suffix.js", array( 'angular', 'media-upload', 'shortcode' ) );
-        wp_localize_script('crw-js', 'crwBasics', array(
-            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-            'l10nEmpty' => '&lt;' .__('Empty Crossword', 'crosswordsearch') . '&gt;',
-            'l10nDefault' => '&lt;' .__('First crossword', 'crosswordsearch') . '&gt;',
-            'l10nChoose' => '&lt;' .__('Choose from all', 'crosswordsearch') . '&gt;'
-        ));
-        // fix for .form-table outside #wpbody
-        $wp_styles->add_inline_style( 'thickbox', '@media screen and (max-width: 782px) { #TB_window .form-table td select { height: 40px; } }' );
-    } );
+    add_filter( 'language_attributes', 'crw_add_angular_attribute' );
+    add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
     add_action( 'media_buttons', function () {
 
 ?>

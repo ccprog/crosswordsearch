@@ -96,7 +96,7 @@ crwApp.directive('crwHasPassword', function () {
                 scope.password = null;
             });
             element.on('$destroy', function () {
-                element.find("[required]").prop('required', false);
+                element.find("[required]").attr('required', null);
             });
         }
     };
