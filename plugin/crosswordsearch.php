@@ -643,11 +643,13 @@ function crw_shortcode_handler( $atts, $content = null ) {
     }
     $countdown = (int)$timer;
     $timer = strlen($timer);
-    $prep_1 = esc_js($project);
-    $prep_2 = wp_create_nonce( NONCE_CROSSWORD );
-    $prep_3 = wp_create_nonce( ($restricted ? NONCE_PUSH : NONCE_EDIT) . $project );
-    $prep_4 = esc_js($selected_name);
-    $prep_5 = $restricted ? 'restricted' : ($timer ? 'timer' : '');
+    $prep = array(
+        esc_js($project),
+        wp_create_nonce( NONCE_CROSSWORD ),
+        wp_create_nonce( ($restricted ? NONCE_PUSH : NONCE_EDIT) . $project ),
+        esc_js($selected_name),
+        $restricted ? 'restricted' : ($timer ? 'timer' : '')
+    );
 
     $current_user = wp_get_current_user();
     $is_auth = is_user_logged_in();
@@ -666,7 +668,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $app_code = ob_get_clean();
     $delay_message = '<p ng-hide="true"><strong>' . __('Loading the crossword has yet to start.', 'crosswordsearch') . '</strong></p>';
 
-	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . $prep_1 . '\', \'' . $prep_2 . '\', \'' . $prep_3 . '\', \'' . $prep_4 . '\', \'' . $prep_5 . '\')">' . $app_code . '</div>';
+	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . implode( '\', \'', $prep ) . '\')">' . $app_code . '</div>';
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
 
@@ -815,18 +817,46 @@ function crw_is_editor ( $user, $project ) {
 }
 
 /**
+ * Identify a user. For contexts 'submit', 'push' and 'edit', authentication
+ * might be achieved via posted username and password. For 'crossword', the
+ * user might be anonymous. Everything else requires a logged in user,
+ * or an error will be raised.
+ *
+ * @param string $for Context string.
+ *
+ * @return WP_User User object might have ID == 0 for anonymous user.
+ */
+function crw_authenticate ( $for ) {
+    $error = __('You do not have permission.', 'crosswordsearch');
+    $direct_allowed = array ( 'submit', 'push', 'edit' );
+
+    $user = wp_get_current_user();
+    if ( in_array( $for, $direct_allowed ) && $_POST['username'] ) {
+        $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
+        if ( is_wp_error($user) ) {
+            $debug = $user->get_error_messages();
+            crw_send_error($error, $debug);
+        }
+    } else if ( 'crossword' != $for && 0 == $user->ID ) {
+        crw_send_error($error, 'No authenticated user');
+    }
+
+    return $user;
+}
+
+/**
  * Permission test for all Ajax requests.
  *
- * 1. correct nonce for action?
+ * 1. correct nonce for action? (bypassed if no user is logged in)
  * 2. correct capability for user and action?
  * 3. for editing, editing rights in project for user?
  * Calls crw_send_error() if it does not pass.
  *
  * @see crw_send_error()
  *
- * @param string $for Context string. Accepts 'crossword', 'cap', 'admin', 'push',
- * 'edit' and 'review'.
- * @param WP_User $user User object. Also catches invalid users.
+ * @param string $for Context string. Accepts 'crossword', 'submit', 'cap', 'admin',
+ * 'push', 'edit' and 'review'.
+ * @param WP_User $user User object.
  * @param string $project Optional. Project name.
  *
  * @return boolean True if the user has restricted rights.
@@ -834,22 +864,20 @@ function crw_is_editor ( $user, $project ) {
 function crw_test_permission ( $for, $user, $project=null ) {
     $error = __('You do not have permission.', 'crosswordsearch');
 
-    if ( $user && is_wp_error($user) ) {
-        $debug = $user->get_error_messages();
-        crw_send_error($error, $debug);
-    }
-
     $restricted = false;
     $for_project = true;
+    $capability = false;
     switch ( $for ) {
     case 'crossword':
         // can the logged in user review unconfirmed crosswords?
         if ( is_user_logged_in() ) {
-            $user = wp_get_current_user();
             $restricted = !user_can( $user, CRW_CAP_CONFIRMED ) || !crw_is_editor( $user, $project );
         } else {
             $restricted = true;
         }
+        $nonce_source = NONCE_CROSSWORD;
+        break;
+    case 'submit':
         $nonce_source = NONCE_CROSSWORD;
         break;
     case 'cap':
@@ -885,10 +913,10 @@ function crw_test_permission ( $for, $user, $project=null ) {
         break;
     }
 
-    if ( !wp_verify_nonce( $_POST[CRW_NONCE_NAME], $nonce_source ) ) {
+    if ( is_user_logged_in() && !wp_verify_nonce( $_POST[CRW_NONCE_NAME], $nonce_source ) ) {
         $debug = 'nonce not verified for ' . $nonce_source;
         crw_send_error($error, $debug);
-    } elseif ( 'crossword' !== $for && !user_can($user, $capability) ) {
+    } elseif ( false !== $capability && !user_can($user, $capability) ) {
         $debug = 'no ' . $capability . ' permission for user';
         crw_send_error($error, $debug);
     } elseif ( !$for_project ) {
@@ -1628,13 +1656,8 @@ function crw_save_crossword () {
         $old_name = sanitize_text_field( $unsafe_old_name );
     }
 
-    // if a username is sent, use it for authentication
-    if ( $_POST['username'] ) {
-        $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
-    } else {
-        $user = wp_get_current_user();
-    }
     $for = $restricted_page ? 'push' : 'edit';
+    $user = crw_authenticate( $for );
     $restricted_permission = crw_test_permission( $for, $user, $project );
 
     // verify crossword data
@@ -1768,7 +1791,7 @@ function crw_get_crossword() {
     $name = sanitize_text_field( wp_unslash($_POST['name']) );
     $restricted_page = ('true' === wp_unslash($_POST['restricted']));
 
-    $restricted_permission = crw_test_permission( 'crossword', null, $project );
+    $restricted_permission = crw_test_permission( 'crossword', wp_get_current_user(), $project );
 
     // call database
     if ( $name === '' ) {
@@ -1849,16 +1872,8 @@ function crw_submit_solution() {
     $solved = (int)wp_unslash($_POST['solved']);
     $total = (int)wp_unslash($_POST['total']);
 
-    // if a username is sent, use it for authentication
-    if ( $_POST['username'] ) {
-        $user = wp_authenticate_username_password(NULL, $_POST['username'], $_POST['password']);
-    } else {
-        $user = wp_get_current_user();
-    }
-    crw_test_permission( 'crossword', $user, $project );
-    if ( $user && $user->ID == 0 ) {
-        crw_send_error($error, 'No authenticated user');
-    }
+    $user = crw_authenticate( 'submit' );
+    crw_test_permission( 'submit', $user, $project );
 
     $crossword_found = $wpdb->get_var( $wpdb->prepare("
         SELECT count(*)
