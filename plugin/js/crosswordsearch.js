@@ -1388,7 +1388,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         insert: 'save("insert")',
         reload: "load(loadedName)"
     };
-    $scope.prepare = function(project, nonceCrossword, nonceEdit, name, attr) {
+    $scope.prepare = function(project, nonceCrossword, nonceEdit, attr, name) {
         $scope.crw.setProject(project, nonceCrossword, nonceEdit, attr === "restricted");
         switch (attr) {
           case "restricted":
@@ -1422,7 +1422,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             return obj;
         });
         var deregister = $scope.$on("immediateReady", function() {
-            $scope.load(name);
+            $scope.load($scope.commandState === "restricted" ? null : name);
             deregister();
         });
     };

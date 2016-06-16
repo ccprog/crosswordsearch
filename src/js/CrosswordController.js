@@ -80,7 +80,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     };
 
     // init crossword at page load time
-    $scope.prepare = function (project, nonceCrossword, nonceEdit, name, attr) {
+    $scope.prepare = function (project, nonceCrossword, nonceEdit, attr, name) {
         $scope.crw.setProject(project, nonceCrossword, nonceEdit, attr === 'restricted');
         switch (attr) {
         case 'restricted': // restricted build mode
@@ -119,7 +119,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         });
         // load data
         var deregister = $scope.$on('immediateReady', function () {
-            $scope.load(name);
+            $scope.load($scope.commandState === 'restricted' ? null : name);
             deregister();
         });
     };

@@ -633,23 +633,32 @@ function crw_shortcode_handler( $atts, $content = null ) {
     }
 
     $is_single = false;
-    if ( $name === '' && count($names_list) > 0 && !$restricted ) {
-        $selected_name = $names_list[0];
-    } else {
+    $selected_name = '';
+    if ( strlen( $name ) ) {
         $selected_name = $name;
         if ('solve' == $mode) {
             $is_single = true;
         }
+    } else if ( 'build' == $mode && array_key_exists( 'name', $atts ) ) {
+        // effectively swap '' and false for build mode,
+        // technically that's crap but combines more fluent frontend logic
+        // with intuitive shortcode attributes
+        $selected_name = false;
+    } else if ( count($names_list) > 0 && !$restricted ) {
+        $selected_name = $names_list[0];
     }
+
     $countdown = (int)$timer;
     $timer = strlen($timer);
     $prep = array(
         esc_js($project),
         wp_create_nonce( NONCE_CROSSWORD ),
         wp_create_nonce( ($restricted ? NONCE_PUSH : NONCE_EDIT) . $project ),
-        esc_js($selected_name),
         $restricted ? 'restricted' : ($timer ? 'timer' : '')
     );
+    if ( false !== $name ) {
+        array_push( $prep, esc_js($selected_name) );
+    }
 
     $current_user = wp_get_current_user();
     $is_auth = is_user_logged_in();
