@@ -91,10 +91,10 @@ dl.crw-level>dd {
 .crw-crossword .crw-control-button {
     height:31px;
 }
-.crw-control-button,
-.crw-control-button:hover,
-.crw-control-button:focus,
-.crw-control-button:active,
+button.crw-control-button,
+button.crw-control-button:hover,
+button.crw-control-button:focus,
+button.crw-control-button:active,
 .crw-table button {
     background-color: transparent;
     border: none;
