@@ -467,12 +467,11 @@ describe("CrosswordController", function () {
             expect($scope.load).toHaveBeenCalledWith('crossword');
         });
 
-        it("restarts the loaded riddle", function () {
+        it("handles solution on restart of the loaded riddle", function () {
             var restrict = true;
             $scope.crw.getLevelRestriction = function () { return restrict; };
             spyOn($scope.crw, 'getLevelRestriction').and.callThrough();
-            spyOn($scope, '$broadcast');
-            $scope.crosswordData.solution = {
+            $scope.crosswordData.words = $scope.crosswordData.solution = {
                 word1: {solved: true},
                 word2: {solved: true}
             };
@@ -481,18 +480,34 @@ describe("CrosswordController", function () {
             };
             $scope.restart();
             expect($scope.count.solution).toBe(0);
+            expect($scope.crosswordData.words.word1.solved).toBe(false);
+            expect($scope.crosswordData.words.word2.solved).toBe(false);
             expect($scope.crosswordData.solution.word1.solved).toBe(false);
             expect($scope.crosswordData.solution.word2.solved).toBe(false);
+            $scope.crosswordData.words = $scope.crosswordData.solution = {
+                word1: {solved: true},
+                word2: {solved: true}
+            };
             restrict = false;
             $scope.count.solution = 2;
             $scope.restart();
             expect($scope.count.solution).toBe(0);
+            expect($scope.crosswordData.words.word1.solved).toBe(false);
+            expect($scope.crosswordData.words.word2.solved).toBe(false);
             expect($scope.crosswordData.solution).toEqual({});
+        });
+
+        it("handles timer on restart of the loaded riddle", function () {
+            $scope.crw.getLevelRestriction = jasmine.createSpy('getLevelRestriction').and.returnValue(true);
+            spyOn($scope, '$broadcast');
+            $scope.crosswordData.words = {};
+            $scope.count = {
+                solution: 2
+            };
             $scope.timer = {
                 submitting: true
             };
             $scope.tableVisible = true;
-            $scope.crw.getLevelRestriction.calls.reset();
             $scope.restart();
             expect($scope.tableVisible).toBe(true);
             expect($scope.$broadcast).not.toHaveBeenCalled();

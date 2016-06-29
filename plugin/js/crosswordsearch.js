@@ -1522,11 +1522,10 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         }
         if (!$scope.crw.getLevelRestriction("sol")) {
             $scope.crosswordData.solution = {};
-        } else {
-            angular.forEach($scope.crosswordData.solution, function(word) {
-                word.solved = false;
-            });
         }
+        angular.forEach($scope.crosswordData.words, function(word) {
+            word.solved = false;
+        });
         $scope.count.solution = 0;
     };
     $scope.$watch("count.solution", function(s) {
