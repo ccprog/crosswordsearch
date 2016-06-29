@@ -677,6 +677,12 @@ function crw_shortcode_handler( $atts, $content = null ) {
     $app_code = ob_get_clean();
     $delay_message = '<p ng-hide="true"><strong>' . __('Loading the crossword has yet to start.', 'crosswordsearch') . '</strong></p>';
 
+    //block out known caching plugins
+    if( !defined( 'DONOTCACHEPAGE' ) ) { //WP Super Cache and compatible
+        define('DONOTCACHEPAGE', true);
+    }
+    $delay_message = '<!--[wpfcNOT]-->' . $delay_message; //WP Fastest Cache
+
 	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . implode( '\', \'', $prep ) . '\')">' . $app_code . '</div>';
 }
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
