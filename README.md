@@ -2,7 +2,7 @@ crosswordsearch
 ===============
 
 Crosswordsearch is a WordPress plugin for designing and playing wordsearch-style crosswords.
-It started as a development for for [RadiJojo.de](radijojo.de), the International
+It started as a development for [RadiJojo.de](radijojo.de), the International
 Children's Media Network.
 
 If you want to use this plugin on your Website, I strongly advise you to load it from
