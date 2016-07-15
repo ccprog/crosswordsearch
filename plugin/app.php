@@ -48,8 +48,8 @@ if ( 'build' == $mode ) {
 
 ?>
         <dd><?php _e('Word directions', 'crosswordsearch') ?>:
-            <strong ng-show="crw.getLevelRestriction('dir')"><?php _e('only to the right and down', 'crosswordsearch') ?>,</strong>
-            <strong ng-show="!crw.getLevelRestriction('dir')"><?php _e('any, including the diagonals and backwards', 'crosswordsearch') ?>,</strong>
+            <strong ng-show="crw.getLevelRestriction('dir')"><?php _e('only to the right and down', 'crosswordsearch') ?></strong>
+            <strong ng-show="!crw.getLevelRestriction('dir')"><?php _e('any, including diagonal and backwards', 'crosswordsearch') ?></strong>
             <br /><?php _e('List of words that should be found', 'crosswordsearch') ?>:
             <strong ng-show="crw.getLevelRestriction('sol')"><?php _e('visible before found', 'crosswordsearch') ?></strong>
             <strong ng-show="!crw.getLevelRestriction('sol')"><?php _e('hidden before found', 'crosswordsearch') ?></strong>

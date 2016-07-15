@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-14 14:48+0200\n"
-"PO-Revision-Date: 2016-07-14 14:48+0200\n"
+"POT-Creation-Date: 2016-07-15 13:23+0200\n"
+"PO-Revision-Date: 2016-07-15 13:23+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: German\n"
@@ -65,7 +65,7 @@ msgid "only to the right and down"
 msgstr "nur nach rechts und unten"
 
 #: plugin/app.php:52
-msgid "any, including the diagonals and backwards"
+msgid "any, including diagonal and backwards"
 msgstr "jede, auch diagonal und rückwärts"
 
 #: plugin/app.php:53
