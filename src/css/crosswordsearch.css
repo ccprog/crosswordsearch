@@ -42,6 +42,15 @@
     font-weight: bold;
     clear: both;
 }
+.crw-wrapper label {
+    display: inline;
+}
+label.crw-instruction {
+    display: block;
+}
+.crw-instruction {
+    margin-bottom: 5px;
+}
 .crw-instruction:before {
     content: counter(instruct, disc);
     margin-right:0.5em;
@@ -79,7 +88,7 @@ dl.crw-level>dd {
     width: 300px;
     min-height: 1.5em;
 }
-.crw-control-button {
+button.crw-control-button {
     margin: 0;
     padding: 0;
     width: 31px;
@@ -102,44 +111,44 @@ button.crw-control-button:active,
     transition:none;
     box-shadow: none;
 }
-.crw-control-button.fill {
+button.crw-control-button.fill {
     background-position: 0px -31px;
 }
-.crw-control-button.fill:hover {
+button.crw-control-button.fill:hover {
     background-position: 0px 0px;
 }
-.crw-control-button.empty {
+button.crw-control-button.empty {
     background-position: -31px -31px;
 }
-.crw-control-button.empty:hover {
+button.crw-control-button.empty:hover {
     background-position: -31px 0px;
 }
-.crw-control-button.trash {
+button.crw-control-button.trash {
     background-position: -62px -35px;
 }
-.crw-control-button.trash:hover {
+button.crw-control-button.trash:hover {
     background-position: -62px -4px;
 }
-.crw-control-button.waiting {
+button.crw-control-button.waiting {
     background-position: -124px -35px;
     vertical-align: middle;
 }
-.crw-control-button.waiting:hover {
+button.crw-control-button.waiting:hover {
     background-position: -124px -4px;
 }
-.crw-control-button.playing {
+button.crw-control-button.playing {
     background-position: -155px -4px;
     vertical-align: middle;
 }
-.crw-control-button.final {
+button.crw-control-button.final {
     background-position: -155px -35px;
     vertical-align: middle;
 }
-.crw-control-button.restart, .crw-control-button.scored {
+button.crw-control-button.restart, button.crw-control-button.scored {
     background-position: -93px -35px;
     vertical-align: middle;
 }
-.crw-control-button.restart:hover, .crw-control-button.scored:hover {
+button.crw-control-button.restart:hover, button.crw-control-button.scored:hover {
     background-position: -93px -4px;
 }
 div[crw-timer-element] {
