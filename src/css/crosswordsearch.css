@@ -420,6 +420,7 @@ dl.crw-color img {
 }
 .crw-editors .form-table {
     clear:none;
+    width: auto;
 }
 .crw-options {
     border-spacing: 0;
