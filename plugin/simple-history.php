@@ -8,6 +8,7 @@ function crw_simple_history_logger ( $simpleHistory ) {
         function getInfo() {
             return array(
                 "name" => __( 'Crosswordsearch submissions', 'crosswordsearch' ),
+                'name_via' => 'Crosswordsearch',
                 "description" => __('User submitted solutions for crosswordsearch riddles', 'crosswordsearch' ),
                 'messages' => array(
                     'submission' => 'Crosswordsearch submission'
