@@ -4,7 +4,7 @@ Plugin Name: crosswordsearch
 Plugin URI: https://github.com/ccprog/crosswordsearch/wiki
 Version: 1.0.1
 Author: Claus Colloseus
-Author URI: http://browser-unplugged.net
+Author URI: https://browser-unplugged.net
 Text Domain: crosswordsearch
 Domain Path: /languages
 Description: Adds a wordsearch-style crossword in place of a shortcode. Crosswords can be in building-mode for developing new riddles, which then can be stored for later usage, or they can be in solving-mode, where existing riddles are loaded into the page for readers to solve.
@@ -430,14 +430,22 @@ add_action( 'get_header', 'crw_set_header');
  * @return mixed URI string if stylesheet exists, false else.
  */
 function crw_get_child_stylesheet () {
-    $css_file = '/crosswordsearch.css';
+    $css_file = 'crosswordsearch.css';
 
-    if ( file_exists( get_stylesheet_directory() . $css_file ) ) {
-        return get_stylesheet_directory_uri() . $css_file;
-    } elseif ( file_exists( get_template_directory() . $css_file ) ) {
-        return get_template_directory_uri() . $css_file;
+    if ( function_exists ( 'get_theme_file_uri' ) ) {
+        if ( file_exists( get_theme_file_path( $css_file ) ) ) {
+            return get_theme_file_uri( $css_file );
+        } else {
+            return false;
+        }
     } else {
-        return false;
+        if ( file_exists( get_stylesheet_directory() . '/' . $css_file ) ) {
+            return get_stylesheet_directory_uri() . '/' . $css_file;
+        } elseif ( file_exists( get_template_directory() . '/' . $css_file ) ) {
+            return get_template_directory_uri() . '/' . $css_file;
+        } else {
+            return false;
+        }
     }
 }
 
