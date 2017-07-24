@@ -528,20 +528,6 @@ add_action( 'load-post.php', 'crw_set_editor_wizzard');
 add_action( 'load-post-new.php', 'crw_set_editor_wizzard');
 
 /**
- * Hook up attribute addition and script loading for settings pages.
- *
- * Hooked to load-settings_page_crw_options.
- *
- * @return void
- */
-function crw_set_admin_header () {
-    add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
-    add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
-    crw_compose_style( true );
-}
-add_action( 'load-settings_page_crw_options', 'crw_set_admin_header');
-
-/**
  * Validity test for shortcode.
  *
  * @global wpdb $wpdb
@@ -1973,7 +1959,8 @@ add_action( 'wp_ajax_submit_solution', 'crw_submit_solution' );
  * ---------------------------------- */
 
 /**
- * Add context sensitive help.
+ * Hook up attribute addition and script loading for settings pages;
+ * add context sensitive help.
  *
  * Hooked to load-$settings_page.
  *
@@ -1981,7 +1968,11 @@ add_action( 'wp_ajax_submit_solution', 'crw_submit_solution' );
  *
  * @return void
  */
-function crw_add_help_tab () {
+function crw_set_admin_header () {
+    add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
+    add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
+    crw_compose_style( true );
+
     $screen = get_current_screen();
 
     if ( current_user_can(CRW_CAP_ADMINISTRATE) ) {
@@ -2013,7 +2004,7 @@ function crw_add_help_tab () {
 }
 
 /**
- * Init Settings page and hook up context sensitive help.
+ * Init Settings page and hook up header and context sensitive help.
  *
  * Hooked to admin_menu.
  *
@@ -2023,7 +2014,7 @@ function crw_add_help_tab () {
  */
 function crw_admin_menu () {
     $settings_page = add_options_page( __('Crosswordsearch Administration', 'crosswordsearch'), 'Crosswordsearch', CRW_CAP_CONFIRMED, 'crw_options', 'crw_show_options' );
-    add_action('load-'.$settings_page, 'crw_add_help_tab');
+    add_action('load-'.$settings_page, 'crw_set_admin_header');
 };
 add_action('admin_menu', 'crw_admin_menu');
 
