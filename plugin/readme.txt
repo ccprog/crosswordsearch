@@ -3,6 +3,7 @@ Contributors: ccprog
 Tags: game, gamification, crossword, shortcode, educational
 Requires at least: 3.6
 Tested up to: 4.7
+Requires PHP: 5.3
 Stable tag: trunk
 License: see LICENCE file
 License URI: https://github.com/ccprog/crosswordsearch/LICENCE

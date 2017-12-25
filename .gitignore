@@ -3,5 +3,6 @@ node_modules/
 *~
 .grunt/
 typings/
+.vscode/
 tests/vendor/
 tests/_SpecRunner*.html
