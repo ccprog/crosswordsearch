@@ -101,17 +101,22 @@ function crw_install ( $network_wide = null ) {
     }
 
     update_option( "crw_db_version", CRW_DB_VERSION );
-    $roles_caps = array();
+    $old_roles_option = get_option(CRW_ROLES_OPTION); // prexisting option, may not exist
+    $roles_caps = array(); // new option to be constructed
     foreach ( $wp_roles->role_objects as $name => $role ) {
-        if ( $role->has_cap('moderate_comments') ) {
+        if ( $old_roles_option && key_exists( $name, $old_roles_option ) ) {
+            $roles_caps[$name] = $old_roles_option[$name];
+        } elseif ( $role->has_cap('moderate_comments') ) {
             $roles_caps[$name] = CRW_CAP_CONFIRMED;
         } elseif ( 'subscriber' === $name ) {
             $roles_caps[$name] = CRW_CAP_UNCONFIRMED;
         }
     };
-    add_option( CRW_ROLES_OPTION, $roles_caps );
+    update_option( CRW_ROLES_OPTION, $roles_caps );
     foreach ( get_option(CRW_ROLES_OPTION) as $role => $cap ) {
-        get_role( $role )->add_cap( $cap );
+        if ( $cap !== '' ) {
+            get_role( $role )->add_cap( $cap );
+        }
     }
 
     dbDelta( "
@@ -209,10 +214,20 @@ add_action( 'plugins_loaded', 'crw_update' );
 function crw_deactivate () {
     global $wp_roles;
 
+    $roles_caps = array();
     foreach ( $wp_roles->role_objects as $name => $role ) {
+        // resync on last chance
+        if ( $role->has_cap( CRW_CAP_CONFIRMED ) ) {
+            $roles_caps[$name] = CRW_CAP_CONFIRMED;
+        } elseif ( $role->has_cap( CRW_CAP_UNCONFIRMED ) ) {
+            $roles_caps[$name] = CRW_CAP_UNCONFIRMED;
+        } else {
+            $roles_caps[$name] = '';
+        }
         $role->remove_cap( CRW_CAP_CONFIRMED );
         $role->remove_cap( CRW_CAP_UNCONFIRMED );
     }
+    update_option( CRW_ROLES_OPTION, $roles_caps );
 }
 register_deactivation_hook( CRW_PLUGIN_FILE, 'crw_deactivate' );
 
@@ -1162,16 +1177,14 @@ function crw_update_capabilities () {
             $debug = 'corrupt role: ' . $name . ', ' . $cap_obj->cap;
             crw_send_error($error, $debug);
         }
-        if ('' !== $cap_obj->cap) {
-            $roles_caps[$name] = $cap_obj->cap;
-        }
+        $roles_caps[$name] = $cap_obj->cap;
     };
 
     update_option(CRW_ROLES_OPTION, $roles_caps);
     foreach ( $wp_roles->role_objects as $name => $role ) {
         $role->remove_cap( CRW_CAP_CONFIRMED );
         $role->remove_cap( CRW_CAP_UNCONFIRMED );
-        if ( array_key_exists($name, $roles_caps) ) {
+        if ( array_key_exists($name, $roles_caps) && $roles_caps[$name] !== '' ) {
             $role->add_cap( $roles_caps[$name] );
         }
     }
