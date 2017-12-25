@@ -659,6 +659,16 @@ function crw_shortcode_handler( $atts, $content = null ) {
 
     $countdown = (int)$timer;
     $timer = strlen($timer);
+    if ( $timer ) {
+        /**
+         * Filters the message displayed when a user is prompted to submit his solution.
+         * It is added after after informing the user about his result.
+         *
+         * @param string $message='Do you want to submit your result?'
+         */
+        $message = wp_kses_post( apply_filters( 'crw_submission_message', __('Do you want to submit your result?', 'crosswordsearch') ) );
+    }
+
     $prep = array(
         esc_js($project),
         wp_create_nonce( NONCE_CROSSWORD ),
