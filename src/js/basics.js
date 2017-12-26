@@ -57,7 +57,7 @@ crwApp.factory('basics', ['reduce', function (reduce) {
         dimensions: crwBasics.dimensions,
 
         // base directory
-        pluginPath: crwBasics.pluginPath,
+        imagesPath: crwBasics.imagesPath,
 
         // select one color at random, but exclude the one provided as the parameter
         randomColor: function (last) {
