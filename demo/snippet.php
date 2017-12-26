@@ -1,7 +1,13 @@
 <?php
-//define('CRW_PLUGIN_URL', ?);
-//define('CRW_PLUGIN_DIR', ?);
+require_once('l10n.php');
 
+$uri = array(
+    'lib' => '',    // stock libraries
+    'js' => '',     // own scripts
+    'css' => '',    // css
+    'images' => '', // assets
+    'ajax' => ''    // ajax
+);
 $locale = 'en';
 
 $dimensions = array(
@@ -12,12 +18,21 @@ $dimensions = array(
     'handleOutside' => 8
 );
 
-function compose_style ( ) {
-    global $dimensions;
+function get_locale() {
+    global $locale;
+    return $locale;
+}
 
-    echo '
-<link rel="stylesheet" type="text/css" href="crosswordsearch.css" />
-<style>
+function set_directories($paths) {
+    global $uri;
+    $uri = array_merge($uri, $paths);
+}
+
+function compose_style ( ) {
+    global $dimensions, $uri;
+
+    echo '    <link rel="stylesheet" type="text/css" href="' . $uri['css'] . 'crosswordsearch.css" />
+    <style>
 .crw-grid, .crw-mask {
     border-width: ' . $dimensions['tableBorder'] . 'px;
 }
@@ -40,7 +55,8 @@ td.crw-field button {
 div.crw-marked {
     width: ' . ($dimensions['field'] + $dimensions['fieldBorder']) . 'px;
     height: ' . ($dimensions['field'] + $dimensions['fieldBorder']) . 'px;
-}';
+}
+    </style>';
 }
 
 /*
@@ -51,8 +67,15 @@ div.crw-marked {
  *   'name' => string | false
  * )
  */
-function compile ($atts, $target) {
-    global $dimensions;
+function compile ($atts, $loc, $target) {
+    global $locale, $uri, $dimensions;
+
+    $locale = $loc;
+    require_once 'l10n.php';
+    if (!load_textdomain( $locale )) {
+        user_error('failed loading text domain', E_USER_ERROR );
+        return;
+    }
 
     extract( $atts );
     $is_auth = true;
@@ -73,36 +96,38 @@ function compile ($atts, $target) {
     if ( $name ) {
         array_push( $prep, $name );
     }
-
-	require_once 'l10n.php';
+    
+    require_once '../plugin/l10n.php';
     $locale_data = crw_get_locale_data();
     $localize = array_merge($locale_data, array(
         'textDirection' => 'ltr',
-        'pluginPath' => CRW_PLUGIN_URL,
-        'ajaxUrl' => admin_url( 'admin-ajax.php' ), //TODO
+        'imagesPath' => $uri['images'],
+        'ajaxUrl' => $uri['ajax'],
         'dimensions' => $dimensions
     ));
-
-    $scripts = array(
-        'angular' => 'angular',
-        'quantic-stylemodel' => 'qantic.angularjs.stylemodel',
-        'crw-js' => 'crosswordsearch'
-    );
+    $image_dir = $uri['images'];
 
     ob_start();
 
-    foreach( $scripts as $slug => $script ) {
-        echo '<script type="text/javascript" src="' . CRW_PLUGIN_URL . 'js/' . $script .'.min.js" />\n';
-    }
+?>
+<p ng-hide="true"><strong><?php _e('Loading the crossword has yet to start.', 'crosswordsearch') ?></strong></p>
+<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare('<?php echo implode( '\', \'', $prep ) ?>')">
+    <script type="text/javascript" src="<?php echo $uri['lib'] ?>angular.min.js" />
+    <script type="text/javascript" src="<?php echo $uri['lib'] ?>qantic.angularjs.stylemodel.min.js" />
+    <script type="text/javascript" src="<?php echo $uri['js'] ?>crosswordsearch.min.js" />
+    <script type="text/javascript"><?php echo 'var crwBasics = ' . json_encode( $localize ) ?>;</script>
+<?php
 
-    echo '<script type="text/javascript">var crwBasics = ' . json_encode( $localize ) . ';</script>';
     compose_style();
 
     include '../plugin/app.php';
     include '../plugin/immediate.php';
 
-    $app_code = ob_get_clean();
-    $delay_message = '<p ng-hide="true"><strong>' . __('Loading the crossword has yet to start.', 'crosswordsearch') . '</strong></p>';
+    echo '</div>';
 
-	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . implode( '\', \'', $prep ) . '\')">' . $app_code . '</div>';
+    $app_code = ob_get_clean();
+
+    $fp = fopen($target, 'w+');
+    fwrite($fp, $app_code);
+    fclose($fp);
 }

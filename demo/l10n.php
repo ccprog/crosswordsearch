@@ -330,10 +330,8 @@ function load_textdomain( $locale ) {
 
 	if ( !is_readable( $mofile ) ) return false;
 
-	$mo = new MO();
-	if ( !$mo->import_from_file( $mofile ) ) return false;
-
-	$translations = &$mo;
+	$translations = new MO();
+	if ( !$translations->import_from_file( $mofile ) ) return false;
 
 	return true;
 }
