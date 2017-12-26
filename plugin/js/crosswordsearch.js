@@ -314,7 +314,7 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
         textIsLTR: crwBasics.textDirection !== "rtl",
         dimensions: crwBasics.dimensions,
-        pluginPath: crwBasics.pluginPath,
+        imagesPath: crwBasics.imagesPath,
         randomColor: function(last) {
             var color;
             do {
@@ -1945,7 +1945,7 @@ crwApp.directive("colorSelect", [ "basics", function(basics) {
         link: function(scope, element, attrs) {
             scope.localize = basics.localize;
         },
-        template: '<img title="{{localize(value)}}" ng-src="' + basics.pluginPath + 'images/bullet-{{value}}.png">'
+        template: '<img title="{{localize(value)}}" ng-src="' + basics.imagesPath + 'bullet-{{value}}.png">'
     };
 } ]);
 
