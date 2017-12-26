@@ -347,7 +347,7 @@ function crw_add_angular_attribute ($attributes) {
  *         }
  *         string letterRegEx Regex for allowed letters.
  *         object locale List of localized strings, see l10n.php.
- *         string pluginPath Plugin URI.
+ *         string imagesPath Plugin URI.
  *         string ajaxUrl Ajax URI.
  *         object dimensions {
  *             number tableBorder
@@ -396,7 +396,7 @@ function add_crw_scripts ( $hook ) {
         $scripts['crw-js'] = array( 'file' => 'crosswordsearch', 'deps' => array( 'angular', 'angular-route', 'quantic-stylemodel' ), 'ver' => CRW_VERSION );
         $localize = array_merge($locale_data, array(
             'textDirection' => $text_direction,
-            'pluginPath' => CRW_PLUGIN_URL,
+            'imagesPath' => CRW_PLUGIN_URL . 'images/',
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'dimensions' => get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION )
         ));
@@ -686,6 +686,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
     } else {
         $is_auth &= user_can($current_user, CRW_CAP_CONFIRMED) && crw_is_editor($current_user, $project);
     }
+    $image_dir = CRW_PLUGIN_URL . 'images/';
 
 	// load stylesheet into page bottom to get it past theming
     crw_compose_style();

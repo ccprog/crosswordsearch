@@ -174,7 +174,7 @@ if ( 'build' == $mode ) {
     <div class="crw-controls">
         <ul class="crw-word">
             <li ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
-                <img title="{{localize(word.color)}}" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-{{word.color}}.png">
+                <img title="{{localize(word.color)}}" ng-src="<?php echo $image_dir ?>bullet-{{word.color}}.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>
@@ -202,8 +202,8 @@ if ( 'build' == $mode ) {
         </p>
         <ul class="crw-word" ng-class="{'palid': crw.getLevelRestriction('sol')}">
             <li ng-class="{'highlight': isHighlighted(), 'found': word.solved}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:'ID'" ng-controller="EntryController">
-                <img ng-if="word.solved" title="{{localize(word.color)}}" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-{{word.color}}.png">
-                <img ng-if="!word.solved" title="localize('grey')" ng-src="<?php echo CRW_PLUGIN_URL ?>images/bullet-grey.png">
+                <img ng-if="word.solved" title="{{localize(word.color)}}" ng-src="<?php echo $image_dir ?>bullet-{{word.color}}.png">
+                <img ng-if="!word.solved" title="localize('grey')" ng-src="<?php echo $image_dir ?>bullet-grey.png">
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>
