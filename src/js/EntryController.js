@@ -5,7 +5,7 @@ crwApp.directive('colorSelect', ['basics', function(basics) {
         link: function (scope, element, attrs) {
             scope.localize = basics.localize;
         },
-        template: '<img title="{{localize(value)}}" ng-src="' + basics.imagesPath + 'images/bullet-{{value}}.png">'
+        template: '<img title="{{localize(value)}}" ng-src="' + basics.imagesPath + 'bullet-{{value}}.png">'
     };
 }]);
 
