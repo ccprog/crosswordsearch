@@ -1,0 +1,134 @@
+.cse
+  position: relative
+  display: inline-block
+  margin: 0 4px
+  padding: 0px
+  border: 1px solid #666
+  background-color: #fff
+  color: #000
+
+  &, & *
+    -moz-box-sizing: content-box
+    box-sizing: content-box
+    vertical-align: middle
+
+  &:hover
+    border-color: #000
+
+  &:first-child
+    margin-left: 0
+
+  &.select
+    dd, dt, ul
+      margin: 0px
+      padding: 0px
+      cursor: pointer
+
+    dd, dt, ul, li
+      line-height: inherit
+
+    div
+      white-space: nowrap
+
+    dt
+      display: block
+      padding-right: 16px
+      min-width: 20px
+      min-height: 20px
+
+      .btn
+        background-image: url(#{$image-dir}arrows.png)
+        background-repeat: no-repeat
+        background-position: -48px center
+        display: block
+        position: absolute
+        width: 16px
+        bottom: 0px
+        right: 0px
+        top: 2px
+        margin: 0
+        padding: 0
+        
+        &, &:hover, &:focus, &:active
+          background-color: transparent
+          border: none
+          outline: none
+          transition: none
+          box-shadow: none
+
+      div
+        padding: 0px 2px
+        overflow: hidden
+
+      &:hover .btn
+        background-position: 0px center
+
+    dd
+      position: relative
+      z-index: 10000
+
+      ul
+        background-color: #fff
+        border: 1px solid #666
+        color: #000
+        padding: 0px
+        position: absolute
+        top: 2px
+        left: -1px
+        right: 1px
+        min-width: 100%
+        list-style: none
+
+      li
+        margin: 0
+        display: block
+
+        &:hover
+          background-color: Highlight
+
+        div
+          padding: 0 2px
+
+    img
+      border: none
+      box-shadow: none
+      vertical-align: middle
+
+    dl
+      margin: 0
+      display: block
+      position: relative
+      height: 100%
+      width: 100%
+      border: none
+      background-color: transparent
+
+    dd dt
+      display: block
+      min-width: 100%
+      padding-right: 0px
+
+      div
+        padding-right: 18px
+
+      .btn
+        background-position: -80px center
+
+      &:hover .btn
+        background-position: -32px center
+        border: none
+
+    dd dd
+      display: inline-block
+      position: absolute
+      left: 100%
+      top: 0px
+
+      ul
+        display: table
+        left: 2px
+        top: 0px
+
+      div
+        max-width: 300px
+        overflow: hidden

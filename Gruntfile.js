@@ -95,15 +95,25 @@ module.exports = function(grunt) {
         ]
       }
     },
-    cssmin: {
-      combine: {
+    sass: {
+      options: {
+        outputStyle: 'compressed',
+        importer: function (url, prev, done) {
+          if ('./paths' === url) {
+            return {contents: '$image-dir: "../images/"'};
+          } else {
+            return {file: url};
+          }
+        }
+      },
+      main: {
         files: {
-          'plugin/css/<%= pkg.name %>.css': ['src/css/<%= pkg.name %>.css', 'src/css/cse.css']
+          'plugin/css/crosswordsearch.css': ['src/css/crosswordsearch.sass']
         }
       },
       rtl: {
         files: {
-          'plugin/css/rtl.css': ['src/css/rtl.css']
+          'plugin/css/rtl.css': ['src/css/rtl.sass']
         }
       }
     },
@@ -239,7 +249,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-pot');
   grunt.loadNpmTasks('grunt-po2mo');
@@ -247,5 +257,5 @@ module.exports = function(grunt) {
   grunt.task.loadTasks('tasks/');
 
   grunt.registerTask('msgupdate', ['pot', 'msgmerge']);
-  grunt.registerTask('default', ['jshint:main', 'uglify', 'writel10n', 'cssmin', 'msgupdate']);
+  grunt.registerTask('default', ['jshint:main', 'uglify', 'writel10n', 'sass', 'msgupdate']);
 };

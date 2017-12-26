@@ -1,0 +1,553 @@
+@import ./paths
+@import ./cse
+
+%note
+  font-size: 10px
+  font-weight: bold
+
+%note-margin
+  margin: 3px 10px 5px
+
+.crw-global-error
+  @extend %note
+  color: red
+
+.crw-wrapper
+  position: relative
+  -webkit-hyphens: none
+  -ms-hyphens: none
+  -moz-hyphens: none
+  hyphens: none
+  counter-reset: instruct
+
+  > :not(.crw-immediate)
+    margin: 10px 10px 0
+
+  .cse, .cse ul
+    border-radius: 2px
+
+  .error
+    @extend .crw-global-error
+    @extend %note-margin
+
+  .copyright
+    @extend %note
+    @extend %note-margin
+    clear: left
+    float: none
+
+    &.ng-hide
+      display: block !important
+      visibility: hidden
+
+  p.name
+    font-style: italic
+    font-weight: bold
+    clear: both
+
+  label
+    display: inline
+
+    &.crw-instruction
+      display: block
+
+  .crw-instruction
+    margin-bottom: 5px
+
+    &:before
+      content: counter(instruct, disc)
+      margin-right: 0.5em
+      counter-increment: instruct
+
+  textarea
+    width: 90%
+    height: 6em
+
+  p.crw-description em
+    margin-right: 0.5em
+
+  dl.crw-level
+    > dt, > dd
+      font-weight: normal
+      margin-left: 0
+      padding-left: 0
+
+    > dt > dl
+      vertical-align: bottom
+
+    .cse.select
+      line-height: 1.3
+
+      dt div
+        padding: 2px
+
+    > dd
+      font-size: 0.85em
+
+  dl.cse.menu dt
+    width: 200px
+    min-height: 1.5em
+
+  dl.cse.name dt
+    width: 300px
+    min-height: 1.5em
+
+  %plain
+    background-color: transparent
+    border: none
+    outline: none
+    transition: none
+    box-shadow: none
+
+  button.crw-control-button
+    margin: 0
+    padding: 0
+    width: 31px
+    height: 23px
+    background-image: url(#{$image-dir}controls.png)
+    background-position: 31px 0px
+    background-repeat: no-repeat
+
+    &, &:hover, &:focus, &:active
+      @extend %plain
+
+    &.fill
+      background-position: 0px -31px
+
+      &:hover
+        background-position: 0px 0px
+
+    &.empty
+      background-position: -31px -31px
+
+      &:hover
+        background-position: -31px 0px
+
+    &.trash
+      background-position: -62px -35px
+
+      &:hover
+        background-position: -62px -4px
+
+    &.waiting
+      background-position: -124px -35px
+      vertical-align: middle
+
+      &:hover
+        background-position: -124px -4px
+
+    &.playing
+      background-position: -155px -4px
+      vertical-align: middle
+
+    &.final
+      background-position: -155px -35px
+      vertical-align: middle
+
+    &.restart, &.scored
+      background-position: -93px -35px
+      vertical-align: middle
+
+      &:hover
+        background-position: -93px -4px
+
+  div[crw-timer-element]
+    height: 29px
+
+    tt
+      display: inline-block
+      border: 1px solid #666
+      border-radius: 2px
+      box-sizing: border-box
+      width: 5em
+      height: 29px
+      margin-left: 5px
+      text-align: center
+      vertical-align: middle
+
+  .invisible
+    visibility: hidden
+
+  .crw-crossword
+    position: relative
+    float: left
+    min-width: 320px
+
+    &.wide
+      margin: 72px
+
+    > *
+      position: absolute
+      width: 100%
+
+    .crw-control-button
+      height: 31px
+
+  .crw-grid
+    -moz-box-sizing: content-box
+    box-sizing: content-box
+    border-style: solid
+    border-color: transparent
+    position: relative
+
+    &.divider
+      background-image: url(#{$image-dir}grid.png)
+      border-color: black
+
+    #handle-left
+      @extend %handle-vertical
+      cursor: w-resize
+      background-position: left center
+
+    #handle-right
+      @extend %handle-vertical
+      cursor: e-resize
+      background-position: right center
+
+    %handle-vertical
+      position: absolute
+      z-index: 10
+      top: 15px
+      bottom: 15px
+      background-image: url(#{$image-dir}handle-vertical-passive.png)
+      background-repeat: no-repeat
+
+      &:hover
+        background-image: url(#{$image-dir}handle-vertical-active.png)
+
+    #handle-top
+      @extend %handle-horizontal
+      cursor: n-resize
+      background-position: center top
+
+    #handle-bottom
+      @extend %handle-horizontal
+      cursor: s-resize
+      background-position: center bottom
+
+    %handle-horizontal
+      position: absolute
+      z-index: 10
+      left: 15px
+      right: 15px
+      background-image: url(#{$image-dir}handle-horizontal-passive.png)
+      background-repeat: no-repeat
+
+      &:hover
+        background-image: url(#{$image-dir}handle-horizontal-active.png)
+
+  .crw-crossword.wide .crw-grid
+    position: absolute
+
+  .crw-mask
+    overflow: hidden
+    border-style: solid
+    border-color: transparent
+
+  table.crw-table
+    position: absolute
+    border-collapse: separate
+    border: none
+    width: auto
+    height: auto
+
+    tr, th, td
+      background: none
+
+  td.crw-field
+    border: none
+    padding: 0
+    vertical-align: middle
+    text-align: center
+
+    > div
+      position: relative
+      line-height: 18px
+
+    button
+      @extend %plain
+      padding: 0
+      margin: 2px
+      background-image: none
+      color: black
+      font-weight: bold
+      font-size: 18px
+      cursor: default
+
+      &:focus
+        background-color: #ddd
+
+    span
+      display: table-cell
+      vertical-align: middle
+      font-weight: bold
+      font-size: 18px
+      cursor: default
+
+  div.crw-marked
+    position: absolute
+    top: 0px
+    left: 0px
+    background-color: transparent
+
+    &.grey
+      background-image: url(#{$image-dir}markers-grey.png)
+
+    &.black
+      background-image: url(#{$image-dir}markers-black.png)
+
+    &.red
+      background-image: url(#{$image-dir}markers-red.png)
+
+    &.green
+      background-image: url(#{$image-dir}markers-green.png)
+
+    &.blue
+      background-image: url(#{$image-dir}markers-blue.png)
+
+    &.orange
+      background-image: url(#{$image-dir}markers-orange.png)
+
+    &.violet
+      background-image: url(#{$image-dir}markers-violet.png)
+
+    &.aqua
+      background-image: url(#{$image-dir}markers-aqua.png)
+
+    &.right
+      background-position: 0px 0px
+
+    &.horizontal
+      background-position: -31px 0px
+
+    &.left
+      background-position: -62px 0px
+
+    &.down-left
+      background-position: -124px 0px
+
+    &.origin
+      background-position: 0px -31px
+
+    &.corner-down-right
+      background-position: -62px -31px
+
+    &.diagonal-up
+      background-position: -93px -31px
+
+    &.corner-up-left
+      background-position: -124px -31px
+    &.down-right
+      background-position: 0px -62px
+
+    &.up-right
+      background-position: -62px -62px
+
+    &.down
+      background-position: -124px -62px
+
+    &.corner-up-right
+      background-position: 0px -93px
+
+    &.diagonal-down
+      background-position: -31px -93px
+
+    &.corner-down-left
+      background-position: -62px -93px
+
+    &.vertical
+      background-position: -124px -93px
+
+    &.up-left
+      background-position: -62px -124px
+
+    &.up
+      background-position: -124px -124px
+
+  .crw-controls
+    display: inline-block
+    width: 20em
+
+    &.wide
+      width: 30em
+
+  ul.crw-word
+    padding-left: 0
+    margin-left: 0
+    padding-top: 0
+    margin-top: 0
+    font-size: 14px
+
+    > li
+      list-style-type: none
+      padding: 2px 0
+      margin-left: 0
+
+      > *
+        vertical-align: middle
+
+      > img
+        margin: 2px 3px
+
+      &.found
+        color: #000
+        font-weight: bold
+
+      &.highlight
+        color: #444
+        background-color: #ddd
+
+    &.palid li
+      color: #888
+
+  dl.crw-color
+    line-height: 1.2
+
+    dt a
+      width: 20px
+
+    img
+      padding: 2px 0
+
+.crw-immediate
+  > .blocker
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    z-index: 1000
+
+  > .message
+    position: fixed
+    top: 100px
+    left: auto
+    background-color: #fff
+    background-color: rgba(255, 255, 255, 0.9)
+    z-index: 1001
+
+    > div
+      margin: 10px
+      padding: 10px
+      border: 1px solid black
+      width: 24em
+
+  table, td, p
+    margin: 0
+    padding: 0
+    border: none
+    font-size: 100%
+    color: #000
+
+  td:first-child
+    width: 8em
+
+  .confirm
+    @extend %note
+    @extend %note-margin
+    color: green
+
+  label
+    margin-right: 5px
+
+  p.actions
+    margin-top: 1em
+
+  input
+    &[type="text"], &[type="password"]
+      box-shadow: none
+      width: 15em
+      margin-top: 4px
+      vertical-align: baseline
+
+    &.authenticate
+      width: 10em
+
+  .confirm
+    @extend %note-margin
+
+.crw-editors
+  .disabled
+    color: #555
+
+  .error
+    @extend .crw-global-error
+    margin: 0
+    padding: 3px 0px 5px
+
+  table.widefat
+    width: auto
+
+    th, td, .check-column
+      padding: 3px 10px
+
+    .check-column
+      text-align: center
+
+  .illustration
+    float: right
+    margin: 0 20px
+
+  .form-table
+    clear: none
+    width: auto
+
+.crw-options
+  border-spacing: 0
+
+  tr.actions td
+    vertical-align: top
+    padding-bottom: 4px
+
+  th, td
+    max-width: 166px
+    padding: 5px 1px
+
+  select
+    height: 430px
+    width: 160px
+
+  .crosswordname
+    max-width: 286px
+
+    select
+      width: 280px
+
+  .aligned
+    padding-left: 14px
+
+  .project
+    max-width: 252px
+    padding-right: 20px
+
+    select
+      width: 250px
+
+  td.project
+    vertical-align: top
+
+  .username
+    vertical-align: bottom
+
+    select
+      height: 190px
+
+  tr.separate th
+    border-top: 1px solid #ccc
+
+  .between
+    width: 50px
+    max-width: 50px
+
+    select.spin
+      width: 46px
+      height: auto
+
+  .projectname input
+    width: 100%
+
+  button
+    width: 36px
+
+    &.text
+      width: auto
