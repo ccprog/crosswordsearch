@@ -1,0 +1,30 @@
+{
+    "exec_paths": {    // paths on the web server for the assets,
+                       // absolute or relative to the pages containing the app
+        "lib": "",     // jquery and angular
+        "js": "",      // application scripts
+        "css": "",     // style sheets
+        "images": "",  // grafical assets
+        "ajax": ""     // crossword data
+    },
+    "compile_paths": { // folders the assets will be compiled into, relative to demo/build
+        "js": "",      // application scripts
+        "css": "",     // style sheets
+        "images": "",  // grafical assets
+        "data": ""     // crossword data
+    },
+    "pages": [
+        {
+            "atts": {
+                "mode": "build",     // 'build' or 'solve'
+                "timer": false,      // boolean
+                "project": "name",   // project name
+                "name": false        // crossword name to display, or false to allow selection
+                                     // of all crosswords in the project
+            },
+            "lang": "en",            // page localization
+            "name": "out.html"       // file name, will be compiled into demo/build
+        },
+        ...
+    ]
+}

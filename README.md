@@ -77,3 +77,34 @@ The following tasks are available for the development process:
 + `grunt msgupdate` executes `pot` and `msgmerge` together.
 + `grunt` executes `jshint:main`, `uglify`, `writel10n`, `cssmin` and `msgupdate` together.
 
+## Demo application
+
+A demo application without backend can be compiled that works outside of WordPress. It cannot
+save riddles or submit solutions. Nonetheless, if you have some json files defining crosswords,
+they can be displayed for solving, and crosswords can be built from empty grids, albeit to be
+discarded immediately on leaving the page.
+
+    grund demo
+
+produces some files in the `demo/build` folder. Beside the neccessary assets (excluding external
+libraries jquery and angular), HTML templates are compiled that can be included in arbitrary
+pages.
+
+Define a `demo/config.json` file following the pattern of `demo/config.json.sample`. You can set
+target directories for images, css and js files. The folder structure on your web server can be
+described separately to set the paths in the compiled files. Name a folder that will contain the
+crossword data files. Each of them needs to be named
+
+    demo/build/<project name>.<crossword name>.json
+
+For every project named in one of the configured page objects, there needs to be a file
+`demo/build/<data directory>/<project name>.list.json` that looks like this:
+
+    {
+        "crossword":null,
+        "default_level": 1,
+        "maximum_level": 3,
+        "namesList": [
+            // list all crossword names
+        ]
+    }
