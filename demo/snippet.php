@@ -65,12 +65,13 @@ div.crw-marked {
  *   'timer' => boolean
  *   'project' => string
  *   'name' => string | false
+ *   'is_single' => boolean (automatisch von ./compile erzeugt)
  * )
  */
 function compile ($atts, $loc, $target) {
     global $locale, $uri, $dimensions;
 
-    $locale = $loc;
+    if ($loc) $locale = $loc;
     require_once 'l10n.php';
     if (!load_textdomain( $locale )) {
         user_error('failed loading text domain', E_USER_ERROR );
@@ -81,8 +82,6 @@ function compile ($atts, $loc, $target) {
     $is_auth = true;
     $countdown = 0;
     $submitting = false;
-
-    $is_single = $name && 'solve' == $mode;
 
     if ( $timer ) {
         $message = __('Do you want to submit your result?', 'crosswordsearch');
@@ -105,6 +104,10 @@ function compile ($atts, $loc, $target) {
         'ajaxUrl' => $uri['ajax'],
         'dimensions' => $dimensions
     ));
+    $localize['locale']['nosave'] = __('Sorry, the demo application does not support saving.', 'crosswordsearch');
+    $localize['locale']['nosubmit'] = __('Sorry, the demo application does not support submitting.', 'crosswordsearch');
+    $localize['locale']['noadmin'] = __('You do not have permission.', 'crosswordsearch');
+
     $image_dir = $uri['images'];
 
     ob_start();
@@ -112,9 +115,10 @@ function compile ($atts, $loc, $target) {
 ?>
 <p ng-hide="true"><strong><?php _e('Loading the crossword has yet to start.', 'crosswordsearch') ?></strong></p>
 <div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare('<?php echo implode( '\', \'', $prep ) ?>')">
-    <script type="text/javascript" src="<?php echo $uri['lib'] ?>angular.min.js" />
-    <script type="text/javascript" src="<?php echo $uri['lib'] ?>qantic.angularjs.stylemodel.min.js" />
-    <script type="text/javascript" src="<?php echo $uri['js'] ?>crosswordsearch.min.js" />
+    <script type="text/javascript" src="<?php echo $uri['lib'] ?>jquery.js"></script>
+    <script type="text/javascript" src="<?php echo $uri['lib'] ?>angular.min.js"></script>
+    <script type="text/javascript" src="<?php echo $uri['lib'] ?>qantic.angularjs.stylemodel.min.js"></script>
+    <script type="text/javascript" src="<?php echo $uri['js'] ?>crosswordsearch.min.js"></script>
     <script type="text/javascript"><?php echo 'var crwBasics = ' . json_encode( $localize ) ?>;</script>
 <?php
 
@@ -123,7 +127,14 @@ function compile ($atts, $loc, $target) {
     include '../plugin/app.php';
     include '../plugin/immediate.php';
 
-    echo '</div>';
+?>
+</div>
+<script type="text/javascript">
+angular.element(document).ready(function() {
+    angular.bootstrap(document, ['crwApp']);
+});
+</script>
+<?php
 
     $app_code = ob_get_clean();
 
