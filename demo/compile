@@ -1,0 +1,31 @@
+#!/usr/bin/php
+<?php
+ini_set('display_errors', 'stderr');
+ini_set('log_errors', false);
+
+require_once('snippet.php');
+
+function get_json ($fn) {
+    if (file_exists($fn)) {
+    $content = file_get_contents($fn, true);
+    $content = $content;
+    return json_decode($content, true);
+    } else {
+        trigger_error('file ' . $fn . 'does not exist.', E_USER_ERROR);
+    }
+}
+$config = get_json('config.json');
+
+set_directories($config['exec_paths']);
+
+foreach ($config['pages'] as $item) {
+    $item['atts']['is_single'] = $item['atts']['name'] && 'solve' == $item['atts']['mode'];
+
+    if ('solve' == $item['atts']['mode'] && !$item['atts']['name']) {
+        $path = "build/" . $config['compile_paths']['data'] . $item['atts']['project'] . '.list.json';
+        $list = get_json($path);
+        $item['atts']['name'] = $list['namesList'][0];
+    }
+    
+    compile( $item['atts'], $item['lang'], "build/" . $item['name'] );
+}

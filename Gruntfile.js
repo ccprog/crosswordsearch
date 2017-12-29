@@ -108,12 +108,8 @@ module.exports = function(grunt) {
       },
       main: {
         files: {
-          'plugin/css/crosswordsearch.css': ['src/css/crosswordsearch.sass']
-        }
-      },
-      rtl: {
-        files: {
-          'plugin/css/rtl.css': ['src/css/rtl.sass']
+          'plugin/css/crosswordsearch.css': 'src/css/crosswordsearch.sass',
+          'plugin/css/rtl.css': 'src/css/rtl.sass'
         }
       }
     },
@@ -133,7 +129,7 @@ module.exports = function(grunt) {
     jasmine: {
       options: {
         template: { process: processJasmineTemplate },
-//        keepRunner: true
+        // keepRunner: true
       },
       app_wp_3: {
         src: jslist,
@@ -220,7 +216,7 @@ module.exports = function(grunt) {
             ],
         },
         files:{
-            src:  [ 'plugin/*.php' ],
+            src:  [ 'plugin/*.php', 'demo/snippet.php' ],
             expand: true,
         }
     },
