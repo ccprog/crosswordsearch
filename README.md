@@ -69,7 +69,7 @@ The following tasks are available for the development process:
   and minify them as `plugin/js/crosswordsearch.min.js`. Please note that if you add a new file,
   you have to list it explicitely in `Gruntfile.js` to include for linting and uglifying.
 + `grunt writel10n` will compile `l10n.php` from json data that are also used in unit testing
-+ `grunt cssmin` will link and minify the files in `src/css/` as `plugin/css/crosswordsearch.css`.
++ `grunt sass` will compile, link and minify the files in `src/css/` as `plugin/css/crosswordsearch.css`.
 + `grunt pot` extracts the localizable strings from the `plugin/` `.php` files to the
   `plugin/languages/crosswordsearch.pot` template.
 + `grunt msgmerge` will update all `.po` files in `plugin/languages/` to reflect
