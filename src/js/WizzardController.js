@@ -1,5 +1,3 @@
-var crwApp = angular.module('crwApp', ['crwCommon']);
-
 crwApp.directive("crwLaunch", ['ajaxFactory', function (ajaxFactory) {
     return {
         link: function (scope, element, attrs) {

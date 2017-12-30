@@ -26,17 +26,6 @@ crwApp.directive('crwHelpFollow', ['$document', function ($document) {
     };
 }]);
 
-/* bypass escape service for localized strings */
-crwApp.directive('crwBindTrusted', ['$sce', function ($sce) {
-    return {
-        link: function (scope, element, attrs) {
-            scope.$watch(attrs.crwBindTrusted, function (newString) {
-                element.html(newString);
-            });
-        }
-    };
-}]);
-
 /* patch to reroute thr thickbox link click handler,
    since its added before the options template is loaded */
 crwApp.directive('crwCatchThickboxLink', function ($sce) {

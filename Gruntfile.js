@@ -8,8 +8,10 @@ module.exports = function(grunt) {
   var text_domain = 'crosswordsearch';
 
   var jslist = [
-    srcdir + 'common.js',
     srcdir + 'customSelectElement.js',
+    srcdir + 'app.js',
+    srcdir + 'ajax.js',
+    srcdir + 'common.js',
     srcdir + 'basics.js',
     srcdir + 'crosswordFactory.js',
     srcdir + 'markerFactory.js',
@@ -22,6 +24,8 @@ module.exports = function(grunt) {
     srcdir + 'ImmediateController.js'
   ],
   wzlist = [
+    srcdir + 'app-wizzard.js',
+    srcdir + 'ajax.js',
     srcdir + 'common.js',
     srcdir + 'WizzardController.js',
     srcdir + 'thickbox-size-hack.js'
