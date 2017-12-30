@@ -20,32 +20,11 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
-var crwCommon = angular.module("crwCommon", []);
+var crwApp = angular.module("crwApp", []);
 
-crwCommon.constant("nonces", {});
+crwApp.constant("nonces", {});
 
-crwCommon.directive("crwInteger", function() {
-    return {
-        require: "ngModel",
-        link: function(scope, element, attrs, ctrl) {
-            ctrl.$parsers.unshift(function(viewValue) {
-                if (element.prop("disabled")) {
-                    return viewValue;
-                }
-                var val = parseInt(viewValue, 10);
-                if (isNaN(val) || val < attrs.min || val.toString() !== viewValue) {
-                    ctrl.$setValidity(attrs.crwInteger, false);
-                    return undefined;
-                } else {
-                    ctrl.$setValidity(attrs.crwInteger, true);
-                    return val;
-                }
-            });
-        }
-    };
-});
-
-crwCommon.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
+crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, nonces) {
     var crwID = 0;
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
     var httpDefaults = {
@@ -117,7 +96,66 @@ crwCommon.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, 
     };
 } ]);
 
-var crwApp = angular.module("crwApp", [ "crwCommon" ]);
+crwApp.factory("reduce", function() {
+    return function(array, initial, func) {
+        angular.forEach(array, function(value, key) {
+            initial = func.apply(value, [ initial, value, key ]);
+        });
+        return initial;
+    };
+});
+
+crwApp.filter("localeNumber", function() {
+    var diff, rlo = String.fromCharCode(8238), pdf = String.fromCharCode(8236);
+    var encode = function(d) {
+        return String.fromCharCode(d.charCodeAt(0) + diff);
+    };
+    return function(input) {
+        switch (crwBasics.numerals) {
+          case "arab":
+            diff = 1632 - 48;
+            return input.toString(10).replace(/[0-9]/g, encode);
+
+          case "arabext":
+            diff = 1776 - 48;
+            return input.toString(10).replace(/[0-9]/g, encode);
+
+          default:
+            return input;
+        }
+    };
+});
+
+crwApp.directive("crwInteger", function() {
+    return {
+        require: "ngModel",
+        link: function(scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function(viewValue) {
+                if (element.prop("disabled")) {
+                    return viewValue;
+                }
+                var val = parseInt(viewValue, 10);
+                if (isNaN(val) || val < attrs.min || val.toString() !== viewValue) {
+                    ctrl.$setValidity(attrs.crwInteger, false);
+                    return undefined;
+                } else {
+                    ctrl.$setValidity(attrs.crwInteger, true);
+                    return val;
+                }
+            });
+        }
+    };
+});
+
+crwApp.directive("crwBindTrusted", [ "$sce", function($sce) {
+    return {
+        link: function(scope, element, attrs) {
+            scope.$watch(attrs.crwBindTrusted, function(newString) {
+                element.html(newString);
+            });
+        }
+    };
+} ]);
 
 crwApp.directive("crwLaunch", [ "ajaxFactory", function(ajaxFactory) {
     return {
