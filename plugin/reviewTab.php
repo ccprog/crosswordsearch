@@ -37,6 +37,7 @@
 
     $mode = 'preview';
     $is_single = true;
+    $image_dir = CRW_PLUGIN_URL . 'images/';
     include 'app.php';
 
 ?>
