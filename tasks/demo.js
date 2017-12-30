@@ -2,18 +2,20 @@ module.exports = function(grunt) {
   var relative = require('path').relative;
 
   var jslist = [
-        'demo/js/common.js',
-        'src/js/customSelectElement.js',
-        'demo/js/basics.js',
-        'src/js/crosswordFactory.js',
-        'src/js/markerFactory.js',
-        'src/js/timerElement.js',
-        'src/js/CrosswordController.js',
-        'src/js/SizeController.js',
-        'src/js/TableController.js',
-        'src/js/EntryController.js',
-        'src/js/ImmediateController.js'
-    ];
+    'src/js/customSelectElement.js',
+    'demo/js/app-demo.js',
+    'demo/js/ajax.js',
+    'src/js/common.js',
+    'src/js/basics.js',
+    'src/js/crosswordFactory.js',
+    'src/js/markerFactory.js',
+    'src/js/timerElement.js',
+    'src/js/CrosswordController.js',
+    'src/js/SizeController.js',
+    'src/js/TableController.js',
+    'src/js/EntryController.js',
+    'src/js/ImmediateController.js'
+];
 
     grunt.registerTask('demo', 'compile static demo files', function() {
         var config = grunt.file.readJSON('demo/config.json');
