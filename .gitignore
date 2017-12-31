@@ -6,3 +6,4 @@ typings/
 .vscode/
 tests/vendor/
 tests/_SpecRunner*.html
+demo/

@@ -6,7 +6,7 @@ describe("colorSelect (cse option template)", function () {
         $scope.value = 'red';
         var element = $compile('<div color-select value="value"></div>')($scope);
         $scope.$digest();
-        expect(element.find('img').attr('src')).toBe(crwBasics.pluginPath + 'images/bullet-red.png');
+        expect(element.find('img').attr('src')).toBe(crwBasics.imagesPath + 'bullet-red.png');
     }));
 });
 
