@@ -34,24 +34,6 @@ describe("crwHelpFollow", function() {
     }));
 });
 
-describe("crwBindTrusted", function() {
-    beforeEach(module('crwApp'));
-
-    it("bypasses escape service", inject(function($rootScope, $compile) {
-        var $scope = $rootScope.$new();
-        var element = $compile('<div crw-bind-trusted="value"></div>')($scope);
-        $scope.value = "string";
-        $scope.$apply();
-        expect(element.html()).toBe("string");
-        $scope.value = "&ndash;";
-        $scope.$apply();
-        expect(element.html()).toBe("–");
-        $scope.value = "&#248;";
-        $scope.$apply();
-        expect(element.html()).toBe("ø");
-    }));
-});
-
 describe("crwCatchThickboxLink", function() {
     beforeEach(module('crwApp'));
 

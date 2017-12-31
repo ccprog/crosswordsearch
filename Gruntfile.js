@@ -59,7 +59,7 @@ module.exports = function(grunt) {
         letterDist: letterData.en.letterDist,
         numerals: letterData.en.numerals,
         letterRegEx: letterData.en.letterRegEx,
-        pluginPath: 'mock/',
+        imagesPath: 'mock/',
         ajaxUrl: 'mock/admin-ajax.php'
     });
     context.crossword = grunt.file.read(testdir + 'test1.json', {encoding:'utf8'}).trim();
@@ -144,10 +144,7 @@ module.exports = function(grunt) {
         }
       },
       wizzard_wp_3: {
-        src:  [
-          srcdir + 'common.js',
-          srcdir + 'WizzardController.js',
-        ],
+        src:  wzlist.slice(0, 4),
         options: {
           specs: testdir + 'unit/*Spec2.js',
           vendor: vendor_3,
@@ -163,10 +160,7 @@ module.exports = function(grunt) {
         }
       },
       wizzard_wp_4: {
-        src:  [
-          srcdir + 'common.js',
-          srcdir + 'WizzardController.js',
-        ],
+        src:  wzlist.slice(0, 4),
         options: {
           specs: testdir + 'unit/*Spec2.js',
           vendor: vendor_4,
@@ -183,10 +177,7 @@ module.exports = function(grunt) {
         }
       },
       wizzard_ie8: {
-        src:  [
-          srcdir + 'common.js',
-          srcdir + 'WizzardController.js',
-        ],
+        src:  wzlist.slice(0, 4),
         options: {
           specs: testdir + 'unit/*Spec2.js',
           vendor: vendor_ie8,
