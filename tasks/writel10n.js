@@ -36,6 +36,8 @@ module.exports = function(grunt) {
             case 'number':
                 php += obj + ",";
                 break;
+            case 'boolean':
+                php += (obj ? "true" : "false") + ",";
             }
         };
 
