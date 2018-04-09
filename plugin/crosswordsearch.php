@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name: crosswordsearch
-Plugin URI: https://github.com/ccprog/crosswordsearch/wiki
+Plugin Name: crosswordsearch-lut
+Plugin URI: https://github.com/ccprog/crosswordsearch-lut/wiki
 Version: 1.0.2
 Author: Claus Colloseus
 Author URI: https://browser-unplugged.net
@@ -52,8 +52,8 @@ define('CRW_CAP_CONFIRMED', 'edit_crossword');
 define('CRW_CAP_UNCONFIRMED', 'push_crossword');
 define('CRW_CAP_ADMINISTRATE', 'list_users'); //WP standard (local) admin capability
 
-define('CRW_PLUGIN_URL', plugins_url( 'crosswordsearch/' ));
-define('CRW_PLUGIN_FILE', WP_PLUGIN_DIR . '/crosswordsearch/' . basename(__FILE__));
+define('CRW_PLUGIN_URL', plugins_url( 'crosswordsearch-lut/' ));
+define('CRW_PLUGIN_FILE', WP_PLUGIN_DIR . '/crosswordsearch-lut/' . basename(__FILE__));
 define('CRW_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 
 global $wpdb, $project_table_name, $data_table_name, $editors_table_name;
@@ -288,7 +288,7 @@ $crw_crossword_language = get_locale();
  * @return void
  */
 function crw_load_text () {
-    load_plugin_textdomain( 'crosswordsearch', false, 'crosswordsearch/languages/' );
+    load_plugin_textdomain( 'crosswordsearch', false, 'crosswordsearch-lut/languages/' );
 }
 add_action('plugins_loaded', 'crw_load_text');
 
@@ -2070,11 +2070,11 @@ function crw_get_option_tab () {
     }
 
     if ('capabilities' == $_GET['tab'] && current_user_can(CRW_CAP_ADMINISTRATE) ) {
-        include WP_PLUGIN_DIR . '/crosswordsearch/optionsTab.php';
+        include WP_PLUGIN_DIR . '/crosswordsearch-lut/optionsTab.php';
     } elseif ('editor' == $_GET['tab'] && current_user_can(CRW_CAP_ADMINISTRATE) ) {
-        include WP_PLUGIN_DIR . '/crosswordsearch/editorsTab.php';
+        include WP_PLUGIN_DIR . '/crosswordsearch-lut/editorsTab.php';
     } elseif ('review' == $_GET['tab'] && current_user_can(CRW_CAP_CONFIRMED) ) {
-        include WP_PLUGIN_DIR . '/crosswordsearch/reviewTab.php';
+        include WP_PLUGIN_DIR . '/crosswordsearch-lut/reviewTab.php';
     } else {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
@@ -2095,5 +2095,5 @@ function crw_show_options() {
 	if ( !current_user_can( CRW_CAP_CONFIRMED ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
-	include(WP_PLUGIN_DIR . '/crosswordsearch/settings.php');
+	include(WP_PLUGIN_DIR . '/crosswordsearch-lut/settings.php');
 }
