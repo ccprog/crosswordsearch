@@ -12,7 +12,8 @@ module.exports = function(grunt) {
 
         grunt.verbose.writeflags(options, 'Pot options');
         var php = '<?php\n' +
-        'function crw_get_locale_data () {\n';
+            'function crw_get_locale_data () {\n' +
+            '    global $crw_crossword_language;\n';
 
         var recurseObject = function (obj, wrapFn, key) {
             if (key) {
@@ -48,9 +49,9 @@ module.exports = function(grunt) {
             return "__('" + str + "','" + options.text_domain + "')";
         });
 
-        php += "    $lang = get_locale();\n" +
-            "    $lang = array_key_exists($lang, $letter_data) ? $lang : 'en';\n" +
-            "    return array_merge($locale_data, $letter_data[$lang]);\n" +
+        php += "    $lang = array_key_exists($crw_crossword_language, $letter_data) ?" +
+            " $crw_crossword_language : 'en';\n" +
+            "    return array_merge($locale_data, $letter_data[$crw_crossword_language]);\n" +
             "}\n";
 
         if( !grunt.file.exists(options.dest) ){

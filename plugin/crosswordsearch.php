@@ -278,6 +278,7 @@ register_activation_hook( CRW_PLUGIN_FILE, 'crw_install_data' );
  * ---------------------------------- */
 
 $crw_has_crossword = false;
+$crw_crossword_language = get_locale();
 
 /**
  * Load localization.
@@ -429,10 +430,16 @@ function add_crw_scripts ( $hook ) {
  * @return void
  */
 function crw_set_header () {
-	global $post, $crw_has_crossword;
+	global $post, $crw_has_crossword, $crw_crossword_language;
 
 	if ( is_object( $post ) && has_shortcode( $post->post_content, 'crosswordsearch') ) {
         $crw_has_crossword = true;
+        $re = get_shortcode_regex( [ 'crosswordsearch' ] );
+        preg_match( '/' . $re . '/', $post->post_content, $matches );
+        $attr = shortcode_parse_atts( $matches[3] );
+        if ( isset( $attr['lang'] ) ) {
+            $crw_crossword_language = $attr['lang'];
+        };
         add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
         add_action( 'wp_enqueue_scripts', 'add_crw_scripts');
     }
