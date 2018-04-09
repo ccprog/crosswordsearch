@@ -1,19 +1,39 @@
 // prevent letter highlighting and catch angular setFocus events sending
 // them to <button> even when the button is hidden under marker images
-crwApp.directive('crwSetFocus', function() {
+
+crwApp.directive('contenteditable', ['basics', function (basics) {
     return {
-        link: function(scope, element, attrs) {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ctrl) {
             element.on('mousemove', function (event) {
                 event.preventDefault();
+            });
+            element.on('focus', function (event) {
+                window.getSelection().selectAllChildren(element[0]);
             });
             scope.$on('setFocus', function (event, line, column) {
                 if (line === scope.line && column === scope.column) {
                     element[0].focus();
                 }
             });
+            element.on('input', function (event) {
+                var letter = element.text();
+                if (basics.letterRegEx.test(letter)) {
+                    ctrl.$setViewValue(basics.setCase(letter));
+                    event.stopPropagation();
+                }
+                ctrl.$render();
+            });
+            ctrl.$render = function() {
+                element.text(ctrl.$viewValue || '');
+                var sel = window.getSelection();
+                if (sel.containsNode(element[0], true)) {
+                    sel.selectAllChildren(element[0]);
+                }
+            };
         }
     };
-});
+}]);
 
 // keep the line/column values current when $index changes
 crwApp.directive('crwIndexChecker', function() {
@@ -245,20 +265,6 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
         // later, to suppress keyboard shortcuts from other code parts
         var keychar = String.fromCharCode(event.which);
         if (basics.letterRegEx.test(keychar)) {
-            event.stopPropagation();
-        }
-    };
-    // event handler on keypress catches letters
-    // beware of the weirdness:
-    // test everything here, including basics.letterRegEx(lang)
-    // for compatibility with browsers, OS and hardware
-    // if you stray from basic latin script
-    $scope.type = function (event) {
-        var keychar = String.fromCharCode(event.which);
-        // if it is an allowed letter, enter into field
-        if (basics.letterRegEx.test(keychar)) {
-            this.field.letter = keychar.toUpperCase();
-            event.preventDefault();
             event.stopPropagation();
         }
     };

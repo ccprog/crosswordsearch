@@ -311,10 +311,10 @@ crwApp.directive("crwBindTrusted", [ "$sce", function($sce) {
 
 crwApp.factory("basics", [ "reduce", function(reduce) {
     var total = 0;
-    var list = reduce(crwBasics.letterDist, "", function(result, value, key) {
+    var list = reduce(crwBasics.letterDist, [], function(result, value, key) {
         total += value;
         for (var i = 0; i < value; i++) {
-            result += key;
+            result.push(key);
         }
         return result;
     });
@@ -332,9 +332,12 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
         },
         randomLetter: function() {
             var pos = Math.floor(Math.random() * total);
-            return list.slice(pos, pos + 1);
+            return list[pos];
         },
-        letterRegEx: new RegExp(crwBasics.letterRegEx),
+        letterRegEx: new RegExp("^" + crwBasics.letterRegEx + "$"),
+        setCase: function(letter) {
+            return crwBasics.casesensitive ? letter : letter.toUpperCase();
+        },
         directionMapping: {
             "down-right": {
                 end: "up-left",
@@ -1709,20 +1712,39 @@ crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleMod
     };
 } ]);
 
-crwApp.directive("crwSetFocus", function() {
+crwApp.directive("contenteditable", [ "basics", function(basics) {
     return {
-        link: function(scope, element, attrs) {
+        require: "ngModel",
+        link: function(scope, element, attrs, ctrl) {
             element.on("mousemove", function(event) {
                 event.preventDefault();
+            });
+            element.on("focus", function(event) {
+                window.getSelection().selectAllChildren(element[0]);
             });
             scope.$on("setFocus", function(event, line, column) {
                 if (line === scope.line && column === scope.column) {
                     element[0].focus();
                 }
             });
+            element.on("input", function(event) {
+                var letter = element.text();
+                if (basics.letterRegEx.test(letter)) {
+                    ctrl.$setViewValue(basics.setCase(letter));
+                    event.stopPropagation();
+                }
+                ctrl.$render();
+            });
+            ctrl.$render = function() {
+                element.text(ctrl.$viewValue || "");
+                var sel = window.getSelection();
+                if (sel.containsNode(element[0], true)) {
+                    sel.selectAllChildren(element[0]);
+                }
+            };
         }
     };
-});
+} ]);
 
 crwApp.directive("crwIndexChecker", function() {
     return {
@@ -1922,14 +1944,6 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         }
         var keychar = String.fromCharCode(event.which);
         if (basics.letterRegEx.test(keychar)) {
-            event.stopPropagation();
-        }
-    };
-    $scope.type = function(event) {
-        var keychar = String.fromCharCode(event.which);
-        if (basics.letterRegEx.test(keychar)) {
-            this.field.letter = keychar.toUpperCase();
-            event.preventDefault();
             event.stopPropagation();
         }
     };
