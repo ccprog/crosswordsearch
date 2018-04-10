@@ -321,6 +321,7 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
         textIsLTR: crwBasics.textDirection !== "rtl",
+        crosswordLanguage: crwBasics.crosswordLanguage,
         dimensions: crwBasics.dimensions,
         imagesPath: crwBasics.imagesPath,
         randomColor: function(last) {
@@ -558,6 +559,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
                 project: project,
                 restricted: restricted + 0,
                 crossword: angular.toJson(crossword),
+                crosswordLanguage: basics.crosswordLanguage,
                 username: username,
                 password: password
             };

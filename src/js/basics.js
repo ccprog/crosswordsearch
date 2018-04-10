@@ -16,6 +16,8 @@ crwApp.factory('basics', ['reduce', function (reduce) {
         // text direction marker
         textIsLTR: crwBasics.textDirection !== 'rtl',
 
+        crosswordLanguage: crwBasics.crosswordLanguage,
+
         // table sizing dimensions in pixels
         dimensions: crwBasics.dimensions,
 

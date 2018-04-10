@@ -368,7 +368,7 @@ function crw_add_angular_attribute ($attributes) {
  */
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $wp_styles, $crw_has_crossword, $text_direction, $child_css;
+    global $wp_styles, $crw_has_crossword, $crw_crossword_language, $text_direction, $child_css;
 
     $edits_post = 'post.php' == $hook || 'post-new.php' == $hook;
     if ( !$crw_has_crossword && 'settings_page_crw_options' != $hook && !$edits_post ) return;
@@ -397,6 +397,7 @@ function add_crw_scripts ( $hook ) {
         $scripts['crw-js'] = array( 'file' => 'crosswordsearch', 'deps' => array( 'angular', 'angular-route', 'quantic-stylemodel' ), 'ver' => CRW_VERSION );
         $localize = array_merge($locale_data, array(
             'textDirection' => $text_direction,
+            'crosswordLanguage' => $crw_crossword_language,
             'imagesPath' => CRW_PLUGIN_URL . 'images/',
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'dimensions' => get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION )
@@ -745,7 +746,7 @@ function crw_verify_json($json, &$msg) {
     $schema = $store->get($url);
 
     $locale_data = crw_get_locale_data();
-    $schema->definitions->word->properties->letter->pattern = $locale_data["letterRegEx"];
+    $schema->definitions->word->properties->letter->pattern = '^' . $locale_data["letterRegEx"] . '$';
 
     // json string decoding
     try {
@@ -1681,7 +1682,7 @@ add_action( 'wp_ajax_approve_crossword', 'crw_approve_crossword' );
  * @return void
  */
 function crw_save_crossword () {
-    global $wpdb, $project_table_name, $data_table_name;
+    global $wpdb, $project_table_name, $data_table_name, $crw_crossword_language;
     $error = __('You are not allowed to save the crossword.', 'crosswordsearch');
     $debug = NULL;
 
@@ -1702,6 +1703,7 @@ function crw_save_crossword () {
 
     // verify crossword data
     $crossword = wp_unslash( $_POST['crossword'] );
+    $crw_crossword_language = wp_unslash( $_POST['crosswordLanguage'] );
     $verification = crw_verify_json( $crossword, $debug );
 
     // as a drive-by, finds if a project exists

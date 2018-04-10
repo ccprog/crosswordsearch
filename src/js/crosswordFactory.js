@@ -234,6 +234,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
                 project: project,
                 restricted: restricted + 0,
                 crossword: angular.toJson(crossword),
+                crosswordLanguage: basics.crosswordLanguage,
                 username: username,
                 password: password
             };
