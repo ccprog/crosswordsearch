@@ -125,7 +125,7 @@ if ( 'preview' == $mode ) {
                 <tr ng-repeat="row in crosswordData.table" crw-index-checker="line">
                     <td class="crw-field" ng-repeat="field in row" crw-index-checker="column">
                         <div <?php if ( 'build' == $mode ) { echo 'ng-click="activate(line, column)"'; } ?> ng-mouseenter="intoField(line, column)" ng-mouseleave="outofField(line, column)">
-                            <span tabindex="-1" unselectable="on" contenteditable="true" ng-keydown="move($event)" ng-model="field.letter"></span>
+                            <span tabindex="-1" unselectable="on" contenteditable="true" ng-keydown="move($event)" ng-model="field.letter" ng-model-options="{ debounce: {default: 50} }"></span>
 <?php
 
 }

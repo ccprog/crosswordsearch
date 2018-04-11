@@ -16,16 +16,25 @@ crwApp.directive('contenteditable', ['basics', function (basics) {
                     element[0].focus();
                 }
             });
+
+            ctrl.$parsers.push(basics.setCase);
+
             element.on('input', function (event) {
                 var letter = element.text();
                 if (basics.letterRegEx.test(letter)) {
-                    ctrl.$setViewValue(basics.setCase(letter));
+                    ctrl.$setViewValue(letter);
                     event.stopPropagation();
+                } else {
+                    ctrl.$render();
                 }
+            });
+
+            ctrl.$viewChangeListeners.push(function () {
                 ctrl.$render();
             });
+
             ctrl.$render = function() {
-                element.text(ctrl.$viewValue || '');
+                element.text(ctrl.$modelValue || '');
                 var sel = window.getSelection();
                 if (sel.containsNode(element[0], true)) {
                     sel.selectAllChildren(element[0]);
