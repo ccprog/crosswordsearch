@@ -51,7 +51,7 @@ Implementation notices
 
 b̓ (`b\u0313`) was missing in your list, but is listed in the [Wikipedia article](https://en.wikipedia.org/wiki/Lushootseed#Alphabet) and defined for the keyboard. I've made it enterable, even if it seems to be unused in praxis.
 
-All letters need to be entered in the form of single keystrokes (with optional `SHIFT`). While the keyboard seems to define, for example, that the sequence `[K_K] + [K_O]` works for producing the letter kʷ (`k\u02B7`), entering that for a crosword will fail. You'll need to use `[SHIFT K_I]`. Consequently, the keys `[K_O]` and `[K_X]` do nothing.
+All letters need to be entered in the form of single keystrokes (with optional `SHIFT`). While the keyboard seems to define, for example, that the sequence `[K_K] + [K_O]` works for producing the letter kʷ (`k\u02B7`), entering that for a crosword will fail. You'll need to use `[SHIFT K_I]`. Pressing `[K_X]` will produce `x`, even though it is not part of the alphabet.
 
 The random letter functionality will not enter all 46 letters, but only the 34 most frequent (cutof is at f < 0.25%). All others will appear with the same probabilty as the table you provided stated.
 
@@ -72,10 +72,8 @@ Windows 10
 
 I have installed [Keyman Desktop](https://keyman.com/desktop/) with both versions of the Lushotseed layout offered on their website. The difference between the two seems to be unimportant.
 
-Edge seems not to be able to pick up the letters, and displays QWERTY letters in all circumstances.
+Edge seems to have a problem working with Keyman, and sometimes displays QWERTY letters, sometimes only the second layer letters (as if Caps Lock was active, even if it isn't), and sometimes it works. All this is independent of the plugin, but seems to be a browser problem.
 
-While Internet Explorer picks up the letters correctly, the input methodology fails and it is possible to enter multiple letters in one field. This makes it at least possible to work around the issue if you take care to only enter one letter per grid field.
+Internet Explorer does not work with the plugin for any version, I am not going to support it.
 
-Chrome generally works together with Keyman, but when entering crossword letters, it fails for all letters that are composed of unicode sequences.
-
-Firefox works without problems.
+Firefox and Chrome work without problems.
