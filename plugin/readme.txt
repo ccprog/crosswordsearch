@@ -2,7 +2,7 @@
 Contributors: ccprog
 Tags: game, gamification, crossword, shortcode, educational
 Requires at least: 3.6
-Tested up to: 4.7
+Tested up to: 4.9
 Requires PHP: 5.3
 Stable tag: trunk
 License: see LICENCE file
@@ -132,6 +132,13 @@ saved to the database, albeit at this point this information is not used anywher
 5. The *Assign projects and editors* tab
 
 == Changelog ==
+
+= 1.0.3 =
+
+* WordPress 4.9 compatibility
+* improved persistance of options on deactivation
+* Updates to the Persian translation - thanks to Mortaza Nejati Jeze again
+* several internal code improvements
 
 = 1.0.2 =
 

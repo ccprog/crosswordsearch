@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: crosswordsearch 1.0.2\n"
+"Project-Id-Version: crosswordsearch 1.0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-24 16:51+0200\n"
-"PO-Revision-Date: 2017-07-24 16:51+0200\n"
+"POT-Creation-Date: 2018-04-12 16:50+0200\n"
+"PO-Revision-Date: 2018-04-12 16:50+0200\n"
 "Last-Translator: مرتضی نجاتی <mortazanejatijeze56@gmail.com>\n"
 "Language-Team: Persian\n"
 "Language: fa-IR\n"
@@ -30,8 +30,8 @@ msgstr "جدول..."
 msgid "Describe which words should be found:"
 msgstr "شرح کلماتی که باید یافت شود:"
 
-#: plugin/app.php:14 plugin/editorsTab.php:24 plugin/immediate.php:83
-#: plugin/immediate.php:94
+#: plugin/app.php:14 plugin/editorsTab.php:24 plugin/immediate.php:76
+#: plugin/immediate.php:87
 msgid "Dont't try to be clever!"
 msgstr "تمرین نکن باهوش!"
 
@@ -141,7 +141,7 @@ msgstr "خالی"
 msgid "from line %1$s, column %2$s %3$s"
 msgstr "از خط %1$s, ستون %2$s %3$s"
 
-#: plugin/app.php:166 plugin/immediate.php:158
+#: plugin/app.php:166 plugin/immediate.php:151
 msgid "Delete"
 msgstr "حذف"
 
@@ -310,83 +310,87 @@ msgstr "در پروژه هیچ جدولی نیست."
 msgid "There is no crossword with the name %1$s."
 msgstr "جدولی با عنوان  %1$s نیست."
 
-#: plugin/crosswordsearch.php:687
+#: plugin/crosswordsearch.php:669
+msgid "Do you want to submit your result?"
+msgstr "آیا می‌خواهید نتیجه را ارسال کنید؟"
+
+#: plugin/crosswordsearch.php:698
 msgid "Loading the crossword has yet to start."
 msgstr "در حال بارگزاری جدول برای شروع"
 
-#: plugin/crosswordsearch.php:854 plugin/crosswordsearch.php:889
+#: plugin/crosswordsearch.php:865 plugin/crosswordsearch.php:900
 msgid "You do not have permission."
 msgstr "شما دسترسی ندارید."
 
-#: plugin/crosswordsearch.php:1004
+#: plugin/crosswordsearch.php:1015
 msgid ""
 "There are still riddles saved for that project. You need to delete them "
 "before you can remove the project."
 msgstr "این جداول برای پروژه ذخیره شده است. پیش از حذف پروژه آن‌ها را پاک کنید."
 
-#: plugin/crosswordsearch.php:1156
+#: plugin/crosswordsearch.php:1167
 msgid "Editing rights could not be updated."
 msgstr "حق ویرایش به روز نشد."
 
-#: plugin/crosswordsearch.php:1207
+#: plugin/crosswordsearch.php:1218
 msgid "Dimensions could not be updated."
 msgstr "ابعاد به روز نشد."
 
-#: plugin/crosswordsearch.php:1247
+#: plugin/crosswordsearch.php:1258
 msgid "Subscription options could not be updated."
 msgstr "ابعاد به روز نشد. "
 
-#: plugin/crosswordsearch.php:1382
+#: plugin/crosswordsearch.php:1393
 msgid "The project could not be removed."
 msgstr "پروژه کنارگزاری نشد."
 
-#: plugin/crosswordsearch.php:1391 plugin/editorsTab.php:22
+#: plugin/crosswordsearch.php:1402 plugin/editorsTab.php:22
 #: plugin/immediate.php:25
 msgid "You have exceeded the maximum length for a name!"
 msgstr "طول نام زیاد است."
 
-#: plugin/crosswordsearch.php:1393 plugin/editorsTab.php:21
+#: plugin/crosswordsearch.php:1404 plugin/editorsTab.php:21
 #: plugin/immediate.php:24
 msgid "The name is too short!"
 msgstr "نام بسیار کوتاه است!"
 
-#: plugin/crosswordsearch.php:1403
+#: plugin/crosswordsearch.php:1414
 msgid "The project could not be added."
 msgstr "پروژه اضافه نشد."
 
-#: plugin/crosswordsearch.php:1405
+#: plugin/crosswordsearch.php:1416
 msgid "The project could not be altered."
 msgstr "پروژه تغییر داده نشد."
 
-#: plugin/crosswordsearch.php:1434
+#: plugin/crosswordsearch.php:1445
 msgid "The editors could not be updated."
 msgstr "ویرایشگران به روز نشدند."
 
-#: plugin/crosswordsearch.php:1575
+#: plugin/crosswordsearch.php:1586
 msgid "The crossword could not be deleted."
 msgstr "جدول حذف نشد."
 
-#: plugin/crosswordsearch.php:1615
+#: plugin/crosswordsearch.php:1626
 msgid "The crossword could not be approved."
 msgstr "جدول تایید نشد."
 
-#: plugin/crosswordsearch.php:1667
+#: plugin/crosswordsearch.php:1678
 msgid "You are not allowed to save the crossword."
 msgstr "شما اجازه ذخیره جدول را ندارید."
 
-#: plugin/crosswordsearch.php:1724 plugin/immediate.php:26
+#: plugin/crosswordsearch.php:1735 plugin/immediate.php:26
 msgid "There is already another riddle with that name!"
 msgstr "با این عنوان جدول دیگری موجود است."
 
-#: plugin/crosswordsearch.php:1727
+#: plugin/crosswordsearch.php:1738
 msgid "The riddle you tried to update can not be found!"
 msgstr "معمایی که شما می‌خواهید به روز کنید وجود ندارد."
 
-#: plugin/crosswordsearch.php:1729
+#: plugin/crosswordsearch.php:1740
 msgid "A moderator might have deleted it already. You must start a new one."
 msgstr "شاید مدیر آن را حذف کرده. یکی دیگر بسازید."
 
-#: plugin/crosswordsearch.php:1731
+#: plugin/crosswordsearch.php:1742
 msgid ""
 "Someone else might have renamed or deleted it in the meantime. Look into the "
 "list of existing riddles."
@@ -394,38 +398,38 @@ msgstr ""
 "شاید شخص دیگری پروژه را حذف کرده یا تغییر نام داده باشد. به فهرست جدول‌ها "
 "نگاه کنید."
 
-#: plugin/crosswordsearch.php:1778
+#: plugin/crosswordsearch.php:1789
 msgid "The crossword could not be saved to the database."
 msgstr "جدول در دیتابیس ذخیره نشد."
 
-#: plugin/crosswordsearch.php:1809
+#: plugin/crosswordsearch.php:1820
 msgid "The crossword could not be retrieved."
 msgstr "جدول بازیابی نمی‌شود"
 
-#: plugin/crosswordsearch.php:1865
+#: plugin/crosswordsearch.php:1876
 #, php-format
 msgid "Solution submitted for crossword %1$s in project %2$s:"
 msgstr "جدول %1$s از پروژه %2$s حذف شد"
 
-#: plugin/crosswordsearch.php:1868
+#: plugin/crosswordsearch.php:1879
 #, php-format
 msgid "%1$s of %2$s words were found in %3$s seconds."
 msgstr " تعداد %1$s از%2$s کلمه در  %3$s ثانیه یافت شدند."
 
-#: plugin/crosswordsearch.php:1871
+#: plugin/crosswordsearch.php:1882
 #, php-format
 msgid "All %1$s words were found in %2$s seconds."
 msgstr "همه %1$s کلمه در  %2$s ثانیه یافت شد."
 
-#: plugin/crosswordsearch.php:1887
+#: plugin/crosswordsearch.php:1898
 msgid "Your solution could not be submitted."
 msgstr "ارائه راه حل شما  ارسال نشد."
 
-#: plugin/crosswordsearch.php:1994 plugin/settings.php:21
+#: plugin/crosswordsearch.php:2005 plugin/settings.php:21
 msgid "Options"
 msgstr "تنظیمات"
 
-#: plugin/crosswordsearch.php:1995
+#: plugin/crosswordsearch.php:2006
 msgid ""
 "Riddles saved by restricted editors need the approval of full editors before "
 "they can appear for other users."
@@ -433,11 +437,11 @@ msgstr ""
 "جدول‌های طراحی شده به وسیله کاربران محدود شده، پیش از نمایش در سایت باید به "
 "وسیله ویراستان مجوز کامل تایید شوند."
 
-#: plugin/crosswordsearch.php:1996
+#: plugin/crosswordsearch.php:2007
 msgid "Full editors can only act on the projects they are assigned to."
 msgstr "هر ویراستار دارای مجوز کامل فقط بر پروژه مختص شده توان کار کردن دارد"
 
-#: plugin/crosswordsearch.php:1997
+#: plugin/crosswordsearch.php:2008
 #, php-format
 msgid ""
 "For custom theming, place a file %1$s with overrides to the default theme "
@@ -445,7 +449,7 @@ msgid ""
 msgstr ""
 "برای پوسته دلخواه، پرونده %1$s را با ذکر برتر بودن در پوشه پوسته‌ها قرار دهید."
 
-#: plugin/crosswordsearch.php:1998
+#: plugin/crosswordsearch.php:2009
 msgid ""
 "There are some dimension values that are used in computations during drag "
 "operations. If you have a custom theme, you might have to additionally "
@@ -454,13 +458,13 @@ msgstr ""
 "مقادیری که برای کشیدن جدول به اطراف کاربرد دارد. اگر شما از زمینه دلخواه "
 "استفاده می‌کنید، ممکن است مجبور باشید این مقادیر را تنظیم کنید."
 
-#: plugin/crosswordsearch.php:1999
+#: plugin/crosswordsearch.php:2010
 msgid ""
 "Dimension settings are pixel values and used uniformly for heights and "
 "widths."
 msgstr "تنظیمات اندازه‌ جدول بر اساس پیکسل است و بر ارتفاع و عرض وارد می‌شود"
 
-#: plugin/crosswordsearch.php:2000
+#: plugin/crosswordsearch.php:2011
 msgid ""
 "Solution submissions can either be processed by one of the plugins listed "
 "below, or another plugin can subscribe to them through the API."
@@ -468,19 +472,19 @@ msgstr ""
 "ارسال راه حل می تواند توسط یکی از پلاگین های لیست شده در زیر پردازش شود، یا "
 "ممکن است توسط پلاگین‌های دیگر باشد. "
 
-#: plugin/crosswordsearch.php:2004 plugin/editorsTab.php:5
+#: plugin/crosswordsearch.php:2015 plugin/editorsTab.php:5
 #: plugin/reviewTab.php:4
 msgid "Projects"
 msgstr "پروژه‌‌ها"
 
-#: plugin/crosswordsearch.php:2005
+#: plugin/crosswordsearch.php:2016
 msgid ""
 "If you change the name of a project, remember that you need to change it "
 "also in every shortcode referring to it."
 msgstr ""
 "اگر نام پروژه را تغییر دادید، یادتان باشد که نام را در کوته‌کد نیز تغییر دهید."
 
-#: plugin/crosswordsearch.php:2005
+#: plugin/crosswordsearch.php:2016
 msgid ""
 "The lowest eligible maximum difficulty level is either the the default level "
 "or the highest level used in an existing riddle, whatever is higher."
@@ -488,7 +492,7 @@ msgstr ""
 "پایین ترین سطح اختیاری  همچنین حداکثر سطح دشواری  یا حالت‌های دیگر می تواند "
 "پیشفرض باشد."
 
-#: plugin/crosswordsearch.php:2006
+#: plugin/crosswordsearch.php:2017
 msgid ""
 "You need to assign editors to a project in order for them to see its riddles "
 "in the <em>Review</em> tab."
@@ -496,16 +500,16 @@ msgstr ""
 "اگر می‌خواهید ویراستاران جدولشان  را در زبانه <em> پیش نمایش<em/> ببینند باید "
 "آنها را به پروژه اختصاص دهید."
 
-#: plugin/crosswordsearch.php:2007
+#: plugin/crosswordsearch.php:2018
 msgid ""
 "If you want to delete a project, you need first to delete all its riddles."
 msgstr "اگر می‌خواهید پروژه را حذف کنید، ابتدا همه جدول‌ها را حذف کنید."
 
-#: plugin/crosswordsearch.php:2013
+#: plugin/crosswordsearch.php:2024
 msgid "Review"
 msgstr "بازنگری"
 
-#: plugin/crosswordsearch.php:2014
+#: plugin/crosswordsearch.php:2025
 msgid ""
 "To preview a riddle, check the <em>Preview</em> box and then click on the "
 "name of the riddle"
@@ -513,11 +517,11 @@ msgstr ""
 "برای دیدن پیش نمایش جدول <em> پیش نمایش<em/> را تیک بزنید و بر نام آن در "
 "جدول کلیک کنید."
 
-#: plugin/crosswordsearch.php:2029 plugin/settings.php:14
+#: plugin/crosswordsearch.php:2040 plugin/settings.php:14
 msgid "Crosswordsearch Administration"
 msgstr "مدیریت جدول"
 
-#: plugin/crosswordsearch.php:2049
+#: plugin/crosswordsearch.php:2060
 msgid "You need to hit your browser's Reload button."
 msgstr "احتیاج است که صفحه را تازه کنید."
 
@@ -545,7 +549,7 @@ msgstr "حداکثر سطح دشواری"
 msgid "Save the project"
 msgstr "ذخیره پروژه"
 
-#: plugin/editorsTab.php:42 plugin/editorsTab.php:71 plugin/immediate.php:85
+#: plugin/editorsTab.php:42 plugin/editorsTab.php:71 plugin/immediate.php:78
 #: plugin/optionsTab.php:25 plugin/optionsTab.php:59 plugin/optionsTab.php:82
 msgid "Save"
 msgstr "ذخیره"
@@ -554,8 +558,8 @@ msgstr "ذخیره"
 msgid "Abort saving the project"
 msgstr "ذخیره نشود"
 
-#: plugin/editorsTab.php:43 plugin/editorsTab.php:72 plugin/immediate.php:86
-#: plugin/immediate.php:101 plugin/immediate.php:159
+#: plugin/editorsTab.php:43 plugin/editorsTab.php:72 plugin/immediate.php:79
+#: plugin/immediate.php:94 plugin/immediate.php:152
 msgid "Abort"
 msgstr "نادیده گرفتن"
 
@@ -620,54 +624,50 @@ msgstr "عالی است."
 msgid "Author:"
 msgstr "مولف:"
 
-#: plugin/immediate.php:43
-msgid "Do you want to submit your result?"
-msgstr "آیا می‌خواهید نتیجه را ارسال کنید؟"
-
-#: plugin/immediate.php:49 plugin/immediate.php:140
+#: plugin/immediate.php:42 plugin/immediate.php:133
 #, php-format
 msgid "You have found %1$s of %2$s hidden words during the alloted time."
 msgstr ""
 "شما %1$s از %2$s را یافته‌اید.\n"
 "\n"
 
-#: plugin/immediate.php:50 plugin/immediate.php:139
+#: plugin/immediate.php:43 plugin/immediate.php:132
 #, php-format
 msgid "Congratulation, you have solved the riddle in %1$s!"
 msgstr "مبارک باد! شما جدول را حل کردید."
 
-#: plugin/immediate.php:62
+#: plugin/immediate.php:55
 msgid "Username:"
 msgstr "نام کاربری"
 
-#: plugin/immediate.php:66
+#: plugin/immediate.php:59
 msgid "Password:"
 msgstr "گذرواژه"
 
-#: plugin/immediate.php:71
+#: plugin/immediate.php:64
 msgid "A username and password is required for saving!"
 msgstr "نام کاربری و گذرواژه برای ذخیره لازم است."
 
-#: plugin/immediate.php:98
+#: plugin/immediate.php:91
 msgid "Submit"
 msgstr "ارائه کنید"
 
-#: plugin/immediate.php:99
+#: plugin/immediate.php:92
 msgid "Loading..."
 msgstr "در حال بارگزاری..."
 
-#: plugin/immediate.php:100 plugin/immediate.php:157
+#: plugin/immediate.php:93 plugin/immediate.php:150
 msgid "OK"
 msgstr "عالی"
 
-#: plugin/immediate.php:126
+#: plugin/immediate.php:119
 msgid ""
 "The marked word no longer fits into the crossword area. For a successful "
 "resize you must delete this word."
 msgstr ""
 "کلمه مشخص شده در جدول نیست. برای بزرگ کردن جدول باید آن کلمه را حذف کنید."
 
-#: plugin/immediate.php:127
+#: plugin/immediate.php:120
 msgid ""
 "The marked words no longer fit into the crossword area. For a successful "
 "resize you must delete these words."
@@ -675,14 +675,14 @@ msgstr ""
 "کلمات  مشخص شده به اندازه جدول نیست. برای تغییر اندازه باید ابتدا کلمات را "
 "حذف کنید."
 
-#: plugin/immediate.php:129
+#: plugin/immediate.php:122
 #, php-format
 msgid ""
 "The marked word goes into a direction that is excluded for difficulty level "
 "%1$s. For a successful level change you must delete this word."
 msgstr "کلمه انتخاب شده مناسب با سطح دشواری تعیین شده نیست. کلمه را حذف کنید. "
 
-#: plugin/immediate.php:130
+#: plugin/immediate.php:123
 #, php-format
 msgid ""
 "The marked words go into directions that are excluded for difficulty level "
@@ -690,35 +690,35 @@ msgid ""
 msgstr ""
 "کلمات نشان شده مناسب با سطح دشواری تعیین شده نیستند. لطفا کلمات را حذف کنید."
 
-#: plugin/immediate.php:136
+#: plugin/immediate.php:129
 #, php-format
 msgid "The marked word %1$s is not part of the solution."
 msgstr "%1$s از کلمات جدول نیست."
 
-#: plugin/immediate.php:138
+#: plugin/immediate.php:131
 msgid "Congratulation, you have solved the riddle!"
 msgstr "مبارک باد! شما جدول را حل کردید."
 
-#: plugin/immediate.php:146
+#: plugin/immediate.php:139
 msgid "Do you really want to do this?"
 msgstr "واقعا اینچنین تصمیمی دارید؟"
 
-#: plugin/immediate.php:147
+#: plugin/immediate.php:140
 #, php-format
 msgid "Delete project %1$s"
 msgstr "حذف "
 
-#: plugin/immediate.php:148
+#: plugin/immediate.php:141
 #, php-format
 msgid "Delete crossword %1$s from project %2$s"
 msgstr "جدول %1$s از پروژه %2$s حذف شد"
 
-#: plugin/immediate.php:149
+#: plugin/immediate.php:142
 #, php-format
 msgid "Approve crossword %1$s for project %2$s"
 msgstr "جدول %1$s از پروژه  %2$s تایید شد\n"
 
-#: plugin/immediate.php:155
+#: plugin/immediate.php:148
 msgid "Please be patient for the crossword being loaded."
 msgstr "صبور باشید تا جدول بارگزاری شود"
 
