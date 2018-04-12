@@ -49,6 +49,17 @@ For informations on usage and configuration,
 
 == Frequently Asked Questions ==
 
+= I am geting "You do not have permission" errors =
+
+Most of the time these errors are the result of using a caching mechanism. **Make
+absolutely sure the posts containing the shortcode are not cached. Otherwise they
+will stop working after 24 hours.** While
+the plugin is compatible with most of the well-known cache plugins, there may be
+cases not covered yet, especially if the caching is not done by a plugin, but by
+your hosting service. Please let me know in the
+[support forum](http://wordpress.org/support/plugin/crosswordsearch) so I can help
+you iron this out.
+
 = Is this plugin suitable for multisite installations? =
 
 There is limited support for use in multisite environments. There is no option for a network
@@ -67,15 +78,6 @@ Crosswordsearch is compatible with WordPress 3.6 and above. It requires PHP 5.3 
 MySQL DBMS that supports InnoDB tables.
 
 All modern browsers as well as Internet Explorer 8 and newer are supported.
-
-= I am geting "You do not have permission" errors =
-
-Most of the time these errors are the result of using a caching mechanism. While
-the plugin is compatible with most of the well-known cache plugins, there may be
-cases not covered yet, especially if the caching is not done by a plugin, but by
-your hosting service. Please let me know in the
-[support forum](http://wordpress.org/support/plugin/crosswordsearch) so I can help
-you iron this out.
 
 = Which work flows for adding new riddles are possible? =
 
