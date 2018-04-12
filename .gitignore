@@ -6,5 +6,4 @@ typings/
 .vscode/
 tests/vendor/
 tests/_SpecRunner*.html
-demo/build/
-demo/config.json
+demo/

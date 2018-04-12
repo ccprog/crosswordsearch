@@ -112,8 +112,12 @@ module.exports = function(grunt) {
       },
       main: {
         files: {
-          'plugin/css/crosswordsearch.css': 'src/css/crosswordsearch.sass',
-          'plugin/css/rtl.css': 'src/css/rtl.sass'
+          'plugin/css/crosswordsearch.css': ['src/css/crosswordsearch.sass']
+        }
+      },
+      rtl: {
+        files: {
+          'plugin/css/rtl.css': ['src/css/rtl.sass']
         }
       }
     },
