@@ -280,6 +280,25 @@ register_activation_hook( CRW_PLUGIN_FILE, 'crw_install_data' );
 $crw_has_crossword = false;
 
 /**
+ * Privacy policy link.
+ *
+ * Hooked to plugins_loaded.
+ *
+ * @return void
+ */
+function crw_link_privacy_policy () {
+    $update = date_i18n( get_option( 'date_format' ), strtotime( '2018-5-18' ) );
+    $content = '<p>' . __( 'You can find information about data collected by plugin Crosswordsearch at the following address:' ) . '<br/>' . 
+               make_clickable( 'https://github.com/ccprog/crosswordsearch/wiki/Privacy-policy' ) .
+               ' ' . sprintf( __( '(Last updated on %s.)' ), $update ) . '</p>' .
+               '<p>' . __( 'It is recomended not to link to it, but to include the relevant information in your privacy policy text.' ) . '</h3>';
+    if ( function_exists ( 'wp_add_privacy_policy_content' ) ) {
+        wp_add_privacy_policy_content( 'Crosswordsearch', $content );
+    }
+}
+add_action('plugins_loaded', 'crw_link_privacy_policy');
+
+/**
  * Load localization.
  *
  * Hooked to plugins_loaded.
