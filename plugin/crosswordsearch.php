@@ -746,7 +746,8 @@ function crw_verify_json($json, &$msg) {
     $schema = $store->get($url);
 
     $locale_data = crw_get_locale_data();
-    $schema->definitions->word->properties->letter->pattern = $locale_data["letterRegEx"];
+    $pcre_pattern = preg_replace('/\\\\u([0-9a-fA-F]{4})/', '\\x{$1}', $locale_data["letterRegEx"]);
+    $schema->definitions->word->properties->letter->pattern = $pcre_pattern;
 
     // json string decoding
     try {
@@ -757,14 +758,14 @@ function crw_verify_json($json, &$msg) {
     }
 
     // schema validation
-    /*$answer = Jsv4::validate($crossword, $schema);
+    $answer = Jsv4::validate($crossword, $schema);
     if ( !$answer->valid ) {
         $msg = array('schema error:');
         foreach ( $answer->errors as $err ) {
             array_push($msg, $err->dataPath ." ". $err->message);
         }
         return false;
-    }*/
+    }
 
     // verify width and height are consistent
     if ( $crossword->size->height !== count($crossword->table)) {
