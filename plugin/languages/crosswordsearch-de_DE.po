@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 16:50+0200\n"
-"PO-Revision-Date: 2018-04-12 16:50+0200\n"
+"POT-Creation-Date: 2018-07-23 18:57+0200\n"
+"PO-Revision-Date: 2018-07-23 18:57+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: German\n"
@@ -547,6 +547,80 @@ msgstr "Crosswordsearch verwalten"
 msgid "You need to hit your browser's Reload button."
 msgstr "Du musst den Neu Laden-Button Deines Browsers drücken."
 
+#: plugin/crosswordsearch.php:2148
+msgid "Editor for project"
+msgstr "Bearbeiter für das Projekt"
+
+#: plugin/crosswordsearch.php:2155
+msgid "Crosswordsearch editing rights"
+msgstr "Crosswordsearch-Bearbeitungsrechte"
+
+#: plugin/crosswordsearch.php:2201
+msgid "original author"
+msgstr "Originalautor"
+
+#: plugin/crosswordsearch.php:2204
+msgid "last editor"
+msgstr "letzter Bearbeiter"
+
+#: plugin/crosswordsearch.php:2209 plugin/wizzard.php:17
+msgid "Project"
+msgstr "Projekt"
+
+#: plugin/crosswordsearch.php:2213
+msgid "Crossword name"
+msgstr "Name des Kreuzworträtsel"
+
+#: plugin/crosswordsearch.php:2217
+msgid "Edited as"
+msgstr "Editiert als"
+
+#: plugin/crosswordsearch.php:2218
+msgid " and "
+msgstr "und"
+
+#: plugin/crosswordsearch.php:2221
+msgid "Crossword content"
+msgstr "Inhalt des Kreuzworträtsel"
+
+#: plugin/crosswordsearch.php:2228
+msgid "Crosswordsearch authorship"
+msgstr "Autorenschaft für Crosswordsearch"
+
+#: plugin/crosswordsearch.php:2312
+#, php-format
+msgid ""
+"The user was listed as last editor of crossword \"%s\" in project \"%s\", "
+"but was not the original author."
+msgstr ""
+"Der Benutzer wurde als letzter Bearbeiter des Rätsels \"%s\" im Projekt \"%s"
+"\" aufgeführt, aber war nicht der Originalautor."
+
+#: plugin/crosswordsearch.php:2313
+msgid ""
+"The crossword was retained, now citing the original author as the last "
+"editor."
+msgstr ""
+"Das Kreuzworträtsel wurde beibehalten und nennt nun den Originalautor als "
+"letzten Bearbeiter."
+
+#: plugin/crosswordsearch.php:2329
+#, php-format
+msgid ""
+"The user was listed as original author of crossword \"%s\" in project \"%s"
+"\", but was not the last editor."
+msgstr ""
+"Der Benutzer wurde als Originalautor des Rätsels \"%s\" im Projekt \"%s\" "
+"aufgeführt, aber war nicht der letzte Bearbeiter."
+
+#: plugin/crosswordsearch.php:2330
+msgid ""
+"The crossword was retained, now citing the last editor as the original "
+"author."
+msgstr ""
+"Das Kreuzworträtsel wurde beibehalten und nennt nun den letzten Bearbeiter "
+"als Originalautor."
+
 #: plugin/editorsTab.php:12
 msgid "Project Name"
 msgstr "Projektname"
@@ -1003,10 +1077,6 @@ msgstr "Kreuzworträtsel lösen"
 #: plugin/wizzard.php:14 plugin/wizzard.php:19 plugin/wizzard.php:26
 msgid "Select something."
 msgstr "Wähle etwas aus."
-
-#: plugin/wizzard.php:17
-msgid "Project"
-msgstr "Projekt"
 
 #: plugin/wizzard.php:22
 msgid "Crossword"
