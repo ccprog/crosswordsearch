@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: crosswordsearch 1.0.3\n"
+"Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 16:50+0200\n"
+"POT-Creation-Date: 2018-07-23 19:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -500,6 +500,89 @@ msgstr ""
 msgid "You need to hit your browser's Reload button."
 msgstr ""
 
+#: plugin/crosswordsearch.php:2107
+msgid ""
+"You can find information about data collected by plugin Crosswordsearch at "
+"the following address:"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2109
+#, php-format
+msgid "(Last updated on %s.)"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2110
+msgid ""
+"It is recomended not to link to it, but to include the relevant information "
+"in your privacy policy text."
+msgstr ""
+
+#: plugin/crosswordsearch.php:2148
+msgid "Editor for project"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2155
+msgid "Crosswordsearch editing rights"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2201
+msgid "original author"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2204
+msgid "last editor"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2209 plugin/wizzard.php:17
+msgid "Project"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2213
+msgid "Crossword name"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2217
+msgid "Edited as"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2218
+msgid " and "
+msgstr ""
+
+#: plugin/crosswordsearch.php:2221
+msgid "Crossword content"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2228
+msgid "Crosswordsearch authorship"
+msgstr ""
+
+#: plugin/crosswordsearch.php:2312
+#, php-format
+msgid ""
+"The user was listed as last editor of crossword \"%s\" in project \"%s\", "
+"but was not the original author."
+msgstr ""
+
+#: plugin/crosswordsearch.php:2313
+msgid ""
+"The crossword was retained, now citing the original author as the last "
+"editor."
+msgstr ""
+
+#: plugin/crosswordsearch.php:2329
+#, php-format
+msgid ""
+"The user was listed as original author of crossword \"%s\" in project \"%s"
+"\", but was not the last editor."
+msgstr ""
+
+#: plugin/crosswordsearch.php:2330
+msgid ""
+"The crossword was retained, now citing the last editor as the original "
+"author."
+msgstr ""
+
 #: plugin/editorsTab.php:12
 msgid "Project Name"
 msgstr ""
@@ -941,10 +1024,6 @@ msgstr ""
 
 #: plugin/wizzard.php:14 plugin/wizzard.php:19 plugin/wizzard.php:26
 msgid "Select something."
-msgstr ""
-
-#: plugin/wizzard.php:17
-msgid "Project"
 msgstr ""
 
 #: plugin/wizzard.php:22

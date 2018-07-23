@@ -2,7 +2,7 @@
 /*
 Plugin Name: crosswordsearch-lut
 Plugin URI: https://github.com/ccprog/crosswordsearch/wiki
-Version: 1.0.3
+Version: 1.1.0
 Author: Claus Colloseus
 Author URI: https://browser-unplugged.net
 Text Domain: crosswordsearch
@@ -34,7 +34,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * Bootstrap
  * ---------------------------------- */
 
-define('CRW_VERSION', '1.0.3');
+define('CRW_VERSION', '1.1.0');
 define('CRW_DB_VERSION', '0.5');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
@@ -2100,3 +2100,270 @@ function crw_show_options() {
 	}
 	include(WP_PLUGIN_DIR . '/crosswordsearch-lut/settings.php');
 }
+
+/* ----------------------------------
+ * Privacy tools
+ * ---------------------------------- */
+
+/**
+ * Privacy policy link.
+ *
+ * Hooked to plugins_loaded.
+ *
+ * @return void
+ */
+function crw_link_privacy_policy () {
+    $update = date_i18n( get_option( 'date_format' ), strtotime( '2018-5-18' ) );
+    $content = '<p>' . __( 'You can find information about data collected by plugin Crosswordsearch at the following address:', 'crosswordsearch' ) . '<br/>' . 
+               make_clickable( 'https://github.com/ccprog/crosswordsearch/wiki/Privacy-policy' ) .
+               ' ' . sprintf( __( '(Last updated on %s.)', 'crosswordsearch' ), $update ) . '</p>' .
+               '<p>' . __( 'It is recomended not to link to it, but to include the relevant information in your privacy policy text.', 'crosswordsearch' ) . '</h3>';
+    if ( function_exists ( 'wp_add_privacy_policy_content' ) ) {
+        wp_add_privacy_policy_content( 'Crosswordsearch', $content );
+    }
+}
+add_action('plugins_loaded', 'crw_link_privacy_policy');
+
+/**
+ * Exporter for personally identifiable data.
+ *
+ * @global $data_table_name
+ *
+ * @param string $email_address identifying the user
+ * @param int $page batch number
+ *
+ * @return array {
+ *     array data
+ *     boolean done
+ * }
+ */
+function crw_editor_exporter( $email_address, $page = 1 ) {
+    global $wpdb, $editors_table_name;
+
+    $number = 500;
+    $page = (int) $page;
+    $offset = $number * ( $page - 1 );
+  
+    $export_items = array();
+
+    $user = get_user_by( 'email', $email_address );
+    if ( $user ) {
+        $editors = $wpdb->get_results( "
+SELECT * FROM $editors_table_name
+WHERE user_id = $user->ID
+        " );
+        foreach ( $editors as $editor ) {
+            $data = array(
+                array(
+                    'name' => __('Editor for project', 'crosswordsearch'),
+                    'value' =>  $editor->project
+                )
+            );
+
+            $export_items[] = array(
+                'group_id' => 'crw_editor',
+                'group_label' => __('Crosswordsearch editing rights', 'crosswordsearch'),
+                'item_id' => $editor->project . '-' . $editor->user_id,
+                'data' => $data
+            );
+        }
+    }
+
+    $done = count( $export_items ) < $number;
+    return array(
+        'data' => $export_items,
+        'done' => $done,
+    );
+}
+
+/**
+ * Exporter for personally identifiable data.
+ *
+ * @global $data_table_name
+ *
+ * @param string $email_address identifying the user
+ * @param int $page batch number
+ *
+ * @return array {
+ *     array data
+ *     boolean done
+ * }
+ */
+function crw_author_exporter( $email_address, $page = 1 ) {
+    global $wpdb, $data_table_name;
+
+    $number = 500;
+    $page = (int) $page;
+    $offset = $number * ( $page - 1 );
+
+    $export_items = array();
+
+    $user = get_user_by( 'email', $email_address );
+    if ( $user ) {
+        $crosswords = $wpdb->get_results( "
+SELECT * FROM $data_table_name
+WHERE first_user = $user->ID OR last_user = $user->ID
+LIMIT $offset, $number
+        " );
+        foreach ( $crosswords as $crossword ) {
+            $editing = array();
+            if ( $crossword->first_user == $user->ID ) {
+                $editing[] =  __('original author', 'crosswordsearch');
+            }
+            if ( $crossword->last_user == $user->ID ) {
+                $editing[] = __('last editor', 'crosswordsearch');
+            }
+
+            $data = array(
+                array(
+                    'name' => __('Project', 'crosswordsearch'),
+                    'value' =>  $crossword->project
+                ),
+                array(
+                    'name' => __('Crossword name', 'crosswordsearch'),
+                    'value' => $crossword->name
+                ),
+                array(
+                    'name' => __('Edited as', 'crosswordsearch'),
+                    'value' => implode(__(' and ', 'crosswordsearch'), $editing)
+                ),
+                array(
+                    'name' => __('Crossword content', 'crosswordsearch'),
+                    'value' => $crossword->crossword
+                )
+            );
+
+            $export_items[] = array(
+                'group_id' => 'crw_author',
+                'group_label' => __('Crosswordsearch authorship', 'crosswordsearch'),
+                'item_id' => $crossword->project . '-' . $crossword->name,
+                'data' => $data
+            );
+        }
+    }
+
+    $done = count( $export_items ) < $number;
+    return array(
+        'data' => $export_items,
+        'done' => $done,
+    );
+}
+
+/**
+ * Register personal data exporters.
+ * 
+ * Hooked up to wp_privacy_personal_data_exporters
+ * 
+ * @param array $exporters
+ * 
+ * @return void
+ */
+function crw_register_exporter( $exporters ) {
+    $exporters['crw_editor'] = array(
+        'exporter_friendly_name' => 'Crosswordsearch Plugin: Project editing rights',
+        'callback' => 'crw_editor_exporter',
+    );
+    $exporters['crw_author'] = array(
+        'exporter_friendly_name' => 'Crosswordsearch Plugin: Crossword authorship',
+        'callback' => 'crw_author_exporter',
+    );
+    return $exporters;
+}
+add_filter( 'wp_privacy_personal_data_exporters', 'crw_register_exporter', 10 );
+
+/**
+ * Eraser for personally identifiable data.
+ *
+ * @global $data_table_name
+ * @global $editor_table_name
+ *
+ * @param string $email_address identifying the user
+ * @param int $page batch number
+ *
+ * @return array {
+ *     boolean items_removed
+ *     boolean items_retained
+ *     array messages
+ *     boolean done
+ * }
+ */
+function crw_plugin_eraser( $email_address, $page = 1 ) {
+    global $wpdb, $data_table_name, $editors_table_name;
+
+    $items_removed = false;
+    $items_retained = false;
+    $messages = array();
+
+    $user = get_user_by( 'email', $email_address );
+    if ( $user ) {
+        $deleted = $wpdb->delete( $data_table_name, array(
+            'first_user' => $user->ID,
+            'last_user' => $user->ID
+        ), array( '%d', '%d' ) );
+
+        $deleted += $wpdb->delete( $editors_table_name, array(
+            'user_id' => $user->ID
+        ), array( '%d' ) );
+
+        if ( $deleted) $items_removed = true;
+
+        $is_last = $wpdb->get_results( "
+SELECT project, name FROM $data_table_name
+WHERE last_user = $user->ID
+        " );
+        $modified = $wpdb->query( "
+UPDATE $data_table_name
+SET last_user = first_user
+WHERE last_user = $user->ID
+        " );
+        if ( $modified ) {
+            $items_retained = true;
+            foreach ( $is_last as $last ) {
+                $messages[] = sprintf(__('The user was listed as last editor of crossword "%s" in project "%s", but was not the original author.', 'crosswordsearch'), $last->name, $last->project) . ' ' .
+                            __('The crossword was retained, now citing the original author as the last editor.', 'crosswordsearch');
+            }
+        }
+
+        $is_first = $wpdb->get_results( "
+SELECT project, name FROM $data_table_name
+WHERE first_user = $user->ID
+        " );
+        $modified = $wpdb->query( "
+UPDATE $data_table_name
+SET first_user = last_user
+WHERE first_user = $user->ID
+        " );
+        if ( $modified ) {
+            $items_retained = true;
+            foreach ( $is_first as $first ) {
+                $messages[] = sprintf(__('The user was listed as original author of crossword "%s" in project "%s", but was not the last editor.', 'crosswordsearch'), $first->name, $first->project) . ' ' .
+                            __('The crossword was retained, now citing the last editor as the original author.', 'crosswordsearch');
+            }
+        }
+    }
+
+    return array(
+        'items_removed' => $items_removed,
+        'items_retained' => $items_retained,
+        'messages' => $messages, 
+        'done' => true
+      );
+}
+
+/**
+ * Register personal data eraser.
+ * 
+ * Hooked up to wp_privacy_personal_data_erasers
+ * 
+ * @param array $exporters
+ * 
+ * @return void
+ */
+function crw_register_eraser( $erasers ) {
+    $erasers['crosswordsearch'] = array(
+      'eraser_friendly_name' => 'Crosswordsearch Plugin',
+      'callback' => 'crw_plugin_eraser',
+    );
+    return $erasers;
+}
+add_filter( 'wp_privacy_personal_data_erasers', 'crw_register_eraser', 10 );
