@@ -133,6 +133,11 @@ saved to the database, albeit at this point this information is not used anywher
 
 == Changelog ==
 
+= 1.1.0 =
+
+* Implementation of the GDPR-compliant privacy tools
+* Privacy policy suggestion text links the privacy policy in the wiki
+
 = 1.0.3 =
 
 * WordPress 4.9 compatibility
