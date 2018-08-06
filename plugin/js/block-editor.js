@@ -106,18 +106,53 @@
 
     var basicNames = ['new', 'dft', 'no'];
 
-    function constructNames(attributes) {
+    function constructNames(attributes, projects) {
         var options;
         if (attributes.mode === 'build') {
             options = [{ value: 'new', label: '<' + __('Empty Crossword', 'crosswordsearch') + '>' }, { value: 'dft', label: '<' + __('First crossword', 'crosswordsearch') + '>' }];
         } else {
             options = [{ value: 'no', label: '<' + __('Choose from all', 'crosswordsearch') + '>' }];
         }
+        if (attributes.project) {
+            lodash.find(projects, function (p) {
+                return p.name === attributes.project;
+            }).crosswords.forEach(function (name) {
+                options.push({ value: name, label: name });
+            });
+        }
 
         return options;
     }
 
-    function setInspectorControls(attributes, setAttributes) {
+    function setInspectorControls(attributes, setAttributes, setTimeout, posts) {
+        if (!posts.data) {
+            return el(
+                'p',
+                null,
+                __('Waiting for data...', 'crosswordsearch')
+            );
+        } else if (!posts.data.projects.length) {
+            return el(
+                'p',
+                null,
+                __('No projects found.', 'crosswordsearch')
+            );
+        }
+
+        var projects = posts.data.projects,
+            projectNames = projects.map(function (p) {
+            return p.name;
+        });
+
+        if (!attributes.mode || !attributes.project) {
+            setTimeout(function () {
+                return setAttributes(lodash.assign({
+                    mode: 'solve',
+                    project: projectNames[0]
+                }, attributes));
+            }, 0);
+        }
+
         var controls = [el(Components.RadioControl, {
             label: __('Mode', 'crosswordsearch'),
             selected: attributes.mode,
@@ -206,9 +241,15 @@
             html: false
         },
 
-        edit: function edit(_ref3) {
+        edit: withAPIData(function () {
+            return {
+                posts: '/crosswordsearch/v1/projects/public'
+            };
+        })(withSafeTimeout(function (_ref3) {
             var attributes = _ref3.attributes,
-                setAttributes = _ref3.setAttributes;
+                setAttributes = _ref3.setAttributes,
+                setTimeout = _ref3.setTimeout,
+                posts = _ref3.posts;
 
             return el(
                 'div',
@@ -227,10 +268,10 @@
                 el(
                     wp.editor.InspectorControls,
                     null,
-                    setInspectorControls(attributes, setAttributes)
+                    setInspectorControls(attributes, setAttributes, setTimeout, posts)
                 )
             );
-        },
+        })),
 
         save: function save(props) {
             return el(

@@ -84,7 +84,7 @@
 
     var basicNames = ['new', 'dft', 'no'];
 
-    function constructNames (attributes) {
+    function constructNames (attributes, projects) {
         var options;
         if (attributes.mode === 'build') {
             options = [
@@ -96,11 +96,33 @@
                 { value: 'no', label: '<' + __('Choose from all', 'crosswordsearch') + '>' }
             ]; 
         }
+        if (attributes.project) {
+            lodash.find(projects, p => p.name === attributes.project)
+            .crosswords.forEach(name => {
+                options.push({ value: name, label: name });
+            });
+        }
 
         return options;
     }
 
-    function setInspectorControls (attributes, setAttributes) {
+    function setInspectorControls (attributes, setAttributes, setTimeout, posts) {
+        if ( ! posts.data ) {
+            return <p>{__('Waiting for data...', 'crosswordsearch')}</p>;
+        } else if ( !posts.data.projects.length) {
+            return <p>{__('No projects found.', 'crosswordsearch')}</p>;
+        }
+
+        var projects = posts.data.projects,
+            projectNames = projects.map(p => p.name);
+
+        if ( !attributes.mode || !attributes.project ) {
+            setTimeout(() => setAttributes(lodash.assign({
+                mode: 'solve',
+                project: projectNames[0]
+            }, attributes)), 0);
+        }
+
         var controls = [
             <Components.RadioControl
                 label={__('Mode', 'crosswordsearch')}
@@ -203,15 +225,19 @@
             html: false
         },
 
-        edit: ( { attributes, setAttributes } ) => {
+        edit: withAPIData( function() {
+            return {
+                posts: '/crosswordsearch/v1/projects/public'
+            };
+        } )(withSafeTimeout( ( { attributes, setAttributes, setTimeout, posts } ) => {
             return <div className="wp-block-shortcode wp-block-preformatted">
                 <label><Components.Dashicon icon="shortcode"/>{__( 'Shortcode', 'crosswordsearch' )}</label> 
                 <pre>{writeShortcode(attributes)}</pre>
                 <wp.editor.InspectorControls>{
-                    setInspectorControls(attributes, setAttributes)
+                    setInspectorControls(attributes, setAttributes, setTimeout, posts)
                 }</wp.editor.InspectorControls>
             </div>
-        },
+        } ) ),
 
         save: function( props ) {
             return <wp.element.RawHTML>{writeShortcode(props.attributes)}</wp.element.RawHTML>;
