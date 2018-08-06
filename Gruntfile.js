@@ -99,6 +99,21 @@ module.exports = function(grunt) {
         ]
       }
     },
+    babel: {
+      options: {
+        presets: ['env'],
+        plugins: [
+          ["transform-react-jsx", {
+            "pragma": "el"
+          }]
+        ]
+      },
+      dist: {
+          files: {
+              'plugin/js/block-editor.js': 'src/js/block-editor.js'
+          }
+      }
+  },
     sass: {
       options: {
         outputStyle: 'compressed',
@@ -244,6 +259,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-babel');
   grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-pot');
