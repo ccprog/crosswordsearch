@@ -2,10 +2,13 @@
 
 (function (wp) {
     var el = wp.element.createElement;
+    var __ = wp.i18n.__;
     var Components = wp.components;
     var withAPIData = wp.components.withAPIData;
     var withInstanceId = wp.compose.withInstanceId;
     var withSafeTimeout = wp.compose.withSafeTimeout;
+
+    wp.i18n.setLocaleData(crwBasics.locale, 'crosswordsearch');
 
     var timerOptions = {
         'none': { val: undefined, text: __('None', 'crosswordsearch') },

@@ -114,7 +114,7 @@ module.exports = function(grunt) {
           }
       }
   },
-    sass: {
+  sass: {
       options: {
         outputStyle: 'compressed',
         importer: function (url, prev, done) {
@@ -230,7 +230,7 @@ module.exports = function(grunt) {
             ],
         },
         files:{
-            src:  [ 'plugin/*.php' ],
+            src:  [ 'plugin/*.php', destdir + 'block-editor.js' ],
             expand: true,
         }
     },
@@ -238,6 +238,7 @@ module.exports = function(grunt) {
       options: {
         text_domain: text_domain,
         template: l10ndir,
+        blockfile: destdir + 'block-editor.js',
         version: '<%= pkg.version %>',
       },
       files: {
@@ -267,6 +268,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.task.loadTasks('tasks/');
 
-  grunt.registerTask('msgupdate', ['pot', 'msgmerge']);
+  grunt.registerTask('msgupdate', ['babel', 'pot', 'msgmerge']);
   grunt.registerTask('default', ['jshint:main', 'uglify', 'writel10n', 'sass', 'msgupdate']);
 };

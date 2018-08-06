@@ -345,6 +345,15 @@ function crw_enqueue_block_editor_assets () {
     wp_enqueue_script('crw-block-editor', CRW_PLUGIN_URL . 'js/block-editor.js', [
         'wp-blocks', 'wp-i18n', 'wp-element'
     ] );
+    $domain = 'crw-block-editor';
+    $locale = is_admin() ? get_user_locale() : get_locale();
+    $mofile = WP_PLUGIN_DIR . '/' . 'crosswordsearch/languages/crw-block-editor-' . $locale . '.mo';
+    load_textdomain( $domain, $mofile );
+    $translations = gutenberg_get_jed_locale_data( $domain );
+    $translations['']['domain'] = 'crosswordsearch';
+    wp_localize_script('crw-block-editor', 'crwBasics', array(
+        'locale' => $translations
+    ) );
 }
 
 /**
@@ -541,9 +550,9 @@ function crw_set_editor_wizzard () {
 
     } else {
     
-    add_filter( 'language_attributes', 'crw_add_angular_attribute' );
-    add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
-    add_action( 'media_buttons', function () {
+        add_filter( 'language_attributes', 'crw_add_angular_attribute' );
+        add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
+        add_action( 'media_buttons', function () {
 
 ?>
     <a id="crw-shortcode-button" href="#TB_inline?width=600&height=550&inlineId=crw-shortcode-wizzard"
@@ -551,15 +560,15 @@ function crw_set_editor_wizzard () {
         class="thickbox button" crw-launch><?php _e('Crosswordsearch Shortcode', 'crosswordsearch'); ?></a>	
 <?php
 
-    } );
-    add_action( 'admin_footer', function () {
-        require( CRW_PLUGIN_DIR . 'wizzard.php' );
-    } );
-}
+        } );
+        add_action( 'admin_footer', function () {
+            require( CRW_PLUGIN_DIR . 'wizzard.php' );
+        } );
+    }
 }
 if (version_compare( $wp_version, '4.9', '<' )) {
-add_action( 'load-post.php', 'crw_set_editor_wizzard');
-add_action( 'load-post-new.php', 'crw_set_editor_wizzard');
+    add_action( 'load-post.php', 'crw_set_editor_wizzard');
+    add_action( 'load-post-new.php', 'crw_set_editor_wizzard');
 } else {
     add_action( 'replace_editor', 'crw_set_editor_wizzard');
 }
@@ -728,7 +737,7 @@ function crw_shortcode_handler( $atts, $content = null ) {
 	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . implode( '\', \'', $prep ) . '\')">' . $app_code . '</div>';
 }
 function crw_render_init () {
-add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
+    add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
     if ( function_exists( 'register_block_type' ) ) {
         register_block_type( 'crw-block-editor/shortcode', array(
             'render_callback' => 'render_block_core_shortcode',

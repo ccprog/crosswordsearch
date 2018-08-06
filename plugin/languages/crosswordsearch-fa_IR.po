@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-23 19:30+0200\n"
-"PO-Revision-Date: 2018-07-23 19:30+0200\n"
+"POT-Creation-Date: 2018-08-04 20:44+0200\n"
+"PO-Revision-Date: 2018-08-05 01:33+0200\n"
 "Last-Translator: مرتضی نجاتی <mortazanejatijeze56@gmail.com>\n"
 "Language-Team: Persian\n"
 "Language: fa-IR\n"
@@ -241,156 +241,157 @@ msgstr "شما به دستاوردی نرسیدید."
 msgid "User submitted solutions for crosswordsearch riddles"
 msgstr "کاربران راه حل را ارئه می‌دهند."
 
-#: plugin/crosswordsearch.php:408
+#: plugin/crosswordsearch.php:417 plugin/js/block-editor.js:114
 msgid "Empty Crossword"
 msgstr "جدول خالی"
 
-#: plugin/crosswordsearch.php:409
+#: plugin/crosswordsearch.php:418 plugin/js/block-editor.js:114
 msgid "First crossword"
 msgstr "نخستین جدول"
 
-#: plugin/crosswordsearch.php:410
+#: plugin/crosswordsearch.php:419 plugin/js/block-editor.js:116
 msgid "Choose from all"
 msgstr "انتخاب برای همه"
 
-#: plugin/crosswordsearch.php:533
+#: plugin/crosswordsearch.php:548
 msgid "Insert a Crosswordsearch shortcode"
 msgstr "کد کوتاه جدول را قرار دهید."
 
-#: plugin/crosswordsearch.php:534
+#: plugin/crosswordsearch.php:549 plugin/js/block-editor.js:227
 msgid "Crosswordsearch Shortcode"
 msgstr "کدکوتاه جدول"
 
-#: plugin/crosswordsearch.php:573
+#: plugin/crosswordsearch.php:589
 msgid "The shortcode usage is faulty:"
 msgstr "کدکوتاه اشتباه است:"
 
 #. / translators: argument %1 will be the literal 'mode'
-#: plugin/crosswordsearch.php:577
+#: plugin/crosswordsearch.php:593
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
 msgstr "Attribute %1$s احتیاج به \"%2$s\" یا \"%3$s\" است."
 
 #. / translators: argument %1 will be the literal 'restricted', %2 the literal 'name'
-#: plugin/crosswordsearch.php:582
+#: plugin/crosswordsearch.php:598
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must be omitted."
 msgstr "اگر صفت  %1$s به کار گرفته شود, صفت %2$s باید حذف شود."
 
-#: plugin/crosswordsearch.php:586
+#: plugin/crosswordsearch.php:602
 #, php-format
 msgid "Attribute %1$s is only allowed in solve mode."
 msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
 
 #. / translators: argument %1 will be the literal 'timer'
-#: plugin/crosswordsearch.php:591
+#: plugin/crosswordsearch.php:607
 #, php-format
 msgid "Attribute %1$s must be a non-negative integer."
 msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
 
 #. / translators: argument %1 will be the literal 'submitting', %2 the literal 'timer'
-#: plugin/crosswordsearch.php:596
+#: plugin/crosswordsearch.php:612
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must also be set."
 msgstr "اگر صفت %1$s به کار گرفته شود, صفت%2$s باید به کار رود."
 
 #. / translators: argument %1 will be the literal 'project'
-#: plugin/crosswordsearch.php:601
+#: plugin/crosswordsearch.php:617
 #, php-format
 msgid "Attribute %1$s needs to be an existing project."
 msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
 
-#: plugin/crosswordsearch.php:605
+#: plugin/crosswordsearch.php:621
 #, php-format
 msgid "There is no crossword in project %1$s."
 msgstr "در پروژه هیچ جدولی نیست."
 
-#: plugin/crosswordsearch.php:609
+#: plugin/crosswordsearch.php:625
 #, php-format
 msgid "There is no crossword with the name %1$s."
 msgstr "جدولی با عنوان  %1$s نیست."
 
-#: plugin/crosswordsearch.php:669
+#: plugin/crosswordsearch.php:685
 msgid "Do you want to submit your result?"
 msgstr "آیا می‌خواهید نتیجه را ارسال کنید؟"
 
-#: plugin/crosswordsearch.php:698
+#: plugin/crosswordsearch.php:714
 msgid "Loading the crossword has yet to start."
 msgstr "در حال بارگزاری جدول برای شروع"
 
-#: plugin/crosswordsearch.php:865 plugin/crosswordsearch.php:900
+#: plugin/crosswordsearch.php:889 plugin/crosswordsearch.php:924
+#: plugin/crosswordsearch.php:1113
 msgid "You do not have permission."
 msgstr "شما دسترسی ندارید."
 
-#: plugin/crosswordsearch.php:1015
+#: plugin/crosswordsearch.php:1039
 msgid ""
 "There are still riddles saved for that project. You need to delete them "
 "before you can remove the project."
 msgstr "این جداول برای پروژه ذخیره شده است. پیش از حذف پروژه آن‌ها را پاک کنید."
 
-#: plugin/crosswordsearch.php:1167
+#: plugin/crosswordsearch.php:1216
 msgid "Editing rights could not be updated."
 msgstr "حق ویرایش به روز نشد."
 
-#: plugin/crosswordsearch.php:1218
+#: plugin/crosswordsearch.php:1267
 msgid "Dimensions could not be updated."
 msgstr "ابعاد به روز نشد."
 
-#: plugin/crosswordsearch.php:1258
+#: plugin/crosswordsearch.php:1307
 msgid "Subscription options could not be updated."
 msgstr "ابعاد به روز نشد. "
 
-#: plugin/crosswordsearch.php:1393
+#: plugin/crosswordsearch.php:1442
 msgid "The project could not be removed."
 msgstr "پروژه کنارگزاری نشد."
 
-#: plugin/crosswordsearch.php:1402 plugin/editorsTab.php:22
+#: plugin/crosswordsearch.php:1451 plugin/editorsTab.php:22
 #: plugin/immediate.php:25
 msgid "You have exceeded the maximum length for a name!"
 msgstr "طول نام زیاد است."
 
-#: plugin/crosswordsearch.php:1404 plugin/editorsTab.php:21
+#: plugin/crosswordsearch.php:1453 plugin/editorsTab.php:21
 #: plugin/immediate.php:24
 msgid "The name is too short!"
 msgstr "نام بسیار کوتاه است!"
 
-#: plugin/crosswordsearch.php:1414
+#: plugin/crosswordsearch.php:1463
 msgid "The project could not be added."
 msgstr "پروژه اضافه نشد."
 
-#: plugin/crosswordsearch.php:1416
+#: plugin/crosswordsearch.php:1465
 msgid "The project could not be altered."
 msgstr "پروژه تغییر داده نشد."
 
-#: plugin/crosswordsearch.php:1445
+#: plugin/crosswordsearch.php:1494
 msgid "The editors could not be updated."
 msgstr "ویرایشگران به روز نشدند."
 
-#: plugin/crosswordsearch.php:1586
+#: plugin/crosswordsearch.php:1635
 msgid "The crossword could not be deleted."
 msgstr "جدول حذف نشد."
 
-#: plugin/crosswordsearch.php:1626
+#: plugin/crosswordsearch.php:1675
 msgid "The crossword could not be approved."
 msgstr "جدول تایید نشد."
 
-#: plugin/crosswordsearch.php:1678
+#: plugin/crosswordsearch.php:1727
 msgid "You are not allowed to save the crossword."
 msgstr "شما اجازه ذخیره جدول را ندارید."
 
-#: plugin/crosswordsearch.php:1735 plugin/immediate.php:26
+#: plugin/crosswordsearch.php:1784 plugin/immediate.php:26
 msgid "There is already another riddle with that name!"
 msgstr "با این عنوان جدول دیگری موجود است."
 
-#: plugin/crosswordsearch.php:1738
+#: plugin/crosswordsearch.php:1787
 msgid "The riddle you tried to update can not be found!"
 msgstr "معمایی که شما می‌خواهید به روز کنید وجود ندارد."
 
-#: plugin/crosswordsearch.php:1740
+#: plugin/crosswordsearch.php:1789
 msgid "A moderator might have deleted it already. You must start a new one."
 msgstr "شاید مدیر آن را حذف کرده. یکی دیگر بسازید."
 
-#: plugin/crosswordsearch.php:1742
+#: plugin/crosswordsearch.php:1791
 msgid ""
 "Someone else might have renamed or deleted it in the meantime. Look into the "
 "list of existing riddles."
@@ -398,38 +399,38 @@ msgstr ""
 "شاید شخص دیگری پروژه را حذف کرده یا تغییر نام داده باشد. به فهرست جدول‌ها "
 "نگاه کنید."
 
-#: plugin/crosswordsearch.php:1789
+#: plugin/crosswordsearch.php:1838
 msgid "The crossword could not be saved to the database."
 msgstr "جدول در دیتابیس ذخیره نشد."
 
-#: plugin/crosswordsearch.php:1820
+#: plugin/crosswordsearch.php:1869
 msgid "The crossword could not be retrieved."
 msgstr "جدول بازیابی نمی‌شود"
 
-#: plugin/crosswordsearch.php:1876
+#: plugin/crosswordsearch.php:1925
 #, php-format
 msgid "Solution submitted for crossword %1$s in project %2$s:"
 msgstr "جدول %1$s از پروژه %2$s حذف شد"
 
-#: plugin/crosswordsearch.php:1879
+#: plugin/crosswordsearch.php:1928
 #, php-format
 msgid "%1$s of %2$s words were found in %3$s seconds."
 msgstr " تعداد %1$s از%2$s کلمه در  %3$s ثانیه یافت شدند."
 
-#: plugin/crosswordsearch.php:1882
+#: plugin/crosswordsearch.php:1931
 #, php-format
 msgid "All %1$s words were found in %2$s seconds."
 msgstr "همه %1$s کلمه در  %2$s ثانیه یافت شد."
 
-#: plugin/crosswordsearch.php:1898
+#: plugin/crosswordsearch.php:1947
 msgid "Your solution could not be submitted."
 msgstr "ارائه راه حل شما  ارسال نشد."
 
-#: plugin/crosswordsearch.php:2005 plugin/settings.php:21
+#: plugin/crosswordsearch.php:2054 plugin/settings.php:21
 msgid "Options"
 msgstr "تنظیمات"
 
-#: plugin/crosswordsearch.php:2006
+#: plugin/crosswordsearch.php:2055
 msgid ""
 "Riddles saved by restricted editors need the approval of full editors before "
 "they can appear for other users."
@@ -437,11 +438,11 @@ msgstr ""
 "جدول‌های طراحی شده به وسیله کاربران محدود شده، پیش از نمایش در سایت باید به "
 "وسیله ویراستان مجوز کامل تایید شوند."
 
-#: plugin/crosswordsearch.php:2007
+#: plugin/crosswordsearch.php:2056
 msgid "Full editors can only act on the projects they are assigned to."
 msgstr "هر ویراستار دارای مجوز کامل فقط بر پروژه مختص شده توان کار کردن دارد"
 
-#: plugin/crosswordsearch.php:2008
+#: plugin/crosswordsearch.php:2057
 #, php-format
 msgid ""
 "For custom theming, place a file %1$s with overrides to the default theme "
@@ -449,7 +450,7 @@ msgid ""
 msgstr ""
 "برای پوسته دلخواه، پرونده %1$s را با ذکر برتر بودن در پوشه پوسته‌ها قرار دهید."
 
-#: plugin/crosswordsearch.php:2009
+#: plugin/crosswordsearch.php:2058
 msgid ""
 "There are some dimension values that are used in computations during drag "
 "operations. If you have a custom theme, you might have to additionally "
@@ -458,13 +459,13 @@ msgstr ""
 "مقادیری که برای کشیدن جدول به اطراف کاربرد دارد. اگر شما از زمینه دلخواه "
 "استفاده می‌کنید، ممکن است مجبور باشید این مقادیر را تنظیم کنید."
 
-#: plugin/crosswordsearch.php:2010
+#: plugin/crosswordsearch.php:2059
 msgid ""
 "Dimension settings are pixel values and used uniformly for heights and "
 "widths."
 msgstr "تنظیمات اندازه‌ جدول بر اساس پیکسل است و بر ارتفاع و عرض وارد می‌شود"
 
-#: plugin/crosswordsearch.php:2011
+#: plugin/crosswordsearch.php:2060
 msgid ""
 "Solution submissions can either be processed by one of the plugins listed "
 "below, or another plugin can subscribe to them through the API."
@@ -472,19 +473,19 @@ msgstr ""
 "ارسال راه حل می تواند توسط یکی از پلاگین های لیست شده در زیر پردازش شود، یا "
 "ممکن است توسط پلاگین‌های دیگر باشد. "
 
-#: plugin/crosswordsearch.php:2015 plugin/editorsTab.php:5
+#: plugin/crosswordsearch.php:2064 plugin/editorsTab.php:5
 #: plugin/reviewTab.php:4
 msgid "Projects"
 msgstr "پروژه‌‌ها"
 
-#: plugin/crosswordsearch.php:2016
+#: plugin/crosswordsearch.php:2065
 msgid ""
 "If you change the name of a project, remember that you need to change it "
 "also in every shortcode referring to it."
 msgstr ""
 "اگر نام پروژه را تغییر دادید، یادتان باشد که نام را در کوته‌کد نیز تغییر دهید."
 
-#: plugin/crosswordsearch.php:2016
+#: plugin/crosswordsearch.php:2065
 msgid ""
 "The lowest eligible maximum difficulty level is either the the default level "
 "or the highest level used in an existing riddle, whatever is higher."
@@ -492,7 +493,7 @@ msgstr ""
 "پایین ترین سطح اختیاری  همچنین حداکثر سطح دشواری  یا حالت‌های دیگر می تواند "
 "پیشفرض باشد."
 
-#: plugin/crosswordsearch.php:2017
+#: plugin/crosswordsearch.php:2066
 msgid ""
 "You need to assign editors to a project in order for them to see its riddles "
 "in the <em>Review</em> tab."
@@ -500,16 +501,16 @@ msgstr ""
 "اگر می‌خواهید ویراستاران جدولشان  را در زبانه <em> پیش نمایش<em/> ببینند باید "
 "آنها را به پروژه اختصاص دهید."
 
-#: plugin/crosswordsearch.php:2018
+#: plugin/crosswordsearch.php:2067
 msgid ""
 "If you want to delete a project, you need first to delete all its riddles."
 msgstr "اگر می‌خواهید پروژه را حذف کنید، ابتدا همه جدول‌ها را حذف کنید."
 
-#: plugin/crosswordsearch.php:2024
+#: plugin/crosswordsearch.php:2073
 msgid "Review"
 msgstr "بازنگری"
 
-#: plugin/crosswordsearch.php:2025
+#: plugin/crosswordsearch.php:2074
 msgid ""
 "To preview a riddle, check the <em>Preview</em> box and then click on the "
 "name of the riddle"
@@ -517,98 +518,99 @@ msgstr ""
 "برای دیدن پیش نمایش جدول <em> پیش نمایش<em/> را تیک بزنید و بر نام آن در "
 "جدول کلیک کنید."
 
-#: plugin/crosswordsearch.php:2040 plugin/settings.php:14
+#: plugin/crosswordsearch.php:2089 plugin/settings.php:14
 msgid "Crosswordsearch Administration"
 msgstr "مدیریت جدول"
 
-#: plugin/crosswordsearch.php:2060
+#: plugin/crosswordsearch.php:2109
 msgid "You need to hit your browser's Reload button."
 msgstr "احتیاج است که صفحه را تازه کنید."
 
-#: plugin/crosswordsearch.php:2107
+#: plugin/crosswordsearch.php:2156
 msgid ""
 "You can find information about data collected by plugin Crosswordsearch at "
 "the following address:"
 msgstr ""
 
-#: plugin/crosswordsearch.php:2109
+#: plugin/crosswordsearch.php:2158
 #, php-format
 msgid "(Last updated on %s.)"
 msgstr ""
 
-#: plugin/crosswordsearch.php:2110
+#: plugin/crosswordsearch.php:2159
 msgid ""
 "It is recomended not to link to it, but to include the relevant information "
 "in your privacy policy text."
 msgstr ""
 
-#: plugin/crosswordsearch.php:2148
+#: plugin/crosswordsearch.php:2197
 #, fuzzy
 msgid "Editor for project"
 msgstr "فهرست ویراستاران پروژه را ذخیره کنید."
 
-#: plugin/crosswordsearch.php:2155
+#: plugin/crosswordsearch.php:2204
 #, fuzzy
 msgid "Crosswordsearch editing rights"
 msgstr "ارسال جدول"
 
-#: plugin/crosswordsearch.php:2201
+#: plugin/crosswordsearch.php:2250
 msgid "original author"
 msgstr ""
 
-#: plugin/crosswordsearch.php:2204
+#: plugin/crosswordsearch.php:2253
 msgid "last editor"
 msgstr ""
 
-#: plugin/crosswordsearch.php:2209 plugin/wizzard.php:17
+#: plugin/crosswordsearch.php:2258 plugin/wizzard.php:17
+#: plugin/js/block-editor.js:173
 msgid "Project"
 msgstr "پروژه‌‌ها "
 
-#: plugin/crosswordsearch.php:2213
+#: plugin/crosswordsearch.php:2262
 #, fuzzy
 msgid "Crossword name"
 msgstr "جدول "
 
-#: plugin/crosswordsearch.php:2217
+#: plugin/crosswordsearch.php:2266
 msgid "Edited as"
 msgstr ""
 
-#: plugin/crosswordsearch.php:2218
+#: plugin/crosswordsearch.php:2267
 #, fuzzy
 msgid " and "
 msgstr "بالا و راست"
 
-#: plugin/crosswordsearch.php:2221
+#: plugin/crosswordsearch.php:2270
 #, fuzzy
 msgid "Crossword content"
 msgstr "جدول "
 
-#: plugin/crosswordsearch.php:2228
+#: plugin/crosswordsearch.php:2277
 #, fuzzy
 msgid "Crosswordsearch authorship"
 msgstr "کدکوتاه جدول"
 
-#: plugin/crosswordsearch.php:2312
+#: plugin/crosswordsearch.php:2361
 #, php-format
 msgid ""
 "The user was listed as last editor of crossword \"%s\" in project \"%s\", "
 "but was not the original author."
 msgstr ""
 
-#: plugin/crosswordsearch.php:2313
+#: plugin/crosswordsearch.php:2362
 msgid ""
 "The crossword was retained, now citing the original author as the last "
 "editor."
 msgstr ""
 
-#: plugin/crosswordsearch.php:2329
+#: plugin/crosswordsearch.php:2378
 #, php-format
 msgid ""
 "The user was listed as original author of crossword \"%s\" in project \"%s"
 "\", but was not the last editor."
 msgstr ""
 
-#: plugin/crosswordsearch.php:2330
+#: plugin/crosswordsearch.php:2379
 msgid ""
 "The crossword was retained, now citing the last editor as the original "
 "author."
@@ -1039,23 +1041,23 @@ msgstr "بازدید جدول در پروژه"
 msgid "Crosswordsearch submissions"
 msgstr "ارسال جدول"
 
-#: plugin/wizzard.php:6
+#: plugin/wizzard.php:6 plugin/js/block-editor.js:134
 msgid "Waiting for data..."
 msgstr "در انتظار اطلاعات..."
 
-#: plugin/wizzard.php:7
+#: plugin/wizzard.php:7 plugin/js/block-editor.js:140
 msgid "No projects found."
 msgstr "پروژه‌ای یافت نشد"
 
-#: plugin/wizzard.php:11
+#: plugin/wizzard.php:11 plugin/js/block-editor.js:159
 msgid "Mode"
 msgstr "حالت"
 
-#: plugin/wizzard.php:12
+#: plugin/wizzard.php:12 plugin/js/block-editor.js:161
 msgid "Design crosswords"
 msgstr "طراحی جدول"
 
-#: plugin/wizzard.php:13
+#: plugin/wizzard.php:13 plugin/js/block-editor.js:161
 msgid "Solve crosswords"
 msgstr "جدول را حل کنید"
 
@@ -1063,15 +1065,15 @@ msgstr "جدول را حل کنید"
 msgid "Select something."
 msgstr "چیزی را انتخاب کنید"
 
-#: plugin/wizzard.php:22
+#: plugin/wizzard.php:22 plugin/js/block-editor.js:182
 msgid "Crossword"
 msgstr "جدول "
 
-#: plugin/wizzard.php:24
+#: plugin/wizzard.php:24 plugin/js/block-editor.js:183
 msgid "Select one or let the user choose from all crosswords."
 msgstr "انتخاب کنید یا به کاربر اجازه دهید تا انتخاب کند."
 
-#: plugin/wizzard.php:25
+#: plugin/wizzard.php:25 plugin/js/block-editor.js:183
 msgid ""
 "Preselect the crossword initially displayed. All crosswords remain "
 "selectable."
@@ -1079,35 +1081,35 @@ msgstr ""
 "برگه جدول کلمات متقاطع در ابتدا نمایش داده شود. جداول باقی مانده قابل انتخاب "
 "باشند."
 
-#: plugin/wizzard.php:29
+#: plugin/wizzard.php:29 plugin/js/block-editor.js:198
 msgid "Save opportunities"
 msgstr "ذخیره فرصت‌ها"
 
-#: plugin/wizzard.php:30
+#: plugin/wizzard.php:30 plugin/js/block-editor.js:199
 msgid "Restricted"
 msgstr "محافظت شده "
 
-#: plugin/wizzard.php:31
+#: plugin/wizzard.php:31 plugin/js/block-editor.js:200
 msgid "Uploads by restricted users must be reviewed."
 msgstr "بارگزاری‌های کاربران محدود شده باید بازبینی شوند."
 
-#: plugin/wizzard.php:34
+#: plugin/wizzard.php:34 plugin/js/block-editor.js:31
 msgid "Display timer"
 msgstr "نمایش زمان سنج"
 
-#: plugin/wizzard.php:36
+#: plugin/wizzard.php:36 plugin/js/block-editor.js:12
 msgid "None"
 msgstr "هیچ"
 
-#: plugin/wizzard.php:37
+#: plugin/wizzard.php:37 plugin/js/block-editor.js:13
 msgid "Open-ended"
 msgstr "زمان باز بودن به پایان رسید."
 
-#: plugin/wizzard.php:38
+#: plugin/wizzard.php:38 plugin/js/block-editor.js:14
 msgid "Countdown"
 msgstr "شمارنده"
 
-#: plugin/wizzard.php:40
+#: plugin/wizzard.php:40 plugin/js/block-editor.js:66
 msgid "Allowed time"
 msgstr "زمان اجازه داده شده"
 
@@ -1115,11 +1117,11 @@ msgstr "زمان اجازه داده شده"
 msgid "Give time in seconds (a positive integer)."
 msgstr "زمان سنج ثانیه‌ای."
 
-#: plugin/wizzard.php:45
+#: plugin/wizzard.php:45 plugin/js/block-editor.js:212
 msgid "Submission"
 msgstr "ارسال"
 
-#: plugin/wizzard.php:46
+#: plugin/wizzard.php:46 plugin/js/block-editor.js:213
 msgid "Let users submit their result"
 msgstr "اجازه دهید کاربران نتیجه را ارسال کنند."
 
@@ -1130,3 +1132,12 @@ msgstr "کد کوتاه را وارد کنید"
 #: plugin/wizzard.php:52
 msgid "Cancel"
 msgstr "لغو "
+
+#: plugin/js/block-editor.js:229
+msgid "Define how a Crosswordsearch block should be displayed"
+msgstr ""
+
+#: plugin/js/block-editor.js:284
+#, fuzzy
+msgid "Shortcode"
+msgstr "کد کوتاه را وارد کنید"

@@ -1,0 +1,135 @@
+# German translations for crosswordsearch package.
+# Copyright (C) 2014 Claus Colloseus <ccprog@gmx.de>
+# This file is distributed under the same license as the crosswordsearch package.
+# Claus Colloseus <ccprog@gmx.de>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: crosswordsearch 1.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-04 20:44+0200\n"
+"PO-Revision-Date: 2018-08-05 01:33+0200\n"
+"Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
+"Language-Team: German\n"
+"Language: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+"X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;"
+"__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;"
+"_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;"
+"esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;"
+"esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
+"X-Loco-Target-Locale: de_DE\n"
+"X-Generator: Loco - https://localise.biz/\n"
+
+#: plugin/crosswordsearch.php:417 plugin/js/block-editor.js:114
+msgid "Empty Crossword"
+msgstr "Leeres Kreuzworträtsel"
+
+#: plugin/crosswordsearch.php:418 plugin/js/block-editor.js:114
+msgid "First crossword"
+msgstr "Erstes Kreuzworträtsel"
+
+#: plugin/crosswordsearch.php:419 plugin/js/block-editor.js:116
+msgid "Choose from all"
+msgstr "Aus allen wählen"
+
+#: plugin/crosswordsearch.php:549 plugin/js/block-editor.js:227
+msgid "Crosswordsearch Shortcode"
+msgstr "Crosswordsearch Shortcode"
+
+#: plugin/crosswordsearch.php:2258 plugin/wizzard.php:17
+#: plugin/js/block-editor.js:173
+msgid "Project"
+msgstr "Projekt"
+
+#: plugin/wizzard.php:6 plugin/js/block-editor.js:134
+msgid "Waiting for data..."
+msgstr "Warte auf Daten..."
+
+#: plugin/wizzard.php:7 plugin/js/block-editor.js:140
+msgid "No projects found."
+msgstr "Keine Projekte gefunden"
+
+#: plugin/wizzard.php:11 plugin/js/block-editor.js:159
+msgid "Mode"
+msgstr "Modus"
+
+#: plugin/wizzard.php:12 plugin/js/block-editor.js:161
+msgid "Design crosswords"
+msgstr "Kreuzworträtsel entwerfen"
+
+#: plugin/wizzard.php:13 plugin/js/block-editor.js:161
+msgid "Solve crosswords"
+msgstr "Kreuzworträtsel lösen"
+
+#: plugin/wizzard.php:22 plugin/js/block-editor.js:182
+msgid "Crossword"
+msgstr "Kreuzworträtsel"
+
+#: plugin/wizzard.php:24 plugin/js/block-editor.js:183
+msgid "Select one or let the user choose from all crosswords."
+msgstr "Wähle eines aus oder lass den Benutzer aus allen wählen"
+
+#: plugin/wizzard.php:25 plugin/js/block-editor.js:183
+msgid ""
+"Preselect the crossword initially displayed. All crosswords remain "
+"selectable."
+msgstr ""
+"Wähle das Kreuzworträtsel, das anfangs angezeigt wird. Alle Rätsel bleiben "
+"auswählbar."
+
+#: plugin/wizzard.php:29 plugin/js/block-editor.js:198
+msgid "Save opportunities"
+msgstr "Speichermöglichkeiten"
+
+#: plugin/wizzard.php:30 plugin/js/block-editor.js:199
+msgid "Restricted"
+msgstr "Eingeschränkt"
+
+#: plugin/wizzard.php:31 plugin/js/block-editor.js:200
+msgid "Uploads by restricted users must be reviewed."
+msgstr ""
+"Von eingeschränkten Bearbeitern gespeicherte Rätsel müssen freigegeben "
+"werden."
+
+#: plugin/wizzard.php:34 plugin/js/block-editor.js:31
+msgid "Display timer"
+msgstr "Stoppuhr anzeigen"
+
+#: plugin/wizzard.php:36 plugin/js/block-editor.js:12
+msgid "None"
+msgstr "Keine"
+
+#: plugin/wizzard.php:37 plugin/js/block-editor.js:13
+msgid "Open-ended"
+msgstr "Beliebig lang"
+
+#: plugin/wizzard.php:38 plugin/js/block-editor.js:14
+msgid "Countdown"
+msgstr "Herunterzählen"
+
+#: plugin/wizzard.php:40 plugin/js/block-editor.js:66
+msgid "Allowed time"
+msgstr "Erlaubte Zeit"
+
+#: plugin/wizzard.php:45 plugin/js/block-editor.js:212
+msgid "Submission"
+msgstr "Einsendung"
+
+#: plugin/wizzard.php:46 plugin/js/block-editor.js:213
+msgid "Let users submit their result"
+msgstr "Lass Benutzer ihre Ergebnisse einsenden"
+
+#: plugin/js/block-editor.js:229
+msgid "Define how a Crosswordsearch block should be displayed"
+msgstr "Bestimme, wie ein Crosswordsearch-Block dargestellt werden soll"
+
+#: plugin/js/block-editor.js:284
+msgid "Shortcode"
+msgstr "Shortcode"

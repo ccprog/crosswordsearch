@@ -36,6 +36,7 @@ module.exports = function(grunt) {
 
         if (error) {
             grunt.verbose.error();
+            done(error);
         } else {
             var regexp = /(Project-Id-Version: crosswordsearch ).*(\\n)/;
             var rpl = '$1' + options.version + '$2';
@@ -47,11 +48,24 @@ module.exports = function(grunt) {
             grunt.verbose.ok();
         }
 
-        counter--;
+        grunt.util.spawn( {
+            cmd: 'msggrep',
+            args: [
+                '-N',
+                options.blockfile,
+                '-o',
+                file.src[0].replace('crosswordsearch-', 'crw-block-editor-'),
+                file.src[0]
+            ]
+        }, function ( error, result) {
+            if (error) grunt.verbose.error();
 
-        if (error || counter === 0) {
-            done(error);
-        }
+            counter--;
+
+            if (error || counter === 0) {
+                done(error);
+            }
+        });
       });
     });
   });

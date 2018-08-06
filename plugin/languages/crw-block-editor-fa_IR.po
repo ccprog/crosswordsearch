@@ -1,0 +1,129 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: crosswordsearch 1.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-04 20:44+0200\n"
+"PO-Revision-Date: 2018-08-05 01:33+0200\n"
+"Last-Translator: مرتضی نجاتی <mortazanejatijeze56@gmail.com>\n"
+"Language-Team: Persian\n"
+"Language: fa-IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+"X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;"
+"__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;"
+"_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;"
+"esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;"
+"esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
+"X-Loco-Target-Locale: fa_IR\n"
+"X-Generator: Loco - https://localise.biz/\n"
+
+#: plugin/crosswordsearch.php:417 plugin/js/block-editor.js:114
+msgid "Empty Crossword"
+msgstr "جدول خالی"
+
+#: plugin/crosswordsearch.php:418 plugin/js/block-editor.js:114
+msgid "First crossword"
+msgstr "نخستین جدول"
+
+#: plugin/crosswordsearch.php:419 plugin/js/block-editor.js:116
+msgid "Choose from all"
+msgstr "انتخاب برای همه"
+
+#: plugin/crosswordsearch.php:549 plugin/js/block-editor.js:227
+msgid "Crosswordsearch Shortcode"
+msgstr "کدکوتاه جدول"
+
+#: plugin/crosswordsearch.php:2258 plugin/wizzard.php:17
+#: plugin/js/block-editor.js:173
+msgid "Project"
+msgstr "پروژه‌‌ها "
+
+#: plugin/wizzard.php:6 plugin/js/block-editor.js:134
+msgid "Waiting for data..."
+msgstr "در انتظار اطلاعات..."
+
+#: plugin/wizzard.php:7 plugin/js/block-editor.js:140
+msgid "No projects found."
+msgstr "پروژه‌ای یافت نشد"
+
+#: plugin/wizzard.php:11 plugin/js/block-editor.js:159
+msgid "Mode"
+msgstr "حالت"
+
+#: plugin/wizzard.php:12 plugin/js/block-editor.js:161
+msgid "Design crosswords"
+msgstr "طراحی جدول"
+
+#: plugin/wizzard.php:13 plugin/js/block-editor.js:161
+msgid "Solve crosswords"
+msgstr "جدول را حل کنید"
+
+#: plugin/wizzard.php:22 plugin/js/block-editor.js:182
+msgid "Crossword"
+msgstr "جدول "
+
+#: plugin/wizzard.php:24 plugin/js/block-editor.js:183
+msgid "Select one or let the user choose from all crosswords."
+msgstr "انتخاب کنید یا به کاربر اجازه دهید تا انتخاب کند."
+
+#: plugin/wizzard.php:25 plugin/js/block-editor.js:183
+msgid ""
+"Preselect the crossword initially displayed. All crosswords remain "
+"selectable."
+msgstr ""
+"برگه جدول کلمات متقاطع در ابتدا نمایش داده شود. جداول باقی مانده قابل انتخاب "
+"باشند."
+
+#: plugin/wizzard.php:29 plugin/js/block-editor.js:198
+msgid "Save opportunities"
+msgstr "ذخیره فرصت‌ها"
+
+#: plugin/wizzard.php:30 plugin/js/block-editor.js:199
+msgid "Restricted"
+msgstr "محافظت شده "
+
+#: plugin/wizzard.php:31 plugin/js/block-editor.js:200
+msgid "Uploads by restricted users must be reviewed."
+msgstr "بارگزاری‌های کاربران محدود شده باید بازبینی شوند."
+
+#: plugin/wizzard.php:34 plugin/js/block-editor.js:31
+msgid "Display timer"
+msgstr "نمایش زمان سنج"
+
+#: plugin/wizzard.php:36 plugin/js/block-editor.js:12
+msgid "None"
+msgstr "هیچ"
+
+#: plugin/wizzard.php:37 plugin/js/block-editor.js:13
+msgid "Open-ended"
+msgstr "زمان باز بودن به پایان رسید."
+
+#: plugin/wizzard.php:38 plugin/js/block-editor.js:14
+msgid "Countdown"
+msgstr "شمارنده"
+
+#: plugin/wizzard.php:40 plugin/js/block-editor.js:66
+msgid "Allowed time"
+msgstr "زمان اجازه داده شده"
+
+#: plugin/wizzard.php:45 plugin/js/block-editor.js:212
+msgid "Submission"
+msgstr "ارسال"
+
+#: plugin/wizzard.php:46 plugin/js/block-editor.js:213
+msgid "Let users submit their result"
+msgstr "اجازه دهید کاربران نتیجه را ارسال کنند."
+
+#: plugin/js/block-editor.js:229
+msgid "Define how a Crosswordsearch block should be displayed"
+msgstr ""
+
+#: plugin/js/block-editor.js:284
+#, fuzzy
+msgid "Shortcode"
+msgstr "کد کوتاه را وارد کنید"
