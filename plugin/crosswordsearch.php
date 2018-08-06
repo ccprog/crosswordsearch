@@ -337,6 +337,17 @@ function crw_add_angular_attribute ($attributes) {
 }
 
 /**
+ * Emqueue scripts and js data for block editor.
+ *
+ * @return void
+ */
+function crw_enqueue_block_editor_assets () {
+    wp_enqueue_script('crw-block-editor', CRW_PLUGIN_URL . 'js/block-editor.js', [
+        'wp-blocks', 'wp-i18n', 'wp-element'
+    ] );
+}
+
+/**
  * Enqueue scripts and js data.
  *
  * The js data have the following format:
@@ -524,6 +535,12 @@ div.crw-marked {
  * @return void
  */
 function crw_set_editor_wizzard () {
+    if( function_exists( 'is_gutenberg_page' ) && is_gutenberg_page() ) {
+
+        add_action( 'enqueue_block_editor_assets', 'crw_enqueue_block_editor_assets' );
+
+    } else {
+    
     add_filter( 'language_attributes', 'crw_add_angular_attribute' );
     add_action( 'admin_enqueue_scripts', 'add_crw_scripts');
     add_action( 'media_buttons', function () {
@@ -539,8 +556,13 @@ function crw_set_editor_wizzard () {
         require( CRW_PLUGIN_DIR . 'wizzard.php' );
     } );
 }
+}
+if (version_compare( $wp_version, '4.9', '<' )) {
 add_action( 'load-post.php', 'crw_set_editor_wizzard');
 add_action( 'load-post-new.php', 'crw_set_editor_wizzard');
+} else {
+    add_action( 'replace_editor', 'crw_set_editor_wizzard');
+}
 
 /**
  * Validity test for shortcode.
@@ -705,7 +727,15 @@ function crw_shortcode_handler( $atts, $content = null ) {
 
 	return $delay_message . '<div class="crw-wrapper" ng-cloak ng-controller="CrosswordController" ng-init="prepare(\'' . implode( '\', \'', $prep ) . '\')">' . $app_code . '</div>';
 }
+function crw_render_init () {
 add_shortcode( 'crosswordsearch', 'crw_shortcode_handler' );
+    if ( function_exists( 'register_block_type' ) ) {
+        register_block_type( 'crw-block-editor/shortcode', array(
+            'render_callback' => 'render_block_core_shortcode',
+        ) );
+    }
+}
+add_action( 'init', 'crw_render_init' );
 
 /* ----------------------------------
  * Ajax Communication: Utilities
