@@ -343,7 +343,7 @@ function crw_add_angular_attribute ($attributes) {
  */
 function crw_enqueue_block_editor_assets () {
     wp_enqueue_script('crw-block-editor', CRW_PLUGIN_URL . 'js/block-editor.js', [
-        'wp-blocks', 'wp-i18n', 'wp-element'
+        'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-shortcode', 'wp-editor'
     ] );
     $domain = 'crw-block-editor';
     $locale = is_admin() ? get_user_locale() : get_locale();
@@ -354,6 +354,10 @@ function crw_enqueue_block_editor_assets () {
     wp_localize_script('crw-block-editor', 'crwBasics', array(
         'locale' => $translations
     ) );
+    wp_add_inline_style('wp-components',
+        '.crw-timer-control .components-select-control__input {width:auto}
+        .crw-allowed-control {margin-top:0.5em}
+        .crw-allowed-control .components-base-control__label {display:inline}');
 }
 
 /**

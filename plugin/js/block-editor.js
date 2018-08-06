@@ -26,7 +26,7 @@
 
         return el(
             'div',
-            { id: id, className: 'components-base-control' },
+            { id: id, className: 'components-base-control crw-timer-control' },
             el(
                 'label',
                 { className: 'components-base-control__label' },
@@ -39,7 +39,6 @@
                     'select',
                     {
                         className: 'components-select-control__input',
-                        style: { 'width': 'auto' },
                         value: timerAttribute > 0 ? 'backward' : timerAttribute === 0 ? 'forward' : 'none',
                         onChange: function onChange(event) {
                             setAttributes({ timer: timerOptions[event.target.value].val });
@@ -57,12 +56,11 @@
             ),
             el(
                 'div',
-                { className: 'components-base-control__field', style: { 'margin-top': '0.5em' } },
+                { className: 'components-base-control__field crw-allowed-control' },
                 el(
                     'label',
                     {
                         className: 'components-base-control__label',
-                        style: { 'display': 'inline' },
                         htmlFor: id + '-range'
                     },
                     __('Allowed time', 'crosswordsearch')

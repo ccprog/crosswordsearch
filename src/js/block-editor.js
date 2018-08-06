@@ -22,12 +22,11 @@
         var id = `crw-timer-control-${ instanceId }`;
         var isNone = !(timerAttribute > 0);
 
-        return <div id={id} className="components-base-control">
+        return <div id={id} className="components-base-control crw-timer-control">
             <label  className="components-base-control__label">{__('Display timer', 'crosswordsearch')}</label>
             <div className="components-base-control__field">
                 <select
                     className="components-select-control__input"
-                    style={{'width': 'auto'}}
                     value={timerAttribute > 0 ?
                         'backward' :
                         timerAttribute === 0 ? 'forward' : 'none'}
@@ -40,10 +39,9 @@
                 ) }
                 </select>
             </div>
-            <div className="components-base-control__field" style={{'margin-top':'0.5em'}}>
+            <div className="components-base-control__field crw-allowed-control">
                 <label 
                     className="components-base-control__label" 
-                    style={{'display': 'inline'}}
                     htmlFor={id + '-range'}
                 >{__('Allowed time', 'crosswordsearch')}</label>
                 <input
