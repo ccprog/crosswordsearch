@@ -7,12 +7,28 @@
     var InspectorControls = wp.editor.InspectorControls;
     var Components = wp.components;
     var withAPIData = wp.components.withAPIData;
-    var withNotices = wp.components.withNotices;
     var withInstanceId = wp.compose.withInstanceId;
     var withSafeTimeout = wp.compose.withSafeTimeout;
     var shortcode = wp.shortcode;
 
     wp.i18n.setLocaleData( crwBasics.locale, 'crosswordsearch' );
+
+    function Icon () {
+        return <svg 
+            aria-hidden="true"
+            role="img"
+            focusable="false"  
+            viewBox="0 0 256 256"
+            height="20"
+            width="20"
+            className="dashicon"
+            style={{'fill':'none','stroke-width':16}}
+        >
+            <path d="M 44,76 A 32,32 0 0 1 44,12 H 212 A 32,32 0 0 1 212,76 Z" style={{'stroke':'#0000dd'}} />
+            <path d="M 100,44 A 32,32 0 1 1 164,44 V 212 A 32,32 0 0 1 100,212 Z" style={{'stroke':'#dd0000'}} />
+            <path d="M 189.373,21.3726 A 32,32 0 0 1 234.627,66.6274 L 66.6269,234.627 A 32,32 0 0 1 21.3729,189.373 Z" style={{'stroke':'#008800'}} />
+        </svg>
+    }
 
     var modeOptions = [
         { value: 'build', label: __('Design crosswords', 'crosswordsearch') },
@@ -251,7 +267,7 @@
 
         description: __( 'Define how a Crosswordsearch block should be displayed', 'crosswordsearch' ),
 
-        icon: 'shortcode',
+        icon: <Icon />,
 
         category: 'widgets',
 
@@ -307,7 +323,7 @@
             };
         } )(withSafeTimeout( ( { attributes, setAttributes, setTimeout, posts } ) => {
             return <div className="wp-block-shortcode wp-block-preformatted">
-                <label><Components.Dashicon icon="shortcode"/>{__( 'Shortcode', 'crosswordsearch' )}</label> 
+                <label><Icon />{__( 'Shortcode', 'crosswordsearch' )}</label> 
                 <pre>{writeShortcode(attributes)}</pre>
                 <InspectorControls>{
                     setInspectorControls(attributes, setAttributes, setTimeout, posts)

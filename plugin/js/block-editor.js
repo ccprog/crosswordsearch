@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 (function (wp, _) {
     var el = wp.element.createElement;
@@ -9,12 +9,30 @@
     var InspectorControls = wp.editor.InspectorControls;
     var Components = wp.components;
     var withAPIData = wp.components.withAPIData;
-    var withNotices = wp.components.withNotices;
     var withInstanceId = wp.compose.withInstanceId;
     var withSafeTimeout = wp.compose.withSafeTimeout;
     var shortcode = wp.shortcode;
 
     wp.i18n.setLocaleData(crwBasics.locale, 'crosswordsearch');
+
+    function Icon() {
+        return el(
+            "svg",
+            {
+                "aria-hidden": "true",
+                role: "img",
+                focusable: "false",
+                viewBox: "0 0 256 256",
+                height: "20",
+                width: "20",
+                className: "dashicon",
+                style: { 'fill': 'none', 'stroke-width': 16 }
+            },
+            el("path", { d: "M 44,76 A 32,32 0 0 1 44,12 H 212 A 32,32 0 0 1 212,76 Z", style: { 'stroke': '#0000dd' } }),
+            el("path", { d: "M 100,44 A 32,32 0 1 1 164,44 V 212 A 32,32 0 0 1 100,212 Z", style: { 'stroke': '#dd0000' } }),
+            el("path", { d: "M 189.373,21.3726 A 32,32 0 0 1 234.627,66.6274 L 66.6269,234.627 A 32,32 0 0 1 21.3729,189.373 Z", style: { 'stroke': '#008800' } })
+        );
+    }
 
     var modeOptions = [{ value: 'build', label: __('Design crosswords', 'crosswordsearch') }, { value: 'solve', label: __('Solve crosswords', 'crosswordsearch') }];
 
@@ -44,14 +62,14 @@
             Components.BaseControl,
             {
                 label: label,
-                id: 'inspector-range-control-' + instanceId,
+                id: "inspector-range-control-" + instanceId,
                 className: 'components-range-control crw-allowed-control'
             },
-            el('input', {
-                className: 'components-range-control__number',
-                type: 'number',
-                'aria-label': label,
-                min: '1',
+            el("input", {
+                className: "components-range-control__number",
+                type: "number",
+                "aria-label": label,
+                min: "1",
                 disabled: !(timer > 0),
                 value: timer,
                 onChange: function onChange(event) {
@@ -113,13 +131,13 @@
         if (!posts.data) {
             return el(
                 Components.Notice,
-                { status: 'info', isDismissible: 'false' },
+                { status: "info", isDismissible: "false" },
                 __('Waiting for data...', 'crosswordsearch')
             );
         } else if (!posts.data.projects.length) {
             return el(
                 Components.Notice,
-                { status: 'error', isDismissible: 'false' },
+                { status: "error", isDismissible: "false" },
                 __('No projects found.', 'crosswordsearch')
             );
         }
@@ -157,7 +175,7 @@
         if (_.filter(faulty, _.identity).length) {
             controls.push(el(
                 Components.Notice,
-                { status: 'error', isDismissible: 'false' },
+                { status: "error", isDismissible: "false" },
                 __('The shortcode usage is faulty:', 'crosswordsearch')
             ));
         }
@@ -221,7 +239,7 @@
         } else {
             controls.push(el(SelectWithErrors, {
                 label: __('Display timer', 'crosswordsearch'),
-                className: 'crw-timer-control',
+                className: "crw-timer-control",
                 value: attributes.timer > 0 ? 'backward' : attributes.timer === 0 ? 'forward' : 'none',
                 faulty: faulty.timer,
                 options: timerOptions,
@@ -254,7 +272,7 @@
 
         description: __('Define how a Crosswordsearch block should be displayed', 'crosswordsearch'),
 
-        icon: 'shortcode',
+        icon: el(Icon, null),
 
         category: 'widgets',
 
@@ -316,16 +334,16 @@
                 posts = _ref4.posts;
 
             return el(
-                'div',
-                { className: 'wp-block-shortcode wp-block-preformatted' },
+                "div",
+                { className: "wp-block-shortcode wp-block-preformatted" },
                 el(
-                    'label',
+                    "label",
                     null,
-                    el(Components.Dashicon, { icon: 'shortcode' }),
+                    el(Icon, null),
                     __('Shortcode', 'crosswordsearch')
                 ),
                 el(
-                    'pre',
+                    "pre",
                     null,
                     writeShortcode(attributes)
                 ),
