@@ -342,8 +342,10 @@ function crw_add_angular_attribute ($attributes) {
  * @return void
  */
 function crw_enqueue_block_editor_assets () {
-    wp_enqueue_script('crw-block-editor', CRW_PLUGIN_URL . 'js/block-editor.js', [
-        'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-shortcode', 'wp-editor'
+	$suffix = SCRIPT_DEBUG ? '' : '.min';
+
+    wp_enqueue_script('crw-block-editor', CRW_PLUGIN_URL . 'js/block-editor' . $suffix . '.js', [
+        'lodash', 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-shortcode', 'wp-editor'
     ] );
     $domain = 'crw-block-editor';
     $locale = is_admin() ? get_user_locale() : get_locale();

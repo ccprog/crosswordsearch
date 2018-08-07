@@ -97,6 +97,17 @@ module.exports = function(grunt) {
           { src: jslist, dest: destdir + '<%= pkg.name %>.min.js' },
           { src: wzlist, dest: destdir + 'wizzard.min.js' }
         ]
+      },
+      block: {
+        options: {
+          banner: '',
+          compress: {
+            drop_console: true
+          }
+        },
+        files: [
+          { src: destdir + 'block-editor.js', dest: destdir + 'block-editor.min.js' }
+        ]
       }
     },
     babel: {
