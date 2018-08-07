@@ -659,6 +659,8 @@ function crw_test_shortcode ($atts, $names_list) {
  * @return string Angular app HTML partial including app.php and immediate.php.
  */
 function crw_shortcode_handler( $atts, $content = null ) {
+    if( function_exists( 'is_gutenberg_page' ) && is_gutenberg_page() ) return;
+
     $filtered_atts = shortcode_atts( array(
 		'mode' => 'build',
         'restricted' => 0,
