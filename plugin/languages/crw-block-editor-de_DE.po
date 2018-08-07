@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-04 20:44+0200\n"
-"PO-Revision-Date: 2018-08-05 01:33+0200\n"
+"POT-Creation-Date: 2018-08-07 14:32+0200\n"
+"PO-Revision-Date: 2018-08-07 14:32+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: German\n"
@@ -27,56 +27,70 @@ msgstr ""
 "X-Loco-Target-Locale: de_DE\n"
 "X-Generator: Loco - https://localise.biz/\n"
 
-#: plugin/crosswordsearch.php:417 plugin/js/block-editor.js:114
+#: plugin/crosswordsearch.php:434 plugin/js/block-editor.js:21
 msgid "Empty Crossword"
 msgstr "Leeres Kreuzworträtsel"
 
-#: plugin/crosswordsearch.php:418 plugin/js/block-editor.js:114
+#: plugin/crosswordsearch.php:435 plugin/js/block-editor.js:21
 msgid "First crossword"
 msgstr "Erstes Kreuzworträtsel"
 
-#: plugin/crosswordsearch.php:419 plugin/js/block-editor.js:116
+#: plugin/crosswordsearch.php:436 plugin/js/block-editor.js:21
 msgid "Choose from all"
 msgstr "Aus allen wählen"
 
-#: plugin/crosswordsearch.php:549 plugin/js/block-editor.js:227
+#: plugin/crosswordsearch.php:566 plugin/js/block-editor.js:253
 msgid "Crosswordsearch Shortcode"
 msgstr "Crosswordsearch Shortcode"
 
-#: plugin/crosswordsearch.php:2258 plugin/wizzard.php:17
-#: plugin/js/block-editor.js:173
+#: plugin/crosswordsearch.php:610 plugin/js/block-editor.js:161
+msgid "The shortcode usage is faulty:"
+msgstr "Die Shortcode-Verwendung ist fehlerhaft:"
+
+#: plugin/crosswordsearch.php:642 plugin/js/block-editor.js:170
+#, php-format
+msgid "There is no crossword in project %1$s."
+msgstr "In Projekt %1$s gibt es keine Rätsel."
+
+#: plugin/crosswordsearch.php:2280 plugin/wizzard.php:17
+#: plugin/js/block-editor.js:182
 msgid "Project"
 msgstr "Projekt"
 
-#: plugin/wizzard.php:6 plugin/js/block-editor.js:134
+#: plugin/wizzard.php:6 plugin/js/block-editor.js:117
 msgid "Waiting for data..."
 msgstr "Warte auf Daten..."
 
-#: plugin/wizzard.php:7 plugin/js/block-editor.js:140
+#: plugin/wizzard.php:7 plugin/js/block-editor.js:123
 msgid "No projects found."
 msgstr "Keine Projekte gefunden"
 
-#: plugin/wizzard.php:11 plugin/js/block-editor.js:159
+#: plugin/wizzard.php:11 plugin/js/block-editor.js:166
 msgid "Mode"
 msgstr "Modus"
 
-#: plugin/wizzard.php:12 plugin/js/block-editor.js:161
+#: plugin/wizzard.php:12 plugin/js/block-editor.js:19
 msgid "Design crosswords"
 msgstr "Kreuzworträtsel entwerfen"
 
-#: plugin/wizzard.php:13 plugin/js/block-editor.js:161
+#: plugin/wizzard.php:13 plugin/js/block-editor.js:19
 msgid "Solve crosswords"
 msgstr "Kreuzworträtsel lösen"
 
-#: plugin/wizzard.php:22 plugin/js/block-editor.js:182
+#: plugin/wizzard.php:14 plugin/wizzard.php:19 plugin/wizzard.php:26
+#: plugin/js/block-editor.js:29 plugin/js/block-editor.js:170
+msgid "Select something."
+msgstr "Wähle etwas aus."
+
+#: plugin/wizzard.php:22 plugin/js/block-editor.js:192
 msgid "Crossword"
 msgstr "Kreuzworträtsel"
 
-#: plugin/wizzard.php:24 plugin/js/block-editor.js:183
+#: plugin/wizzard.php:24 plugin/js/block-editor.js:195
 msgid "Select one or let the user choose from all crosswords."
 msgstr "Wähle eines aus oder lass den Benutzer aus allen wählen"
 
-#: plugin/wizzard.php:25 plugin/js/block-editor.js:183
+#: plugin/wizzard.php:25 plugin/js/block-editor.js:195
 msgid ""
 "Preselect the crossword initially displayed. All crosswords remain "
 "selectable."
@@ -84,52 +98,52 @@ msgstr ""
 "Wähle das Kreuzworträtsel, das anfangs angezeigt wird. Alle Rätsel bleiben "
 "auswählbar."
 
-#: plugin/wizzard.php:29 plugin/js/block-editor.js:198
+#: plugin/wizzard.php:29 plugin/js/block-editor.js:213
 msgid "Save opportunities"
 msgstr "Speichermöglichkeiten"
 
-#: plugin/wizzard.php:30 plugin/js/block-editor.js:199
+#: plugin/wizzard.php:30 plugin/js/block-editor.js:214
 msgid "Restricted"
 msgstr "Eingeschränkt"
 
-#: plugin/wizzard.php:31 plugin/js/block-editor.js:200
+#: plugin/wizzard.php:31 plugin/js/block-editor.js:215
 msgid "Uploads by restricted users must be reviewed."
 msgstr ""
 "Von eingeschränkten Bearbeitern gespeicherte Rätsel müssen freigegeben "
 "werden."
 
-#: plugin/wizzard.php:34 plugin/js/block-editor.js:31
+#: plugin/wizzard.php:34 plugin/js/block-editor.js:223
 msgid "Display timer"
 msgstr "Stoppuhr anzeigen"
 
-#: plugin/wizzard.php:36 plugin/js/block-editor.js:12
+#: plugin/wizzard.php:36 plugin/js/block-editor.js:23
 msgid "None"
 msgstr "Keine"
 
-#: plugin/wizzard.php:37 plugin/js/block-editor.js:13
+#: plugin/wizzard.php:37 plugin/js/block-editor.js:23
 msgid "Open-ended"
 msgstr "Beliebig lang"
 
-#: plugin/wizzard.php:38 plugin/js/block-editor.js:14
+#: plugin/wizzard.php:38 plugin/js/block-editor.js:23
 msgid "Countdown"
 msgstr "Herunterzählen"
 
-#: plugin/wizzard.php:40 plugin/js/block-editor.js:66
+#: plugin/wizzard.php:40 plugin/js/block-editor.js:234
 msgid "Allowed time"
 msgstr "Erlaubte Zeit"
 
-#: plugin/wizzard.php:45 plugin/js/block-editor.js:212
+#: plugin/wizzard.php:45 plugin/js/block-editor.js:238
 msgid "Submission"
 msgstr "Einsendung"
 
-#: plugin/wizzard.php:46 plugin/js/block-editor.js:213
+#: plugin/wizzard.php:46 plugin/js/block-editor.js:239
 msgid "Let users submit their result"
 msgstr "Lass Benutzer ihre Ergebnisse einsenden"
 
-#: plugin/js/block-editor.js:229
+#: plugin/js/block-editor.js:255
 msgid "Define how a Crosswordsearch block should be displayed"
 msgstr "Bestimme, wie ein Crosswordsearch-Block dargestellt werden soll"
 
-#: plugin/js/block-editor.js:284
+#: plugin/js/block-editor.js:325
 msgid "Shortcode"
 msgstr "Shortcode"
