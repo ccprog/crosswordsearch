@@ -4,11 +4,11 @@
 	var __ = wp.i18n.__;
 	var sprintf = wp.i18n.sprintf;
     var blocks = wp.blocks;
-    var InspectorControls = wp.editor.InspectorControls;
     var Components = wp.components;
     var withAPIData = wp.components.withAPIData;
     var withInstanceId = wp.compose.withInstanceId;
     var withSafeTimeout = wp.compose.withSafeTimeout;
+    var apiFetch = wp.apiFetch;
     var shortcode = wp.shortcode;
 
     wp.i18n.setLocaleData( crwBasics.locale, 'crosswordsearch' );
@@ -36,9 +36,9 @@
     ];
 
     var namesOptions = [
-        { value: 'new', label: '<' + __('Empty Crossword', 'crosswordsearch') + '>' },
-        { value: 'dft', label: '<' + __('First crossword', 'crosswordsearch') + '>' },
-        { value: 'no', label: '<' + __('Choose from all', 'crosswordsearch') + '>' }
+        { value: 'new', mode: 'build', label: '<' + __('Empty Crossword', 'crosswordsearch') + '>' },
+        { value: 'dft', mode: 'build', label: '<' + __('First crossword', 'crosswordsearch') + '>' },
+        { value: 'no', mode: 'solve', label: '<' + __('Choose from all', 'crosswordsearch') + '>' }
     ]; 
 
     var timerOptions = [
@@ -49,7 +49,7 @@
 
     function SelectWithErrors (props) {
         if (props.faulty) {
-            _.assign(props, {
+            props = _.assign({}, props, {
                 className: 'crw-control-error',
                 help: __('Select something.', 'crosswordsearch'),
                 value: '',
@@ -62,16 +62,16 @@
     var RangeControl = withInstanceId(({label, instanceId, setAttributes, timer}) => {
         return <Components.BaseControl
             label={ label}
-            id={ `inspector-range-control-${ instanceId }` }
-            className={ 'components-range-control crw-allowed-control' }
+            id={ `timer-range-control-${ instanceId }` }
         >
             <input
+                id={ `timer-range-control-${ instanceId }` }
                 className="components-range-control__number"
                 type="number"
                 aria-label={ label }
                 min="1"
                 disabled={!(timer > 0)}
-                value={timer}
+                value={typeof timer === 'number' ? timer : ''}
                 onChange={ ( event ) => {
                     setAttributes({ timer: Math.round(Number(event.target.value)) })
                 } }
@@ -104,12 +104,7 @@
     }
 
     function constructNames (attributes, projects) {
-        var options;
-        if (attributes.mode === 'build') {
-            options = _.filter(namesOptions, opt => opt.value !== 'no');
-        } else {
-            options = _.filter(namesOptions, opt => opt.value === 'no');
-        }
+        var options = _.filter(namesOptions, opt => opt.mode === attributes.mode);
         if (!attributes.project) return options;
         const project = _.find(projects, p => p.name === attributes.project);
         if (!project) return options;
@@ -120,19 +115,19 @@
         return options;
     }
 
-    function setInspectorControls (attributes, setAttributes, setTimeout, posts) {
-        if ( ! posts.data ) {
-            return <Components.Notice status="info" isDismissible="false">{
+    function DesignControls ({attributes, setAttributes, setTimeout, response}) {
+        if ( ! response.data ) {
+            return <Components.Notice status="info" isDismissible={false}>{
                 __('Waiting for data...', 'crosswordsearch')
             }</Components.Notice>;
-        } else if ( !posts.data.projects.length) {
-            return <Components.Notice status="error" isDismissible="false">{
+        } else if ( !response.data.projects.length) {
+            return <Components.Notice status="error" isDismissible={false}>{
                 __('No projects found.', 'crosswordsearch')
             }</Components.Notice>;
         }
 
         var faulty = {}, crosswordNames = [],
-            projects = posts.data.projects,
+            projects = response.data.projects,
             projectNames = projects.map(p => p.name);
 
         if ( !attributes.mode || !attributes.project ) {
@@ -140,32 +135,35 @@
                 mode: 'solve',
                 project: projectNames[0]
             }, attributes)), 0);
-        } else {
-            crosswordNames = constructNames(attributes, projects);
-
-            faulty.mode = _.findIndex(modeOptions, opt => opt.value === attributes.mode) < 0;
-            faulty.project = !_.includes(projectNames, attributes.project);
-            faulty.solve = attributes.mode === 'solve' && crosswordNames.length === 1;
-            faulty.name = !faulty.project && attributes.name.length &&
-                (_.findIndex(crosswordNames, obj => obj.value === attributes.name) < 0);
-            faulty.timer = attributes.timer !== undefined && !/^\d+$/.test(attributes.timer) ;
+            return null;
         }
+
+        crosswordNames = constructNames(attributes, projects);
+
+        faulty.mode = _.findIndex(modeOptions, opt => opt.value === attributes.mode) < 0;
+        faulty.project = !_.includes(projectNames, attributes.project);
+        faulty.solve = !faulty.project && attributes.mode === 'solve' && crosswordNames.length === 1;
+        faulty.name = !faulty.project && attributes.name && attributes.name.length &&
+            (_.findIndex(crosswordNames, obj => obj.value === attributes.name) < 0);
+        faulty.timer = attributes.timer !== undefined && !/^\d+$/.test(attributes.timer);
 
         var controls = [];
 
         if (_.filter(faulty, _.identity).length) {
             controls.push(
-                <Components.Notice status="error" isDismissible="false">{
+                <Components.Notice status="error" isDismissible={false}>{
                     __('The shortcode usage is faulty:', 'crosswordsearch')
                 }</Components.Notice>
             );
         }
 
-        controls.push(<Components.RadioControl
+        return <React.Fragment>
+            <Components.RadioControl
                 label={__('Mode', 'crosswordsearch')}
+                className="crw-mode-control"
                 selected={attributes.mode}
                 options={ modeOptions }
-                className={ faulty.mode ?  'crw-control-error' : undefined }
+                className={ faulty.mode || faulty.solve ?  'crw-control-error' : undefined }
                 help={
                     faulty.mode ?  __('Select something.', 'crosswordsearch') :
                     faulty.solve ? sprintf(__('There is no crossword in project %1$s.', 'crosswordsearch'), attributes.project) :
@@ -181,7 +179,7 @@
                     }
                     setAttributes(newAttrs);
                 } }
-            />,
+            />
             <SelectWithErrors
                 label={__('Project', 'crosswordsearch')}
                 value={projectNames.indexOf(attributes.project) < 0 ? null : attributes.project}
@@ -190,13 +188,13 @@
                     return {label: name, value: name};
                 }) }
                 onChange={(newValue) => setAttributes({ project: newValue })}
-            />,
+            />
             <SelectWithErrors
                 label={__('Crossword', 'crosswordsearch')}
                 value={ attributes.name === '' ? 'new' :
                     (attributes.name || (attributes.mode === 'build' ? 'dft' : 'no')) }
-                    faulty={ faulty.name }
-                help ={ attributes.name === 'build' ?
+                faulty={ faulty.name }
+                help ={ attributes.mode === 'build' ?
                     __('Preselect the crossword initially displayed. All crosswords remain selectable.', 'crosswordsearch') :
                     __('Select one or let the user choose from all crosswords.', 'crosswordsearch') 
                 }
@@ -212,45 +210,44 @@
                     setAttributes({ name:  newName })
                 } }
             />
-        );
-
-        if (attributes.mode === 'build') {
-            controls.push(<Components.CheckboxControl
-                heading={ __('Save opportunities', 'crosswordsearch') }
-                label={ __('Restricted', 'crosswordsearch') }
-                help={ __('Uploads by restricted users must be reviewed.', 'crosswordsearch') }
-                checked={attributes.restricted}
-                onChange={(newValue) => setAttributes({ restricted: newValue ? 1 : undefined })}
-            />)
-        } else {
-             controls.push(
-                <SelectWithErrors
-                    label={__('Display timer', 'crosswordsearch')}
-                    className="crw-timer-control"
-                    value={attributes.timer > 0 ?
-                        'backward' :
-                        attributes.timer === 0 ? 'forward' : 'none'}
-                    faulty={ faulty.timer }
-                    options={ timerOptions }
-                    onChange={( newValue ) => {
-                        setAttributes({ timer: _.find(timerOptions, obj => obj.value === newValue).number })
-                    }}
-                />,
-                <RangeControl
-                    label={__('Allowed time', 'crosswordsearch')}
-                    timer={attributes.timer}
-                    setAttributes={setAttributes}
-                />,
+            {attributes.mode === 'build' ? (
                 <Components.CheckboxControl
-                    heading={__('Submission', 'crosswordsearch')}
-                    label={__('Let users submit their result', 'crosswordsearch')}
-                    checked={attributes.submitting}
-                    disabled={typeof attributes.timer !== 'number'}
-                    onChange={(newValue) => setAttributes({ submitting: newValue ? 1 : undefined })}
+                    heading={ __('Save opportunities', 'crosswordsearch') }
+                    label={ __('Restricted', 'crosswordsearch') }
+                    help={ __('Uploads by restricted users must be reviewed.', 'crosswordsearch') }
+                    checked={attributes.restricted}
+                    onChange={(newValue) => setAttributes({ restricted: newValue ? 1 : undefined })}
                 />
-            );
+            ) : (
+                <div className="crw-timer-control">
+                    <SelectWithErrors
+                        label={__('Display timer', 'crosswordsearch')}
+                        
+                        value={attributes.timer > 0 ?
+                            'backward' :
+                            attributes.timer === 0 ? 'forward' : 'none'}
+                        faulty={ faulty.timer }
+                        options={ timerOptions }
+                        onChange={( newValue ) => {
+                            setAttributes({ timer: _.find(timerOptions, obj => obj.value === newValue).number })
+                        }}
+                    />
+                    <RangeControl
+                        label={__('Allowed time', 'crosswordsearch')}
+                        timer={attributes.timer}
+                        setAttributes={setAttributes}
+                    />
+                    <Components.CheckboxControl
+                        heading={__('Submission', 'crosswordsearch')}
+                        label={__('Let users submit their result', 'crosswordsearch')}
+                        checked={attributes.submitting}
+                        disabled={typeof attributes.timer !== 'number'}
+                        onChange={(newValue) => setAttributes({ submitting: newValue ? 1 : undefined })}
+                    />
+                </div>
+            )
         }
-        return controls;
+        </React.Fragment>
     }
 
     var attributeTypes = [
@@ -319,16 +316,18 @@
 
         edit: withAPIData( function() {
             return {
-                posts: '/crosswordsearch/v1/projects/public'
+                response: '/crosswordsearch/v1/projects/public'
             };
-        } )(withSafeTimeout( ( { attributes, setAttributes, setTimeout, posts } ) => {
-            return <div className="wp-block-shortcode wp-block-preformatted">
-                <label><Icon />{__( 'Shortcode', 'crosswordsearch' )}</label> 
-                <pre>{writeShortcode(attributes)}</pre>
-                <InspectorControls>{
-                    setInspectorControls(attributes, setAttributes, setTimeout, posts)
-                }</InspectorControls>
-            </div>
+        } )(withSafeTimeout( ( props ) => {
+            return <React.Fragment>
+                <div className="wp-block-shortcode wp-block-preformatted crw-preview-block">
+                    <label><Components.Dashicon icon="shortcode" />{__( 'Shortcode', 'crosswordsearch' )}</label> 
+                    <pre>{writeShortcode(props.attributes)}</pre>
+                </div>
+                <div className="crw-editor-block">{
+                    <DesignControls {...props} />
+                }</div>
+            </React.Fragment>
         } ) ),
 
         save: function( props ) {

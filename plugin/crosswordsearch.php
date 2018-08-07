@@ -356,12 +356,7 @@ function crw_enqueue_block_editor_assets () {
     wp_localize_script('crw-block-editor', 'crwBasics', array(
         'locale' => $translations
     ) );
-    wp_add_inline_style('wp-components',
-        '.crw-timer-control {margin-bottom:0.5em}
-        .crw-allowed-control .components-base-control__field {justify-content:start;align-items:baseline;}
-        .crw-allowed-control .components-base-control__field .components-base-control__label {width:auto;}
-        .crw-control-error .components-base-control__help {color:red}
-        ');
+    wp_enqueue_style('crw-block-editor', CRW_PLUGIN_URL . 'css/block-editor.css', array( 'wp-components' ) );
 }
 
 /**

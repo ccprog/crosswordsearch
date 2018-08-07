@@ -138,7 +138,8 @@ module.exports = function(grunt) {
       },
       main: {
         files: {
-          'plugin/css/crosswordsearch.css': ['src/css/crosswordsearch.sass']
+          'plugin/css/crosswordsearch.css': ['src/css/crosswordsearch.sass'],
+          'plugin/css/block-editor.css': ['src/css/block-editor.sass']
         }
       },
       rtl: {
