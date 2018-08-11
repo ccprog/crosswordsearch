@@ -112,9 +112,9 @@ module.exports = function(grunt) {
     },
     babel: {
       options: {
-        presets: ['env'],
+        presets: ['@babel/preset-env'],
         plugins: [
-          ["transform-react-jsx", {
+          ["@babel/plugin-transform-react-jsx", {
             "pragma": "el"
           }]
         ]
