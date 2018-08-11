@@ -98,34 +98,8 @@ module.exports = function(grunt) {
           { src: wzlist, dest: destdir + 'wizzard.min.js' }
         ]
       },
-      block: {
-        options: {
-          banner: '',
-          compress: {
-            drop_console: true
-          }
-        },
-        files: [
-          { src: destdir + 'block-editor.js', dest: destdir + 'block-editor.min.js' }
-        ]
-      }
     },
-    babel: {
-      options: {
-        presets: ['@babel/preset-env'],
-        plugins: [
-          ["@babel/plugin-transform-react-jsx", {
-            "pragma": "el"
-          }]
-        ]
-      },
-      dist: {
-          files: {
-              'plugin/js/block-editor.js': 'src/js/block-editor.js'
-          }
-      }
-  },
-  sass: {
+    sass: {
       options: {
         outputStyle: 'compressed',
         importer: function (url, prev, done) {
@@ -272,7 +246,6 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-babel');
   grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-pot');
@@ -280,6 +253,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.task.loadTasks('tasks/');
 
-  grunt.registerTask('msgupdate', ['babel', 'pot', 'msgmerge']);
+  grunt.registerTask('msgupdate', ['block', 'pot', 'msgmerge']);
   grunt.registerTask('default', ['jshint:main', 'uglify', 'writel10n', 'sass', 'msgupdate']);
 };
