@@ -1,17 +1,16 @@
+/* jshint ignore:start */
 ( function( wp, _ ) {
-	var el = wp.element.createElement;
-    var RawHTML = wp.element.RawHTML;
-	var __ = wp.i18n.__;
-	var sprintf = wp.i18n.sprintf;
-    var blocks = wp.blocks;
-    var Components = wp.components;
-    var withAPIData = wp.components.withAPIData;
-    var withInstanceId = wp.compose.withInstanceId;
-    var withSafeTimeout = wp.compose.withSafeTimeout;
-    var apiFetch = wp.apiFetch;
-    var shortcode = wp.shortcode;
+	const el = wp.element.createElement;
+    const RawHTML = wp.element.RawHTML;
+	const { __, sprintf, setLocaleData} = wp.i18n;
+    const { registerBlockType, rawHandler } = wp.blocks;
+    const Components = wp.components;
+    const { withInstanceId, withSafeTimeout } = wp.compose;
+    const { registerStore, withSelect, select } = wp.data;
+    const apiFetch = wp.apiFetch;
+    const shortcode = wp.shortcode;
 
-    wp.i18n.setLocaleData( crwBasics.locale, 'crosswordsearch' );
+    setLocaleData( crwBasics.locale, 'crosswordsearch' );
 
     function Icon () {
         return <svg 
@@ -30,22 +29,102 @@
         </svg>
     }
 
-    var modeOptions = [
+    const modeOptions = [
         { value: 'build', label: __('Design crosswords', 'crosswordsearch') },
         { value: 'solve', label: __('Solve crosswords', 'crosswordsearch') }
     ];
 
-    var namesOptions = [
-        { value: 'new', mode: 'build', label: '<' + __('Empty Crossword', 'crosswordsearch') + '>' },
+    const namesOptions = [
+        { value: 'new', mode: 'build', attr: '', label: '<' + __('Empty Crossword', 'crosswordsearch') + '>' },
         { value: 'dft', mode: 'build', label: '<' + __('First crossword', 'crosswordsearch') + '>' },
         { value: 'no', mode: 'solve', label: '<' + __('Choose from all', 'crosswordsearch') + '>' }
     ]; 
 
-    var timerOptions = [
+    const timerOptions = [
         { value: 'none', number: undefined, label: __('None', 'crosswordsearch') },
         { value: 'forward', number: 0, label: __('Open-ended', 'crosswordsearch') },
         { value: 'backward', number: 60, label: __('Countdown', 'crosswordsearch') }
     ];
+
+    const reducerKey = 'crosswordsearch/data',
+        path = '/crosswordsearch/v1/projects/public';
+
+    function setProjects (projects) {
+        return {
+            type: 'projects',
+            projects
+        }
+    }
+
+    function getNamePreselects (mode) {
+        return _.filter(namesOptions, opt => opt.mode === mode);
+    }
+
+    const stateProto = {
+        getProject (name) {
+            return _.find(this.projects, p => p.name === name);
+        },
+
+        getProjectNames () {
+            return this.projects.map(p => p.name);
+        },
+
+        getNameOptions (attrs) {
+            const options = getNamePreselects(attrs.mode);
+
+            const project = this.getProject(attrs.project);
+            if (project) {
+                project.crosswords.forEach(name => {
+                    options.push({ value: name, label: name });
+                });
+            }
+
+            return options;
+        },
+
+        isFaulty ( attrs ) {
+            const faulty = {
+                mode: _.findIndex(modeOptions, opt => opt.value === attrs.mode) < 0,
+                project: !_.includes(this.getProjectNames(), attrs.project),
+                timer: attrs.timer !== undefined && !/^\d+$/.test(attrs.timer)
+            };
+
+            if ( !faulty.project ) {
+                const crosswordNames = this.getProject(attrs.project).crosswords;
+                faulty.solve = attrs.mode === 'solve' && !crosswordNames.length;
+                faulty.name = attrs.name && crosswordNames.indexOf(attrs.name) < 0;
+            }
+
+            return _.assign({
+                shortcode: _.filter(faulty).length > 0
+            }, _.pickBy(faulty));
+        }
+
+    }
+
+    registerStore( reducerKey, {
+        reducer( state, action ) {
+            return {
+                projects: action.projects || []
+            };
+        },
+
+        actions: { setProjects },
+
+        selectors: {
+            getPublicList: (state) => {
+                return _.create(stateProto, state);
+            },
+
+            isResolvingList: () => select( 'core/data' ).isResolving(reducerKey, 'getPublicList' )
+        },
+
+        resolvers: {
+            getPublicList: function () {
+                return apiFetch( { path } ).then( data => setProjects(data.projects) );
+			}
+        }
+    } );
 
     function SelectWithErrors (props) {
         if (props.faulty) {
@@ -59,7 +138,7 @@
         return <Components.SelectControl {...props} />
     }
 
-    var RangeControl = withInstanceId(({label, instanceId, setAttributes, timer}) => {
+    const RangeControl = withInstanceId(({label, instanceId, setAttributes, timer}) => {
         return <Components.BaseControl
             label={ label}
             id={ `timer-range-control-${ instanceId }` }
@@ -79,85 +158,41 @@
         </Components.BaseControl>
     })
 
-    function writeShortcode (attrs) {
-        var code = {
-            tag: 'crosswordsearch',
-            type: 'single',
-            attrs: {
-                mode: attrs.mode,
-                project: attrs.project
-            }
-        };
+    function DesignControls ({
+        attributes, 
+        setAttributes, 
+        setTimeout, 
+        resolving,
+        list
+    }) {
+        const projectNames = list.getProjectNames()
 
-        if (attrs.name !== undefined) code.attrs.name = attrs.name;
-
-        if (attrs.mode === 'build' && attrs.restricted) {
-            code.attrs.restricted = '1';
-        } else if (attrs.mode === 'solve' && typeof attrs.timer === 'number') {
-            code.attrs.timer = attrs.timer;
-            if (attrs.submitting) {
-                code.attrs.submitting = 1;
-            }
-        }
-
-        return shortcode.string(code);
-    }
-
-    function constructNames (attributes, projects) {
-        var options = _.filter(namesOptions, opt => opt.mode === attributes.mode);
-        if (!attributes.project) return options;
-        const project = _.find(projects, p => p.name === attributes.project);
-        if (!project) return options;
-        project.crosswords.forEach(name => {
-            options.push({ value: name, label: name });
-        });
-
-        return options;
-    }
-
-    function DesignControls ({attributes, setAttributes, setTimeout, response}) {
-        if ( ! response.data ) {
+        if ( resolving ) {
             return <Components.Notice status="info" isDismissible={false}>{
                 __('Waiting for data...', 'crosswordsearch')
             }</Components.Notice>;
-        } else if ( !response.data.projects.length) {
+        } else if ( !projectNames.length) {
             return <Components.Notice status="error" isDismissible={false}>{
                 __('No projects found.', 'crosswordsearch')
             }</Components.Notice>;
         }
 
-        var faulty = {}, crosswordNames = [],
-            projects = response.data.projects,
-            projectNames = projects.map(p => p.name);
-
         if ( !attributes.mode || !attributes.project ) {
-            setTimeout(() => setAttributes(_.assign({
+            setTimeout(() => setAttributes({ //try again
                 mode: 'solve',
                 project: projectNames[0]
-            }, attributes)), 0);
+            }), 0);
             return null;
         }
 
-        crosswordNames = constructNames(attributes, projects);
+        const faulty = list.isFaulty(attributes);
 
-        faulty.mode = _.findIndex(modeOptions, opt => opt.value === attributes.mode) < 0;
-        faulty.project = !_.includes(projectNames, attributes.project);
-        faulty.solve = !faulty.project && attributes.mode === 'solve' && crosswordNames.length === 1;
-        faulty.name = !faulty.project && attributes.name && attributes.name.length &&
-            (_.findIndex(crosswordNames, obj => obj.value === attributes.name) < 0);
-        faulty.timer = attributes.timer !== undefined && !/^\d+$/.test(attributes.timer);
-
-        var controls = [];
-
-        if (_.filter(faulty, _.identity).length) {
-            controls.push(
+        return <React.Fragment>
+            { faulty.shortcode &&
                 <Components.Notice status="error" isDismissible={false}>{
                     __('The shortcode usage is faulty:', 'crosswordsearch')
                 }</Components.Notice>
-            );
-        }
-
-        return <React.Fragment>
+            }
             <Components.RadioControl
                 label={__('Mode', 'crosswordsearch')}
                 className="crw-mode-control"
@@ -170,12 +205,12 @@
                     undefined
                 }
                 onChange={ (newValue) => {
-                    var newAttrs = { mode: newValue };
+                    const newAttrs = { mode: newValue };
                     if (newValue === 'build') {
                         newAttrs.timer = undefined;
                         newAttrs.submitting = undefined;
-                    } else {
-                        if (attributes.name === '') newAttrs.name = undefined;
+                    } else if (attributes.name === '') {
+                        newAttrs.name = undefined;
                     }
                     setAttributes(newAttrs);
                 } }
@@ -198,16 +233,11 @@
                     __('Preselect the crossword initially displayed. All crosswords remain selectable.', 'crosswordsearch') :
                     __('Select one or let the user choose from all crosswords.', 'crosswordsearch') 
                 }
-                options={crosswordNames}
+                options={ list.getNameOptions(attributes) }
                 onChange={ (newValue) => {
-                    var newName,
-                        option = _.find(namesOptions, opt => opt.value === newValue);
-                    if (!option) {
-                        newName = newValue;
-                    } else if (option.value === 'new') {
-                        newName = '';
-                    }
-                    setAttributes({ name:  newName })
+                    const preselects = getNamePreselects(attributes.mode);
+                    const option = _.find(preselects, opt => opt.value === newValue);
+                    return setAttributes({ name:  option ? option.attr : newValue });
                 } }
             />
             {attributes.mode === 'build' ? (
@@ -250,7 +280,7 @@
         </React.Fragment>
     }
 
-    var attributeTypes = [
+    const attributeTypes = [
         { name: 'mode', type: 'string', importType: 'string'},
         { name: 'project', type: 'string', importType: 'string'},
         { name: 'name', type: 'string', importType: 'string'},
@@ -259,7 +289,31 @@
         { name: 'submitting', type: 'number', importType: 'number', coerce: true},
     ];
 
-    blocks.registerBlockType( 'crw-block-editor/shortcode', {
+    function writeShortcode (attrs) {
+        const code = {
+            tag: 'crosswordsearch',
+            type: 'single',
+            attrs: {
+                mode: attrs.mode,
+                project: attrs.project
+            }
+        };
+
+        if (attrs.name !== undefined) code.attrs.name = attrs.name;
+
+        if (attrs.mode === 'build' && attrs.restricted) {
+            code.attrs.restricted = '1';
+        } else if (attrs.mode === 'solve' && typeof attrs.timer === 'number') {
+            code.attrs.timer = attrs.timer;
+            if (attrs.submitting) {
+                code.attrs.submitting = 1;
+            }
+        }
+
+        return shortcode.string(code);
+    }
+
+    registerBlockType( 'crw-block-editor/shortcode', {
         title: __( 'Crosswordsearch Shortcode', 'crosswordsearch' ),
 
         description: __( 'Define how a Crosswordsearch block should be displayed', 'crosswordsearch' ),
@@ -298,7 +352,7 @@
                         return re.exec(text);
                     },
                     transform: ( {text} ) => {
-                        return blocks.rawHandler({
+                        return rawHandler({
                             HTML: '<p>' + text + '</p>',
                             mode: 'BLOCKS'
                         });
@@ -314,11 +368,14 @@
             html: false
         },
 
-        edit: withAPIData( function() {
+        edit: withSelect( ( select, {attributes} ) => {
+            const selectors = select(reducerKey);
             return {
-                response: '/crosswordsearch/v1/projects/public'
+                list: selectors.getPublicList(),
+                resolving: selectors.isResolvingList()
             };
         } )(withSafeTimeout( ( props ) => {
+            //TODO: insert a nux.DotTip in the preformatted block
             return <React.Fragment>
                 <div className="wp-block-shortcode wp-block-preformatted crw-preview-block">
                     <label><Components.Dashicon icon="shortcode" />{__( 'Shortcode', 'crosswordsearch' )}</label> 
