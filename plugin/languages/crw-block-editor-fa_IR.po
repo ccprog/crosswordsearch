@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-07 14:32+0200\n"
-"PO-Revision-Date: 2018-08-07 14:32+0200\n"
+"POT-Creation-Date: 2018-08-11 22:50+0200\n"
+"PO-Revision-Date: 2018-08-11 22:50+0200\n"
 "Last-Translator: مرتضی نجاتی <mortazanejatijeze56@gmail.com>\n"
 "Language-Team: Persian\n"
 "Language: fa-IR\n"
@@ -22,70 +22,70 @@ msgstr ""
 "X-Loco-Target-Locale: fa_IR\n"
 "X-Generator: Loco - https://localise.biz/\n"
 
-#: plugin/crosswordsearch.php:434 plugin/js/block-editor.js:21
+#: plugin/crosswordsearch.php:431 plugin/js/block-editor.js:68
 msgid "Empty Crossword"
 msgstr "جدول خالی"
 
-#: plugin/crosswordsearch.php:435 plugin/js/block-editor.js:21
+#: plugin/crosswordsearch.php:432 plugin/js/block-editor.js:72
 msgid "First crossword"
 msgstr "نخستین جدول"
 
-#: plugin/crosswordsearch.php:436 plugin/js/block-editor.js:21
+#: plugin/crosswordsearch.php:433 plugin/js/block-editor.js:76
 msgid "Choose from all"
 msgstr "انتخاب برای همه"
 
-#: plugin/crosswordsearch.php:566 plugin/js/block-editor.js:253
+#: plugin/crosswordsearch.php:563 plugin/js/block-editor.js:370
 msgid "Crosswordsearch Shortcode"
 msgstr "کدکوتاه جدول"
 
-#: plugin/crosswordsearch.php:610 plugin/js/block-editor.js:161
+#: plugin/crosswordsearch.php:607 plugin/js/block-editor.js:234
 msgid "The shortcode usage is faulty:"
 msgstr "کدکوتاه اشتباه است:"
 
-#: plugin/crosswordsearch.php:642 plugin/js/block-editor.js:170
+#: plugin/crosswordsearch.php:639 plugin/js/block-editor.js:240
 #, php-format
 msgid "There is no crossword in project %1$s."
 msgstr "در پروژه هیچ جدولی نیست."
 
-#: plugin/crosswordsearch.php:2280 plugin/wizzard.php:17
-#: plugin/js/block-editor.js:182
+#: plugin/crosswordsearch.php:2279 plugin/wizzard.php:17
+#: plugin/js/block-editor.js:253
 msgid "Project"
 msgstr "پروژه‌‌ها "
 
-#: plugin/wizzard.php:6 plugin/js/block-editor.js:117
+#: plugin/wizzard.php:6 plugin/js/block-editor.js:214
 msgid "Waiting for data..."
 msgstr "در انتظار اطلاعات..."
 
-#: plugin/wizzard.php:7 plugin/js/block-editor.js:123
+#: plugin/wizzard.php:7 plugin/js/block-editor.js:219
 msgid "No projects found."
 msgstr "پروژه‌ای یافت نشد"
 
-#: plugin/wizzard.php:11 plugin/js/block-editor.js:166
+#: plugin/wizzard.php:11 plugin/js/block-editor.js:235
 msgid "Mode"
 msgstr "حالت"
 
-#: plugin/wizzard.php:12 plugin/js/block-editor.js:19
+#: plugin/wizzard.php:12 plugin/js/block-editor.js:59
 msgid "Design crosswords"
 msgstr "طراحی جدول"
 
-#: plugin/wizzard.php:13 plugin/js/block-editor.js:19
+#: plugin/wizzard.php:13 plugin/js/block-editor.js:62
 msgid "Solve crosswords"
 msgstr "جدول را حل کنید"
 
 #: plugin/wizzard.php:14 plugin/wizzard.php:19 plugin/wizzard.php:26
-#: plugin/js/block-editor.js:29 plugin/js/block-editor.js:170
+#: plugin/js/block-editor.js:176 plugin/js/block-editor.js:240
 msgid "Select something."
 msgstr "چیزی را انتخاب کنید"
 
-#: plugin/wizzard.php:22 plugin/js/block-editor.js:192
+#: plugin/wizzard.php:22 plugin/js/block-editor.js:268
 msgid "Crossword"
 msgstr "جدول "
 
-#: plugin/wizzard.php:24 plugin/js/block-editor.js:195
+#: plugin/wizzard.php:24 plugin/js/block-editor.js:271
 msgid "Select one or let the user choose from all crosswords."
 msgstr "انتخاب کنید یا به کاربر اجازه دهید تا انتخاب کند."
 
-#: plugin/wizzard.php:25 plugin/js/block-editor.js:195
+#: plugin/wizzard.php:25 plugin/js/block-editor.js:271
 msgid ""
 "Preselect the crossword initially displayed. All crosswords remain "
 "selectable."
@@ -93,50 +93,67 @@ msgstr ""
 "برگه جدول کلمات متقاطع در ابتدا نمایش داده شود. جداول باقی مانده قابل انتخاب "
 "باشند."
 
-#: plugin/wizzard.php:29 plugin/js/block-editor.js:213
+#: plugin/wizzard.php:29 plugin/js/block-editor.js:283
 msgid "Save opportunities"
 msgstr "ذخیره فرصت‌ها"
 
-#: plugin/wizzard.php:30 plugin/js/block-editor.js:214
+#: plugin/wizzard.php:30 plugin/js/block-editor.js:284
 msgid "Restricted"
 msgstr "محافظت شده "
 
-#: plugin/wizzard.php:31 plugin/js/block-editor.js:215
+#: plugin/wizzard.php:31 plugin/js/block-editor.js:285
 msgid "Uploads by restricted users must be reviewed."
 msgstr "بارگزاری‌های کاربران محدود شده باید بازبینی شوند."
 
-#: plugin/wizzard.php:34 plugin/js/block-editor.js:223
+#: plugin/wizzard.php:34 plugin/js/block-editor.js:295
 msgid "Display timer"
 msgstr "نمایش زمان سنج"
 
-#: plugin/wizzard.php:36 plugin/js/block-editor.js:23
+#: plugin/wizzard.php:36 plugin/js/block-editor.js:81
 msgid "None"
 msgstr "هیچ"
 
-#: plugin/wizzard.php:37 plugin/js/block-editor.js:23
+#: plugin/wizzard.php:37 plugin/js/block-editor.js:85
 msgid "Open-ended"
 msgstr "زمان باز بودن به پایان رسید."
 
-#: plugin/wizzard.php:38 plugin/js/block-editor.js:23
+#: plugin/wizzard.php:38 plugin/js/block-editor.js:89
 msgid "Countdown"
 msgstr "شمارنده"
 
-#: plugin/wizzard.php:40 plugin/js/block-editor.js:234
+#: plugin/wizzard.php:40 plugin/js/block-editor.js:307
 msgid "Allowed time"
 msgstr "زمان اجازه داده شده"
 
-#: plugin/wizzard.php:45 plugin/js/block-editor.js:238
+#: plugin/wizzard.php:45 plugin/js/block-editor.js:311
 msgid "Submission"
 msgstr "ارسال"
 
-#: plugin/wizzard.php:46 plugin/js/block-editor.js:239
+#: plugin/wizzard.php:46 plugin/js/block-editor.js:312
 msgid "Let users submit their result"
 msgstr "اجازه دهید کاربران نتیجه را ارسال کنند."
 
-#: plugin/js/block-editor.js:255
+#: plugin/js/block-editor.js:371
 msgid "Define how a Crosswordsearch block should be displayed"
 msgstr ""
 
-#: plugin/js/block-editor.js:325
+#: plugin/js/block-editor.js:430
+#, fuzzy
+msgid "Crosswordsearch has no visual preview."
+msgstr "مدیریت جدول ( بازبینی شده)"
+
+#: plugin/js/block-editor.js:430
+msgid ""
+"Its representation as a \"shortcode\" is, for now, a way to ease the "
+"transition from the classic editor to Gutenberg."
+msgstr ""
+
+#: plugin/js/block-editor.js:430
+msgid ""
+"Use the \"Preview\" button at the top to see the complete post including the "
+"rendered crossword block."
+msgstr ""
+
+#: plugin/js/block-editor.js:432
 msgid "Shortcode"
 msgstr "کد کوتاه"

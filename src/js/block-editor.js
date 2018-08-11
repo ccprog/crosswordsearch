@@ -4,6 +4,7 @@ const RawHTML = wp.element.RawHTML;
 const { __, sprintf, setLocaleData} = wp.i18n;
 const { registerBlockType, rawHandler } = wp.blocks;
 const Components = wp.components;
+const DotTip = wp.nux.DotTip;
 const { withInstanceId, withSafeTimeout } = wp.compose;
 const { registerStore, withSelect, select } = wp.data;
 const apiFetch = wp.apiFetch;
@@ -177,7 +178,7 @@ function DesignControls ({
     }
 
     if ( !attributes.mode || !attributes.project ) {
-        setTimeout(() => setAttributes({ //try again
+        setTimeout(() => setAttributes({
             mode: 'solve',
             project: projectNames[0]
         }), 0);
@@ -374,9 +375,13 @@ registerBlockType( 'crw-block-editor/shortcode', {
             resolving: selectors.isResolvingList()
         };
     } )(withSafeTimeout( ( props ) => {
-        //TODO: insert a nux.DotTip in the preformatted block
         return <React.Fragment>
             <div className="wp-block-shortcode wp-block-preformatted crw-preview-block">
+                <DotTip id="crw/understand-shortcode">
+                    {__('Crosswordsearch has no visual preview.', 'crosswordsearch') + ' '}
+                    {__('Its representation as a "shortcode" is, for now, a way to ease the transition from the classic editor to Gutenberg.', 'crosswordsearch') + ' '}
+                    {__('Use the "Preview" button at the top to see the complete post including the rendered crossword block.', 'crosswordsearch')}
+                </DotTip>
                 <label><Components.Dashicon icon="shortcode" />{__( 'Shortcode', 'crosswordsearch' )}</label> 
                 <pre>{writeShortcode(props.attributes)}</pre>
             </div>

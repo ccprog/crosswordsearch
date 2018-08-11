@@ -18,6 +18,7 @@
     var _wp$i18n = wp.i18n, __ = _wp$i18n.__, sprintf = _wp$i18n.sprintf, setLocaleData = _wp$i18n.setLocaleData;
     var _wp$blocks = wp.blocks, registerBlockType = _wp$blocks.registerBlockType, rawHandler = _wp$blocks.rawHandler;
     var Components = wp.components;
+    var DotTip = wp.nux.DotTip;
     var _wp$compose = wp.compose, withInstanceId = _wp$compose.withInstanceId, withSafeTimeout = _wp$compose.withSafeTimeout;
     var _wp$data = wp.data, registerStore = _wp$data.registerStore, withSelect = _wp$data.withSelect, select = _wp$data.select;
     var apiFetch = wp.apiFetch;
@@ -424,7 +425,9 @@
         })(withSafeTimeout(function(props) {
             return el(React.Fragment, null, el("div", {
                 className: "wp-block-shortcode wp-block-preformatted crw-preview-block"
-            }, el("label", null, el(Components.Dashicon, {
+            }, el(DotTip, {
+                id: "crw/understand-shortcode"
+            }, __("Crosswordsearch has no visual preview.", "crosswordsearch") + " ", __('Its representation as a "shortcode" is, for now, a way to ease the transition from the classic editor to Gutenberg.', "crosswordsearch") + " ", __('Use the "Preview" button at the top to see the complete post including the rendered crossword block.', "crosswordsearch")), el("label", null, el(Components.Dashicon, {
                 icon: "shortcode"
             }), __("Shortcode", "crosswordsearch")), el("pre", null, writeShortcode(props.attributes))), el("div", {
                 className: "crw-editor-block"
