@@ -34,7 +34,8 @@ Children's Media Network.
 * Default and maximum difficulty levels are set for projects.
 * Setting up projects and editors is reserved to the blog administrators.
 
-Authors can add a shortcode tag to any page or post to add a Crossword game to that page.
+Authors can add a block (WP version >= 5.0) or a shortcode tag (classical editor or older
+WP version) to any page or post to add a Crossword game to that page.
 
 For informations on usage and configuration,
 [visit the Wiki](https://github.com/ccprog/crosswordsearch/wiki).
@@ -128,7 +129,7 @@ saved to the database, albeit at this point this information is not used anywher
 1. The app in **solve** mode
 2. The app in **build** mode
 3. The *save* dialogue
-4. The shortcode wizzard
+4. The block preview
 5. The *Assign projects and editors* tab
 
 == Changelog ==

@@ -15,7 +15,8 @@ Only releases will be in a consistent state. Latest: [![GitHub version](https://
 Crosswordsearch is compatible with Worpress 3.6 and above. It requires PHP 5.3 or above and a
 MySQL DBMS that supports InnoDB tables.
 
-All modern browsers as well as Internet Explorer 8 and newer are supported.
+All modern browsers as well as Internet Explorer 8 and newer are supported. The Gutenberg
+editor interface requires current browsers, as does Gutenberg itself.
 
 ### Installation in Wordpress
 
@@ -74,6 +75,8 @@ The following tasks are available for the development process:
   `plugin/languages/crosswordsearch.pot` template.
 + `grunt msgmerge` will update all `.po` files in `plugin/languages/` to reflect
   `plugin/languages/crosswordsearch.pot`.
-+ `grunt msgupdate` executes `pot` and `msgmerge` together.
++ `grunt block` compiles the `block-editor.js` from JSX to es2015-compatible Javascript.
++ `grunt msgupdate` executes `pot` and `msgmerge` together and splits out the strings needed for
+  the `block-editor.js` frontend file.
 + `grunt` executes `jshint:main`, `uglify`, `writel10n`, `cssmin` and `msgupdate` together.
 
