@@ -29,10 +29,7 @@
             "aria-hidden": "true",
             role: "img",
             focusable: "false",
-            viewBox: "0 0 256 256",
-            height: "20",
-            width: "20",
-            className: "dashicon",
+            viewBox: "-16 -16 288 288",
             style: {
                 fill: "none",
                 strokeWidth: 16
@@ -423,6 +420,8 @@
                 resolving: selectors.isResolvingList()
             };
         })(withSafeTimeout(function(props) {
+            var classnames = "crw-editor-block";
+            if (props.isSelected) classnames += " crw-editor-selected";
             return el(React.Fragment, null, el("div", {
                 className: "wp-block-shortcode wp-block-preformatted crw-preview-block"
             }, el(DotTip, {
@@ -430,7 +429,7 @@
             }, __("Crosswordsearch has no visual preview.", "crosswordsearch") + " ", __('Its representation as a "shortcode" is, for now, a way to ease the transition from the classic editor to Gutenberg.', "crosswordsearch") + " ", __('Use the "Preview" button at the top to see the complete post including the rendered crossword block.', "crosswordsearch")), el("label", null, el(Components.Dashicon, {
                 icon: "shortcode"
             }), __("Shortcode", "crosswordsearch")), el("pre", null, writeShortcode(props.attributes))), el("div", {
-                className: "crw-editor-block"
+                className: classnames
             }, el(DesignControls, props)));
         })),
         save: function save(props) {

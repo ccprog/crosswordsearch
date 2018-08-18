@@ -2,7 +2,14 @@
 
     &, label
         align-items: baseline
-    
+        cursor: inherit
+
+    label
+        -moz-user-select: none
+        -webkit-user-select: none
+        -ms-user-select: none
+        user-select: none
+
     .dashicon
         align-self: center
 
@@ -13,23 +20,30 @@
 .crw-editor-block
     display: flex
     flex-direction: column
-    padding: 1em
-    margin-top: 1em
+    padding: 0 1em
     width: 100%
+    max-height: 0
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif
     font-size: 13px
     background: #f8f9f9
+    overflow: hidden
+    transition-property: max-height, padding
+    transition-duration: 0.5s
+
+    &.crw-editor-selected
+        max-height: 30em
+        padding: 1em
 
     & > *
         margin-bottom: 1em
         
     & > :last-child
-        margin-right: 0
+        margin-bottom: 0
 
-    .notice
+    .components-notice
         margin: 0 0 0.5em
 
-    .notice p, .components-base-control__help
+    .components-notice p, .components-base-control__help
         font-family: inherit
         font-size: inherit
         line-height: inherit

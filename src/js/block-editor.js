@@ -17,10 +17,7 @@ function Icon () {
         aria-hidden="true"
         role="img"
         focusable="false"  
-        viewBox="0 0 256 256"
-        height="20"
-        width="20"
-        className="dashicon"
+        viewBox="-16 -16 288 288"
         style={{fill:'none',strokeWidth:16}}
     >
         <path d="M 44,76 A 32,32 0 0 1 44,12 H 212 A 32,32 0 0 1 212,76 Z" style={{stroke:'#0000dd'}} />
@@ -375,6 +372,8 @@ registerBlockType( 'crw-block-editor/shortcode', {
             resolving: selectors.isResolvingList()
         };
     } )(withSafeTimeout( ( props ) => {
+        let classnames = 'crw-editor-block';
+        if (props.isSelected) classnames += ' crw-editor-selected';
         return <React.Fragment>
             <div className="wp-block-shortcode wp-block-preformatted crw-preview-block">
                 <DotTip id="crw/understand-shortcode">
@@ -385,7 +384,7 @@ registerBlockType( 'crw-block-editor/shortcode', {
                 <label><Components.Dashicon icon="shortcode" />{__( 'Shortcode', 'crosswordsearch' )}</label> 
                 <pre>{writeShortcode(props.attributes)}</pre>
             </div>
-            <div className="crw-editor-block">{
+            <div className={ classnames }>{
                 <DesignControls {...props} />
             }</div>
         </React.Fragment>
