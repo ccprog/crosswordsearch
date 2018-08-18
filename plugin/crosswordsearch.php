@@ -354,6 +354,8 @@ function crw_enqueue_block_editor_assets () {
     $translations = gutenberg_get_jed_locale_data( $domain );
     $translations['']['domain'] = 'crosswordsearch';
     wp_localize_script('crw-block-editor', 'crwBasics', array(
+        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+        'nonce' => wp_create_nonce( NONCE_REVIEW ),
         'locale' => $translations
     ) );
     wp_enqueue_style('crw-block-editor', CRW_PLUGIN_URL . 'css/block-editor.css', array( 'wp-components' ) );
@@ -1098,10 +1100,12 @@ function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
  *
  * @return void
  */
-function crw_compose_public_list () {
+function crw_send_public_list () {
     global $wpdb, $data_table_name, $editors_table_name;
 
     $user = wp_get_current_user();
+    crw_test_permission( 'review', $user );
+
     $list = $wpdb->get_results("
         SELECT et.project AS project, dt.name AS name
         FROM (SELECT project, name FROM $data_table_name WHERE NOT pending) AS dt
@@ -1123,38 +1127,10 @@ function crw_compose_public_list () {
         }
     } );
 
-    return array(
+    wp_send_json( array(
         'projects' => array_values( $public_list ),
         CRW_NONCE_NAME => wp_create_nonce( NONCE_REVIEW )
-    );
-}
-
-function crw_test_review_permission () {
-    $error = __('You do not have permission.', 'crosswordsearch');
-
-    if ( ! current_user_can( CRW_CAP_CONFIRMED ) ) {
-        crw_send_error($error, $debug);
-    }
-    // TODO: review if a nonce is still needed
- 
-    return true;
-}
-
-function crw_rest_public_list () {
-    register_rest_route( 'crosswordsearch/v1', '/projects/public', array(
-        'methods' => 'GET',
-        'callback' => 'crw_compose_public_list',
-        'permission_callback' => 'crw_test_review_permission'
     ) );
-}
-add_action( 'rest_api_init', 'crw_rest_public_list' );
-
-function crw_send_public_list () {
-    $user = wp_get_current_user();
-    crw_test_permission( 'review', $user );
-
-    $data = crw_compose_public_list();
-    wp_send_json( $data );
 }
 add_action( 'wp_ajax_get_crw_public_list', 'crw_send_public_list' );
 

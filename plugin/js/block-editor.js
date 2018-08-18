@@ -85,7 +85,7 @@
         number: 60,
         label: __("Countdown", "crosswordsearch")
     } ];
-    var reducerKey = "crosswordsearch/data", path = "/crosswordsearch/v1/projects/public";
+    var reducerKey = "crosswordsearch/data";
     function setProjects(projects) {
         return {
             type: "projects",
@@ -158,9 +158,15 @@
         },
         resolvers: {
             getPublicList: function getPublicList() {
+                var body = new FormData();
+                body.append("action", "get_crw_public_list");
+                body.append("_crwnonce", crwBasics.nonce);
                 return apiFetch({
-                    path: path
+                    url: crwBasics.ajaxUrl,
+                    method: "POST",
+                    body: body
                 }).then(function(data) {
+                    crwBasics.nonce = data.nonce;
                     return setProjects(data.projects);
                 });
             }

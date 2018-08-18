@@ -43,8 +43,7 @@ const timerOptions = [
     { value: 'backward', number: 60, label: __('Countdown', 'crosswordsearch') }
 ];
 
-const reducerKey = 'crosswordsearch/data',
-    path = '/crosswordsearch/v1/projects/public';
+const reducerKey = 'crosswordsearch/data';
 
 function setProjects (projects) {
     return {
@@ -118,7 +117,17 @@ registerStore( reducerKey, {
 
     resolvers: {
         getPublicList: function () {
-            return apiFetch( { path } ).then( data => setProjects(data.projects) );
+            const body = new FormData();
+            body.append('action', 'get_crw_public_list');
+            body.append('_crwnonce', crwBasics.nonce);
+            return apiFetch( {
+                url: crwBasics.ajaxUrl,
+                method: 'POST',
+                body
+            } ).then( data => {
+                crwBasics.nonce = data.nonce;
+                return setProjects(data.projects);
+            } );
         }
     }
 } );
