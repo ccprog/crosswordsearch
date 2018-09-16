@@ -1,19 +1,82 @@
-// prevent letter highlighting and catch angular setFocus events sending
-// them to <button> even when the button is hidden under marker images
-crwApp.directive('crwSetFocus', function() {
+crwApp.factory('containsNode', function () {
+    return function (sel, el) {
+        if (sel.containsNode) {
+            return sel.containsNode(el, true);
+        }
+        for (var node, i = 0; i < sel.rangeCount; i++) {
+            node = sel.getRangeAt(i).commonAncestorContainer;
+            if (node.parentNode === el || node.contains(el)) {
+                return true;
+            }
+        }
+        return false;
+    };
+});
+
+crwApp.directive('contenteditable', ['basics', 'containsNode', function (basics, containsNode) {
     return {
-        link: function(scope, element, attrs) {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ctrl) {
             element.on('mousemove', function (event) {
                 event.preventDefault();
             });
+            element.on('focus', function (event) {
+                window.getSelection().selectAllChildren(element[0]);
+            });
             scope.$on('setFocus', function (event, line, column) {
                 if (line === scope.line && column === scope.column) {
+                    window.getSelection().removeAllRanges();
                     element[0].focus();
                 }
             });
+
+            function move (event) {
+                event.stopPropagation();
+                // Firefox has a keypress event for Ctrl+V pasting
+                if (scope.move(event.key) || event.ctrlKey) {
+                    event.preventDefault();
+                }
+            }
+            element.on('keydown', function (event) {
+                scope.$apply(move(event));
+            });
+
+            function type (letter) {
+                if (basics.letterRegEx.test(letter)) {
+                    letter = basics.normalizeLetter(letter);
+                    ctrl.$setViewValue(letter);
+                } else {
+                    ctrl.$render();
+                }
+            }
+            element.on('keypress', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                type(event.key);
+            });
+            // Firefox/Linux gets no keypress events on diacritics, but needs the
+            // keypress anyway, otherwise double key entries play silly buggers
+            element.on('input', function (event) {
+                type(element.text());
+            });
+            element.on('paste', function (event) {
+                event.preventDefault();
+            });
+
+            ctrl.$viewChangeListeners.push(function () {
+                ctrl.$render();
+            });
+
+            ctrl.$render = function() {
+                element.text(ctrl.$modelValue || '');
+                var sel = window.getSelection();
+                if (containsNode(sel, element[0])) {
+                    sel.selectAllChildren(element[0]);
+                }
+            };
         }
     };
-});
+}]);
 
 // keep the line/column values current when $index changes
 crwApp.directive('crwIndexChecker', function() {
@@ -204,62 +267,37 @@ crwApp.controller("TableController", ['$scope', 'basics', 'markerFactory',
     };
 
     // event handler on keydown catches arrow keys and deletion
-    $scope.move = function (event) {
-        switch (event.which) {
-        case 0x08: //backspace
-        case 0x2E: //delete
+    $scope.move = function (key) {
+        switch (key) {
+        case 'Del':
+        case 'Delete':
+        case 'Backspace':
             this.field.letter = null;
-            event.preventDefault();
-            event.stopPropagation();
-            break;
-        case 0x25: //left
+            return true;
+        case 'Left':
+        case 'ArrowLeft':
             if (this.column > 0) {
                 this.activate(this.line,this.column-1);
             }
-            event.preventDefault();
-            event.stopPropagation();
-            break;
-        case 0x26: //up
+            return true;
+        case 'Up':
+        case 'ArrowUp':
             if (this.line > 0) {
                 this.activate(this.line-1,this.column);
             }
-            event.preventDefault();
-            event.stopPropagation();
-            break;
-        case 0x27: //right
+            return true;
+        case 'Right':
+        case 'ArrowRight':
             if (this.column < this.row.length - 1) {
                 this.activate(this.line,this.column+1);
             }
-            event.preventDefault();
-            event.stopPropagation();
-            break;
-        case 0x28: //down
-            if (this.line < this.crosswordData.table.length - 1) {
+            return true;
+        case 'Down':
+        case 'ArrowDown':
+                if (this.line < this.crosswordData.table.length - 1) {
                 this.activate(this.line+1,this.column);
             }
-            event.preventDefault();
-            event.stopPropagation();
-            break;
-        }
-        // stop event propagation for letters, even if true handling follows
-        // later, to suppress keyboard shortcuts from other code parts
-        var keychar = String.fromCharCode(event.which);
-        if (basics.letterRegEx.test(keychar)) {
-            event.stopPropagation();
-        }
-    };
-    // event handler on keypress catches letters
-    // beware of the weirdness:
-    // test everything here, including basics.letterRegEx(lang)
-    // for compatibility with browsers, OS and hardware
-    // if you stray from basic latin script
-    $scope.type = function (event) {
-        var keychar = String.fromCharCode(event.which);
-        // if it is an allowed letter, enter into field
-        if (basics.letterRegEx.test(keychar)) {
-            this.field.letter = keychar.toUpperCase();
-            event.preventDefault();
-            event.stopPropagation();
+            return true;
         }
     };
 }]);

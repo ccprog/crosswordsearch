@@ -1,10 +1,10 @@
 /* constants */
 crwApp.factory('basics', ['reduce', function (reduce) {
     var total = 0;
-    var list = reduce(crwBasics.letterDist, "", function (result, value, key) {
+    var list = reduce(crwBasics.letterDist, [], function (result, value, key) {
         total += value;
         for (var i = 0; i < value; i++) {
-            result += key;
+            result.push(key);
         }
         return result;
     });
@@ -35,11 +35,25 @@ crwApp.factory('basics', ['reduce', function (reduce) {
         // is determined by the letter distribution data
         randomLetter: function () {
             var pos = Math.floor(Math.random()*total);
-            return list.slice(pos, pos+1);
+            return list[pos];
         },
 
         // return the regex describing allowed letters
-        letterRegEx: new RegExp(crwBasics.letterRegEx),
+        letterRegEx: new RegExp('^' + crwBasics.letterRegEx + '$'),
+
+        normalizeLetter: function (letter) {
+            if (!crwBasics.casesensitive) {
+                letter = letter.toUpperCase();
+            }
+            if (crwBasics.accentMap) {
+                Object.keys(crwBasics.accentMap).forEach(function (base) {
+                    if (crwBasics.accentMap[base].indexOf(letter) > -1) {
+                        letter = base;
+                    }
+                });
+            }
+            return letter;
+        },
 
         // maps from marking direction names to CSS class names for
         // individual marker parts
