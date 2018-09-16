@@ -1,445 +1,445 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Claus Colloseus <ccprog@gmx.de>
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-12 14:52+0200\n"
 "PO-Revision-Date: 2018-09-12 14:52+0200\n"
-"Last-Translator: مرتضی نجاتی <mortazanejatijeze56@gmail.com>\n"
-"Language-Team: Persian\n"
-"Language: fa-IR\n"
+"Last-Translator: JoanaSousa <joanasousa@squared-potato.pt>\n"
+"Language-Team: Português\n"
+"Language: pt-PT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: ..\n"
-"X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;"
-"__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;"
-"_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;"
-"esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;"
-"esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
-"X-Loco-Target-Locale: fa_IR\n"
-"X-Generator: Loco - https://localise.biz/\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Loco https://localise.biz/\n"
 
 #: plugin/app.php:7
 msgid "Riddle..."
-msgstr "جدول..."
+msgstr "Enigma..."
 
 #: plugin/app.php:12
 msgid "Describe which words should be found:"
-msgstr "شرح کلماتی که باید یافت شود:"
+msgstr "Descreve que palavras devem ser encontradas:"
 
 #: plugin/app.php:14 plugin/editorsTab.php:24 plugin/immediate.php:76
 #: plugin/immediate.php:87
 msgid "Dont't try to be clever!"
-msgstr "تمرین نکن باهوش!"
+msgstr "Não te armes em chico esperto!"
 
 #: plugin/app.php:17
 msgid "Select a difficulty level:"
-msgstr "انتخاب سطح دشواری:"
+msgstr "Selecciona um nível de dificuldade:"
 
 #: plugin/app.php:33
 msgid "Select a riddle"
-msgstr "انتخاب جدول"
+msgstr "Selecciona um enigma"
 
 #: plugin/app.php:42
 msgid "Find these words in the riddle:"
-msgstr "این کلمات را در جدول بیابید:"
+msgstr "Encontra estas palavras no enigma:"
 
 #: plugin/app.php:44
 msgid "Difficulty level"
-msgstr "سطح دشواری"
+msgstr "Nível de dificuldade"
 
 #: plugin/app.php:50
 msgid "Word directions"
-msgstr "مسیر کلمه"
+msgstr "Direcções da palavra."
 
 #: plugin/app.php:51
 msgid "only to the right and down"
-msgstr "فقط به چپ و پایین"
+msgstr "apenas para a direita e para baixo"
 
 #: plugin/app.php:52
 msgid "any, including diagonal and backwards"
-msgstr "همه، شامل قطرها و رو به عقب"
+msgstr "qualquer, incluindo diagonal e para trás"
 
 #: plugin/app.php:53
 msgid "List of words that should be found"
-msgstr "فهرست کلماتی که باید یافت شوند"
+msgstr "Lista de palavras que devem ser encontradas"
 
 #: plugin/app.php:54
 msgid "visible before found"
-msgstr "قبل از یافت شدن، دیدنی باشند."
+msgstr "Visível antes de encontrado"
 
 #: plugin/app.php:55
 msgid "hidden before found"
-msgstr "قبل از یافت شدن، نادیدنی باشند."
+msgstr "oculto antes encontrado"
 
 #: plugin/app.php:63
 msgid "Fill in the the letters and mark the words:"
-msgstr "حروف را پر کنید و کلمات را نشان دهید."
+msgstr "Preencha as letras e marque as palavras:"
 
 #: plugin/app.php:69
 msgid "Mark the words:"
-msgstr "کلمات نشان دار:"
+msgstr "Selecciona as palavras:"
 
 #: plugin/app.php:76
 msgid "Start"
-msgstr "از نو"
+msgstr "Começa"
 
 #: plugin/app.php:76
 msgid "Start solving the riddle"
-msgstr "از نو جدول را حل کنید."
+msgstr "Começa a resolver o enigma"
 
 #: plugin/app.php:77
 msgid "Time"
-msgstr "زمان"
+msgstr "Tempo"
 
 #: plugin/app.php:78 plugin/app.php:196
 msgid "Restart"
-msgstr "از نو"
+msgstr "Recomeçar"
 
 #: plugin/app.php:78 plugin/app.php:196
 msgid "Restart solving the riddle"
-msgstr "از نو جدول را حل کنید."
+msgstr "Recomeçar a resolver o enigma"
 
 #: plugin/app.php:79
 msgid "Result"
-msgstr "نتیجه"
+msgstr "Resultado"
 
 #: plugin/app.php:80
 msgid "Remaining time"
-msgstr "زمان باقیمانده"
+msgstr "Tempo restante"
 
 #: plugin/app.php:81
 msgid "Time used"
-msgstr "زمان مورد استفاده"
+msgstr "Tempo utilizado"
 
 #: plugin/app.php:98 plugin/app.php:99 plugin/app.php:100 plugin/app.php:101
 msgid "Drag to move the border of the riddle"
-msgstr "برای تغییر اندازه جدول لبه را بکشید."
+msgstr "Arraste para mover a borda do enigma"
 
 #: plugin/app.php:146
 msgid "Fill all empty fields with random letters"
-msgstr "جاهای خالی با حروف اتفاقی پر شوند."
+msgstr "Preencha todos os campos vazios com letras aleatórias"
 
 #: plugin/app.php:146
 msgid "Fill fields"
-msgstr "پر کردن زمینه‌ها"
+msgstr "Preenche os campos"
 
 #: plugin/app.php:146
 msgid "Empty all fields"
-msgstr "پاک کردن همه زمینه‌ها"
+msgstr "Esvaziar todos os campos"
 
 #: plugin/app.php:146
 msgid "Empty"
-msgstr "خالی"
+msgstr "Esvaziar"
 
 #. / translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
 #: plugin/app.php:165
 #, php-format
 msgid "from line %1$s, column %2$s %3$s"
-msgstr "از خط %1$s, ستون %2$s %3$s"
+msgstr "da linha %1$s, coluna %2$s %3$s"
 
 #: plugin/app.php:166 plugin/immediate.php:151
 msgid "Delete"
-msgstr "حذف"
+msgstr "Eliminar"
 
 #: plugin/app.php:188
 #, php-format
 msgid "You have found %1$s of %2$s words"
-msgstr ""
-"شما %1$s از %2$s را یافته‌اید.\n"
-"\n"
+msgstr "Encontraste %1$s de %2$s palavras"
 
 #: plugin/app.php:189
 #, php-format
 msgid "You have found all %1$s words!"
-msgstr "شما همه  %1$s کلمه را یافتید."
+msgstr "Encontraste todas as %1$s palavras!"
 
 #: plugin/app.php:216
 msgid "Authored by"
-msgstr "مولف"
+msgstr "Autoria de"
 
 #: plugin/badgeos.php:3
 msgid "CRW Riddle"
-msgstr "جدول... "
+msgstr "CRW enigma"
 
 #: plugin/badgeos.php:9
 msgid "Solved Crosswordsearch Riddles"
-msgstr "جداول حل شده"
+msgstr "Enigma resolvido."
 
 #: plugin/badgeos.php:15
 msgid "CRW Riddles"
-msgstr "جدولها"
+msgstr "CRW enigmas"
 
 #: plugin/badgeos.php:29
 msgid "Crosswordsearch Submission (Reviewed)"
-msgstr "مدیریت جدول ( بازبینی شده)"
+msgstr "Submissões de palavras cruzadas (Revistas)"
 
 #: plugin/badgeos.php:30
 msgid "Crosswordsearch Submission (Auto-accepted)"
-msgstr "مدیریت جدول (قبول شده)"
+msgstr "Submissões de palavras cruzadas (Auto-aceites)"
 
 #: plugin/badgeos.php:65
 msgid "Crosswordsearch Submission Rules"
-msgstr "قوانین ارسال جدول"
+msgstr "Regras de submissão das palavras cruzadas"
 
 #: plugin/badgeos.php:72
 msgid "Review Method:"
-msgstr " روش بازنگری"
+msgstr "Método de revisão:"
 
 #: plugin/badgeos.php:73
 msgid "Should the submisson be reviewed manually?"
-msgstr "آیا باید به صورت دستی بررسی شود؟"
+msgstr "A submissão deve ser revista manualmente?"
 
 #: plugin/badgeos.php:77
 msgid "manually"
-msgstr "به طور دستی"
+msgstr "manualmente"
 
 #: plugin/badgeos.php:78
 msgid "rule-based"
-msgstr "قوانین پایه"
+msgstr "baseado em regras"
 
 #: plugin/badgeos.php:83
 msgid "Rules"
-msgstr "قوانین/ نقش ها"
+msgstr "Regras"
 
 #: plugin/badgeos.php:84
 msgid "Submissions shall be accepted based on the following rules:"
-msgstr "کار شما باید با قوانین مطابق باشد:"
+msgstr "As submissões serão aceites com base nas seguintes regras:"
 
 #: plugin/badgeos.php:89
 msgid "Solved completely"
-msgstr "کاملا شد."
+msgstr "Completamente resolvido"
 
 #: plugin/badgeos.php:90
 msgid "The riddle must be solved completely."
-msgstr "این جدول باید به صورت کامل حل شود."
+msgstr "O enigma tem de ser completamente resolvido."
 
 #: plugin/badgeos.php:96
 msgid "Minimum word count"
-msgstr "شمار کمترین کلمات"
+msgstr "Contagem mínima de palavras"
 
 #: plugin/badgeos.php:97
 msgid ""
 "The minimum number of words that must be found. Does not apply if the riddle "
 "must be solved completely."
 msgstr ""
-"کمترین شمار کلمات باید یافت شوند. اگر جدول باید کاملا حل شود با آن موافقت "
-"نکنید."
+"O limite mínimo de palavras que têm de ser encontradas não se aplica se o "
+"enigma tiver que ser resolvido na integra."
 
 #: plugin/badgeos.php:157
 msgid "Submission saved successfully."
-msgstr "کار شما به طور کامل ذخیره شد."
+msgstr "Submissão guardada com sucesso."
 
 #: plugin/badgeos.php:166
 msgid "You have not earned this achievement."
-msgstr "شما به دستاوردی نرسیدید."
+msgstr "Ainda não conquistaste este objectivo."
 
 #: plugin/clgs.php:16 plugin/simple-history.php:12
 msgid "User submitted solutions for crosswordsearch riddles"
-msgstr "کاربران راه حل را ارئه می‌دهند."
+msgstr "As tuas respostas submetidas para os enigmas das palavras cruzadas"
 
 #: plugin/crosswordsearch.php:433 plugin/js/block-editor.js:65
 msgid "Empty Crossword"
-msgstr "جدول خالی"
+msgstr "Esvaziar as Palavras Cruzadas "
 
 #: plugin/crosswordsearch.php:434 plugin/js/block-editor.js:69
 msgid "First crossword"
-msgstr "نخستین جدول"
+msgstr "Primeiras palavras cruzadas"
 
 #: plugin/crosswordsearch.php:435 plugin/js/block-editor.js:73
 msgid "Choose from all"
-msgstr "انتخاب برای همه"
+msgstr "Escolha entre todos"
 
 #: plugin/crosswordsearch.php:564
 msgid "Insert a Crosswordsearch shortcode"
-msgstr "کد کوتاه جدول را قرار دهید."
+msgstr "Inserir shortcode de palavras cruzadas"
 
 #: plugin/crosswordsearch.php:565 plugin/js/block-editor.js:373
 msgid "Crosswordsearch Shortcode"
-msgstr "کدکوتاه جدول"
+msgstr "Shortcode de palavras cruzadas"
 
 #: plugin/crosswordsearch.php:609 plugin/js/block-editor.js:237
 msgid "The shortcode usage is faulty:"
-msgstr "کدکوتاه اشتباه است:"
+msgstr "O uso do shortcode está com defeito:"
 
 #. / translators: argument %1 will be the literal 'mode'
 #: plugin/crosswordsearch.php:613
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
-msgstr "Attribute %1$s احتیاج به \"%2$s\" یا \"%3$s\" است."
+msgstr "O atributo %1$s precisa ser definido como \"%2$s\" ou \"%3$s\"."
 
 #. / translators: argument %1 will be the literal 'restricted', %2 the literal 'name'
 #: plugin/crosswordsearch.php:618
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must be omitted."
-msgstr "اگر صفت  %1$s به کار گرفته شود, صفت %2$s باید حذف شود."
+msgstr "Se o atributo %1$s estiver definido, o atributo %2$s deve ser omitido."
 
 #: plugin/crosswordsearch.php:622
 #, php-format
 msgid "Attribute %1$s is only allowed in solve mode."
-msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
+msgstr "O atributo %1$s só é permitido no modo de resolução."
 
 #. / translators: argument %1 will be the literal 'timer'
 #: plugin/crosswordsearch.php:627
 #, php-format
 msgid "Attribute %1$s must be a non-negative integer."
-msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
+msgstr "O atributo %1$s deve ser um inteiro não negativo."
 
 #. / translators: argument %1 will be the literal 'submitting', %2 the literal 'timer'
 #: plugin/crosswordsearch.php:632
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must also be set."
-msgstr "اگر صفت %1$s به کار گرفته شود, صفت%2$s باید به کار رود."
+msgstr ""
+"Se o atributo %1$s estiver definido, o atributo %2$s também deve ser "
+"definido."
 
 #. / translators: argument %1 will be the literal 'project'
 #: plugin/crosswordsearch.php:637
 #, php-format
 msgid "Attribute %1$s needs to be an existing project."
-msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
+msgstr "O atributo %1$s precisa de ser um projecto existente."
 
 #: plugin/crosswordsearch.php:641 plugin/js/block-editor.js:243
 #, php-format
 msgid "There is no crossword in project %1$s."
-msgstr "در پروژه هیچ جدولی نیست."
+msgstr "Não há palavras cruzadas no projecto %1$s."
 
 #: plugin/crosswordsearch.php:645
 #, php-format
 msgid "There is no crossword with the name %1$s."
-msgstr "جدولی با عنوان  %1$s نیست."
+msgstr "Não há palavras cruzadas com o nome %1$s."
 
 #: plugin/crosswordsearch.php:707
 msgid "Do you want to submit your result?"
-msgstr "آیا می‌خواهید نتیجه را ارسال کنید؟"
+msgstr "Queres submeter o teu resultado?"
 
 #: plugin/crosswordsearch.php:736
 msgid "Loading the crossword has yet to start."
-msgstr "در حال بارگزاری جدول برای شروع"
+msgstr "Carregamento das palavras cruzadas ainda não iniciado."
 
 #: plugin/crosswordsearch.php:911 plugin/crosswordsearch.php:946
 msgid "You do not have permission."
-msgstr "شما دسترسی ندارید."
+msgstr "Não tens permissão."
 
 #: plugin/crosswordsearch.php:1061
 msgid ""
 "There are still riddles saved for that project. You need to delete them "
 "before you can remove the project."
-msgstr "این جداول برای پروژه ذخیره شده است. پیش از حذف پروژه آن‌ها را پاک کنید."
+msgstr ""
+"Ainda existem enigmas guardados nesse projecto. Precisas de os eliminar "
+"antes de conseguires remover o projecto."
 
 #: plugin/crosswordsearch.php:1213
 msgid "Editing rights could not be updated."
-msgstr "حق ویرایش به روز نشد."
+msgstr "Os direitos de edição não puderam ser actualizados."
 
 #: plugin/crosswordsearch.php:1264
 msgid "Dimensions could not be updated."
-msgstr "ابعاد به روز نشد."
+msgstr "Não foi possível actualizar as dimensões"
 
 #: plugin/crosswordsearch.php:1304
 msgid "Subscription options could not be updated."
-msgstr "ابعاد به روز نشد. "
+msgstr "Não foi possível actualizar as opções de subscrição."
 
 #: plugin/crosswordsearch.php:1439
 msgid "The project could not be removed."
-msgstr "پروژه کنارگزاری نشد."
+msgstr "Não foi possível remover o projecto."
 
 #: plugin/crosswordsearch.php:1448 plugin/editorsTab.php:22
 #: plugin/immediate.php:25
 msgid "You have exceeded the maximum length for a name!"
-msgstr "طول نام زیاد است."
+msgstr "Excedeste o comprimento máximo permitido para um nome!"
 
 #: plugin/crosswordsearch.php:1450 plugin/editorsTab.php:21
 #: plugin/immediate.php:24
 msgid "The name is too short!"
-msgstr "نام بسیار کوتاه است!"
+msgstr "O nome é demasiado curto!"
 
 #: plugin/crosswordsearch.php:1460
 msgid "The project could not be added."
-msgstr "پروژه اضافه نشد."
+msgstr "Não foi possível adicionar o projecto."
 
 #: plugin/crosswordsearch.php:1462
 msgid "The project could not be altered."
-msgstr "پروژه تغییر داده نشد."
+msgstr "Não foi possível alterar o projecto."
 
 #: plugin/crosswordsearch.php:1491
 msgid "The editors could not be updated."
-msgstr "ویرایشگران به روز نشدند."
+msgstr "Não foi possível actualizar os editores."
 
 #: plugin/crosswordsearch.php:1632
 msgid "The crossword could not be deleted."
-msgstr "جدول حذف نشد."
+msgstr "Não foi possível apagar as palavras cruzadas."
 
 #: plugin/crosswordsearch.php:1672
 msgid "The crossword could not be approved."
-msgstr "جدول تایید نشد."
+msgstr "Não foi possível aprovar as palavras cruzadas."
 
 #: plugin/crosswordsearch.php:1724
 msgid "You are not allowed to save the crossword."
-msgstr "شما اجازه ذخیره جدول را ندارید."
+msgstr "Não tens permissão para guardar estas palavras cruzadas."
 
 #: plugin/crosswordsearch.php:1781 plugin/immediate.php:26
 msgid "There is already another riddle with that name!"
-msgstr "با این عنوان جدول دیگری موجود است."
+msgstr "Já existe outro enigma com esse nome!"
 
 #: plugin/crosswordsearch.php:1784
 msgid "The riddle you tried to update can not be found!"
-msgstr "معمایی که شما می‌خواهید به روز کنید وجود ندارد."
+msgstr "O enigma que tentaste actualizar não foi encontrado!"
 
 #: plugin/crosswordsearch.php:1786
 msgid "A moderator might have deleted it already. You must start a new one."
-msgstr "شاید مدیر آن را حذف کرده. یکی دیگر بسازید."
+msgstr ""
+"Um moderador poderá já tê-lo eliminado entretanto. Tens de começar de novo. "
 
 #: plugin/crosswordsearch.php:1788
 msgid ""
 "Someone else might have renamed or deleted it in the meantime. Look into the "
 "list of existing riddles."
 msgstr ""
-"شاید شخص دیگری پروژه را حذف کرده یا تغییر نام داده باشد. به فهرست جدول‌ها "
-"نگاه کنید."
+"Alguém deve ter renomeado ou eliminado o que procuras. Experimenta ver a "
+"lista de enigmas existentes."
 
 #: plugin/crosswordsearch.php:1835
 msgid "The crossword could not be saved to the database."
-msgstr "جدول در دیتابیس ذخیره نشد."
+msgstr "Não foi possível salvaguardar as palavras cruzadas no banco de dados."
 
 #: plugin/crosswordsearch.php:1866
 msgid "The crossword could not be retrieved."
-msgstr "جدول بازیابی نمی‌شود"
+msgstr "Não foi possível recuperar as palavras cruzadas."
 
 #: plugin/crosswordsearch.php:1922
 #, php-format
 msgid "Solution submitted for crossword %1$s in project %2$s:"
-msgstr "جدول %1$s از پروژه %2$s حذف شد"
+msgstr "Solução enviada para palavras cruzadas %1$s no projecto %2$s:"
 
 #: plugin/crosswordsearch.php:1925
 #, php-format
 msgid "%1$s of %2$s words were found in %3$s seconds."
-msgstr " تعداد %1$s از%2$s کلمه در  %3$s ثانیه یافت شدند."
+msgstr "%1$s em %2$s palavras foram encontradas em %3$s segundos."
 
 #: plugin/crosswordsearch.php:1928
 #, php-format
 msgid "All %1$s words were found in %2$s seconds."
-msgstr "همه %1$s کلمه در  %2$s ثانیه یافت شد."
+msgstr "Todas as palavras %1$s foram encontradas em %2$s segundos."
 
 #: plugin/crosswordsearch.php:1944
 msgid "Your solution could not be submitted."
-msgstr "ارائه راه حل شما  ارسال نشد."
+msgstr "A tua resposta não foi submetida."
 
 #: plugin/crosswordsearch.php:2051 plugin/settings.php:21
 msgid "Options"
-msgstr "تنظیمات"
+msgstr "Opções"
 
 #: plugin/crosswordsearch.php:2052
 msgid ""
 "Riddles saved by restricted editors need the approval of full editors before "
 "they can appear for other users."
 msgstr ""
-"جدول‌های طراحی شده به وسیله کاربران محدود شده، پیش از نمایش در سایت باید به "
-"وسیله ویراستان مجوز کامل تایید شوند."
+"Enigmas salvos por editores restritos precisam da aprovação de todos os "
+"editores antes de poderem estar visíveis para outro utilizadores."
 
 #: plugin/crosswordsearch.php:2053
 msgid "Full editors can only act on the projects they are assigned to."
-msgstr "هر ویراستار دارای مجوز کامل فقط بر پروژه مختص شده توان کار کردن دارد"
+msgstr ""
+"Editores completos só podem actuar nos projectos aos quais estão designados."
 
 #: plugin/crosswordsearch.php:2054
 #, php-format
@@ -447,7 +447,8 @@ msgid ""
 "For custom theming, place a file %1$s with overrides to the default theme "
 "into your theme folder."
 msgstr ""
-"برای پوسته دلخواه، پرونده %1$s را با ذکر برتر بودن در پوشه پوسته‌ها قرار دهید."
+"Para temas personalizados, coloque um arquivo %1$s com substituições no tema "
+"padrão na pasta do tema."
 
 #: plugin/crosswordsearch.php:2055
 msgid ""
@@ -455,139 +456,143 @@ msgid ""
 "operations. If you have a custom theme, you might have to additionally "
 "adjust these values."
 msgstr ""
-"مقادیری که برای کشیدن جدول به اطراف کاربرد دارد. اگر شما از زمینه دلخواه "
-"استفاده می‌کنید، ممکن است مجبور باشید این مقادیر را تنظیم کنید."
+"Existem alguns valores de dimensões que são utilizados nos cálculos durante "
+"as operações de arraste. Se estás a utilizar um tema personalizado, é "
+"possível que tenhas de ajustar estes valores."
 
 #: plugin/crosswordsearch.php:2056
 msgid ""
 "Dimension settings are pixel values and used uniformly for heights and "
 "widths."
-msgstr "تنظیمات اندازه‌ جدول بر اساس پیکسل است و بر ارتفاع و عرض وارد می‌شود"
+msgstr ""
+"As configurações de dimensão são valores de pixel e usadas uniformemente "
+"para alturas e larguras."
 
 #: plugin/crosswordsearch.php:2057
 msgid ""
 "Solution submissions can either be processed by one of the plugins listed "
 "below, or another plugin can subscribe to them through the API."
 msgstr ""
-"ارسال راه حل می تواند توسط یکی از پلاگین های لیست شده در زیر پردازش شود، یا "
-"ممکن است توسط پلاگین‌های دیگر باشد. "
+"As soluções submetidas podem ser processadas por um dos plugins listados "
+"abaixo, ou por outro plugin que terás de subscrever por meio da API."
 
 #: plugin/crosswordsearch.php:2061 plugin/editorsTab.php:5
 #: plugin/reviewTab.php:4
 msgid "Projects"
-msgstr "پروژه‌‌ها"
+msgstr "Projectos"
 
 #: plugin/crosswordsearch.php:2062
 msgid ""
 "If you change the name of a project, remember that you need to change it "
 "also in every shortcode referring to it."
 msgstr ""
-"اگر نام پروژه را تغییر دادید، یادتان باشد که نام را در کوته‌کد نیز تغییر دهید."
+"Se você alterar o nome de um projecto, lembre-se de que é preciso alterá-lo "
+"também em cada código de acesso que se refira a ele."
 
 #: plugin/crosswordsearch.php:2062
 msgid ""
 "The lowest eligible maximum difficulty level is either the the default level "
 "or the highest level used in an existing riddle, whatever is higher."
 msgstr ""
-"پایین ترین سطح اختیاری  همچنین حداکثر سطح دشواری  یا حالت‌های دیگر می تواند "
-"پیشفرض باشد."
+"O menor nível de dificuldade máxima elegível é ou nível padrão ou o nível "
+"mais alto usado em um enigma existente, conforme o que for maior."
 
 #: plugin/crosswordsearch.php:2063
 msgid ""
 "You need to assign editors to a project in order for them to see its riddles "
 "in the <em>Review</em> tab."
 msgstr ""
-"اگر می‌خواهید ویراستاران جدولشان  را در زبانه <em> پیش نمایش<em/> ببینند باید "
-"آنها را به پروژه اختصاص دهید."
+"Precisas de destacar editores para um projecto se queres que eles vejam o "
+"enigma no separador <em>Review</em>."
 
 #: plugin/crosswordsearch.php:2064
 msgid ""
 "If you want to delete a project, you need first to delete all its riddles."
-msgstr "اگر می‌خواهید پروژه را حذف کنید، ابتدا همه جدول‌ها را حذف کنید."
+msgstr ""
+"Se desejas excluir um projecto, primeiro é necessário excluires todos os "
+"seus enigmas."
 
 #: plugin/crosswordsearch.php:2070
 msgid "Review"
-msgstr "بازنگری"
+msgstr "Revisão"
 
 #: plugin/crosswordsearch.php:2071
 msgid ""
 "To preview a riddle, check the <em>Preview</em> box and then click on the "
 "name of the riddle"
 msgstr ""
-"برای دیدن پیش نمایش جدول <em> پیش نمایش<em/> را تیک بزنید و بر نام آن در "
-"جدول کلیک کنید."
+"Para pré-visualizares um enigma, tens de verificar a secção <em>Pré-"
+"visualizar</em> e clicar no nome do enigma"
 
 #: plugin/crosswordsearch.php:2086 plugin/settings.php:14
 msgid "Crosswordsearch Administration"
-msgstr "مدیریت جدول"
+msgstr "Administração das palavras cruzadas"
 
 #: plugin/crosswordsearch.php:2106
 msgid "You need to hit your browser's Reload button."
-msgstr "احتیاج است که صفحه را تازه کنید."
+msgstr "Precisas de recarregar esta página."
 
 #: plugin/crosswordsearch.php:2153
 msgid ""
 "You can find information about data collected by plugin Crosswordsearch at "
 "the following address:"
 msgstr ""
+"Podes encontrar informação sobre os dados colectados pelo plugin "
+"Crosswordsearch no seguinte adereço:"
 
 #: plugin/crosswordsearch.php:2155
 #, php-format
 msgid "(Last updated on %s.)"
-msgstr ""
+msgstr "(Última actualização em %s.)"
 
 #: plugin/crosswordsearch.php:2156
 msgid ""
 "It is recomended not to link to it, but to include the relevant information "
 "in your privacy policy text."
 msgstr ""
+"Recomenda-se que não vincule, mas pode incluir as informações relevantes no "
+"texto da sua política de privacidade."
 
 #: plugin/crosswordsearch.php:2194
-#, fuzzy
 msgid "Editor for project"
-msgstr "فهرست ویراستاران پروژه را ذخیره کنید."
+msgstr "Editor para o projecto"
 
 #: plugin/crosswordsearch.php:2201
-#, fuzzy
 msgid "Crosswordsearch editing rights"
-msgstr "ارسال جدول"
+msgstr "Direitos de edição das palavras cruzadas"
 
 #: plugin/crosswordsearch.php:2247
 msgid "original author"
-msgstr ""
+msgstr "autor original"
 
 #: plugin/crosswordsearch.php:2250
 msgid "last editor"
-msgstr ""
+msgstr "último editor"
 
 #: plugin/crosswordsearch.php:2255 plugin/wizzard.php:17
 #: plugin/js/block-editor.js:256
 msgid "Project"
-msgstr "پروژه‌‌ها "
+msgstr "Projecto"
 
 #: plugin/crosswordsearch.php:2259
-#, fuzzy
 msgid "Crossword name"
-msgstr "جدول "
+msgstr "Nome das palavras cruzadas"
 
 #: plugin/crosswordsearch.php:2263
 msgid "Edited as"
-msgstr ""
+msgstr "Editado como"
 
 #: plugin/crosswordsearch.php:2264
-#, fuzzy
 msgid " and "
-msgstr "بالا و راست"
+msgstr "e"
 
 #: plugin/crosswordsearch.php:2267
-#, fuzzy
 msgid "Crossword content"
-msgstr "جدول "
+msgstr "Conteúdo das palavras cruzadas"
 
 #: plugin/crosswordsearch.php:2274
-#, fuzzy
 msgid "Crosswordsearch authorship"
-msgstr "کدکوتاه جدول"
+msgstr "Autoria das palavras cruzadas"
 
 #: plugin/crosswordsearch.php:2358
 #, php-format
@@ -595,12 +600,16 @@ msgid ""
 "The user was listed as last editor of crossword \"%s\" in project \"%s\", "
 "but was not the original author."
 msgstr ""
+"O utilizador foi listado como o último editor das palavras cruzadas \"%s\" "
+"no projecto \"%s\", mas não foi o seu autor original."
 
 #: plugin/crosswordsearch.php:2359
 msgid ""
 "The crossword was retained, now citing the original author as the last "
 "editor."
 msgstr ""
+"As palavras cruzadas foram mantidas, agora citando o autor original como o "
+"último editor."
 
 #: plugin/crosswordsearch.php:2375
 #, php-format
@@ -608,169 +617,178 @@ msgid ""
 "The user was listed as original author of crossword \"%s\" in project \"%s"
 "\", but was not the last editor."
 msgstr ""
+"O utilizador foi listado como autor original das palavras cruzadas \"%s\" no "
+"projecto \"%s\", mas não foi o seu último editor."
 
 #: plugin/crosswordsearch.php:2376
 msgid ""
 "The crossword was retained, now citing the last editor as the original "
 "author."
 msgstr ""
+"As palavras cruzadas foram mantidas, agora citando o último editor como o "
+"autor original."
 
 #: plugin/editorsTab.php:12
 msgid "Project Name"
-msgstr "نام پروژه"
+msgstr "Nome do projecto"
 
 #: plugin/editorsTab.php:20 plugin/immediate.php:23
 msgid "You must give a name!"
-msgstr "نامی بگذارید"
+msgstr "Tens de escrever um nome!"
 
 #: plugin/editorsTab.php:23
 msgid "There is already another project with that name!"
-msgstr "پروژه‌ای با این نام هست"
+msgstr "Já existe outro projecto com esse nome!"
 
 #: plugin/editorsTab.php:29
 msgid "Default difficulty level"
-msgstr "سطح دشواری پیشفرض"
+msgstr "Dificuldade padrão"
 
 #: plugin/editorsTab.php:35
 msgid "Maximum difficulty level"
-msgstr "حداکثر سطح دشواری"
+msgstr "Nível máximo de dificuldade"
 
 #: plugin/editorsTab.php:42
 msgid "Save the project"
-msgstr "ذخیره پروژه"
+msgstr "Guardar o projecto"
 
 #: plugin/editorsTab.php:42 plugin/editorsTab.php:71 plugin/immediate.php:78
 #: plugin/optionsTab.php:25 plugin/optionsTab.php:59 plugin/optionsTab.php:82
 msgid "Save"
-msgstr "ذخیره"
+msgstr "Guardar"
 
 #: plugin/editorsTab.php:43
 msgid "Abort saving the project"
-msgstr "ذخیره نشود"
+msgstr "Abordar salvamento do projecto"
 
 #: plugin/editorsTab.php:43 plugin/editorsTab.php:72 plugin/immediate.php:79
 #: plugin/immediate.php:94 plugin/immediate.php:152
 msgid "Abort"
-msgstr "نادیده گرفتن"
+msgstr "Abortar"
 
 #: plugin/editorsTab.php:47
 msgid "Full project editors"
-msgstr "ویراستاران با حق ویرایش کامل"
+msgstr "Editores completos do projecto"
 
 #: plugin/editorsTab.php:49
 msgid "Other users with full editor rights"
-msgstr "ویراستاران دیگر با حق دسترسی کامل"
+msgstr "Outros utilizadores com direitos completos de editor"
 
 #: plugin/editorsTab.php:56
 msgid "Add all users to the editors of the marked project"
-msgstr "همه کاربران را به این پوژه اختصاص دهید"
+msgstr "Adicione todos os utilizadores aos editores do projecto destacado"
 
 #: plugin/editorsTab.php:57
 msgid "Add the marked user to the editors of the marked project"
-msgstr "کاربران مشخص شده را به پروژه مشخص شده اختصاص دهید"
+msgstr "Adicione o utilizador seleccionado aos editores do projecto destacado"
 
 #: plugin/editorsTab.php:58
 msgid "Remove the marked user from the editors of the marked project"
-msgstr "کاربران مشخص شده را از ویراستاران این پروژه حذف کنید"
+msgstr "Remova o utilizador destacado dos editores do projecto seleccionado"
 
 #: plugin/editorsTab.php:59
 msgid "Remove all users from the editors of the marked project"
-msgstr "همه کاربران را از فهرست ویراستاران پروژه حذف کنید."
+msgstr "Remover todos os utilizadores dos editores do projecto selecionado"
 
 #: plugin/editorsTab.php:67
 msgid "Add a new project"
-msgstr "جدول تازه"
+msgstr "Adicionar um novo projecto"
 
 #: plugin/editorsTab.php:68
 msgid "Delete the selected project"
-msgstr "پاک کردن پروژه"
+msgstr "Eliminar o projecto selecionado"
 
 #: plugin/editorsTab.php:71
 msgid "Save the editor list for this project"
-msgstr "فهرست ویراستاران پروژه را ذخیره کنید."
+msgstr "Guardar a lista de editores para este projecto"
 
 #: plugin/editorsTab.php:72
 msgid "Abort saving the editor list"
-msgstr "تغییر ویراستاران ذخیره نشود"
+msgstr "Abortar salvamento da lista de editores"
 
 #: plugin/immediate.php:12
 msgid "To save it, you must give the riddle a new name."
-msgstr "برای ذخیره، نامی جدید انتخاب کنید."
+msgstr "Para guardares este enigma, tens de dar-lhe um novo nome."
 
 #: plugin/immediate.php:13
 msgid ""
 "You can change the additional informations that are saved about the riddle."
-msgstr "شما بعدا هم می‌توانید توضیحات را تغییر دهید."
+msgstr ""
+"Podes alterar as informações adicionais que foram guardadas neste enigma."
 
 #: plugin/immediate.php:17
 msgid "Name:"
-msgstr "نام:"
+msgstr "Nome:"
 
 #: plugin/immediate.php:27
 msgid "That looks good!"
-msgstr "عالی است."
+msgstr "Parece bem!"
 
 #: plugin/immediate.php:31
 msgid "Author:"
-msgstr "مولف:"
+msgstr "Autor:"
 
 #: plugin/immediate.php:42 plugin/immediate.php:133
 #, php-format
 msgid "You have found %1$s of %2$s hidden words during the alloted time."
 msgstr ""
-"شما %1$s از %2$s را یافته‌اید.\n"
-"\n"
+"Durante o tempo atribuído encontraste %1$s das %2$s palavras escondidas."
 
 #: plugin/immediate.php:43 plugin/immediate.php:132
 #, php-format
 msgid "Congratulation, you have solved the riddle in %1$s!"
-msgstr "مبارک باد! شما جدول را حل کردید."
+msgstr "Parabéns, conseguiste resolver o enigma em %1$s!"
 
 #: plugin/immediate.php:55
 msgid "Username:"
-msgstr "نام کاربری"
+msgstr "Nome de utilizador:"
 
 #: plugin/immediate.php:59
 msgid "Password:"
-msgstr "گذرواژه"
+msgstr "Palavra-chave:"
 
 #: plugin/immediate.php:64
 msgid "A username and password is required for saving!"
-msgstr "نام کاربری و گذرواژه برای ذخیره لازم است."
+msgstr ""
+"São necessários um nome de utilizador e uma palavra-chave para guardar. "
 
 #: plugin/immediate.php:91
 msgid "Submit"
-msgstr "ارائه کنید"
+msgstr "Submeter"
 
 #: plugin/immediate.php:92
 msgid "Loading..."
-msgstr "در حال بارگزاری..."
+msgstr "Carregando..."
 
 #: plugin/immediate.php:93 plugin/immediate.php:150
 msgid "OK"
-msgstr "عالی"
+msgstr "Ok"
 
 #: plugin/immediate.php:119
 msgid ""
 "The marked word no longer fits into the crossword area. For a successful "
 "resize you must delete this word."
 msgstr ""
-"کلمه مشخص شده در جدول نیست. برای بزرگ کردن جدول باید آن کلمه را حذف کنید."
+"A palavra destacada não cabe na área das palavras cruzadas. Para um reajuste "
+"bem sucedido, tens de eliminar esta palavra."
 
 #: plugin/immediate.php:120
 msgid ""
 "The marked words no longer fit into the crossword area. For a successful "
 "resize you must delete these words."
 msgstr ""
-"کلمات  مشخص شده به اندازه جدول نیست. برای تغییر اندازه باید ابتدا کلمات را "
-"حذف کنید."
+"As palavras destacadas não cabem na área das palavras cruzadas. Para um "
+"reajuste bem sucedido, tens de eliminar algumas palavras. "
 
 #: plugin/immediate.php:122
 #, php-format
 msgid ""
 "The marked word goes into a direction that is excluded for difficulty level "
 "%1$s. For a successful level change you must delete this word."
-msgstr "کلمه انتخاب شده مناسب با سطح دشواری تعیین شده نیست. کلمه را حذف کنید. "
+msgstr ""
+"A palavra destacada apresenta-se numa direcção que não é permitida para o "
+"nível de dificuldade %1$s. Para uma mudança de nível bem sucedida, tens de "
+"eliminar esta palavra."
 
 #: plugin/immediate.php:123
 #, php-format
@@ -778,382 +796,390 @@ msgid ""
 "The marked words go into directions that are excluded for difficulty level "
 "%1$s. For a successful level change you must delete these words."
 msgstr ""
-"کلمات نشان شده مناسب با سطح دشواری تعیین شده نیستند. لطفا کلمات را حذف کنید."
+"As palavras destacadas vão em direcções não permitidas para o nível de "
+"dificuldade %1$s. Para uma mudança de nível bem sucedida, tens de eliminar "
+"essas palavras."
 
 #: plugin/immediate.php:129
 #, php-format
 msgid "The marked word %1$s is not part of the solution."
-msgstr "%1$s از کلمات جدول نیست."
+msgstr "A palavra %1$s destacada, não faz parte da solução."
 
 #: plugin/immediate.php:131
 msgid "Congratulation, you have solved the riddle!"
-msgstr "مبارک باد! شما جدول را حل کردید."
+msgstr "Parabéns, conseguiste resolver o enigma!"
 
 #: plugin/immediate.php:139
 msgid "Do you really want to do this?"
-msgstr "واقعا اینچنین تصمیمی دارید؟"
+msgstr "Tens a certeza que queres fazer isto?"
 
 #: plugin/immediate.php:140
 #, php-format
 msgid "Delete project %1$s"
-msgstr "حذف "
+msgstr "Eliminar o projecto %1$s"
 
 #: plugin/immediate.php:141
 #, php-format
 msgid "Delete crossword %1$s from project %2$s"
-msgstr "جدول %1$s از پروژه %2$s حذف شد"
+msgstr "Eliminar as palavras cruzadas %1$s do projecto %2$s"
 
 #: plugin/immediate.php:142
 #, php-format
 msgid "Approve crossword %1$s for project %2$s"
-msgstr "جدول %1$s از پروژه  %2$s تایید شد\n"
+msgstr "Aprovar palavras cruzadas %1$s para o projecto %2$s"
 
 #: plugin/immediate.php:148
 msgid "Please be patient for the crossword being loaded."
-msgstr "صبور باشید تا جدول بارگزاری شود"
+msgstr "Por favor, seja paciente enquanto as palavras cruzadas são carregadas."
 
 #: plugin/l10n.php:4
 msgid "down and right"
-msgstr "پایین و چپ"
+msgstr "para baixo e para a direita"
 
 #: plugin/l10n.php:4
 msgid "up and left"
-msgstr "بالا و راست"
+msgstr "cima e esquerda"
 
 #: plugin/l10n.php:4
 msgid "up and right"
-msgstr "بالا و چپ"
+msgstr "cima e direita"
 
 #: plugin/l10n.php:4
 msgid "down and left"
-msgstr "پایین و راست"
+msgstr "para baixo e para a esquerda"
 
 #: plugin/l10n.php:4
 msgid "down"
-msgstr "پایین"
+msgstr "baixo"
 
 #: plugin/l10n.php:4
 msgid "up"
-msgstr "بالا"
+msgstr "cima"
 
 #: plugin/l10n.php:4
 msgid "to the right"
-msgstr "به سمت چپ"
+msgstr "para a direita"
 
 #: plugin/l10n.php:4
 msgid "to the left"
-msgstr "به سمت راست"
+msgstr "para a esquerda"
 
 #: plugin/l10n.php:4
 msgid "New"
-msgstr "تازه"
+msgstr "Novo"
 
 #: plugin/l10n.php:4
 msgid "Start a completely new riddle"
-msgstr "آغاز تکمیل جدول جدید"
+msgstr "Começa um enigma completamente novo"
 
 #: plugin/l10n.php:4
 msgid "Load"
-msgstr "بارگزاری"
+msgstr "Carregar"
 
 #: plugin/l10n.php:4
 msgid "Load an existing riddle"
-msgstr "در حال بارگزاری جدول"
+msgstr "Carregar um enigma existente"
 
 #: plugin/l10n.php:4
 msgid "Save..."
-msgstr "ذخیره..."
+msgstr "Guardar..."
 
 #: plugin/l10n.php:4
 msgid "Save your work on the riddle"
-msgstr "کارتان را ذخیره کنید"
+msgstr "Guardar o teu trabalho no enigma"
 
 #: plugin/l10n.php:4
 msgid "Save as..."
-msgstr "ذخیره به عنوان"
+msgstr "Guardar como..."
 
 #: plugin/l10n.php:4
 msgid "Save as a new riddle with a seperate name"
-msgstr "جدول را با نامی جدید ذخیره کنید"
+msgstr "Guardar como um novo enigma com um nome separado"
 
 #: plugin/l10n.php:4
 msgid "Reload"
-msgstr "بارگزاری مجدد"
+msgstr "Recarregar"
 
 #: plugin/l10n.php:4
 msgid "Reset to the saved version"
-msgstr "بازگشت به ذخیره شده."
+msgstr "Redefinir para a última versão guardada"
 
 #: plugin/l10n.php:4
 msgid "black"
-msgstr "سیاه"
+msgstr "preto"
 
 #: plugin/l10n.php:4
 msgid "red"
-msgstr "سرخ"
+msgstr "vermelho"
 
 #: plugin/l10n.php:4
 msgid "green"
-msgstr "سبز"
+msgstr "verde"
 
 #: plugin/l10n.php:4
 msgid "blue"
-msgstr "آبی"
+msgstr "azul"
 
 #: plugin/l10n.php:4
 msgid "orange"
-msgstr "نارنجی"
+msgstr "laranja"
 
 #: plugin/l10n.php:4
 msgid "violet"
-msgstr "بنفش"
+msgstr "violeta"
 
 #: plugin/l10n.php:4
 msgid "aqua"
-msgstr "شفاف"
+msgstr "àgua"
 
 #: plugin/l10n.php:4
 msgid "grey"
-msgstr "خاکستری"
+msgstr "cinzento"
 
 #: plugin/optionsTab.php:2 plugin/optionsTab.php:8
 msgid "Editing rights"
-msgstr "قوانین ویرایش"
+msgstr "Direitos de edição"
 
 #: plugin/optionsTab.php:7
 msgid "Roles"
-msgstr "نقش"
+msgstr "Papeis"
 
 #: plugin/optionsTab.php:11
 msgid "none"
-msgstr "هیچ"
+msgstr "nenhum"
 
 #: plugin/optionsTab.php:12
 msgid "restricted"
-msgstr "محافظت شده"
+msgstr "restrito"
 
 #: plugin/optionsTab.php:13
 msgid "full"
-msgstr "کامل"
+msgstr "completo"
 
 #: plugin/optionsTab.php:25
 msgid "Save the updated assignment of editing capabilities"
-msgstr "ذخیره کردن تغییر قابلیت ویراستار"
+msgstr "Guardar a atribuição actualizada de recursos de edição"
 
 #: plugin/optionsTab.php:32 plugin/optionsTab.php:66
 msgid "Dimensions of the table grid"
-msgstr "اندازه خانه‌های جدول"
+msgstr "Dimensões da grade da mesa"
 
 #: plugin/optionsTab.php:33
 msgid "Do not change this without reviewing your CSS!"
-msgstr "بدون بازدید از CSS این‌ها را تغییر ندهید."
+msgstr "Não mudes isto sem rever o teu CSS!"
 
 #: plugin/optionsTab.php:34
 msgid "Illustration of grid dimensions"
-msgstr "تصویری از ابعاد شبکه"
+msgstr "Dimensões da grelha de ilustração"
 
 #: plugin/optionsTab.php:38
 msgid "Outer border size"
-msgstr "اندازه مرز بیرونی"
+msgstr "Tamanho da borda exterior"
 
 #: plugin/optionsTab.php:42
 msgid "Field size without borders"
-msgstr "اندازه زمینه بدون مرز"
+msgstr "Tamanho do campo sem bordas"
 
 #: plugin/optionsTab.php:46
 msgid "Border size between adjecent fields"
-msgstr "اندازه مرزهای تعیین شده"
+msgstr "Tamanho da borda entre campos adjacentes"
 
 #: plugin/optionsTab.php:50
 msgid "Size of the drag handle outside the grid borders"
-msgstr "اندازه کشیدن لبه بیرونی"
+msgstr "Tamanho da alça de arrasto fora das bordas da grade"
 
 #: plugin/optionsTab.php:54
 msgid "Size of the drag handle inside the grid borders"
-msgstr "اندازه کشیدن لبه داخلی"
+msgstr "Tamanho da alça de arrasto dentro das bordas da grade"
 
 #: plugin/optionsTab.php:58
 msgid "Each dimension needs to be an integer of 0 or more"
-msgstr "اندازه باید 0 یا بیشتر باشد"
+msgstr "Cada dimensão precisa ter um inteiro de 0 ou mais"
 
 #: plugin/optionsTab.php:59
 msgid "Save the updated grid dimensions"
-msgstr "ذخیره اندازه‌های جدید"
+msgstr "Guardar as dimensões da grelha actualizadas"
 
 #: plugin/optionsTab.php:67
 msgid "These settings are only available if you use a custom stylesheet"
-msgstr "این اندازه فقط وقتی اعمال می‌شوند که شما از جدول دلخواه استفاده کنید"
+msgstr ""
+"Estas configurações só estão disponíveis se utilizares uma folha de estilo "
+"personalizada."
 
 #: plugin/optionsTab.php:73 plugin/simple-history.php:20
 msgid "Solution submissions"
-msgstr "ارسال راه حل"
+msgstr "Soluções submetidas"
 
 #: plugin/optionsTab.php:75
 msgid "Install and activate a plugin to submit a solution to it."
-msgstr "افزونه‌ای را بیفزایید و فعال کنید تا نتیجه را  ارسال نمایید"
+msgstr "Instala e activa o plugin para submeter a solução."
 
 #: plugin/optionsTab.php:76
 msgid "Log submissions with:"
-msgstr "ارسال با:"
+msgstr "Registo de submissões com:"
 
 #: plugin/optionsTab.php:82
 msgid "Save the submission targets"
-msgstr "کارتان را ذخیره کنید"
+msgstr "Guardar os alvos de submissão."
 
 #: plugin/reviewTab.php:5
 msgid "Approved crosswords"
-msgstr "جدول تایید شده"
+msgstr "Palavras cruzadas aprovadas"
 
 #: plugin/reviewTab.php:7
 msgid "Crosswords pending approval"
-msgstr "جدول در حال تایید"
+msgstr "Palavras cruzadas pendentes de aprovação"
 
 #: plugin/reviewTab.php:17
 msgid "Approve the marked crossword to be displayed for everyone"
-msgstr "جدول نشان شده را تایید کنید تا برای همه نمایش داده شود"
+msgstr "Aprovar as palavras cruzadas seleccionadas a serem exibidas para todos"
 
 #: plugin/reviewTab.php:26
 msgid "Delete the selected approved crossword"
-msgstr "جدول تایید شده را حذف کنید"
+msgstr "Eliminar as palavras cruzadas aprovadas seleccionadas"
 
 #: plugin/reviewTab.php:30
 msgid "Delete the selected pending crossword"
-msgstr "جدول در انتظار تایید را حذف کنید"
+msgstr "Eliminar as palavras cruzadas seleccionadas pendentes"
 
 #: plugin/reviewTab.php:34
 msgid "Show a preview of the selected crossword"
-msgstr "پیش نمایش جدول انتخاب شده"
+msgstr "Mostrar uma pré-visualização da palavra cruzada selecionada"
 
 #: plugin/reviewTab.php:34
 msgid "Preview"
-msgstr "پیش نمایش"
+msgstr "Pré-visualisar"
 
 #: plugin/settings.php:22
 msgid "Assign projects and editors"
-msgstr "اختصاص پروژه و ویراستاران"
+msgstr "Atribuir projetos e editores"
 
 #: plugin/settings.php:30
 msgid "Review riddles in projects"
-msgstr "بازدید جدول در پروژه"
+msgstr "Revê os enigmas nos projectos"
 
 #: plugin/simple-history.php:10
 msgid "Crosswordsearch submissions"
-msgstr "ارسال جدول"
+msgstr "Submissões de palavras cruzadas "
 
 #: plugin/wizzard.php:6 plugin/js/block-editor.js:217
 msgid "Waiting for data..."
-msgstr "در انتظار اطلاعات..."
+msgstr "A aguardar dados..."
 
 #: plugin/wizzard.php:7 plugin/js/block-editor.js:222
 msgid "No projects found."
-msgstr "پروژه‌ای یافت نشد"
+msgstr "Nenhum projecto foi encontrado."
 
 #: plugin/wizzard.php:11 plugin/js/block-editor.js:238
 msgid "Mode"
-msgstr "حالت"
+msgstr "Modo"
 
 #: plugin/wizzard.php:12 plugin/js/block-editor.js:56
 msgid "Design crosswords"
-msgstr "طراحی جدول"
+msgstr "Desenhar palavras cruzadas"
 
 #: plugin/wizzard.php:13 plugin/js/block-editor.js:59
 msgid "Solve crosswords"
-msgstr "جدول را حل کنید"
+msgstr "Resolve as palavras cruzadas"
 
 #: plugin/wizzard.php:14 plugin/wizzard.php:19 plugin/wizzard.php:26
 #: plugin/js/block-editor.js:179 plugin/js/block-editor.js:243
 msgid "Select something."
-msgstr "چیزی را انتخاب کنید"
+msgstr "Selecciona algo"
 
 #: plugin/wizzard.php:22 plugin/js/block-editor.js:271
 msgid "Crossword"
-msgstr "جدول "
+msgstr "Palavras cruzadas"
 
 #: plugin/wizzard.php:24 plugin/js/block-editor.js:274
 msgid "Select one or let the user choose from all crosswords."
-msgstr "انتخاب کنید یا به کاربر اجازه دهید تا انتخاب کند."
+msgstr "Selecciona uma das palavras cruzadas ou deixa à escolha do utilizador."
 
 #: plugin/wizzard.php:25 plugin/js/block-editor.js:274
 msgid ""
 "Preselect the crossword initially displayed. All crosswords remain "
 "selectable."
 msgstr ""
-"برگه جدول کلمات متقاطع در ابتدا نمایش داده شود. جداول باقی مانده قابل انتخاب "
-"باشند."
+"Pré-selecione as palavras cruzadas exibidas inicialmente. Todas as palavras "
+"cruzadas permanecem seleccionáveis."
 
 #: plugin/wizzard.php:29 plugin/js/block-editor.js:286
 msgid "Save opportunities"
-msgstr "ذخیره فرصت‌ها"
+msgstr "Guardar oportunidades"
 
 #: plugin/wizzard.php:30 plugin/js/block-editor.js:287
 msgid "Restricted"
-msgstr "محافظت شده "
+msgstr "Restrito"
 
 #: plugin/wizzard.php:31 plugin/js/block-editor.js:288
 msgid "Uploads by restricted users must be reviewed."
-msgstr "بارگزاری‌های کاربران محدود شده باید بازبینی شوند."
+msgstr "Os uploads do utilizadores restritos têm de ser revistos."
 
 #: plugin/wizzard.php:34 plugin/js/block-editor.js:298
 msgid "Display timer"
-msgstr "نمایش زمان سنج"
+msgstr "Exibir o temporizador"
 
 #: plugin/wizzard.php:36 plugin/js/block-editor.js:78
 msgid "None"
-msgstr "هیچ"
+msgstr "Nenhum"
 
 #: plugin/wizzard.php:37 plugin/js/block-editor.js:82
 msgid "Open-ended"
-msgstr "زمان باز بودن به پایان رسید."
+msgstr "Aberta"
 
 #: plugin/wizzard.php:38 plugin/js/block-editor.js:86
 msgid "Countdown"
-msgstr "شمارنده"
+msgstr "Contagem regressiva"
 
 #: plugin/wizzard.php:40 plugin/js/block-editor.js:310
 msgid "Allowed time"
-msgstr "زمان اجازه داده شده"
+msgstr "Tempo permitido"
 
 #: plugin/wizzard.php:42
 msgid "Give time in seconds (a positive integer)."
-msgstr "زمان سنج ثانیه‌ای."
+msgstr "Dar o tempo em segundos (um número inteiro positivo)."
 
 #: plugin/wizzard.php:45 plugin/js/block-editor.js:314
 msgid "Submission"
-msgstr "ارسال"
+msgstr "Submissão"
 
 #: plugin/wizzard.php:46 plugin/js/block-editor.js:315
 msgid "Let users submit their result"
-msgstr "اجازه دهید کاربران نتیجه را ارسال کنند."
+msgstr "Deixa os utilizadores submeterem os seus resultados"
 
 #: plugin/wizzard.php:51
 msgid "Insert Shortcode"
-msgstr "کد کوتاه را وارد کنید"
+msgstr "Inserir shortcode"
 
 #: plugin/wizzard.php:52
 msgid "Cancel"
-msgstr "لغو "
+msgstr "Cancelar"
 
 #: plugin/js/block-editor.js:374
 msgid "Define how a Crosswordsearch block should be displayed"
-msgstr ""
+msgstr "Definir como o é que o bloco do Crosswordsearch deve ser exibido"
 
 #: plugin/js/block-editor.js:435
-#, fuzzy
 msgid "Crosswordsearch has no visual preview."
-msgstr "مدیریت جدول ( بازبینی شده)"
+msgstr "Sem pré-visualização para Crosswordsearch."
 
 #: plugin/js/block-editor.js:435
 msgid ""
 "Its representation as a \"shortcode\" is, for now, a way to ease the "
 "transition from the classic editor to Gutenberg."
 msgstr ""
+"A representação de \"shortcode\" é por agora uma forma de faciltar a "
+"transição entre o editor clássico e o Gutenberg."
 
 #: plugin/js/block-editor.js:435
+#, fuzzy
 msgid ""
 "Use the \"Preview\" button at the top to see the complete post including the "
 "rendered crossword block."
 msgstr ""
+"Utilizar o botão de \"Pré-visualizar\" no topo para ver o artigo completo "
+"incluindo o bloco de palavras cruzadas renderizado."
 
 #: plugin/js/block-editor.js:437
 msgid "Shortcode"
-msgstr "کد کوتاه"
+msgstr "Shortcode"
