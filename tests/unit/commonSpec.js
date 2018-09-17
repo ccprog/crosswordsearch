@@ -1,27 +1,3 @@
-describe("reduce implementation", function () {
-    beforeEach(module('crwApp'));
-
-    it("iterates over an array", inject(function($injector) {
-        var reduce = $injector.get('reduce');
-        var mock = {
-            func: function (old, value, key) {
-                return old;
-            },
-            initial: 0,
-            array: [1,2,3]
-        };
-        spyOn(mock, 'func').and.callThrough();
-
-        var result = reduce(mock.array, mock.initial, mock.func);
-
-        expect(mock.func.calls.count()).toEqual(mock.array.length);
-        for (var i = 0; i < mock.array.length; i++) {
-            expect(mock.func.calls.argsFor(i)).toEqual([mock.initial, mock.array[i], i]);
-        }
-        expect(result).toBe(mock.initial);
-    }));
-});
-
 describe ("localeNumber filter", function () {
     var localeNumber;
 

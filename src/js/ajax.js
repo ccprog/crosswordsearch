@@ -16,7 +16,7 @@ crwApp.factory('ajaxFactory', ['$http', '$q', 'nonces', function ($http, $q, non
     jQuery(document).on('heartbeat-tick', function (e, data) {
         if (data['wp-auth-check'] === false) {
             // nonces have expired, delete them
-            angular.forEach(nonces, function (val, key) {
+            Object.keys(nonces).forEach(function(key) {
                 delete nonces[key];
             });
         }

@@ -186,7 +186,7 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, non
     };
     jQuery(document).on("heartbeat-tick", function(e, data) {
         if (data["wp-auth-check"] === false) {
-            angular.forEach(nonces, function(val, key) {
+            Object.keys(nonces).forEach(function(key) {
                 delete nonces[key];
             });
         }
@@ -248,15 +248,6 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, non
     };
 } ]);
 
-crwApp.factory("reduce", function() {
-    return function(array, initial, func) {
-        angular.forEach(array, function(value, key) {
-            initial = func.apply(value, [ initial, value, key ]);
-        });
-        return initial;
-    };
-});
-
 crwApp.filter("localeNumber", function() {
     var diff, rlo = String.fromCharCode(8238), pdf = String.fromCharCode(8236);
     var encode = function(d) {
@@ -309,15 +300,16 @@ crwApp.directive("crwBindTrusted", [ "$sce", function($sce) {
     };
 } ]);
 
-crwApp.factory("basics", [ "reduce", function(reduce) {
+crwApp.factory("basics", function() {
     var total = 0;
-    var list = reduce(crwBasics.letterDist, [], function(result, value, key) {
+    var list = Object.keys(crwBasics.letterDist).reduce(function(result, key) {
+        var value = crwBasics.letterDist[key];
         total += value;
         for (var i = 0; i < value; i++) {
             result.push(key);
         }
         return result;
-    });
+    }, []);
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
         textIsLTR: crwBasics.textDirection !== "rtl",
@@ -394,9 +386,9 @@ crwApp.factory("basics", [ "reduce", function(reduce) {
             return crwBasics.locale[str] || str;
         }
     };
-} ]);
+});
 
-crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function(basics, reduce, ajaxFactory) {
+crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, ajaxFactory) {
     function Crw() {
         var crwId = ajaxFactory.getId();
         var crwContext = "crossword" + crwId, editContext = "edit" + crwId;
@@ -445,7 +437,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             if (exists) {
                 return false;
             }
-            angular.forEach(marking.fields, function(field) {
+            marking.fields.forEach(function(field) {
                 field.word = crossword.table[field.y][field.x];
             });
             return crossword.words[marking.ID] = marking;
@@ -597,9 +589,9 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             });
         };
         this.getHighId = function() {
-            return reduce(crossword.words, 0, function(result, word) {
-                return Math.max(result, word.ID);
-            });
+            return Object.keys(crossword.words).reduce(function(result, key) {
+                return Math.max(result, crossword.words[key].ID);
+            }, 0);
         };
         this.randomColor = function() {
             var highID = this.getHighId();
@@ -626,7 +618,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
         this.getLevelRestriction = _getLevelRestriction;
         this.probeWord = function(marking) {
             var entry = marking;
-            angular.forEach(entry.fields, function(field) {
+            entry.fields.forEach(function(field) {
                 field.word = crossword.table[field.y][field.x];
             });
             entry.solved = false;
@@ -663,7 +655,7 @@ crwApp.factory("crosswordFactory", [ "basics", "reduce", "ajaxFactory", function
             return critical;
         };
         this.changeSize = function(change, critical) {
-            angular.forEach(critical, function(id) {
+            critical.forEach(function(id) {
                 this.deleteWord(id, "words");
             }, this);
             var size = angular.copy(crossword.size);
@@ -787,7 +779,7 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
             setMarkers(marking, swap);
         };
         this.exchangeMarkers = function(fields, id, color) {
-            angular.forEach(fields, function(field) {
+            fields.forEach(function(field) {
                 markers[field.x][field.y][id].marking.color = color;
             });
         };
@@ -801,7 +793,7 @@ crwApp.factory("markerFactory", [ "basics", function(basics) {
                     shift_x = from.x - marking.fields[0].x;
                     shift_y = from.y - marking.fields[0].y;
                 }
-                angular.forEach(marking.fields, function(field) {
+                marking.fields.forEach(function(field) {
                     field.x += shift_x;
                     field.y += shift_y;
                 });
@@ -929,7 +921,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     };
     $scope.getProjectList = function(current) {
         var list = [];
-        angular.forEach($scope.admin.projects, function(project) {
+        $scope.admin.projects.forEach(function(project) {
             if (project.name !== current) {
                 list.push(project.name);
             }
@@ -939,11 +931,11 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     $scope.currentEditors = [];
     var showLoaded = function(admin, selected) {
         $scope.admin = admin;
-        angular.forEach($scope.admin.projects, function(project) {
+        $scope.admin.projects.forEach(function(project) {
             project.pristine = true;
         });
         if (selected) {
-            $scope.selectedProject = jQuery.grep($scope.admin.projects, function(project) {
+            $scope.selectedProject = $scope.admin.projects.filter(function(project) {
                 return project.name === selected;
             })[0];
         } else {
@@ -954,7 +946,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     };
     $scope.$watch("projectMod.$pristine", function(p) {
         var truePristine = true;
-        angular.forEach([ "name", "defaultL", "maximumL" ], function(name) {
+        [ "name", "defaultL", "maximumL" ].forEach(function(name) {
             truePristine &= $scope.projectMod[name].$pristine;
         });
         if (!p && truePristine) {
@@ -1022,13 +1014,13 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         if (!$scope.admin) {
             return;
         }
-        $scope.filtered_users = jQuery.grep($scope.admin.all_users, function(user) {
-            return jQuery.inArray(user.user_id, $scope.currentEditors) < 0;
+        $scope.filtered_users = $scope.admin.all_users.filter(function(user) {
+            return $scope.currentEditors.indexOf(user.user_id) < 0;
         });
-        if (jQuery.inArray($scope.selectedEditor, $scope.currentEditors) < 0) {
+        if ($scope.currentEditors.indexOf($scope.selectedEditor) < 0) {
             $scope.selectedEditor = $filter("orderBy")($scope.currentEditors, $scope.getUserName)[0];
         }
-        if (jQuery.inArray($scope.selectedUser, $scope.filtered_users) < 0) {
+        if ($scope.filtered_users.indexOf($scope.selectedUser) < 0) {
             $scope.selectedUser = $filter("orderBy")($scope.filtered_users, "user_name")[0];
         }
         $scope.setError(false);
@@ -1038,7 +1030,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         $scope.currentEditors.push(user.user_id);
     };
     var getUser = function(id) {
-        return jQuery.grep($scope.admin.all_users, function(user) {
+        return $scope.admin.all_users.filter(function(user) {
             return user.user_id === id;
         })[0];
     };
@@ -1046,7 +1038,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         return getUser(id).user_name;
     };
     $scope.addAll = function() {
-        angular.forEach($scope.filtered_users, addUser);
+        $scope.filtered_users.forEach(addUser);
         $scope.editorsPristine = false;
     };
     $scope.addOne = function() {
@@ -1060,7 +1052,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         $scope.editorsPristine = false;
     };
     $scope.removeOne = function() {
-        var index = jQuery.inArray($scope.selectedEditor, $scope.currentEditors), selected = getUser($scope.selectedEditor);
+        var index = $scope.currentEditors.indexOf($scope.selectedEditor), selected = getUser($scope.selectedEditor);
         $scope.currentEditors.splice(index, 1);
         $scope.editorsPristine = false;
         $scope.selectedUser = selected;
@@ -1110,7 +1102,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
         var newSelected;
         $scope.projects = data.projects;
         if (selected) {
-            newSelected = jQuery.grep($scope.projects, function(project) {
+            newSelected = $scope.projects.filter(function(project) {
                 return project.name === selected;
             })[0];
         }
@@ -1167,7 +1159,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
                 $scope.$broadcast("previewProject", newSel.name, crosswordNonce);
             }
             angular.forEach($scope.selectedCrossword, function(name, group) {
-                if (!name || jQuery.inArray(name, newSel[group]) < 0) {
+                if (!name || newSel[group].indexOf(name) < 0) {
                     $scope.selectedCrossword[group] = $filter("orderBy")(newSel[group], "toString()")[0];
                 }
             });
@@ -1307,7 +1299,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                 return scope.texts[scope.timer.countdown ? "down" : "up"].title;
             };
             scope.getDisabled = function() {
-                return jQuery.inArray(scope.timer.state, [ "waiting", "scored" ]) < 0;
+                return [ "waiting", "scored" ].indexOf(scope.timer.state) < 0;
             };
             scope.play = function() {
                 if (scope.timer.state === "waiting") {
@@ -1377,7 +1369,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     $scope.levelList = $scope.crw.getLevelList();
     $scope.tableVisible = true;
     function updateLoadList(names) {
-        jQuery.grep($scope.commandList, function(command) {
+        $scope.commandList.filter(function(command) {
             return command.value === "load";
         })[0].group = names;
     }
@@ -1412,7 +1404,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             });
             break;
         }
-        $scope.commandList = jQuery.map($scope.commands, function(value, command) {
+        $scope.commandList = Object.keys($scope.commands).map(function(command) {
             var obj = basics.localize(command);
             obj.value = command;
             if (command === "load") {
@@ -1455,7 +1447,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
                     level: value
                 };
                 $scope.immediateStore.newPromise("invalidDirections", arg).then(function() {
-                    angular.forEach(critical, function(id) {
+                    critical.forEach(function(id) {
                         $scope.crw.deleteWord(id, "words");
                     });
                 }, function() {
@@ -1990,13 +1982,13 @@ crwApp.directive("colorSelect", [ "basics", function(basics) {
     };
 } ]);
 
-crwApp.filter("joinWord", [ "reduce", function(reduce) {
+crwApp.filter("joinWord", function() {
     return function(input) {
-        return reduce(input, "", function(result, value) {
+        return input.reduce(function(result, value) {
             return result + (value.word.letter || "_");
-        });
+        }, "");
     };
-} ]);
+});
 
 crwApp.controller("EntryController", [ "$scope", "$filter", "basics", function($scope, $filter, basics) {
     $scope.colors = basics.colors;
@@ -2030,7 +2022,7 @@ crwApp.factory("qStore", [ "$q", function($q) {
         this.newPromise = function(name, arg) {
             var deferred = $q.defer();
             if (store[name]) {
-                angular.forEach(store[name], function(callback) {
+                store[name].forEach(function(callback) {
                     callback(deferred, arg);
                 });
             }
@@ -2050,7 +2042,7 @@ crwApp.directive("crwAddParsers", function() {
         link: function(scope, element, attrs, ctrl) {
             var space = /\s+/;
             var parsers = attrs.crwAddParsers.split(space);
-            if (jQuery.inArray("unique", parsers) >= 0) {
+            if (parsers.indexOf("unique") >= 0) {
                 var uniques = attrs.crwUnique.split(space);
                 ctrl.$parsers.unshift(function(viewValue) {
                     if (viewValue === undefined) {
@@ -2059,8 +2051,8 @@ crwApp.directive("crwAddParsers", function() {
                     var blacklist, i, result = viewValue;
                     for (i = 0; i < uniques.length; i++) {
                         blacklist = scope.$eval(uniques[i]);
-                        if (jQuery.isArray(blacklist)) {
-                            if (jQuery.inArray(viewValue, blacklist) >= 0) {
+                        if (Array.isArray(blacklist)) {
+                            if (blacklist.indexOf(viewValue) >= 0) {
                                 result = undefined;
                             }
                             continue;
@@ -2078,7 +2070,7 @@ crwApp.directive("crwAddParsers", function() {
                     return result;
                 });
             }
-            if (jQuery.inArray("sane", parsers) >= 0) {
+            if (parsers.indexOf("sane") >= 0) {
                 ctrl.$parsers.unshift(function(viewValue) {
                     viewValue = viewValue.replace(space, " ");
                     var sanitized = viewValue.replace(/<|%[a-f0-9]{2}/, "");

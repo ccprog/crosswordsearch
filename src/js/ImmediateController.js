@@ -20,7 +20,7 @@ crwApp.factory('qStore', ['$q', function ($q) {
         this.newPromise = function (name, arg) {
             var deferred = $q.defer();
             if (store[name]) {
-                angular.forEach(store[name], function (callback) {
+                store[name].forEach(function (callback) {
                     callback(deferred, arg);
                 });
             }
@@ -41,7 +41,7 @@ crwApp.directive('crwAddParsers', function () {
         link: function (scope, element, attrs, ctrl) {
             var space = /\s+/;
             var parsers = attrs.crwAddParsers.split(space);
-            if (jQuery.inArray('unique', parsers) >= 0) {
+            if (parsers.indexOf('unique') >= 0) {
                 // test if a crossword name is unique and exclude reserved words
                 var uniques = attrs.crwUnique.split(space);
                 ctrl.$parsers.unshift(function(viewValue) {
@@ -51,8 +51,8 @@ crwApp.directive('crwAddParsers', function () {
                     var blacklist, i, result = viewValue;
                     for (i = 0; i < uniques.length; i++) {
                         blacklist = scope.$eval(uniques[i]);
-                        if (jQuery.isArray(blacklist)) {
-                            if (jQuery.inArray(viewValue, blacklist) >= 0) {
+                        if (Array.isArray(blacklist)) {
+                            if (blacklist.indexOf(viewValue) >= 0) {
                                 result = undefined;
                             }
                             continue;
@@ -70,7 +70,7 @@ crwApp.directive('crwAddParsers', function () {
                     return result;
                 });
             }
-            if (jQuery.inArray('sane', parsers) >= 0) {
+            if (parsers.indexOf('sane') >= 0) {
                 // sanitize input field more or less the same way WordPress
                 // does on receiving the data
                 ctrl.$parsers.unshift(function(viewValue) {

@@ -120,7 +120,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     // extract the list of project names from the admin object
     $scope.getProjectList = function (current) {
         var list = [];
-        angular.forEach($scope.admin.projects, function (project) {
+        $scope.admin.projects.forEach(function (project) {
             if (project.name !== current) {
                 list.push(project.name);
             }
@@ -134,11 +134,11 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     var showLoaded = function (admin, selected) {
         $scope.admin = admin;
         // flag for unsaved editor entries
-        angular.forEach($scope.admin.projects, function (project) {
+        $scope.admin.projects.forEach(function (project) {
             project.pristine = true;
         });
         if (selected) {
-            $scope.selectedProject = jQuery.grep($scope.admin.projects, function (project) {
+            $scope.selectedProject = $scope.admin.projects.filter(function (project) {
                 return project.name === selected;
             })[0];
         } else {
@@ -151,7 +151,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     // prune out form fields that do not count for selectedProject
     $scope.$watch('projectMod.$pristine', function (p) {
         var truePristine = true;
-        angular.forEach(['name', 'defaultL', 'maximumL'], function (name) {
+        ['name', 'defaultL', 'maximumL'].forEach(function (name) {
             truePristine &= $scope.projectMod[name].$pristine;
         });
         if (!p && truePristine) {
@@ -233,13 +233,13 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         if (!$scope.admin) {
             return;
         }
-        $scope.filtered_users = jQuery.grep($scope.admin.all_users, function (user) {
-            return jQuery.inArray(user.user_id, $scope.currentEditors) < 0;
+        $scope.filtered_users = $scope.admin.all_users.filter(function (user) {
+            return $scope.currentEditors.indexOf(user.user_id) < 0;
         });
-        if (jQuery.inArray($scope.selectedEditor, $scope.currentEditors) < 0) {
+        if ($scope.currentEditors.indexOf($scope.selectedEditor) < 0) {
             $scope.selectedEditor = $filter('orderBy')($scope.currentEditors, $scope.getUserName)[0];
         }
-        if (jQuery.inArray($scope.selectedUser, $scope.filtered_users) < 0) {
+        if ($scope.filtered_users.indexOf($scope.selectedUser) < 0) {
             $scope.selectedUser = $filter('orderBy')($scope.filtered_users, 'user_name')[0];
         }
         $scope.setError(false);
@@ -252,7 +252,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 
     // fetch a user object by id
     var getUser = function (id) {
-        return jQuery.grep($scope.admin.all_users, function (user) {
+        return $scope.admin.all_users.filter(function (user) {
             return user.user_id === id;
         })[0];
     };
@@ -264,7 +264,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 
     // enable all users for the current project
     $scope.addAll = function () {
-        angular.forEach($scope.filtered_users, addUser);
+        $scope.filtered_users.forEach(addUser);
         $scope.editorsPristine = false;
     };
 
@@ -284,7 +284,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
 
     // disable a user for the current project
     $scope.removeOne = function () {
-        var index = jQuery.inArray($scope.selectedEditor, $scope.currentEditors),
+        var index = $scope.currentEditors.indexOf($scope.selectedEditor),
             selected = getUser($scope.selectedEditor);
         $scope.currentEditors.splice(index, 1);
         $scope.editorsPristine = false;
@@ -343,7 +343,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
         var newSelected;
         $scope.projects = data.projects;
         if (selected) {
-            newSelected = jQuery.grep($scope.projects, function (project) {
+            newSelected = $scope.projects.filter(function (project) {
                 return project.name === selected;
             })[0];
         }
@@ -410,7 +410,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
             }
             // adjust crossword selection
             angular.forEach($scope.selectedCrossword, function (name, group) {
-                if (!name || jQuery.inArray(name, newSel[group]) < 0) {
+                if (!name || newSel[group].indexOf(name) < 0) {
                     $scope.selectedCrossword[group] = $filter('orderBy')(newSel[group], 'toString()')[0];
                 }
             });

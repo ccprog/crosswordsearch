@@ -34,7 +34,7 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, non
     };
     jQuery(document).on("heartbeat-tick", function(e, data) {
         if (data["wp-auth-check"] === false) {
-            angular.forEach(nonces, function(val, key) {
+            Object.keys(nonces).forEach(function(key) {
                 delete nonces[key];
             });
         }
@@ -95,15 +95,6 @@ crwApp.factory("ajaxFactory", [ "$http", "$q", "nonces", function($http, $q, non
         }
     };
 } ]);
-
-crwApp.factory("reduce", function() {
-    return function(array, initial, func) {
-        angular.forEach(array, function(value, key) {
-            initial = func.apply(value, [ initial, value, key ]);
-        });
-        return initial;
-    };
-});
 
 crwApp.filter("localeNumber", function() {
     var diff, rlo = String.fromCharCode(8238), pdf = String.fromCharCode(8236);
@@ -182,10 +173,10 @@ crwApp.controller("WizzardController", [ "$scope", "ajaxFactory", function($scop
     };
     $scope.$on("publicList", function(event, data) {
         $scope.projects = data.projects;
-        var projectNames = jQuery.map($scope.projects, function(p) {
+        var projectNames = $scope.projects.map(function(p) {
             return p.name;
         });
-        if (jQuery.inArray($scope.project, projectNames) < 0) {
+        if (projectNames.indexOf($scope.project) < 0) {
             $scope.project = $scope.projects[0];
         }
         $scope.noData = false;
@@ -206,14 +197,14 @@ crwApp.controller("WizzardController", [ "$scope", "ajaxFactory", function($scop
             } ];
         }
         if ($scope.project) {
-            angular.forEach($scope.project.crosswords, function(name) {
+            $scope.project.crosswords.forEach(function(name) {
                 $scope.names.push({
                     key: name,
                     label: name
                 });
             });
         }
-        var dismissable = jQuery.grep($scope.names, function(obj) {
+        var dismissable = $scope.names.filter(function(obj) {
             return obj.key === $scope.crossword;
         }).length === 0;
         if (dismissable) {
@@ -249,7 +240,7 @@ crwApp.controller("WizzardController", [ "$scope", "ajaxFactory", function($scop
                 project: $scope.project.name
             }
         };
-        var basic = jQuery.inArray($scope.crossword, basicNames);
+        var basic = basicNames.indexOf($scope.crossword);
         if (basic === 0) {
             code.attrs.name = "";
         } else if (basic < 0) {

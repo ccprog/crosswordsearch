@@ -66,7 +66,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     // build page only: data object for command menu
     // move the namesIn Project list into the command sub-menu
     function updateLoadList (names) {
-        jQuery.grep($scope.commandList, function(command) {
+        $scope.commandList.filter(function(command) {
             return command.value === 'load';
         })[0].group = names;
     }
@@ -108,7 +108,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             break;
         }
         // init command data object and menu
-        $scope.commandList = jQuery.map($scope.commands, function (value, command) {
+        $scope.commandList = Object.keys($scope.commands).map(function (command) {
             var obj = basics.localize(command);
             obj.value = command;
             if (command === 'load') {
@@ -155,7 +155,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
                 var arg = {count: critical.length, level: value};
                 $scope.immediateStore.newPromise('invalidDirections', arg).then(function () {
                     // yes: delete words.
-                    angular.forEach(critical, function (id) {
+                    critical.forEach(function (id) {
                         $scope.crw.deleteWord(id, 'words');
                     });
                 }, function () {

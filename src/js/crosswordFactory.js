@@ -1,6 +1,6 @@
 /* crossword data object contructor */
-crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
-        function (basics, reduce, ajaxFactory) {
+crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
+        function (basics, ajaxFactory) {
     function Crw () {
         // nonce keys are unique for every crossword instance
         var crwId = ajaxFactory.getId();
@@ -81,7 +81,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             if (exists) {
                 return false;
             }
-            angular.forEach(marking.fields, function (field) {
+            marking.fields.forEach(function (field) {
                 field.word = crossword.table[field.y][field.x];
             });
             return (crossword.words[marking.ID] = marking);
@@ -204,7 +204,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
             }
             count.words = 0;
             count.solution = 0;
-            angular.forEach(crossword.words, function(word) {
+            angular.forEach(crossword.words, function (word) {
                 // count words in words/solution object
                 count.words++;
                 // refresh data binding for word objects
@@ -267,9 +267,9 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
 
         // return the highest id used for words
         this.getHighId = function () {
-            return reduce(crossword.words, 0, function (result, word) {
-                return Math.max(result, word.ID);
-            });
+            return Object.keys(crossword.words).reduce(function (result, key) {
+                return Math.max(result, crossword.words[key].ID);
+            }, 0);
         };
 
         // identify a color that is different from the one used
@@ -317,7 +317,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // The altered object is mirrored back.
         this.probeWord = function (marking) {
             var entry = marking;
-            angular.forEach(entry.fields, function (field) {
+            entry.fields.forEach(function (field) {
                 field.word = crossword.table[field.y][field.x];
             });
             entry.solved = false;
@@ -370,7 +370,7 @@ crwApp.factory('crosswordFactory', ['basics', 'reduce', 'ajaxFactory',
         // critical is the list of words that must be removed to avoid sequences
         // crossing the table limits
         this.changeSize = function (change, critical) {
-            angular.forEach(critical, function (id) {
+            critical.forEach(function (id) {
                 this.deleteWord(id, 'words');
             }, this);
             var size = angular.copy(crossword.size);

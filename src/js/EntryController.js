@@ -11,13 +11,13 @@ crwApp.directive('colorSelect', ['basics', function(basics) {
 
 // concatenate letter sequences to a string
 // empty fields are shown as "_"
-crwApp.filter('joinWord', ['reduce', function (reduce) {
+crwApp.filter('joinWord', function () {
     return function (input) {
-        return reduce(input, "", function (result, value) {
+        return input.reduce(function (result, value) {
             return result + (value.word.letter || "_");
-        });
+        }, "");
     };
-}]);
+});
 
 // word list entry controller, mostly needed for $filter and colors import
 crwApp.controller("EntryController", ["$scope", "$filter", 'basics',

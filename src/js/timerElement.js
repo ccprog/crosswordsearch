@@ -97,7 +97,7 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
 
             // state of button
             scope.getDisabled = function () {
-                return jQuery.inArray(scope.timer.state, ['waiting', 'scored']) < 0;
+                return ['waiting', 'scored'].indexOf(scope.timer.state) < 0;
             };
 
             // button click

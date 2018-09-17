@@ -1,13 +1,14 @@
 /* constants */
-crwApp.factory('basics', ['reduce', function (reduce) {
+crwApp.factory('basics', function () {
     var total = 0;
-    var list = reduce(crwBasics.letterDist, [], function (result, value, key) {
+    var list = Object.keys(crwBasics.letterDist).reduce(function (result, key) {
+        var value = crwBasics.letterDist[key];
         total += value;
         for (var i = 0; i < value; i++) {
             result.push(key);
         }
         return result;
-    });
+    }, []);
 
     return {
         // the list of marking colors selectable on build page.
@@ -105,4 +106,4 @@ crwApp.factory('basics', ['reduce', function (reduce) {
             return crwBasics.locale[str] || str;
         }
     };
-}]);
+});

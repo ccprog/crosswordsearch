@@ -27,10 +27,10 @@ crwApp.controller("WizzardController", ['$scope', 'ajaxFactory',
 
     $scope.$on('publicList', function (event, data) {
         $scope.projects = data.projects;
-        var projectNames = jQuery.map($scope.projects, function (p) {
+        var projectNames = $scope.projects.map(function (p) {
             return p.name;
         });
-        if (jQuery.inArray($scope.project, projectNames) < 0) {
+        if (projectNames.indexOf($scope.project) < 0) {
             $scope.project = $scope.projects[0];
         }
         $scope.noData = false;
@@ -48,11 +48,11 @@ crwApp.controller("WizzardController", ['$scope', 'ajaxFactory',
             ]; 
         }
         if ($scope.project) {
-            angular.forEach($scope.project.crosswords, function (name) {
+            $scope.project.crosswords.forEach(function (name) {
                 $scope.names.push({ key: name, label: name });
             });
         }
-        var dismissable = jQuery.grep($scope.names, function (obj) {
+        var dismissable = $scope.names.filter(function (obj) {
             return obj.key === $scope.crossword;
         }).length === 0;
         if (dismissable) {
@@ -90,7 +90,7 @@ crwApp.controller("WizzardController", ['$scope', 'ajaxFactory',
                 project: $scope.project.name
             }
         };
-        var basic = jQuery.inArray($scope.crossword, basicNames);
+        var basic = basicNames.indexOf($scope.crossword);
         if (basic === 0) {
             code.attrs.name = '';
         } else if (basic < 0) {

@@ -96,7 +96,7 @@ crwApp.factory('markerFactory', ['basics', function (basics) {
 
         // trigger the color change of a marking
         this.exchangeMarkers = function (fields, id, color) {
-            angular.forEach(fields, function(field) {
+            fields.forEach(function(field) {
                 markers[field.x][field.y][id].marking.color = color;
             });
         };
@@ -114,7 +114,7 @@ crwApp.factory('markerFactory', ['basics', function (basics) {
                     shift_x = from.x - marking.fields[0].x;
                     shift_y = from.y - marking.fields[0].y;
                 }
-                angular.forEach(marking.fields, function (field) {
+                marking.fields.forEach(function (field) {
                     field.x += shift_x;
                     field.y += shift_y;
                 });

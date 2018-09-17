@@ -1,13 +1,3 @@
-/* reduce implementation */
-crwApp.factory('reduce', function () {
-    return function (array, initial, func) {
-    angular.forEach(array, function(value, key) {
-        initial = func.apply(value, [initial, value, key]);
-    });
-	return initial;
-    };
-});
-
 /* display localized integers in different scripts
  * (shim for Number.prototype.toLocaleString) */
 crwApp.filter("localeNumber",  function() {
