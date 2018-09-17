@@ -1,4 +1,4 @@
-describe("crwSetFocus", function() {
+describe("contenteditable", function() {
     var $scope, element;
 
     beforeEach(module('crwApp'));
@@ -6,10 +6,11 @@ describe("crwSetFocus", function() {
         $scope = $rootScope.$new();
         $scope.line = 1;
         $scope.cols = [2, 3];
+        $scope.letter = '';
         element = $compile('<ul>' +
             '<li ng-repeat="column in cols" ng-click="$broadcast(\'setFocus\', line, column)">' +
-            '<button id="btn{{column}}" crw-set-focus></button>' +
-            '<div id="top{{column}}"></top>' +
+            '<span id="span{{column}}" contenteditable="true" ng-model="letter"></span>' +
+            '<div id="top{{column}}"></div>' +
             '</li>' +
             '</ul>')($scope);
         jQuery('body').append(element);
@@ -22,15 +23,15 @@ describe("crwSetFocus", function() {
     it("prevents letter highlighting", function() {
         var listener = jasmine.createSpy('listener');
         jQuery('body').on('mousemove', listener);
-        element.find('#btn2').trigger('mousemove');
+        element.find('#span2').trigger('mousemove');
         expect(listener.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
     });
 
-    it("sends setFocus events to button", function() {
+    it("sends setFocus events to contenteditable", function() {
         element.find('#top2').trigger('click');
-        expect(document.activeElement.id).toBe('btn2');
+        expect(document.activeElement.id).toBe('span2');
         element.find('#top3').trigger('click');
-        expect(document.activeElement.id).toBe('btn3');
+        expect(document.activeElement.id).toBe('span3');
     });
 });
 
@@ -438,84 +439,57 @@ describe("TableController", function () {
         expect($scope.setHighlight.calls.argsFor(1)[0]).toEqual([]);
     }));
 
-    it("evaluates keydown events", function () {
+    it("evaluates keydown keys", function () {
         $scope.field = {letter: 'A'};
         basics.letterRegEx = /[a-zA-Z]/;
         spyOn($scope, 'activate');
-        var event;
+        var moved = null;
         $scope.line = 2;
         $scope.column = 2;
         $scope.row = {length: 5};
         $scope.crosswordData = {table: {length: 5}};
-        function trigger (keycode) {
-            event = jQuery.Event('keydown');
+        function trigger (key) {
             $scope.activate.calls.reset();
             $scope.field.letter = 'A';
-            event.which = keycode;
-            $scope.move(event);
+            moved = null;
+            return $scope.move(key);
         }
-        trigger(0x25);
+        moved = trigger('ArrowLeft');
         expect($scope.activate).toHaveBeenCalledWith(2, 1);
-        trigger(0x26);
+        expect(moved).toBeTruthy();
+        moved = trigger('ArrowUp');
         expect($scope.activate).toHaveBeenCalledWith(1, 2);
-        trigger(0x27);
+        expect(moved).toBeTruthy();
+        moved = trigger('ArrowRight');
         expect($scope.activate).toHaveBeenCalledWith(2, 3);
-        trigger(0x28);
+        expect(moved).toBeTruthy();
+        moved = trigger('ArrowDown');
         expect($scope.activate).toHaveBeenCalledWith(3, 2);
+        expect(moved).toBeTruthy();
         $scope.line = 0;
         $scope.column = 0;
         $scope.row.length = 1;
         $scope.crosswordData.table.length = 1;
-        trigger(0x25);
+        moved = trigger('ArrowLeft');
         expect($scope.activate).not.toHaveBeenCalled();
-        trigger(0x26);
+        expect(moved).toBeTruthy();
+        moved = trigger('ArrowUp');
         expect($scope.activate).not.toHaveBeenCalled();
-        trigger(0x27);
+        expect(moved).toBeTruthy();
+        moved = trigger('ArrowRight');
         expect($scope.activate).not.toHaveBeenCalled();
-        trigger(0x28);
+        expect(moved).toBeTruthy();
+        moved = trigger('ArrowDown');
         expect($scope.activate).not.toHaveBeenCalled();
-        trigger(0x08);
+        expect(moved).toBeTruthy();
+        moved = trigger('Delete');
         expect($scope.field.letter).toBeNull();
-        trigger(0x2E);
+        expect(moved).toBeTruthy();
+        moved = trigger('Backspace');
         expect($scope.field.letter).toBeNull();
-        expect(event.isDefaultPrevented()).toBe(true);
-        expect(event.isPropagationStopped()).toBe(true);
-        trigger(0x29);
-        expect(event.isDefaultPrevented()).toBe(false);
-        expect(event.isPropagationStopped()).toBe(false);
-        trigger(0x52);
+        expect(moved).toBeTruthy();
+        moved = trigger('F');
         expect($scope.activate).not.toHaveBeenCalled();
-        expect(event.isDefaultPrevented()).toBe(false);
-        expect(event.isPropagationStopped()).toBe(true);
-    });
-
-    it("evaluates keypress events", function () {
-        $scope.field = {letter: null};
-        basics.letterRegEx = /[a-zA-Z]/;
-        var event;
-        function trigger (keycode) {
-            event = jQuery.Event('keydown');
-            $scope.field.letter = null;
-            event.which = keycode;
-            $scope.type(event);
-        }
-        trigger(0x41);
-        expect($scope.field.letter).toBe('A');
-        trigger(0x61);
-        expect($scope.field.letter).toBe('A');
-        trigger(0x52);
-        expect($scope.field.letter).toBe('R');
-        trigger(0x72);
-        expect($scope.field.letter).toBe('R');
-        expect(event.isDefaultPrevented()).toBe(true);
-        expect(event.isPropagationStopped()).toBe(true);
-        trigger(0xF6);
-        expect($scope.field.letter).toBeNull();
-        trigger(0x36);
-        expect($scope.field.letter).toBeNull();
-        expect(event.isDefaultPrevented()).toBe(false);
-        expect(event.isPropagationStopped()).toBe(false);
-        trigger(0x20);
-        expect($scope.field.letter).toBeNull();
+        expect(moved).toBeFalsy();
     });
 });

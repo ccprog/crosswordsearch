@@ -26,20 +26,6 @@ crwApp.directive('crwHelpFollow', ['$document', function ($document) {
     };
 }]);
 
-/* patch to reroute thr thickbox link click handler,
-   since its added before the options template is loaded */
-crwApp.directive('crwCatchThickboxLink', function ($sce) {
-    return {
-        link: function (scope, element, attrs) {
-            var data = jQuery.hasData( element[0] ) && jQuery._data( element[0] );
-            angular.forEach(data.events.click, function (event) {
-                element.parent().on('click', '.thickbox', event.handler);
-            });
-            element.remove();
-        }
-    };
-});
-
 /* wrapper controller */
 crwApp.controller("AdminController", ['$scope', '$location', 'qStore', 'ajaxFactory', 'crosswordFactory',
 		function ($scope, $location, qStore, ajaxFactory, crosswordFactory) {
@@ -235,8 +221,8 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
                 action: 'save_project',
                 method: 'remove',
                 project: $scope.selectedProject.name
-            }, adminContext).then(showLoaded, $scope.setError);
-        });
+            }, adminContext).then(showLoaded);
+        }, $scope.setError);
     };
 
     // users not enabled for the selected project (contains user objects)
@@ -383,8 +369,8 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
                 name: $scope.selectedCrossword[group]
             }, reviewContext).then(function (data) {
                 showLoaded(data, $scope.selectedProject.name);
-            }, $scope.setError);
-        });
+            });
+        }, $scope.setError);
     };
 
     // move a crossword from pending to confirmed group
@@ -406,7 +392,7 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
                 $scope.selectedCrossword.pending = $filter('orderBy')($scope.selectedProject.pending, 'toString()')[0];
                 $scope.activateGroup('confirmed');
             }, $scope.setError);
-        });
+        }, $scope.setError);
     };
 
     // adjust previewCrossword on group change
@@ -467,6 +453,8 @@ crwApp.controller("ReviewController", ['$scope', '$filter', 'ajaxFactory',
 
 /* route configuration */
 crwApp.config(['$routeProvider', 'nonces', function($routeProvider, nonces) {
+    $routeProvider.eagerInstantiationEnabled(false);
+
     var lastPath = '';
     function getUrl (tab) {
         var url = crwBasics.ajaxUrl + '?action=get_option_tab&tab=';

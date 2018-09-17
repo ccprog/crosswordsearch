@@ -34,32 +34,6 @@ describe("crwHelpFollow", function() {
     }));
 });
 
-describe("crwCatchThickboxLink", function() {
-    beforeEach(module('crwApp'));
-
-    it("moves event handler", inject(function($rootScope, $compile) {
-        var $scope = $rootScope.$new();
-        var parent = jQuery('<div id="parent">' +
-            '<ul>' +
-            '<li ng-repeat="(key, value) in list"><a id="{{key}}" class="thickbox">{{value}}</a></li>' +
-            '</ul>' +
-            '<div id="origin" class="thickbox open-plugin-details-modal" crw-catch-thickbox-link></div>' +
-            '</div>');
-        var handler = jasmine.createSpy('handler');
-        parent.find( '.thickbox.open-plugin-details-modal' ).on( 'click', handler);
-        jQuery('body').append(parent);
-        $compile(parent)($scope);
-        $scope.list = {first: 1, second: 2};
-        $scope.$apply();
-        expect(jQuery('#origin').length).toBe(0);
-        parent.find('#first').trigger('click');
-        expect(handler.calls.mostRecent().args[0].target.id).toBe('first');
-        parent.find('#second').trigger('click');
-        expect(handler.calls.mostRecent().args[0].target.id).toBe('second');
-        parent.remove();
-    }));
-});
-
 describe("AdminController", function () {
     var $scope, $location, qStore, ajaxFactory, crosswordFactory;
 
@@ -399,9 +373,10 @@ describe("EditorController", function () {
             which: 'remove_project',
             project: 'project1'
         });
-        deferred.reject();
+        deferred.reject('error');
         $scope.$apply();
         expect(ajaxFactory.http.calls.count()).toBe(1);
+        expect($scope.setError).toHaveBeenCalledWith('error');
         $scope.deleteProject();
         deferred.resolve();
         $scope.$apply();
@@ -603,9 +578,10 @@ describe("ReviewController", function () {
             crossword: 'riddle4',
             project: 'project1'
         });
-        deferred.reject();
+        deferred.reject('error');
         $scope.$apply();
         expect(ajaxFactory.http).not.toHaveBeenCalled();
+        expect($scope.setError).toHaveBeenCalledWith('error');
         $scope.deleteCrossword('pending');
         deferred.resolve();
         $scope.$apply();
@@ -631,6 +607,11 @@ describe("ReviewController", function () {
             crossword: 'riddle2',
             project: 'project1'
         });
+        deferred.reject('error');
+        $scope.$apply();
+        expect(ajaxFactory.http).not.toHaveBeenCalled();
+        expect($scope.setError).toHaveBeenCalledWith('error');
+        $scope.deleteCrossword('confirmed');
         deferred.resolve();
         $scope.$apply();
         expect(ajaxFactory.http.calls.argsFor(0)[0]).toEqual({
@@ -639,9 +620,6 @@ describe("ReviewController", function () {
             name: 'riddle2'
         });
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('review');
-        deferred.reject('error');
-        $scope.$apply();
-        expect($scope.setError).toHaveBeenCalledWith('error');
     });
 
     it("moves a crossword from pending to confirmed group", function () {
@@ -657,9 +635,10 @@ describe("ReviewController", function () {
             crossword: 'riddle1',
             project: 'project1'
         });
-        deferred.reject();
+        deferred.reject('error');
         $scope.$apply();
         expect(ajaxFactory.http).not.toHaveBeenCalled();
+        expect($scope.setError).toHaveBeenCalledWith('error');
         $scope.confirm();
         deferred.resolve();
         $scope.$apply();

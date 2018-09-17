@@ -38,18 +38,9 @@ module.exports = function(grunt) {
     destdir + 'qantic.angularjs.stylemodel.js'
   ],
   vendor_3 = [testdir + 'vendor/jquery-1.10.2.min/index.js'].concat(vendor)
-             .concat([testdir + 'vendor/angular-mocks-1.5.6/index.js']),
-  vendor_4 = [testdir + 'vendor/jquery-1.12.2.min/index.js'].concat(vendor)
-             .concat([testdir + 'vendor/angular-mocks-1.5.6/index.js']),
-  vendor_ie8 = [
-    testdir + 'vendor/jquery-1.12.2.min/index.js',
-    testdir + 'vendor/tv4/tv4.js',
-    testdir + 'vendor/uri.js/src/URI.min.js',
-    destdir + 'angular-1.2.29.js',
-    destdir + 'angular-route-1.2.29.js',
-    testdir + 'vendor/angular-mocks-1.2.29/index.js',
-    destdir + 'qantic.angularjs.stylemodel.js'
-  ];
+             .concat([testdir + 'vendor/angular-mocks-1.7.4/index.js']),
+  vendor_4 = [testdir + 'vendor/jquery-1.12.4.min/index.js'].concat(vendor)
+             .concat([testdir + 'vendor/angular-mocks-1.7.4/index.js']);
 
   var processJasmineTemplate = function (grunt, task, context) {
     var letterData = grunt.file.readJSON('src/json/letter.json', {encoding:'utf8'}),
@@ -59,6 +50,7 @@ module.exports = function(grunt) {
         letterDist: letterData.en.letterDist,
         numerals: letterData.en.numerals,
         letterRegEx: letterData.en.letterRegEx,
+        textDirection: 'ltr',
         imagesPath: 'mock/',
         ajaxUrl: 'mock/admin-ajax.php'
     });
@@ -138,7 +130,7 @@ module.exports = function(grunt) {
     jasmine: {
       options: {
         template: { process: processJasmineTemplate },
-//        keepRunner: true
+        keepRunner: true
       },
       app_wp_3: {
         src: jslist,
@@ -170,24 +162,6 @@ module.exports = function(grunt) {
           specs: testdir + 'unit/*Spec2.js',
           vendor: vendor_4,
           outfile: testdir + '_SpecRunner-wizzard.html'
-        }
-      },
-      app_ie8: {
-        src: jslist,
-        options: {
-          specs: testdir + 'unit/*Spec.js',
-          vendor: vendor_ie8,
-          outfile: testdir + '_SpecRunner-app-ie8.html',
-          keepRunner: true
-        }
-      },
-      wizzard_ie8: {
-        src:  wzlist.slice(0, 4),
-        options: {
-          specs: testdir + 'unit/*Spec2.js',
-          vendor: vendor_ie8,
-          outfile: testdir + '_SpecRunner-wizzard-ie8.html',
-          keepRunner: true
         }
       },
     },

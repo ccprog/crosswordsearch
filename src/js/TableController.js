@@ -5,7 +5,7 @@ crwApp.factory('containsNode', function () {
         }
         for (var node, i = 0; i < sel.rangeCount; i++) {
             node = sel.getRangeAt(i).commonAncestorContainer;
-            if (node.parentNode === el || node.contains(el)) {
+            if (node.parentNode === el || node.contains && node.contains(el)) {
                 return true;
             }
         }

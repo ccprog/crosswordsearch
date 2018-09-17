@@ -15,7 +15,7 @@ Only releases will be in a consistent state. Latest: [![GitHub version](https://
 Crosswordsearch is compatible with Worpress 3.6 and above. It requires PHP 5.3 or above and a
 MySQL DBMS that supports InnoDB tables.
 
-All modern browsers as well as Internet Explorer 8 and newer are supported. The Gutenberg
+All modern browsers as well as Internet Explorer 9 and newer are supported. The Gutenberg
 editor interface requires current browsers, as does Gutenberg itself.
 
 ### Installation in Wordpress
@@ -61,8 +61,7 @@ some Jasmine test dependencies installed in `tests/vendor` with bower.
 The following tasks are available for the development process:
 
 + `grunt jasmine` will execute the unit tests in `tests/unit/` (with subtasks for testing different
-  jQuery versions delivered with WordPress, against Angular 1.2.29 for IE8 and Angular 1.5.6 for all 
-  other browsers, and for the main app and the shortcode wizzard)  
+  jQuery versions delivered with WordPress, and for the main app and the shortcode wizzard)  
   Tip: if you uncomment the line `keepRunner: true` in the jasmine task configuration, you get a
   `tests/_SpecRunner-*.html` file you can run directly in the browser.
 + `grunt jshint:main` will lint the files in `src/js/`, `grunt jshint:spec` those in `tests/unit/`
@@ -76,7 +75,7 @@ The following tasks are available for the development process:
 + `grunt msgmerge` will update all `.po` files in `plugin/languages/` to reflect
   `plugin/languages/crosswordsearch.pot`.
 + `grunt block` compiles the `block-editor.js` from JSX to es2015-compatible Javascript.
-+ `grunt msgupdate` executes `pot` and `msgmerge` together and splits out the strings needed for
-  the `block-editor.js` frontend file.
++ `grunt msgupdate` executes `block`, `pot` and `msgmerge` together and splits out the strings needed
+  for the `block-editor.js` frontend file.
 + `grunt` executes `jshint:main`, `uglify`, `writel10n`, `cssmin` and `msgupdate` together.
 

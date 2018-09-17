@@ -854,18 +854,6 @@ crwApp.directive("crwHelpFollow", [ "$document", function($document) {
     };
 } ]);
 
-crwApp.directive("crwCatchThickboxLink", function($sce) {
-    return {
-        link: function(scope, element, attrs) {
-            var data = jQuery.hasData(element[0]) && jQuery._data(element[0]);
-            angular.forEach(data.events.click, function(event) {
-                element.parent().on("click", ".thickbox", event.handler);
-            });
-            element.remove();
-        }
-    };
-});
-
 crwApp.controller("AdminController", [ "$scope", "$location", "qStore", "ajaxFactory", "crosswordFactory", function($scope, $location, qStore, ajaxFactory, crosswordFactory) {
     $scope.crw = crosswordFactory.getCrw();
     $scope.immediateStore = qStore.addStore();
@@ -1026,8 +1014,8 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
                 action: "save_project",
                 method: "remove",
                 project: $scope.selectedProject.name
-            }, adminContext).then(showLoaded, $scope.setError);
-        });
+            }, adminContext).then(showLoaded);
+        }, $scope.setError);
     };
     $scope.filtered_users = [];
     var getFilteredUsers = function() {
@@ -1146,8 +1134,8 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
                 name: $scope.selectedCrossword[group]
             }, reviewContext).then(function(data) {
                 showLoaded(data, $scope.selectedProject.name);
-            }, $scope.setError);
-        });
+            });
+        }, $scope.setError);
     };
     $scope.confirm = function() {
         var name = $scope.selectedCrossword.pending;
@@ -1167,7 +1155,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
                 $scope.selectedCrossword.pending = $filter("orderBy")($scope.selectedProject.pending, "toString()")[0];
                 $scope.activateGroup("confirmed");
             }, $scope.setError);
-        });
+        }, $scope.setError);
     };
     $scope.activateGroup = function(group) {
         $scope.activeGroup = group;
@@ -1212,6 +1200,7 @@ crwApp.controller("ReviewController", [ "$scope", "$filter", "ajaxFactory", func
 } ]);
 
 crwApp.config([ "$routeProvider", "nonces", function($routeProvider, nonces) {
+    $routeProvider.eagerInstantiationEnabled(false);
     var lastPath = "";
     function getUrl(tab) {
         var url = crwBasics.ajaxUrl + "?action=get_option_tab&tab=";
@@ -1393,7 +1382,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         })[0].group = names;
     }
     $scope.commands = {
-        "new": "load()",
+        new: "load()",
         load: "group",
         update: 'save("update")',
         insert: 'save("insert")',
@@ -1729,7 +1718,7 @@ crwApp.factory("containsNode", function() {
         }
         for (var node, i = 0; i < sel.rangeCount; i++) {
             node = sel.getRangeAt(i).commonAncestorContainer;
-            if (node.parentNode === el || node.contains(el)) {
+            if (node.parentNode === el || node.contains && node.contains(el)) {
                 return true;
             }
         }
@@ -2150,7 +2139,7 @@ crwApp.controller("ImmediateController", [ "$scope", "$sce", function($scope, $s
             which: "invalid_words",
             count: critical.length,
             buttons: {
-                "delete": true,
+                delete: true,
                 abort: true
             }
         };
@@ -2163,7 +2152,7 @@ crwApp.controller("ImmediateController", [ "$scope", "$sce", function($scope, $s
             count: arg.count,
             level: arg.level,
             buttons: {
-                "delete": true,
+                delete: true,
                 abort: true
             }
         };
@@ -2202,7 +2191,7 @@ crwApp.controller("ImmediateController", [ "$scope", "$sce", function($scope, $s
             which: "false_word",
             word: word,
             buttons: {
-                "delete": true
+                delete: true
             }
         };
         $scope.immediate = "dialogue";

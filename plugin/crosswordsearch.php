@@ -333,7 +333,7 @@ add_action( 'plugins_loaded', 'crw_activate_subscribers' );
  * @return void
  */
 function crw_add_angular_attribute ($attributes) {
-    return $attributes . ' xmlns:ng="http://angularjs.org" id="ng-app" ng-app="crwApp"';
+    return $attributes . ' ng-app="crwApp"';
 }
 
 /**
@@ -406,13 +406,8 @@ function add_crw_scripts ( $hook ) {
     if ( 'settings_page_crw_options' == $hook ) {
         array_push( $angular_deps, 'plugin-install' );
     }
-    if ( strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 8.0' ) !== false ) {
-        $scripts['angular'] = array( 'file' => 'angular-1.2.29', 'ver' => null );
-        $scripts['angular-route'] = array( 'file' => 'angular-route-1.2.29', 'ver' => null );
-    } else {
-        $scripts['angular'] = array( 'file' => 'angular', 'ver' => '1.5.6' );
-        $scripts['angular-route'] = array( 'file' => 'angular-route', 'ver' => '1.5.6' );
-    }
+    $scripts['angular'] = array( 'file' => 'angular', 'ver' => '1.5.6' );
+    $scripts['angular-route'] = array( 'file' => 'angular-route', 'ver' => '1.5.6' );
     $scripts['angular']['deps'] =  $angular_deps;
     $scripts['angular-route']['deps'] =  array ( 'angular' );
 

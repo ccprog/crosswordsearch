@@ -1,6 +1,13 @@
 describe("basics factory", function () {
     var basics;
 
+    afterEach(function () {
+        delete crwBasics.dimensions;
+        delete crwBasics.casesensitive;
+        delete crwBasics.accentMap;
+        crwBasics.textDirection = 'ltr';
+    });
+
     describe("basics factory instance", function () {
 
         beforeEach(function () {
@@ -17,6 +24,7 @@ describe("basics factory", function () {
             expect(typeof basics.textIsLTR).toBe('boolean');
             expect(basics.dimensions).toEqual(crwBasics.dimensions);
             expect(basics.imagesPath).toBe(crwBasics.imagesPath);
+            expect(basics.letterRegEx.toString()).toBe('/^' + crwBasics.letterRegEx + '$/');
             expect("A").toMatch(basics.letterRegEx);
             var moveCharacters = String.fromCharCode(0x25, 0x26, 0x27, 0x28, 0x2E, 0x08);
             expect(moveCharacters).not.toMatch(basics.letterRegEx);
@@ -41,6 +49,28 @@ describe("basics factory", function () {
             for (var i = 0; i < 5; i++) {
                 expect(basics.randomLetter()).toMatch(basics.letterRegEx);
             }
+        });
+
+        it("passes letter capitalization if instructed", function () {
+            expect(basics.normalizeLetter('a')).toBe('A');
+            expect(basics.normalizeLetter('é')).toBe('É');
+            expect(basics.normalizeLetter('ĩ')).toBe('Ĩ');
+            expect(basics.normalizeLetter('ò')).toBe('Ò');
+            expect(basics.normalizeLetter('û')).toBe('Û');
+            crwBasics.casesensitive = true;
+            expect(basics.normalizeLetter('a')).toBe('a');
+        });
+
+        it("maps letters if instructed", function () {
+            expect(basics.normalizeLetter('É')).toBe('É');
+            expect(basics.normalizeLetter('Ĩ')).toBe('Ĩ');
+            expect(basics.normalizeLetter('Ò')).toBe('Ò');
+            expect(basics.normalizeLetter('Û')).toBe('Û');
+            crwBasics.accentMap = { "A": "ÁÀÂ", "E": "ÉÈÊ", "I": "ÍÌÎ", "O": "ÓÒÔ", "U": "ÚÙÛ" };
+            expect(basics.normalizeLetter('É')).toBe('E');
+            expect(basics.normalizeLetter('Ĩ')).toBe('Ĩ');
+            expect(basics.normalizeLetter('Ò')).toBe('O');
+            expect(basics.normalizeLetter('Û')).toBe('U');
         });
 
         it("localizes a known string", function () {

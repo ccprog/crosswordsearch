@@ -4,7 +4,6 @@
     "eqeqeq": true,
     "undef": true,
     "unused": "vars",
-    "es3": true,
     "browser": true,
     "globals": {
         "angular": true,
