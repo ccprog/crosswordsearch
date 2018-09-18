@@ -1,5 +1,5 @@
 describe ("duration filter", function () {
-    var duration;
+    var duration, wsp = /^\s+$/;
 
     beforeEach(function () {
         module('crwApp');
@@ -16,19 +16,19 @@ describe ("duration filter", function () {
     });
 
     it("rejects negative numbers", function () {
-        expect(duration(-1234)).toBeNull();
+        expect(duration(-1234)).toMatch(wsp);
     });
 
     it("rejects non-numbers", function () {
-        expect(duration()).toBeNull();
-        expect(duration('1234')).toBeNull();
-        expect(duration(new Date())).toBeNull();
-        expect(duration(null)).toBeNull();
+        expect(duration()).toMatch(wsp);
+        expect(duration('1234')).toMatch(wsp);
+        expect(duration(new Date())).toMatch(wsp);
+        expect(duration(null)).toMatch(wsp);
     });
 });
 
 describe("crwTimerElement", function() {
-    var $root, $scope, $isolate, $compile, time, $interval, element;
+    var $root, $scope, $isolate, $compile, time, $interval, element, wsp = /^\s+$/;
 
     function mockTime () {
         var stamp = 0;
@@ -75,11 +75,11 @@ describe("crwTimerElement", function() {
 
     it("builds html", function() {
         compile(0);
-        var button = element.children('button');
+        var button = element.children('svg');
         expect(button).toBeDefined();
         expect(button.attr('alt')).toBeDefined();
         expect(button.attr('title')).toBeDefined();
-        expect(button.attr('ng-disabled')).toBe('getDisabled()');
+        expect(button.attr('ng-class')).toBeDefined();
         expect(button.attr('ng-click')).toBe('play()');
         var tt = element.children('tt');
         expect(tt).toBeDefined();
@@ -119,37 +119,38 @@ describe("crwTimerElement", function() {
         expect($isolate.timer.submitting).toBe(true);
     });
 
-    it("sets classes and attributes according to state", function() {
+    it("sets links and attributes according to state", function() {
         compile(0);
         $scope.$apply('$broadcast("timerInit")');
-        var button = element.children('button');
+        var button = element.children('svg');
+        var use = button.children('use');
         var tt = element.children('tt');
-        expect(button.hasClass('waiting')).toBe(true);
+        expect(use.attr('xlink:href')).toContain('#crw-btn-waiting');
         expect(button.attr('alt')).toBe('Start');
         expect(button.attr('title')).toBe('Start solving the riddle');
-        expect(button.prop('disabled')).toBe(false);
+        expect(button.attr('class').split(' ')).not.toContain('disabled');
         expect(tt.attr('title')).toBe('Time used');
-        expect(tt.text()).toBe('');
+        expect(tt.text()).toMatch(wsp);
         $isolate.timer.state = 'playing';
         $isolate.timer.time = 1600;
         $scope.$apply();
-        expect(button.hasClass('playing')).toBe(true);
+        expect(use.attr('xlink:href')).toContain('#crw-btn-playing');
         expect(button.attr('alt')).toBe('Time');
         expect(button.attr('title')).toBe('');
-        expect(button.prop('disabled')).toBe(true);
+        expect(button.attr('class').split(' ')).toContain('disabled');
         expect(tt.text()).toBe('0:01.6');
         $isolate.timer.state = 'scored';
         $scope.$apply();
-        expect(button.hasClass('scored')).toBe(true);
+        expect(use.attr('xlink:href')).toContain('#crw-btn-scored');
         expect(button.attr('alt')).toBe('Restart');
         expect(button.attr('title')).toBe('Restart solving the riddle');
-        expect(button.prop('disabled')).toBe(false);
+        expect(button.attr('class').split(' ')).not.toContain('disabled');
         $isolate.timer.state = 'final';
         $scope.$apply();
-        expect(button.hasClass('final')).toBe(true);
+        expect(use.attr('xlink:href')).toContain('#crw-btn-final');
         expect(button.attr('alt')).toBe('Result');
         expect(button.attr('title')).toBe('');
-        expect(button.prop('disabled')).toBe(true);
+        expect(button.attr('class').split(' ')).toContain('disabled');
     });
 
     it("sets title attribute for countdown", function() {

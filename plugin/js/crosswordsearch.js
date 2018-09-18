@@ -151,11 +151,11 @@ customSelectElement.directive("cseSelect", [ "$document", "$timeout", function($
             } else {
                 html += 'ng-click="visible=!visible"';
             }
-            html += '><div ng-show="isDefined(model)" ' + templ;
+            html += ' ng-show="isDefined(model)" ' + templ;
             if (isExpression) {
                 html += '="' + tAttr.display + '"';
             }
-            html += ' value="model" is-current></div><a class="btn"></a></dt><dd';
+            html += ' value="model" is-current></dt><dd';
             if (angular.isDefined(tAttr.isGroup)) {
                 html += ' ng-mouseenter="showEnter()" ng-mouseleave="hideLeave()"';
             }
@@ -1229,7 +1229,7 @@ crwApp.filter("duration", function() {
             var tenth = Math.round(input / 100), secs = (Math.floor(tenth % 600) / 1e3).toFixed(3).split(".")[1];
             return Math.floor(tenth / 600) + ":" + secs.substring(0, 2) + "." + secs.substring(2);
         } else {
-            return null;
+            return " ";
         }
     };
 });
@@ -1292,6 +1292,9 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
                 };
             }
             scope.$on("timerInit", init);
+            scope.getState = function() {
+                return "#crw-btn-" + scope.timer.state;
+            };
             scope.getTime = function() {
                 return Math.abs(countdown - scope.timer.time);
             };
@@ -1313,7 +1316,7 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
             };
             scope.$on("$destroy", cancelClock);
         },
-        template: '<button class="crw-control-button" ng-class="timer.state" ' + 'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' + 'ng-disabled="getDisabled()" ng-click="play()"></button>' + '<tt title="{{getTitle()}}">{{getTime() | duration}}</tt>'
+        template: '<svg class="crw-control-button" ng-class="{disabled:getDisabled()}" ' + 'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' + 'ng-click="play()"><use xlink:href="{{getState()}}"/></svg>' + '<tt title="{{getTitle()}}">{{getTime() | duration}}</tt>'
     };
 } ]);
 
@@ -1978,7 +1981,7 @@ crwApp.directive("colorSelect", [ "basics", function(basics) {
         link: function(scope, element, attrs) {
             scope.localize = basics.localize;
         },
-        template: '<img title="{{localize(value)}}" ng-src="' + basics.imagesPath + 'bullet-{{value}}.png">'
+        template: '<svg title="{{localize(value)}}" ng-class="value"><use xlink:href="#crw-bullet"/></svg>'
     };
 } ]);
 

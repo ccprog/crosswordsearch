@@ -86,11 +86,9 @@
 
   dl.cse.menu dt
     width: 200px
-    min-height: 1.5em
 
   dl.cse.name dt
     width: 300px
-    min-height: 1.5em
 
   %plain
     background-color: transparent
@@ -99,60 +97,21 @@
     transition: none
     box-shadow: none
 
-  button.crw-control-button
+  .crw-control-button
     margin: 0
     padding: 0
     width: 31px
-    height: 23px
-    background-image: url(#{$image-dir}controls.png)
-    background-position: 31px 0px
-    background-repeat: no-repeat
+    height: 31px
+    vertical-align: middle
+    fill: #666
 
     &, &:hover, &:focus, &:active
       @extend %plain
 
-    &.fill
-      background-position: 0px -31px
-
-      &:hover
-        background-position: 0px 0px
-
-    &.empty
-      background-position: -31px -31px
-
-      &:hover
-        background-position: -31px 0px
-
-    &.trash
-      background-position: -62px -35px
-
-      &:hover
-        background-position: -62px -4px
-
-    &.waiting
-      background-position: -124px -35px
-      vertical-align: middle
-
-      &:hover
-        background-position: -124px -4px
-
-    &.playing
-      background-position: -155px -4px
-      vertical-align: middle
-
-    &.final
-      background-position: -155px -35px
-      vertical-align: middle
-
-    &.restart, &.scored
-      background-position: -93px -35px
-      vertical-align: middle
-
-      &:hover
-        background-position: -93px -4px
+    &.disabled, &:hover
+      fill: #000
 
   div[crw-timer-element]
-    height: 29px
 
     tt
       display: inline-block
@@ -160,7 +119,7 @@
       border-radius: 2px
       box-sizing: border-box
       width: 5em
-      height: 29px
+      padding: 2px 0
       margin-left: 5px
       text-align: center
       vertical-align: middle
@@ -179,9 +138,6 @@
     > *
       position: absolute
       width: 100%
-
-    .crw-control-button
-      height: 31px
 
   .crw-grid
     -moz-box-sizing: content-box
@@ -375,6 +331,28 @@
     margin-top: 0
     font-size: 14px
 
+    svg:not(.crw-control-button)
+      width: 17px
+      height: 17px
+      vertical-align: middle
+
+      &.aqua
+        stroke: #00bbbb
+      &.black
+        stroke: #000000
+      &.blue
+        stroke: #0000dd
+      &.green
+        stroke: #00bb00
+      &.grey
+        stroke: #888888
+      &.orange
+        stroke: #ff8800
+      &.red
+        stroke: #dd0000
+      &.violet
+        stroke: #bb00bb
+
     > li
       list-style-type: none
       padding: 2px 0
@@ -383,7 +361,7 @@
       > *
         vertical-align: middle
 
-      > img
+      > svg
         margin: 2px 3px
 
       &.found
@@ -402,9 +380,6 @@
 
     dt a
       width: 20px
-
-    img
-      padding: 2px 0
 
 .crw-immediate
   > .blocker

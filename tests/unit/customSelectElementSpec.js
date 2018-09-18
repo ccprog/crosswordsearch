@@ -133,12 +133,9 @@ describe("cseSelect", function() {
         compile({}, ['entry']);
         var dt = element.children('dt');
         expect(dt).toBeDefined();
-        var div = dt.children('div');
-        expect(div.attr('ng-show')).toBe('isDefined(model)');
-        expect(div.attr('value')).toBe('model');
-        expect(div.attr('is-current')).toBe('');
-        var a = dt.children('a');
-        expect(a.hasClass('btn')).toBe(true);
+        expect(dt.attr('ng-show')).toBe('isDefined(model)');
+        expect(dt.attr('value')).toBe('model');
+        expect(dt.attr('is-current')).toBe('');
         var dd = element.children('dd');
         expect(dd.attr('ng-show')).toBe('visible');
         var li = dd.find('ul li');
@@ -151,15 +148,15 @@ describe("cseSelect", function() {
 
     it("handles expressions and templates", function() {
         compile({}, ['entry']);
-        expect(element.find('dt div').attr('cse-default')).toBe('');
+        expect(element.find('dt').attr('cse-default')).toBe('');
         expect(element.find('dd ul li').attr('templ')).toBe('cse-default');
         expect(element.find('dd ul li').attr('expr')).toBeUndefined();
         compile({display: 'compute'}, ['entry']);
-        expect(element.find('dt div').attr('cse-default')).toBe('compute');
+        expect(element.find('dt').attr('cse-default')).toBe('compute');
         expect(element.find('dd ul li').attr('templ')).toBe('cse-default');
         expect(element.find('dd ul li').attr('expr')).toBe('compute');
         compile({template: 'template'}, ['entry']);
-        expect(element.find('dt div').attr('template')).toBe('');
+        expect(element.find('dt').attr('template')).toBe('');
         expect(element.find('dd ul li').attr('templ')).toBe('template');
         expect(element.find('dd ul li').attr('expr')).toBeUndefined();
     });
@@ -181,9 +178,9 @@ describe("cseSelect", function() {
     it("sets visibility", function() {
         compile({}, ['entry']);
         expect($isolate.visible).toBe(false);
-        element.find('dt a').click();
+        element.find('dt').click();
         expect($isolate.visible).toBe(true);
-        element.find('dt a').click();
+        element.find('dt').click();
         expect($isolate.visible).toBe(false);
     });
 
@@ -215,14 +212,14 @@ describe("cseSelect", function() {
 
     it("sets model on cseSelect event", function() {
         compile({}, ['entry']);
-        element.find('dt a').click();
+        element.find('dt').click();
         expect($isolate.visible).toBe(true);
         $isolate.$emit('cseSelect', null, 'value');
         $scope.$apply();
         expect($isolate.visible).toBe(false);
         expect($scope.result).toBe('value');
         compile({'is-menu': 'Menu...'}, ['entry']);
-        element.find('dt a').click();
+        element.find('dt').click();
         $isolate.$emit('cseSelect', null, 'value');
         $scope.$apply();
         expect($scope.result).toBe('Menu...');

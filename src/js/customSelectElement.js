@@ -207,11 +207,11 @@ customSelectElement.directive("cseSelect", ['$document', '$timeout', function($d
             } else {
                 html += 'ng-click="visible=!visible"';
             }
-            html += '><div ng-show="isDefined(model)" ' + templ;
+            html += ' ng-show="isDefined(model)" ' + templ;
             if (isExpression) {
                 html += '="' + tAttr.display + '"';
             }
-            html += ' value="model" is-current></div><a class="btn"></a></dt><dd';
+            html += ' value="model" is-current></dt><dd';
             if (angular.isDefined(tAttr.isGroup)) {
                 html += ' ng-mouseenter="showEnter()" ng-mouseleave="hideLeave()"';
             }

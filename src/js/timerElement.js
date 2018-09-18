@@ -6,7 +6,7 @@ crwApp.filter("duration",  function() {
                 secs  =  (Math.floor(tenth % 600) / 1000).toFixed(3).split(".")[1];
             return Math.floor(tenth / 600) + ":" + secs.substring(0, 2) + "." + secs.substring(2);
          } else {
-            return null;
+            return ' ';
         }
     };
 });
@@ -85,6 +85,10 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             }
             scope.$on('timerInit', init);
 
+            scope.getState = function () {
+                return '#crw-btn-' + scope.timer.state;
+            };
+
             // title attribute for time display
             scope.getTime = function () {
                 return Math.abs(countdown - scope.timer.time);
@@ -117,9 +121,9 @@ crwApp.directive("crwTimerElement", ['time', '$interval', function(time, $interv
             scope.$on('$destroy', cancelClock);
         },
 
-        template: '<button class="crw-control-button" ng-class="timer.state" ' +
+        template: '<svg class="crw-control-button" ng-class="{disabled:getDisabled()}" ' +
             'alt="{{texts[timer.state].alt}}" title="{{texts[timer.state].title}}" ' +
-            'ng-disabled="getDisabled()" ng-click="play()"></button>' +
+            'ng-click="play()"><use xlink:href="{{getState()}}"/></svg>' +
             '<tt title="{{getTitle()}}">{{getTime() | duration}}</tt>'
     };
 }]);
