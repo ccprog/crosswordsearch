@@ -412,8 +412,7 @@ function add_crw_scripts ( $hook ) {
     $scripts['angular-route']['deps'] =  array ( 'angular' );
 
 	if ( $crw_has_crossword || 'settings_page_crw_options' == $hook ) {
-        $scripts['quantic-stylemodel'] = array( 'file' => 'qantic.angularjs.stylemodel', 'deps' => array( 'angular' ), 'ver' => null );
-        $scripts['crw-js'] = array( 'file' => 'crosswordsearch', 'deps' => array( 'angular', 'angular-route', 'quantic-stylemodel' ), 'ver' => CRW_VERSION );
+        $scripts['crw-js'] = array( 'file' => 'crosswordsearch', 'deps' => array( 'angular', 'angular-route' ), 'ver' => CRW_VERSION );
         $localize = array_merge($locale_data, array(
             'textDirection' => $text_direction,
             'imagesPath' => CRW_PLUGIN_URL . 'images/',

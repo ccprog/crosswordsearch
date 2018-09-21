@@ -58,6 +58,48 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
             }
         };
 
+        var _makeField = function (x, y) {
+            return { x: x, y: y, word: crossword.table[y][x] };
+        }
+
+        // add a new field sequence or exchange it with altered positioning
+        // (as during mouse movement)
+        // If it already exists, marking.fields will be overwritten or otherwise
+        // added and the sequence of fields between .start and .stop computed
+        var _setFields = function (word) {
+            var from = word.start, to = word.stop;
+            var i, dif_x = to.x - from.x, dif_y = to.y - from.y;
+            var swap = dif_x < 0 || (dif_x === 0 && dif_y < 0);
+
+            word.fields = [];
+            if (dif_x * dif_y > 0) {
+                word.direction = swap ? "up-left" : "down-right";
+                for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
+                    word.fields.push(_makeField(from.x + i, from.y + i));
+                }
+            } else if (dif_x * dif_y < 0) {
+                word.direction = swap ? "down-left" : "up-right";
+                for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
+                    word.fields.push(_makeField(from.x + i, from.y - i));
+                }
+            } else {
+                if (dif_x === 0 && dif_y === 0) {
+                    word.direction = "origin";
+                    word.fields.push(_makeField(from.x, from.y));
+                } else if (dif_x === 0) {
+                    word.direction = swap ? "up" : "down";
+                    for (i = 0; Math.abs(i) <= Math.abs(to.y - from.y); swap ? i-- : i++) {
+                        word.fields.push(_makeField(from.x, from.y + i));
+                    }
+                } else {
+                    word.direction = swap ? "left" : "right";
+                    for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
+                        word.fields.push(_makeField(from.x + i, from.y));
+                    }
+                }
+            }
+        };
+
         // save a field sequence in the words list
         // marking must be an object of the form
         // { ID: ...,
@@ -81,9 +123,7 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
             if (exists) {
                 return false;
             }
-            marking.fields.forEach(function (field) {
-                field.word = crossword.table[field.y][field.x];
-            });
+            _setFields(marking);
             return (crossword.words[marking.ID] = marking);
         };
 
@@ -107,8 +147,8 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
             }
             if (top) {
                 angular.forEach(crossword.words, function (word) {
-                    word.start.y += number;
-                    word.stop.y += number;
+                    word.start = { x: word.start.x, y: word.start.y + number };
+                    word.stop = { x: word.stop.x, y: word.stop.y + number };
                 });
             }
         };
@@ -139,8 +179,8 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
             }
             if (left) {
                 angular.forEach(crossword.words, function (word) {
-                    word.start.x += number;
-                    word.stop.x += number;
+                    word.start = { x: word.start.x + number, y: word.start.y };
+                    word.stop = { x: word.stop.x + number, y: word.stop.y };
                 });
             }
         };

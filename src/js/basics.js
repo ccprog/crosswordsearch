@@ -10,6 +10,9 @@ crwApp.factory('basics', function () {
         return result;
     }, []);
 
+    crwBasics.dimensions.size = crwBasics.dimensions.field + crwBasics.dimensions.fieldBorder;
+    crwBasics.dimensions.shift = crwBasics.dimensions.fieldBorder / 2;
+
     return {
         // the list of marking colors selectable on build page.
         colors: ["black", "red", "green", "blue", "orange", "violet", "aqua"],

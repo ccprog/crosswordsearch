@@ -172,7 +172,7 @@ customSelectElement.directive("cseSelect", [ "$document", "$timeout", function($
     };
 } ]);
 
-var crwApp = angular.module("crwApp", [ "ngRoute", "qantic.angularjs.stylemodel", "customSelectElement" ]);
+var crwApp = angular.module("crwApp", [ "ngRoute", "customSelectElement" ]);
 
 crwApp.constant("nonces", {});
 
@@ -310,6 +310,8 @@ crwApp.factory("basics", function() {
         }
         return result;
     }, []);
+    crwBasics.dimensions.size = crwBasics.dimensions.field + crwBasics.dimensions.fieldBorder;
+    crwBasics.dimensions.shift = crwBasics.dimensions.fieldBorder / 2;
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
         textIsLTR: crwBasics.textDirection !== "rtl",
@@ -427,6 +429,45 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
                 return !(crossword.level & 2);
             }
         };
+        var _makeField = function(x, y) {
+            return {
+                x: x,
+                y: y,
+                word: crossword.table[y][x]
+            };
+        };
+        var _setFields = function(word) {
+            var from = word.start, to = word.stop;
+            var i, dif_x = to.x - from.x, dif_y = to.y - from.y;
+            var swap = dif_x < 0 || dif_x === 0 && dif_y < 0;
+            word.fields = [];
+            if (dif_x * dif_y > 0) {
+                word.direction = swap ? "up-left" : "down-right";
+                for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
+                    word.fields.push(_makeField(from.x + i, from.y + i));
+                }
+            } else if (dif_x * dif_y < 0) {
+                word.direction = swap ? "down-left" : "up-right";
+                for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
+                    word.fields.push(_makeField(from.x + i, from.y - i));
+                }
+            } else {
+                if (dif_x === 0 && dif_y === 0) {
+                    word.direction = "origin";
+                    word.fields.push(_makeField(from.x, from.y));
+                } else if (dif_x === 0) {
+                    word.direction = swap ? "up" : "down";
+                    for (i = 0; Math.abs(i) <= Math.abs(to.y - from.y); swap ? i-- : i++) {
+                        word.fields.push(_makeField(from.x, from.y + i));
+                    }
+                } else {
+                    word.direction = swap ? "left" : "right";
+                    for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
+                        word.fields.push(_makeField(from.x + i, from.y));
+                    }
+                }
+            }
+        };
         var _setWord = function(marking) {
             var exists = false;
             angular.forEach(crossword.words, function(word) {
@@ -437,9 +478,7 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
             if (exists) {
                 return false;
             }
-            marking.fields.forEach(function(field) {
-                field.word = crossword.table[field.y][field.x];
-            });
+            _setFields(marking);
             return crossword.words[marking.ID] = marking;
         };
         var addRows = function(number, top) {
@@ -458,8 +497,14 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
             }
             if (top) {
                 angular.forEach(crossword.words, function(word) {
-                    word.start.y += number;
-                    word.stop.y += number;
+                    word.start = {
+                        x: word.start.x,
+                        y: word.start.y + number
+                    };
+                    word.stop = {
+                        x: word.stop.x,
+                        y: word.stop.y + number
+                    };
                 });
             }
         };
@@ -485,8 +530,14 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
             }
             if (left) {
                 angular.forEach(crossword.words, function(word) {
-                    word.start.x += number;
-                    word.stop.x += number;
+                    word.start = {
+                        x: word.start.x + number,
+                        y: word.start.y
+                    };
+                    word.stop = {
+                        x: word.stop.x + number,
+                        y: word.stop.y
+                    };
                 });
             }
         };
@@ -681,145 +732,6 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
     return {
         getCrw: function() {
             return new Crw();
-        }
-    };
-} ]);
-
-crwApp.factory("markerFactory", [ "basics", function(basics) {
-    function Markers() {
-        var markers = {};
-        function add(marking, x, y, img) {
-            if (img != null) {
-                if (markers[x] == null) {
-                    markers[x] = {};
-                }
-                if (markers[x][y] == null) {
-                    markers[x][y] = {};
-                }
-                markers[x][y][marking.ID] = {
-                    marking: marking,
-                    img: img
-                };
-            }
-        }
-        function setMarkers(marking, swap) {
-            var mapping = basics.directionMapping[marking.direction];
-            angular.forEach(marking.fields, function(field, i) {
-                if (i === 0) {
-                    add(marking, field.x, field.y, marking.direction);
-                    if (marking.direction === "origin") {
-                        return;
-                    }
-                    if (swap) {
-                        add(marking, field.x - 1, field.y, mapping.left);
-                    } else {
-                        add(marking, field.x + 1, field.y, mapping.right);
-                    }
-                } else if (i === marking.fields.length - 1) {
-                    add(marking, field.x, field.y, mapping.end);
-                    if (swap) {
-                        add(marking, field.x + 1, field.y, mapping.right);
-                    } else {
-                        add(marking, field.x - 1, field.y, mapping.left);
-                    }
-                } else {
-                    add(marking, field.x, field.y, mapping.middle);
-                    add(marking, field.x - 1, field.y, mapping.left);
-                    add(marking, field.x + 1, field.y, mapping.right);
-                }
-            });
-        }
-        this.setNewMarkers = function(marking) {
-            var from = marking.start, to = marking.stop;
-            var i, dif_x = to.x - from.x, dif_y = to.y - from.y;
-            var swap = dif_x < 0 || dif_x === 0 && dif_y < 0;
-            this.deleteMarking(marking.ID);
-            marking.fields = [];
-            if (dif_x * dif_y > 0) {
-                marking.direction = swap ? "up-left" : "down-right";
-                for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
-                    marking.fields.push({
-                        x: from.x + i,
-                        y: from.y + i
-                    });
-                }
-            } else if (dif_x * dif_y < 0) {
-                marking.direction = swap ? "down-left" : "up-right";
-                for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
-                    marking.fields.push({
-                        x: from.x + i,
-                        y: from.y - i
-                    });
-                }
-            } else {
-                if (dif_x === 0 && dif_y === 0) {
-                    marking.direction = "origin";
-                    marking.fields.push({
-                        x: from.x,
-                        y: from.y
-                    });
-                } else if (dif_x === 0) {
-                    marking.direction = swap ? "up" : "down";
-                    for (i = 0; Math.abs(i) <= Math.abs(to.y - from.y); swap ? i-- : i++) {
-                        marking.fields.push({
-                            x: from.x,
-                            y: from.y + i
-                        });
-                    }
-                } else {
-                    marking.direction = swap ? "left" : "right";
-                    for (i = 0; Math.abs(i) <= Math.abs(to.x - from.x); swap ? i-- : i++) {
-                        marking.fields.push({
-                            x: from.x + i,
-                            y: from.y
-                        });
-                    }
-                }
-            }
-            setMarkers(marking, swap);
-        };
-        this.exchangeMarkers = function(fields, id, color) {
-            fields.forEach(function(field) {
-                markers[field.x][field.y][id].marking.color = color;
-            });
-        };
-        this.redrawMarkers = function(markings) {
-            angular.forEach(markings, function(marking) {
-                var shift_x = 0, shift_y = 0;
-                var from = marking.start, to = marking.stop;
-                var swap = to.x < from.x || to.x === from.x && to.y < from.y;
-                this.deleteMarking(marking.ID);
-                if (marking.fields.length) {
-                    shift_x = from.x - marking.fields[0].x;
-                    shift_y = from.y - marking.fields[0].y;
-                }
-                marking.fields.forEach(function(field) {
-                    field.x += shift_x;
-                    field.y += shift_y;
-                });
-                setMarkers(marking, swap);
-            }, this);
-        };
-        this.getMarks = function(x, y) {
-            if (markers[x] == null || y == null) {
-                return undefined;
-            }
-            return markers[x][y];
-        };
-        this.deleteMarking = function(id) {
-            angular.forEach(markers, function(x) {
-                angular.forEach(x, function(y) {
-                    delete y[id];
-                });
-            });
-        };
-        this.deleteAllMarking = function() {
-            markers = {};
-        };
-    }
-    return {
-        getMarkers: function() {
-            return new Markers();
         }
     };
 } ]);
@@ -1546,235 +1458,75 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     };
 } ]);
 
-crwApp.controller("SizeController", [ "$scope", "$document", "basics", "StyleModelContainer", function($scope, $document, basics, StyleModelContainer) {
-    var size = basics.dimensions.field + basics.dimensions.fieldBorder, handleShift = basics.dimensions.handleOutside + basics.dimensions.tableBorder, handleSize = basics.dimensions.handleOutside + basics.dimensions.handleInside, t, b, l, r, lg, rg, tg, wg, hg, fwg, fhg, origin;
-    var resetSizes = function(cols, rows) {
-        l = t = 0;
-        r = cols * size;
-        b = rows * size;
-        lg = tg = 0;
-        wg = cols * size;
-        fwg = wg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
-        hg = fhg = rows * size;
-        fhg = hg + 2 * basics.dimensions.tableBorder - basics.dimensions.fieldBorder;
-        origin = basics.textIsLTR ? 0 : wg;
-        $scope.modLeft.transform(l, 0);
-        $scope.modTop.transform(0, t);
-        $scope.modRight.transform(r, 0);
-        $scope.modBottom.transform(0, b);
-    };
-    var addSide = function(style) {
-        if (basics.textIsLTR) {
-            style.left = lg + "px";
-        } else {
-            style.right = rg + "px";
-        }
-    };
-    StyleModelContainer.add("size-left", -Infinity, ($scope.crosswordData.size.height - 3) * size, 0, 0);
-    StyleModelContainer.add("size-top", 0, 0, -Infinity, ($scope.crosswordData.size.width - 3) * size);
-    StyleModelContainer.add("size-right", 5 * size, Infinity, 0, 0);
-    StyleModelContainer.add("size-bottom", 0, 0, 5 * size, Infinity);
-    $scope.modLeft = StyleModelContainer.get("size-left");
-    $scope.modTop = StyleModelContainer.get("size-top");
-    $scope.modRight = StyleModelContainer.get("size-right");
-    $scope.modBottom = StyleModelContainer.get("size-bottom");
-    resetSizes($scope.crosswordData.size.width, $scope.crosswordData.size.height);
-    $scope.$watch("crosswordData.size", function(newSize) {
-        resetSizes(newSize.width, newSize.height);
-    });
-    $scope.modLeft.addStyle("size-left", function(x, y) {
-        l = x;
-        lg = Math.ceil(l / size) * size;
-        wg = Math.floor((r - lg) / size) * size;
-        if ($scope.modRight) {
-            $scope.modRight.minx = Math.floor(l / size) * size + 3 * size;
-        }
-    });
-    $scope.modLeft.addStyle("handle-left", function(x, y) {
-        return {
-            left: l - lg - handleShift + "px",
-            width: lg - l + handleSize + "px"
-        };
-    });
-    $scope.modTop.addStyle("size-top", function(x, y) {
-        t = y;
-        tg = Math.ceil(t / size) * size;
-        hg = Math.floor((b - tg) / size) * size;
-        if ($scope.modBottom) {
-            $scope.modBottom.miny = Math.floor(t / size) * size + 3 * size;
-        }
-    });
-    $scope.modTop.addStyle("handle-top", function(x, y) {
-        return {
-            top: t - tg - handleShift + "px",
-            height: tg - t + handleSize + "px"
-        };
-    });
-    $scope.modRight.addStyle("size-right", function(x, y) {
-        r = x;
-        rg = Math.ceil((origin - r) / size) * size;
-        wg = Math.floor((r - lg) / size) * size;
-        if ($scope.modLeft) {
-            $scope.modLeft.maxx = Math.floor(r / size) * size - 3 * size;
-        }
-    });
-    $scope.modRight.addStyle("handle-right", function(x, y) {
-        return {
-            right: lg + wg - r - handleShift + "px",
-            width: r - lg - wg + handleSize + "px"
-        };
-    });
-    $scope.modBottom.addStyle("size-bottom", function(x, y) {
-        b = y;
-        hg = Math.floor((b - tg) / size) * size;
-        if ($scope.modTop) {
-            $scope.modTop.maxy = Math.floor(b / size) * size - 3 * size;
-        }
-    });
-    $scope.modBottom.addStyle("handle-bottom", function(x, y) {
-        return {
-            bottom: tg + hg - b - handleShift + "px",
-            height: b - tg - hg + handleSize + "px"
-        };
-    });
-    $scope.styleCrossword = function() {
-        return {
-            width: fwg + "px",
-            height: fhg + 40 + "px"
-        };
-    };
-    $scope.styleGridSize = function() {
-        var style = {
-            width: wg - basics.dimensions.fieldBorder + "px",
-            top: tg + "px",
-            height: hg - basics.dimensions.fieldBorder + "px"
-        };
-        addSide(style);
-        return style;
-    };
-    $scope.styleShift = function() {
-        return {
-            top: -(tg + basics.dimensions.fieldBorder) + "px",
-            left: -(lg + basics.dimensions.fieldBorder) + "px"
-        };
-    };
-    $scope.styleExtras = function() {
-        var style = {
-            top: tg + hg + handleShift + "px",
-            width: wg - basics.dimensions.fieldBorder + "px"
-        };
-        addSide(style);
-        return style;
-    };
-    var currentSize;
-    var abstractSize = function() {
-        return {
-            left: -lg / size,
-            right: (lg + wg) / size,
-            top: -tg / size,
-            bottom: (tg + hg) / size
-        };
-    };
-    $scope.startResize = function() {
-        currentSize = abstractSize();
-    };
-    $scope.stopResize = function() {
-        var newSize = abstractSize();
-        if (angular.equals(currentSize, newSize)) {
-            resetSizes(currentSize.right + currentSize.left, currentSize.bottom + currentSize.top);
-        } else {
-            var change = {
-                left: newSize.left - currentSize.left,
-                right: newSize.right - currentSize.right,
-                top: newSize.top - currentSize.top,
-                bottom: newSize.bottom - currentSize.bottom
-            };
-            var critical = $scope.crw.testWordBoundaries(change);
-            if (critical.length) {
-                $scope.setHighlight(critical);
-                $scope.immediateStore.newPromise("invalidWords", critical).then(function() {
-                    $scope.crw.changeSize(change, critical);
-                }, function() {
-                    resetSizes(currentSize.right + currentSize.left, currentSize.bottom + currentSize.top);
-                })["finally"](function() {
-                    $scope.setHighlight([]);
-                });
-            } else {
-                $scope.crw.changeSize(change, critical);
+crwApp.directive("crwGridsize", [ "basics", function(basics) {
+    return {
+        link: function(scope, element, attrs) {
+            var pattern = element.find("#crw-gridpattern"), border = element.children(".gridborder");
+            var path = [ "M", basics.dimensions.shift, basics.dimensions.size, "V", basics.dimensions.shift, "H", basics.dimensions.size ].join(" ");
+            pattern.attr("x", -basics.dimensions.shift).attr("y", -basics.dimensions.shift).attr("width", basics.dimensions.size).attr("height", basics.dimensions.size);
+            pattern.children("path").attr("d", path);
+            if (scope.mode = "build") {
+                scope.handleSize = {
+                    width: 20,
+                    offset: 0
+                };
             }
+            scope.$watch("crosswordData.size", function(newSize) {
+                if (!newSize) return;
+                var viewBox = [ 0, 0, basics.dimensions.size * newSize.width, basics.dimensions.size * newSize.height ];
+                element.attr("viewBox", viewBox.join(" "));
+                element.css({
+                    width: viewBox[2],
+                    height: viewBox[3]
+                });
+                border.attr("width", viewBox[2]);
+                border.attr("height", viewBox[3]);
+            });
         }
     };
 } ]);
 
-crwApp.factory("containsNode", function() {
-    return function(sel, el) {
-        if (sel.containsNode) {
-            return sel.containsNode(el, true);
-        }
-        for (var node, i = 0; i < sel.rangeCount; i++) {
-            node = sel.getRangeAt(i).commonAncestorContainer;
-            if (node.parentNode === el || node.contains && node.contains(el)) {
-                return true;
-            }
-        }
-        return false;
-    };
-});
-
-crwApp.directive("contenteditable", [ "basics", "containsNode", function(basics, containsNode) {
+crwApp.directive("crwGridfield", [ "basics", function(basics) {
     return {
-        require: "ngModel",
-        link: function(scope, element, attrs, ctrl) {
-            element.on("mousemove", function(event) {
-                event.preventDefault();
-            });
-            element.on("focus", function(event) {
-                window.getSelection().selectAllChildren(element[0]);
-            });
-            scope.$on("setFocus", function(event, line, column) {
-                if (line === scope.line && column === scope.column) {
-                    window.getSelection().removeAllRanges();
-                    element[0].focus();
-                }
-            });
-            function move(event) {
-                event.stopPropagation();
-                if (scope.move(event.key) || event.ctrlKey) {
-                    event.preventDefault();
-                }
+        link: function(scope, element) {
+            var highlight = element.children(".gridlight"), letter = element.children(".gridletter");
+            highlight.attr("width", basics.dimensions.size - 2 * (basics.dimensions.shift + 1)).attr("height", basics.dimensions.size - 2 * (basics.dimensions.shift + 1));
+            if (scope.mode === "build") {
+                element.on("click", function() {
+                    scope.$apply("activate(line, column)");
+                });
+                scope.$on("setFocus", function(event, line, column) {
+                    highlight.toggleClass("active", line === scope.line && column === scope.column);
+                });
             }
-            element.on("keydown", function(event) {
-                scope.$apply(move(event));
-            });
-            function type(letter) {
-                if (basics.letterRegEx.test(letter)) {
-                    letter = basics.normalizeLetter(letter);
-                    ctrl.$setViewValue(letter);
-                } else {
-                    ctrl.$render();
-                }
+            if (scope.mode !== "preview") {
+                element.on("mouseenter", function() {
+                    scope.$apply("intoField(line, column)");
+                });
+                element.on("mouseleave", function() {
+                    scope.$apply("outofField(line, column)");
+                });
             }
-            element.on("keypress", function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                type(event.key);
+            scope.$watchGroup([ "line", "column" ], function(newValues, oldValues) {
+                if (!newValues) return;
+                highlight.attr("x", basics.dimensions.size * newValues[1] + basics.dimensions.shift + 1).attr("y", basics.dimensions.size * newValues[0] + basics.dimensions.shift + 1);
+                letter.attr("x", basics.dimensions.size * newValues[1] + basics.dimensions.size / 2).attr("y", basics.dimensions.size * newValues[0] + basics.dimensions.size / 2);
             });
-            element.on("input", function(event) {
-                type(element.text());
+        }
+    };
+} ]);
+
+crwApp.directive("crwGridline", [ "basics", function(basics) {
+    return {
+        link: function(scope, element, attrs) {
+            var start = attrs.crwGridline + ".start", stop = attrs.crwGridline + ".stop";
+            scope.$watchGroup([ start, stop ], function(newValues) {
+                if (!newValues[0] || !newValues[1]) return;
+                element.attr("x1", basics.dimensions.size * newValues[0].x + basics.dimensions.size / 2);
+                element.attr("y1", basics.dimensions.size * newValues[0].y + basics.dimensions.size / 2);
+                element.attr("x2", basics.dimensions.size * newValues[1].x + basics.dimensions.size / 2);
+                element.attr("y2", basics.dimensions.size * newValues[1].y + basics.dimensions.size / 2);
             });
-            element.on("paste", function(event) {
-                event.preventDefault();
-            });
-            ctrl.$viewChangeListeners.push(function() {
-                ctrl.$render();
-            });
-            ctrl.$render = function() {
-                element.text(ctrl.$modelValue || "");
-                var sel = window.getSelection();
-                if (containsNode(sel, element[0])) {
-                    sel.selectAllChildren(element[0]);
-                }
-            };
         }
     };
 } ]);
@@ -1789,11 +1541,9 @@ crwApp.directive("crwIndexChecker", function() {
     };
 });
 
-crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", function($scope, basics, markerFactory) {
-    var isMarking = false, currentMarking, mode, lastName;
-    $scope.markers = markerFactory.getMarkers();
+crwApp.controller("GridController", [ "$scope", "basics", function($scope, basics) {
     function validMarking(newStop) {
-        var isHorizontal, dif_x = currentMarking.start.x - newStop.x, dif_y = currentMarking.start.y - newStop.y;
+        var isHorizontal, dif_x = $scope.currentMarking.start.x - newStop.x, dif_y = $scope.currentMarking.start.y - newStop.y;
         if ($scope.crw.getLevelRestriction("dir")) {
             if (basics.textIsLTR) {
                 isHorizontal = dif_y === 0 && dif_x <= 0;
@@ -1806,98 +1556,51 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
         }
     }
     $scope.setMode = function(m) {
-        mode = m;
-        lastName = $scope.crosswordData.name;
-        currentMarking = {
+        $scope.mode = m;
+        $scope.isMarking = false;
+        $scope.currentMarking = {
             ID: $scope.crw.getHighId()
         };
-        if (mode === "build") {
-            $scope.$watch("crosswordData.words", function(newWords, oldWords) {
-                if (lastName !== $scope.crosswordData.name) {
-                    lastName = $scope.crosswordData.name;
-                    return;
-                }
-                var probe, len = 0;
-                angular.forEach(oldWords, function(word, id) {
-                    len++;
-                    if (!newWords[id]) {
-                        $scope.markers.deleteMarking(id);
-                    } else {
-                        probe = true;
-                    }
-                });
-                if (probe || len === 0) {
-                    $scope.markers.redrawMarkers($scope.crosswordData.words);
-                }
-            }, true);
-        }
-        if (mode === "solve") {
-            $scope.$watch("crosswordData.solution", function(newWords, oldWords) {
-                if (lastName !== $scope.crosswordData.name) {
-                    lastName = $scope.crosswordData.name;
-                    return;
-                }
-                angular.forEach(oldWords, function(word, id) {
-                    if (!newWords[id] || !newWords[id].solved) {
-                        $scope.markers.deleteMarking(word.markingId);
-                    }
-                });
-                angular.forEach(newWords, function(word, id) {
-                    if (!oldWords[id] || !oldWords[id].solved && word.solved) {
-                        $scope.markers.exchangeMarkers(word.fields, currentMarking.ID, word.color);
-                    }
-                });
-            }, true);
-        }
     };
     $scope.$watch("crosswordData.name", function() {
-        $scope.markers.deleteAllMarking();
-        currentMarking = {
+        $scope.currentMarking = {
             ID: $scope.crw.getHighId()
         };
-        if (mode !== "solve") {
-            $scope.markers.redrawMarkers($scope.crosswordData.words);
-        }
     });
-    $scope.getMarks = function(line, column) {
-        return $scope.markers.getMarks(column, line);
-    };
-    $scope.getImgClass = function(marker) {
-        return [ marker.img, marker.marking.color ];
-    };
+    $scope.startResize = angular.noop;
+    $scope.stopResize = angular.noop;
     $scope.activate = function(row, col) {
         $scope.$broadcast("setFocus", row, col);
     };
     $scope.startMark = function() {
-        isMarking = $scope.timer ? $scope.timer.state === "playing" : true;
-        currentMarking = {
-            ID: currentMarking.ID + 1
+        $scope.isMarking = $scope.timer ? $scope.timer.state === "playing" : true;
+        $scope.currentMarking = {
+            ID: $scope.currentMarking.ID + 1
         };
-        currentMarking.color = mode === "build" ? $scope.crw.randomColor() : "grey";
+        $scope.currentMarking.color = $scope.mode === "build" ? $scope.crw.randomColor() : "grey";
     };
     function dropMarking() {
-        if (isMarking) {
-            if (mode === "solve") {
-                $scope.crw.deleteWord(currentMarking.ID, "solution");
+        if ($scope.isMarking) {
+            if ($scope.mode === "solve") {
+                $scope.crw.deleteWord($scope.currentMarking.ID, "solution");
             }
-            $scope.markers.deleteMarking(currentMarking.ID);
-            isMarking = false;
+            $scope.isMarking = false;
         }
     }
     $scope.$on("markingStop", dropMarking);
     $scope.stopMark = function() {
         var word;
-        if (!isMarking) {
+        if (!$scope.isMarking) {
             return;
         }
-        if (!angular.equals(currentMarking.start, currentMarking.stop)) {
-            if (mode === "build") {
-                word = $scope.crw.setWord(currentMarking);
+        if (!angular.equals($scope.currentMarking.start, $scope.currentMarking.stop)) {
+            if ($scope.mode === "build") {
+                word = $scope.crw.setWord($scope.currentMarking);
                 if (!word) {
                     dropMarking();
                 }
             } else {
-                word = $scope.crw.probeWord(currentMarking);
+                word = $scope.crw.probeWord($scope.currentMarking);
                 if (word.solved) {
                     $scope.count.solution++;
                 } else if (word.solved === null) {
@@ -1905,71 +1608,33 @@ crwApp.controller("TableController", [ "$scope", "basics", "markerFactory", func
                 } else {
                     $scope.setHighlight([ word.ID ]);
                     $scope.immediateStore.newPromise("falseWord", word.fields).then(function() {
-                        $scope.crw.deleteWord(currentMarking.ID, "solution");
+                        $scope.crw.deleteWord($scope.currentMarking.ID, "solution");
                         $scope.setHighlight([]);
                     });
                 }
             }
-        } else {
-            $scope.markers.deleteMarking(currentMarking.ID);
         }
-        isMarking = false;
+        $scope.isMarking = false;
     };
     $scope.intoField = function(row, col) {
         var newStop = {
             x: col,
             y: row
         };
-        if (isMarking && currentMarking.start && validMarking(newStop)) {
-            currentMarking.stop = newStop;
-            $scope.markers.setNewMarkers(currentMarking);
+        if ($scope.isMarking && $scope.currentMarking.start && validMarking(newStop)) {
+            $scope.currentMarking.stop = newStop;
         }
     };
     $scope.outofField = function(row, col) {
-        if (isMarking && !currentMarking.start) {
-            currentMarking.start = currentMarking.stop = {
+        if ($scope.isMarking && !$scope.currentMarking.start) {
+            $scope.currentMarking.start = $scope.currentMarking.stop = {
                 x: col,
                 y: row
             };
-            $scope.markers.setNewMarkers(currentMarking);
         }
     };
-    $scope.move = function(key) {
-        switch (key) {
-          case "Del":
-          case "Delete":
-          case "Backspace":
-            this.field.letter = null;
-            return true;
-
-          case "Left":
-          case "ArrowLeft":
-            if (this.column > 0) {
-                this.activate(this.line, this.column - 1);
-            }
-            return true;
-
-          case "Up":
-          case "ArrowUp":
-            if (this.line > 0) {
-                this.activate(this.line - 1, this.column);
-            }
-            return true;
-
-          case "Right":
-          case "ArrowRight":
-            if (this.column < this.row.length - 1) {
-                this.activate(this.line, this.column + 1);
-            }
-            return true;
-
-          case "Down":
-          case "ArrowDown":
-            if (this.line < this.crosswordData.table.length - 1) {
-                this.activate(this.line + 1, this.column);
-            }
-            return true;
-        }
+    $scope.getId = function(prefix, id) {
+        return prefix + id;
     };
 } ]);
 
@@ -1981,7 +1646,7 @@ crwApp.directive("colorSelect", [ "basics", function(basics) {
         link: function(scope, element, attrs) {
             scope.localize = basics.localize;
         },
-        template: '<svg title="{{localize(value)}}" ng-class="value"><use xlink:href="#crw-bullet"/></svg>'
+        template: '<svg title="{{localize(value)}}"  class="crw-marker" ng-class="value"><use xlink:href="#crw-bullet"/></svg>'
     };
 } ]);
 

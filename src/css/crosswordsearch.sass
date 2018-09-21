@@ -97,6 +97,24 @@
     transition: none
     box-shadow: none
 
+  .crw-marker
+      &.aqua
+        stroke: #00bbbb
+      &.black
+        stroke: #000000
+      &.blue
+        stroke: #0000dd
+      &.green
+        stroke: #00bb00
+      &.grey
+        stroke: #888888
+      &.orange
+        stroke: #ff8800
+      &.red
+        stroke: #dd0000
+      &.violet
+        stroke: #bb00bb
+
   .crw-control-button
     margin: 0
     padding: 0
@@ -136,186 +154,60 @@
       margin: 72px
 
     > *
-      position: absolute
       width: 100%
 
-  .crw-grid
-    -moz-box-sizing: content-box
-    box-sizing: content-box
-    border-style: solid
-    border-color: transparent
-    position: relative
+  .crw-gridtable
+    display: block
+    overflow: visible
+    z-index: 10
+    cursor: default
 
-    &.divider
-      background-image: url(#{$image-dir}grid.png)
-      border-color: black
+    .gridhandle
+      fill: #666
+      pointer-events: all
 
-    #handle-left
-      @extend %handle-vertical
-      cursor: w-resize
-      background-position: left center
-
-    #handle-right
-      @extend %handle-vertical
-      cursor: e-resize
-      background-position: right center
-
-    %handle-vertical
-      position: absolute
-      z-index: 10
-      top: 15px
-      bottom: 15px
-      background-image: url(#{$image-dir}handle-vertical-passive.png)
-      background-repeat: no-repeat
+      &.left
+        cursor: w-resize
+      &.top
+        cursor: n-resize
+      &.right
+        cursor: e-resize
+      &.bottom
+        cursor: s-resize
 
       &:hover
-        background-image: url(#{$image-dir}handle-vertical-active.png)
+        fill: #000
 
-    #handle-top
-      @extend %handle-horizontal
-      cursor: n-resize
-      background-position: center top
+    .gridborder
+      stroke: black
 
-    #handle-bottom
-      @extend %handle-horizontal
-      cursor: s-resize
-      background-position: center bottom
+    .gridlines
+      fill: none
+      stroke: black
 
-    %handle-horizontal
-      position: absolute
-      z-index: 10
-      left: 15px
-      right: 15px
-      background-image: url(#{$image-dir}handle-horizontal-passive.png)
-      background-repeat: no-repeat
+    .gridlight
+      fill: #ddd
+      opacity: 0
 
-      &:hover
-        background-image: url(#{$image-dir}handle-horizontal-active.png)
+      &.active
+        opacity: 1
 
-  .crw-crossword.wide .crw-grid
-    position: absolute
-
-  .crw-mask
-    overflow: hidden
-    border-style: solid
-    border-color: transparent
-
-  table.crw-table
-    position: absolute
-    border-collapse: separate
-    border: none
-    width: auto
-    height: auto
-
-    tr, th, td
-      background: none
-
-  td.crw-field
-    border: none
-    padding: 0
-    vertical-align: middle
-    text-align: center
-
-    > div
-      position: relative
-      line-height: 18px
-
-    span
-      display: table-cell
-      vertical-align: middle
+    .gridletter
+      fill: currentColor
+      text-anchor: middle
+      dominant-baseline: central
       font-weight: bold
       font-size: 18px
-      cursor: default
-      caret-color: transparent
 
-      &:focus
-        background-color: #ddd
+    .crw-markerline
+      stroke-width: 24
 
-      &::-moz-selection
-        background-color: transparent
+    .crw-marker
+      stroke-width: 28
+      pointer-events: none
 
-      &::selection
-        background-color: transparent
-
-  div.crw-marked
-    position: absolute
-    top: 0px
-    left: 0px
-    background-color: transparent
-
-    &.grey
-      background-image: url(#{$image-dir}markers-grey.png)
-
-    &.black
-      background-image: url(#{$image-dir}markers-black.png)
-
-    &.red
-      background-image: url(#{$image-dir}markers-red.png)
-
-    &.green
-      background-image: url(#{$image-dir}markers-green.png)
-
-    &.blue
-      background-image: url(#{$image-dir}markers-blue.png)
-
-    &.orange
-      background-image: url(#{$image-dir}markers-orange.png)
-
-    &.violet
-      background-image: url(#{$image-dir}markers-violet.png)
-
-    &.aqua
-      background-image: url(#{$image-dir}markers-aqua.png)
-
-    &.right
-      background-position: 0px 0px
-
-    &.horizontal
-      background-position: -31px 0px
-
-    &.left
-      background-position: -62px 0px
-
-    &.down-left
-      background-position: -124px 0px
-
-    &.origin
-      background-position: 0px -31px
-
-    &.corner-down-right
-      background-position: -62px -31px
-
-    &.diagonal-up
-      background-position: -93px -31px
-
-    &.corner-up-left
-      background-position: -124px -31px
-    &.down-right
-      background-position: 0px -62px
-
-    &.up-right
-      background-position: -62px -62px
-
-    &.down
-      background-position: -124px -62px
-
-    &.corner-up-right
-      background-position: 0px -93px
-
-    &.diagonal-down
-      background-position: -31px -93px
-
-    &.corner-down-left
-      background-position: -62px -93px
-
-    &.vertical
-      background-position: -124px -93px
-
-    &.up-left
-      background-position: -62px -124px
-
-    &.up
-      background-position: -124px -124px
+  .crw-extras
+    margin-top: 10px
 
   .crw-controls
     display: inline-block
@@ -331,27 +223,11 @@
     margin-top: 0
     font-size: 14px
 
-    svg:not(.crw-control-button)
+    .crw-marker
       width: 17px
       height: 17px
       vertical-align: middle
-
-      &.aqua
-        stroke: #00bbbb
-      &.black
-        stroke: #000000
-      &.blue
-        stroke: #0000dd
-      &.green
-        stroke: #00bb00
-      &.grey
-        stroke: #888888
-      &.orange
-        stroke: #ff8800
-      &.red
-        stroke: #dd0000
-      &.violet
-        stroke: #bb00bb
+      margin: 2px 3px
 
     > li
       list-style-type: none
@@ -360,9 +236,6 @@
 
       > *
         vertical-align: middle
-
-      > svg
-        margin: 2px 3px
 
       &.found
         color: #000
