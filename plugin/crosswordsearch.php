@@ -175,16 +175,6 @@ register_activation_hook( CRW_PLUGIN_FILE, 'crw_install' );
  * @return void
  */
 function crw_update () {
-    // v0.3.3 -> v0.4.0
-    $dimensions = array(
-        'fieldBorder' => 1,
-        'tableBorder' => 1,
-        'field' => 30,
-        'handleInside' => 4,
-        'handleOutside' => 8
-    );
-    add_option( CRW_DIMENSIONS_OPTION, $dimensions );
-    add_option( CRW_CUSTOM_DIMENSIONS_OPTION, $dimensions );
     // v0.6.1 -> v0.7.0
     $subscribers = get_option( CRW_SUBSCRIBERS_OPTION, array() );
     update_option( CRW_SUBSCRIBERS_OPTION, wp_parse_args( $subscribers, array(
@@ -201,6 +191,15 @@ function crw_update () {
             'active' => false
         )
     ) ) );
+    // v1.1.0 -> v2.0.0
+    $dimensions = array(
+        'fieldBorder' => 1,
+        'tableBorder' => 1,
+        'field' => 30,
+        'handleInside' => 1,
+        'handleOutside' => 19
+    );
+    update_option( CRW_DIMENSIONS_OPTION, $dimensions );
 }
 add_action( 'plugins_loaded', 'crw_update' );
 
@@ -415,7 +414,6 @@ function add_crw_scripts ( $hook ) {
         $scripts['crw-js'] = array( 'file' => 'crosswordsearch', 'deps' => array( 'angular', 'angular-route' ), 'ver' => CRW_VERSION );
         $localize = array_merge($locale_data, array(
             'textDirection' => $text_direction,
-            'imagesPath' => CRW_PLUGIN_URL . 'images/',
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'dimensions' => get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION )
         ));

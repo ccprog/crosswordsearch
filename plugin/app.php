@@ -94,47 +94,80 @@ if ( 'build' == $mode ) {
             ng-Init="setMode('<?php echo $mode ?>')">
             <defs>
                 <line id="crw-markerline-current" crw-gridline="currentMarking" stroke-linecap="round" />
-                <mask id="crw-markermask-current" maskUnits="userSpaceOnUse" width="100%" height="100%">
+                <mask id="crw-markermask-current" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
                     <rect fill="white" width="100%" height="100%"/>
                     <use class="crw-markerline" stroke="black" xlink:href="#crw-markerline-current"/>
                 </mask>
                 <pattern id="crw-gridpattern" patternUnits="userSpaceOnUse">
                     <path class="gridlines"/>
                 </pattern>
+                <clipPath id="crw-gridborderclip" clipPathUnits="userSpaceOnUse">
+                    <rect id="crw-gridborder"/>
+                </clipPath>
             </defs>
             <defs ng-repeat="word in crosswordData.words">
                 <line id="crw-markerline-{{word.ID}}" crw-gridline="word" stroke-linecap="round" />
-                <mask id="crw-markermask-{{word.ID}}" maskUnits="userSpaceOnUse" width="100%" height="100%">
+                <mask id="crw-markermask-{{word.ID}}" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
                     <rect fill="white" width="100%" height="100%"/>
                     <use class="crw-markerline" stroke="black" xlink:href="{{getId('#crw-markerline-', word.ID)}}"/>
                 </mask>
             </defs>
-            <rect class="gridborder" ng-class="{invisible: gridVisible}" fill="url(#crw-gridpattern)"/>
-            <g ng-if="mode == 'build'" crw-catch-mouse down="startResize" up="stopResize" prevent-default>
-                <svg class="gridhandle top" x="20%" width="60%" ng-attr-height="{{handleSize.width}}"
-                    ng-attr-transform="translate(0 {{handleSize.offset - handleSize.width}})">
-                    <rect width="100%" height="100%" fill="none"/>
-                    <use xlink:href="#crw-handle-top"/>
-                </svg>
-                <svg class="gridhandle bottom" x="20%" y="100%" width="60%" ng-attr-height="{{handleSize.width}}">
-                    <rect width="100%" height="100%" fill="none"/>
-                    <use xlink:href="#crw-handle-bottom"/>
-                </svg>
-                <svg class="gridhandle left" y="20%" ng-attr-width="{{handleSize.width}}" height="60%"
-                    ng-attr-transform="translate({{handleSize.offset - handleSize.width}} 0)">
-                    <rect width="100%" height="100%" fill="none"/>
-                    <use xlink:href="#crw-handle-left"/>
-                </svg>
-                <svg class="gridhandle right" x="100%" y="20%" ng-attr-width="{{handleSize.width}}" height="60%">
-                    <rect width="100%" height="100%" fill="none"/>
-                    <use xlink:href="#crw-handle-right"/>
+<?php // drag handles
+
+if ( 'build' == $mode ) {
+
+?>
+            <g crw-gridhandle="top">
+                <svg class="gridhandle top" ng-class="{moving: moving}" x="20%"
+                    crw-catch-mouse down="startResize" up="stopResize" prevent-default>
+                    <title><?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?></title>
+                    <svg y="0" style="overflow:visible">
+                        <rect width="100%" height="100%" fill="none"/>
+                        <use xlink:href="#crw-handle-top"/>
+                    </svg>
                 </svg>
             </g>
-            <g<?php if ( 'build' == $mode ) { ?> crw-catch-mouse down="startMark" up="stopMark" prevent-default<?php } ?>>
+            <g crw-gridhandle="bottom">
+                <svg class="gridhandle bottom" ng-class="{moving: moving}" x="20%"
+                    crw-catch-mouse down="startResize" up="stopResize" prevent-default>
+                    <title><?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?></title>
+                    <svg y="100%" style="overflow:visible">
+                        <rect width="100%" height="100%" fill="none"/>
+                        <use xlink:href="#crw-handle-bottom"/>
+                    </svg>
+                </svg>
+            </g>
+            <g crw-gridhandle="left">
+                <svg class="gridhandle left" ng-class="{moving: moving}" y="20%"
+                    crw-catch-mouse down="startResize" up="stopResize" prevent-default>
+                    <title><?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?></title>
+                    <svg x="0" style="overflow:visible">
+                        <rect width="100%" height="100%" fill="none"/>
+                        <use xlink:href="#crw-handle-left"/>
+                    </svg>
+                </svg>
+            </g>
+            <g crw-gridhandle="right">
+                <svg class="gridhandle right" ng-class="{moving: moving}" y="20%"
+                    crw-catch-mouse down="startResize" up="stopResize" prevent-default>
+                    <title><?php _e('Drag to move the border of the riddle', 'crosswordsearch') ?></title>
+                    <svg x="100%" style="overflow:visible">
+                        <rect width="100%" height="100%" fill="none"/>
+                        <use xlink:href="#crw-handle-right"/>
+                    </svg>
+                </svg>
+            </g>
+<?php
+
+}
+
+?>
+            <use xlink:href="#crw-gridborder" class="gridborder" ng-class="{invisible: gridVisible}" fill="url(#crw-gridpattern)"/>
+            <g clip-path="url(#crw-gridborderclip)"<?php if ( 'build' == $mode ) { ?> crw-catch-mouse down="startMark" up="stopMark" prevent-default<?php } ?>>
                 <g ng-repeat="row in crosswordData.table" crw-index-checker="line">
                     <g ng-repeat="field in row" crw-index-checker="column" crw-gridfield>
                         <rect class="gridlight"/>
-                        <text class="gridletter">{{field.letter}}</text>
+                        <text class="gridletter" dy=".4em">{{field.letter}}</text>
                     </g>
                 </g>
             </g>
@@ -147,10 +180,12 @@ if ( 'build' == $mode ) {
 
 ?>
         <p class="crw-extras">
-            <svg class="crw-control-button" ng-click="randomize()" title="<?php _e('Fill all empty fields with random letters', 'crosswordsearch') ?>" alt="<?php _e('Fill fields', 'crosswordsearch') ?>">
+            <svg class="crw-control-button" ng-click="randomize()">
+                <title><?php _e('Fill all empty fields with random letters', 'crosswordsearch') ?></title>
                 <use xlink:href="#crw-btn-fill"/>
             </svg>
-            <svg class="crw-control-button" ng-click="empty()" title="<?php _e('Empty all fields', 'crosswordsearch') ?>" alt="<?php _e('Empty', 'crosswordsearch') ?>">
+            <svg class="crw-control-button" ng-click="empty()">
+                <title><?php _e('Empty all fields', 'crosswordsearch') ?></title>
                 <use xlink:href="#crw-btn-empty"/>
             </svg>
         </p>
@@ -172,7 +207,8 @@ if ( 'build' == $mode ) {
                 <span class="crw-word-sequence">{{word.fields | joinWord}} (<?php
                 /// translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
                 printf( __('from line %1$s, column %2$s %3$s', 'crosswordsearch'), '{{word.start.y + 1|localeNumber}}', '{{textIsLTR ? word.start.x + 1 : crosswordData.size.width - word.start.x|localeNumber}}', '{{localize(word.direction)}}') ?>)</span>
-                <svg class="crw-control-button" ng-click="deleteWord(word.ID)" title="<?php _e('Delete', 'crosswordsearch') ?>">
+                <svg class="crw-control-button" ng-click="deleteWord(word.ID)">
+                    <title><?php _e('Delete', 'crosswordsearch') ?></title>
                     <use xlink:href="#crw-btn-trash"/>
                 </svg>
             </li>

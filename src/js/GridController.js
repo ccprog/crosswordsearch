@@ -11,8 +11,8 @@ crwApp.directive('crwIndexChecker', function() {
 
 /* table and fields controller */
 
-crwApp.controller("GridController", ['$scope', 'basics',
-        function ($scope, basics) {
+crwApp.controller("GridController", ['$scope', '$q', 'basics',
+        function ($scope, $q, basics) {
 
     // test whether start and stop field are in a straight or diagonal relation
     // for levels 0 & 2 restrict to right and down
@@ -44,8 +44,23 @@ crwApp.controller("GridController", ['$scope', 'basics',
         $scope.currentMarking = { ID: $scope.crw.getHighId() };
     });
 
-    $scope.startResize = angular.noop;
-    $scope.stopResize = angular.noop;
+    $scope.testResize = function (direction, change) {
+        var critical = $scope.crw.testWordBoundaries(direction, change);
+        if (critical.length) {
+            // highlight words crossing the new table boundaries
+            $scope.setHighlight(critical);
+            // ask user whether change should be applied.
+            return $scope.immediateStore.newPromise('invalidWords', critical).then(function () {
+                // yes: apply all style changes.
+                $scope.crw.changeSize(direction, change, critical);
+            })['finally'](function () {
+                $scope.setHighlight([]);
+            });
+        } else {
+            $scope.crw.changeSize(direction, change, critical);
+            return $q.resolve();
+        }
+    };
 
     $scope.activate = function (row, col) {
         $scope.$broadcast('setFocus', row, col);

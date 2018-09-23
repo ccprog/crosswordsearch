@@ -10,9 +10,6 @@ crwApp.factory('basics', function () {
         return result;
     }, []);
 
-    crwBasics.dimensions.size = crwBasics.dimensions.field + crwBasics.dimensions.fieldBorder;
-    crwBasics.dimensions.shift = crwBasics.dimensions.fieldBorder / 2;
-
     return {
         // the list of marking colors selectable on build page.
         colors: ["black", "red", "green", "blue", "orange", "violet", "aqua"],
@@ -21,10 +18,10 @@ crwApp.factory('basics', function () {
         textIsLTR: crwBasics.textDirection !== 'rtl',
 
         // table sizing dimensions in pixels
-        dimensions: crwBasics.dimensions,
-
-        // base directory
-        imagesPath: crwBasics.imagesPath,
+        fieldSize: crwBasics.dimensions.field + crwBasics.dimensions.fieldBorder,
+        fieldShift: crwBasics.dimensions.fieldBorder / 2,
+        handleWidth: crwBasics.dimensions.handleInside + crwBasics.dimensions.handleOutside,
+        handleOffset: crwBasics.dimensions.handleInside,
 
         // select one color at random, but exclude the one provided as the parameter
         randomColor: function (last) {

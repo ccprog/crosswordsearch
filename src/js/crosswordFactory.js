@@ -60,7 +60,7 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
 
         var _makeField = function (x, y) {
             return { x: x, y: y, word: crossword.table[y][x] };
-        }
+        };
 
         // add a new field sequence or exchange it with altered positioning
         // (as during mouse movement)
@@ -377,17 +377,33 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
 
         // test whether a size change will leave letter sequences running
         // across the altered border of the crossword.
-        // change has the format {left: ..., right: ..., top: ..., bottom: ...}
-        // with a positive number indicating an addition of rows/columns and
-        // a negative number indicating a removal of rows/columns.
         // returns an array of word ids that would run across a changed border
-        this.testWordBoundaries = function (change) {
-            var critical = [];
-            angular.forEach(crossword.words, function (word, id) {
-                if (Math.min(word.start.x, word.stop.x) < -change.left ||
-                        Math.max(word.start.x, word.stop.x) >= crossword.size.width + change.right ||
-                        Math.min(word.start.y, word.stop.y) < -change.top ||
-                        Math.max(word.start.y, word.stop.y) >= crossword.size.height + change.bottom) {
+        this.testWordBoundaries = function (direction, change) {
+            var critical = [], test;
+            switch (direction) {
+                case 'left':
+                    test = function (word) {
+                        return Math.min(word.start.x, word.stop.x) < change;
+                    };
+                    break;
+                case 'right':
+                    test = function (word) {
+                        return Math.max(word.start.x, word.stop.x) >= crossword.size.width + change;
+                    };
+                    break;
+                case 'top':
+                    test = function (word) {
+                        return Math.min(word.start.y, word.stop.y) < change;
+                    };
+                    break;
+                case 'bottom':
+                    test = function (word) {
+                        return Math.max(word.start.y, word.stop.y) >= crossword.size.height + change;
+                    };
+                    break;
+                }
+                angular.forEach(crossword.words, function (word, id) {
+                if (test(word)) {
                     critical.push(parseInt(id, 10));
                 }
             });
@@ -409,26 +425,28 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
         // change the size of the crossword (for change object see above)
         // critical is the list of words that must be removed to avoid sequences
         // crossing the table limits
-        this.changeSize = function (change, critical) {
+        this.changeSize = function (direction, change, critical) {
             critical.forEach(function (id) {
                 this.deleteWord(id, 'words');
             }, this);
             var size = angular.copy(crossword.size);
-            if (change.left !== 0) {
-                addAdditionalFields(change.left, true);
-                size.width += change.left;
-            }
-            if (change.right !== 0) {
-                addAdditionalFields(change.right, false);
-                size.width += change.right;
-            }
-            if (change.top !== 0) {
-                addRows(change.top, true);
-                size.height += change.top;
-            }
-            if (change.bottom !== 0) {
-                addRows(change.bottom, false);
-                size.height += change.bottom;
+            switch (direction) {
+            case 'left':
+                addAdditionalFields(-change, true);
+                size.width -= change;
+                break;
+            case 'right':
+                addAdditionalFields(change, false);
+                size.width += change;
+                break;
+            case 'top':
+                addRows(-change, true);
+                size.height -= change;
+                break;
+            case 'bottom':
+                addRows(change, false);
+                size.height += change;
+                break;
             }
             crossword.size = size;
         };

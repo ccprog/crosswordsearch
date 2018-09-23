@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="0" height="0">
-    <symbol id="crw-handle-bottom" viewBox="-10 -10 20 20">
-        <path id="crw-handle-path" d="M -10,-10 V 0 A 10,10 0 0 0 10,0 V -10 H 8 V 0 A 8,8 0 0 1 -8,0 V -10 Z M 0,-8 -6,-2 H -4 L 0,-6 4,-2 H 6 Z M -4,0 H -6 L 0,6 6,0 H 4 L 0,4 Z"/>
+    <symbol id="crw-handle-bottom" viewBox="-10 -10 20 20" overflow="visible">
+        <path id="crw-handle-path" d="M -10,-50 V 0 A 10,10 0 0 0 10,0 V -50 H 8 V 0 A 8,8 0 0 1 -8,0 V -50 Z M 0,-8 -6,-2 H -4 L 0,-6 4,-2 H 6 Z M -4,0 H -6 L 0,6 6,0 H 4 L 0,4 Z"/>
     </symbol>
-    <symbol id="crw-handle-left" viewBox="-10 -10 20 20">
+    <symbol id="crw-handle-left" viewBox="-10 -10 20 20" overflow="visible">
         <use xlink:href="#crw-handle-path" transform="rotate(90)"/>
     </symbol>
-    <symbol id="crw-handle-top" viewBox="-10 -10 20 20">
+    <symbol id="crw-handle-top" viewBox="-10 -10 20 20" overflow="visible">
         <use xlink:href="#crw-handle-path" transform="rotate(180)"/>
     </symbol>
-    <symbol id="crw-handle-right" viewBox="-10 -10 20 20">
+    <symbol id="crw-handle-right" viewBox="-10 -10 20 20" overflow="visible">
         <use xlink:href="#crw-handle-path" transform="rotate(-90)"/>
     </symbol>
     <symbol id="crw-btn-fill" viewBox="0 0 31 31">

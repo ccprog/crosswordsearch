@@ -310,13 +310,13 @@ crwApp.factory("basics", function() {
         }
         return result;
     }, []);
-    crwBasics.dimensions.size = crwBasics.dimensions.field + crwBasics.dimensions.fieldBorder;
-    crwBasics.dimensions.shift = crwBasics.dimensions.fieldBorder / 2;
     return {
         colors: [ "black", "red", "green", "blue", "orange", "violet", "aqua" ],
         textIsLTR: crwBasics.textDirection !== "rtl",
-        dimensions: crwBasics.dimensions,
-        imagesPath: crwBasics.imagesPath,
+        fieldSize: crwBasics.dimensions.field + crwBasics.dimensions.fieldBorder,
+        fieldShift: crwBasics.dimensions.fieldBorder / 2,
+        handleWidth: crwBasics.dimensions.handleInside + crwBasics.dimensions.handleOutside,
+        handleOffset: crwBasics.dimensions.handleInside,
         randomColor: function(last) {
             var color;
             do {
@@ -686,10 +686,35 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
             entry.markingId = marking.ID;
             return crossword.solution[entry.ID] = entry;
         };
-        this.testWordBoundaries = function(change) {
-            var critical = [];
+        this.testWordBoundaries = function(direction, change) {
+            var critical = [], test;
+            switch (direction) {
+              case "left":
+                test = function(word) {
+                    return Math.min(word.start.x, word.stop.x) < change;
+                };
+                break;
+
+              case "right":
+                test = function(word) {
+                    return Math.max(word.start.x, word.stop.x) >= crossword.size.width + change;
+                };
+                break;
+
+              case "top":
+                test = function(word) {
+                    return Math.min(word.start.y, word.stop.y) < change;
+                };
+                break;
+
+              case "bottom":
+                test = function(word) {
+                    return Math.max(word.start.y, word.stop.y) >= crossword.size.height + change;
+                };
+                break;
+            }
             angular.forEach(crossword.words, function(word, id) {
-                if (Math.min(word.start.x, word.stop.x) < -change.left || Math.max(word.start.x, word.stop.x) >= crossword.size.width + change.right || Math.min(word.start.y, word.stop.y) < -change.top || Math.max(word.start.y, word.stop.y) >= crossword.size.height + change.bottom) {
+                if (test(word)) {
                     critical.push(parseInt(id, 10));
                 }
             });
@@ -705,26 +730,31 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
             });
             return critical;
         };
-        this.changeSize = function(change, critical) {
+        this.changeSize = function(direction, change, critical) {
             critical.forEach(function(id) {
                 this.deleteWord(id, "words");
             }, this);
             var size = angular.copy(crossword.size);
-            if (change.left !== 0) {
-                addAdditionalFields(change.left, true);
-                size.width += change.left;
-            }
-            if (change.right !== 0) {
-                addAdditionalFields(change.right, false);
-                size.width += change.right;
-            }
-            if (change.top !== 0) {
-                addRows(change.top, true);
-                size.height += change.top;
-            }
-            if (change.bottom !== 0) {
-                addRows(change.bottom, false);
-                size.height += change.bottom;
+            switch (direction) {
+              case "left":
+                addAdditionalFields(-change, true);
+                size.width -= change;
+                break;
+
+              case "right":
+                addAdditionalFields(change, false);
+                size.width += change;
+                break;
+
+              case "top":
+                addRows(-change, true);
+                size.height -= change;
+                break;
+
+              case "bottom":
+                addRows(change, false);
+                size.height += change;
+                break;
             }
             crossword.size = size;
         };
@@ -1460,28 +1490,164 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
 
 crwApp.directive("crwGridsize", [ "basics", function(basics) {
     return {
-        link: function(scope, element, attrs) {
-            var pattern = element.find("#crw-gridpattern"), border = element.children(".gridborder");
-            var path = [ "M", basics.dimensions.shift, basics.dimensions.size, "V", basics.dimensions.shift, "H", basics.dimensions.size ].join(" ");
-            pattern.attr("x", -basics.dimensions.shift).attr("y", -basics.dimensions.shift).attr("width", basics.dimensions.size).attr("height", basics.dimensions.size);
+        link: function(scope, element) {
+            var pattern = element.find("#crw-gridpattern"), border = element.find("#crw-gridborder");
+            var path = [ "M", basics.fieldShift, basics.fieldSize, "V", basics.fieldShift, "H", basics.fieldSize ].join(" ");
+            pattern.attr({
+                x: -basics.fieldShift,
+                y: -basics.fieldShift,
+                width: basics.fieldSize,
+                height: basics.fieldSize
+            });
             pattern.children("path").attr("d", path);
-            if (scope.mode = "build") {
-                scope.handleSize = {
-                    width: 20,
-                    offset: 0
-                };
+            function computeBorderBox(abstractSize) {
+                var boxSize = {};
+                angular.forEach(abstractSize, function(size, key) {
+                    boxSize[key] = size * basics.fieldSize;
+                });
+                return boxSize;
             }
+            scope.sizeBorder = function(abstractSize) {
+                border.attr(computeBorderBox(abstractSize));
+            };
             scope.$watch("crosswordData.size", function(newSize) {
                 if (!newSize) return;
-                var viewBox = [ 0, 0, basics.dimensions.size * newSize.width, basics.dimensions.size * newSize.height ];
-                element.attr("viewBox", viewBox.join(" "));
-                element.css({
-                    width: viewBox[2],
-                    height: viewBox[3]
+                var viewBox = computeBorderBox({
+                    x: 0,
+                    y: 0,
+                    width: newSize.width,
+                    height: newSize.height
                 });
-                border.attr("width", viewBox[2]);
-                border.attr("height", viewBox[3]);
+                element.attr("viewBox", jQuery.map(viewBox, angular.identity).join(" "));
+                border.attr(viewBox);
+                delete viewBox.x;
+                delete viewBox.y;
+                element.css(viewBox);
             });
+        }
+    };
+} ]);
+
+crwApp.directive("crwGridhandle", [ "$document", "basics", function($document, basics) {
+    return {
+        scope: true,
+        link: function(scope, element, attrs) {
+            var root = element[0].ownerSVGElement;
+            var from = root.createSVGPoint(), to = root.createSVGPoint();
+            from.x = from.y = to.x = to.y = 0;
+            var delta = 0;
+            var outerSvg = element.children(".gridhandle");
+            var innerSvg = outerSvg.children("svg");
+            scope.moving = false;
+            function move() {
+                var translate = [ 0, 0 ], abstract, length;
+                var borderSize = angular.copy(scope.crosswordData.size);
+                borderSize.x = borderSize.y = 0;
+                var handleSize = {
+                    height: "60%",
+                    width: "60%"
+                };
+                switch (attrs.crwGridhandle) {
+                  case "top":
+                    abstract = Math.ceil((to.y - from.y) / basics.fieldSize);
+                    borderSize.y = abstract;
+                    borderSize.height = length = scope.crosswordData.size.height - abstract;
+                    handleSize.height = basics.handleWidth;
+                    translate[1] = basics.handleOffset - basics.handleWidth;
+                    if (scope.moving) {
+                        handleSize.height += -to.y + from.y + abstract * basics.fieldSize;
+                        translate[1] += to.y - from.y;
+                    } else {
+                        translate[1] += abstract * basics.fieldSize;
+                    }
+                    break;
+
+                  case "bottom":
+                    abstract = Math.floor((to.y - from.y) / basics.fieldSize);
+                    borderSize.height = length = scope.crosswordData.size.height + abstract;
+                    handleSize.height = basics.handleWidth;
+                    if (scope.moving) {
+                        handleSize.height += to.y - from.y - abstract * basics.fieldSize;
+                    }
+                    translate[1] = borderSize.height * basics.fieldSize - basics.handleOffset;
+                    break;
+
+                  case "left":
+                    abstract = Math.ceil((to.x - from.x) / basics.fieldSize);
+                    borderSize.x = abstract;
+                    borderSize.width = length = scope.crosswordData.size.width - abstract;
+                    handleSize.width = basics.handleWidth;
+                    translate[0] = basics.handleOffset - basics.handleWidth;
+                    if (scope.moving) {
+                        handleSize.width += -to.x + from.x + abstract * basics.fieldSize;
+                        translate[0] += to.x - from.x;
+                    } else {
+                        translate[0] += abstract * basics.fieldSize;
+                    }
+                    break;
+
+                  case "right":
+                    abstract = Math.floor((to.x - from.x) / basics.fieldSize);
+                    borderSize.width = length = scope.crosswordData.size.width + abstract;
+                    handleSize.width = basics.handleWidth;
+                    if (scope.moving) {
+                        handleSize.width += to.x - from.x - abstract * basics.fieldSize;
+                    }
+                    translate[0] = borderSize.width * basics.fieldSize - basics.handleOffset;
+                    break;
+                }
+                if (length > 2) {
+                    element.attr("transform", "translate(" + translate.join(" ") + ")");
+                    outerSvg.attr(handleSize);
+                    if (abstract !== delta) {
+                        delta = abstract;
+                        scope.sizeBorder(borderSize);
+                    }
+                    return abstract;
+                }
+                return 0;
+            }
+            scope.$watch("crosswordData.size", move);
+            switch (attrs.crwGridhandle) {
+              case "bottom":
+                innerSvg.children().attr("transform", "translate(0 -" + basics.handleWidth + ")");
+
+              case "top":
+                innerSvg.attr("height", basics.handleWidth);
+                break;
+
+              case "right":
+                innerSvg.children().attr("transform", "translate(-" + basics.handleWidth + " 0)");
+
+              case "left":
+                innerSvg.attr("width", basics.handleWidth);
+                break;
+            }
+            function onMouseMove(event) {
+                var transform = root.getScreenCTM().inverse();
+                if (!scope.moving) {
+                    from.x = event.clientX;
+                    from.y = event.clientY;
+                    from = from.matrixTransform(transform);
+                    scope.moving = true;
+                }
+                to.x = event.clientX;
+                to.y = event.clientY;
+                to = to.matrixTransform(transform);
+                move();
+            }
+            scope.startResize = function() {
+                $document.on("mousemove", onMouseMove);
+            };
+            scope.stopResize = function() {
+                $document.off("mousemove", onMouseMove);
+                scope.moving = false;
+                var change = move();
+                from.x = from.y = to.x = to.y = 0;
+                if (change) {
+                    scope.testResize(attrs.crwGridhandle, change).then(angular.noop, move);
+                }
+            };
         }
     };
 } ]);
@@ -1490,7 +1656,10 @@ crwApp.directive("crwGridfield", [ "basics", function(basics) {
     return {
         link: function(scope, element) {
             var highlight = element.children(".gridlight"), letter = element.children(".gridletter");
-            highlight.attr("width", basics.dimensions.size - 2 * (basics.dimensions.shift + 1)).attr("height", basics.dimensions.size - 2 * (basics.dimensions.shift + 1));
+            highlight.attr({
+                width: basics.fieldSize - 2 * (basics.fieldShift + 1),
+                height: basics.fieldSize - 2 * (basics.fieldShift + 1)
+            });
             if (scope.mode === "build") {
                 element.on("click", function() {
                     scope.$apply("activate(line, column)");
@@ -1509,8 +1678,14 @@ crwApp.directive("crwGridfield", [ "basics", function(basics) {
             }
             scope.$watchGroup([ "line", "column" ], function(newValues, oldValues) {
                 if (!newValues) return;
-                highlight.attr("x", basics.dimensions.size * newValues[1] + basics.dimensions.shift + 1).attr("y", basics.dimensions.size * newValues[0] + basics.dimensions.shift + 1);
-                letter.attr("x", basics.dimensions.size * newValues[1] + basics.dimensions.size / 2).attr("y", basics.dimensions.size * newValues[0] + basics.dimensions.size / 2);
+                highlight.attr({
+                    x: basics.fieldSize * newValues[1] + basics.fieldShift + 1,
+                    y: basics.fieldSize * newValues[0] + basics.fieldShift + 1
+                });
+                letter.attr({
+                    x: basics.fieldSize * newValues[1] + basics.fieldSize / 2,
+                    y: basics.fieldSize * newValues[0] + basics.fieldSize / 2
+                });
             });
         }
     };
@@ -1522,10 +1697,12 @@ crwApp.directive("crwGridline", [ "basics", function(basics) {
             var start = attrs.crwGridline + ".start", stop = attrs.crwGridline + ".stop";
             scope.$watchGroup([ start, stop ], function(newValues) {
                 if (!newValues[0] || !newValues[1]) return;
-                element.attr("x1", basics.dimensions.size * newValues[0].x + basics.dimensions.size / 2);
-                element.attr("y1", basics.dimensions.size * newValues[0].y + basics.dimensions.size / 2);
-                element.attr("x2", basics.dimensions.size * newValues[1].x + basics.dimensions.size / 2);
-                element.attr("y2", basics.dimensions.size * newValues[1].y + basics.dimensions.size / 2);
+                element.attr({
+                    x1: basics.fieldSize * newValues[0].x + basics.fieldSize / 2,
+                    y1: basics.fieldSize * newValues[0].y + basics.fieldSize / 2,
+                    x2: basics.fieldSize * newValues[1].x + basics.fieldSize / 2,
+                    y2: basics.fieldSize * newValues[1].y + basics.fieldSize / 2
+                });
             });
         }
     };
@@ -1541,7 +1718,7 @@ crwApp.directive("crwIndexChecker", function() {
     };
 });
 
-crwApp.controller("GridController", [ "$scope", "basics", function($scope, basics) {
+crwApp.controller("GridController", [ "$scope", "$q", "basics", function($scope, $q, basics) {
     function validMarking(newStop) {
         var isHorizontal, dif_x = $scope.currentMarking.start.x - newStop.x, dif_y = $scope.currentMarking.start.y - newStop.y;
         if ($scope.crw.getLevelRestriction("dir")) {
@@ -1567,8 +1744,20 @@ crwApp.controller("GridController", [ "$scope", "basics", function($scope, basic
             ID: $scope.crw.getHighId()
         };
     });
-    $scope.startResize = angular.noop;
-    $scope.stopResize = angular.noop;
+    $scope.testResize = function(direction, change) {
+        var critical = $scope.crw.testWordBoundaries(direction, change);
+        if (critical.length) {
+            $scope.setHighlight(critical);
+            return $scope.immediateStore.newPromise("invalidWords", critical).then(function() {
+                $scope.crw.changeSize(direction, change, critical);
+            })["finally"](function() {
+                $scope.setHighlight([]);
+            });
+        } else {
+            $scope.crw.changeSize(direction, change, critical);
+            return $q.resolve();
+        }
+    };
     $scope.activate = function(row, col) {
         $scope.$broadcast("setFocus", row, col);
     };
