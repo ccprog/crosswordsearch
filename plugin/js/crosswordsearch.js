@@ -669,9 +669,7 @@ crwApp.factory("crosswordFactory", [ "basics", "ajaxFactory", function(basics, a
         this.getLevelRestriction = _getLevelRestriction;
         this.probeWord = function(marking) {
             var entry = marking;
-            entry.fields.forEach(function(field) {
-                field.word = crossword.table[field.y][field.x];
-            });
+            _setFields(marking);
             entry.solved = false;
             angular.forEach(crossword.words, function(word) {
                 if (angular.equals(word.start, entry.start) && angular.equals(word.stop, entry.stop)) {
@@ -1312,7 +1310,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     $scope.commandState = "full";
     $scope.highlight = [];
     $scope.levelList = $scope.crw.getLevelList();
-    $scope.tableVisible = true;
+    $scope.riddleVisible = true;
     function updateLoadList(names) {
         $scope.commandList.filter(function(command) {
             return command.value === "load";
@@ -1335,10 +1333,10 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             break;
 
           case "timer":
-            $scope.tableVisible = false;
+            $scope.riddleVisible = false;
             $scope.$watch("timer.state", function(newState, oldState) {
                 if (newState === "playing") {
-                    $scope.tableVisible = true;
+                    $scope.riddleVisible = true;
                 } else if (oldState === "scored" && newState === "waiting") {
                     $scope.restart();
                 } else if (oldState === "playing" && newState !== "waiting") {
@@ -1428,7 +1426,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
         $scope.count = $scope.crw.getCount();
         updateNames();
         if (typeof $scope.timer === "object") {
-            $scope.tableVisible = false;
+            $scope.riddleVisible = false;
             $scope.$broadcast("timerInit");
         }
     };
@@ -1454,11 +1452,13 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             if ($scope.timer.submitting) {
                 return;
             }
-            $scope.tableVisible = false;
+            $scope.riddleVisible = false;
             $scope.$broadcast("timerInit");
         }
         if (!$scope.crw.getLevelRestriction("sol")) {
-            $scope.crosswordData.solution = {};
+            Object.keys($scope.crosswordData.solution).forEach(function(id) {
+                delete $scope.crosswordData.solution[id];
+            });
         }
         angular.forEach($scope.crosswordData.words, function(word) {
             word.solved = false;
@@ -1491,7 +1491,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
 crwApp.directive("crwGridsize", [ "basics", function(basics) {
     return {
         link: function(scope, element) {
-            var pattern = element.find("#crw-gridpattern"), border = element.find("#crw-gridborder");
+            var pattern = element.find("pattern"), border = element.find("clipPath rect");
             var path = [ "M", basics.fieldShift, basics.fieldSize, "V", basics.fieldShift, "H", basics.fieldSize ].join(" ");
             pattern.attr({
                 x: -basics.fieldShift,
@@ -1732,18 +1732,17 @@ crwApp.controller("GridController", [ "$scope", "$q", "basics", function($scope,
             return Math.abs(dif_x) === Math.abs(dif_y) || dif_x === 0 || dif_y === 0;
         }
     }
-    $scope.setMode = function(m) {
-        $scope.mode = m;
+    function initData() {
         $scope.isMarking = false;
         $scope.currentMarking = {
             ID: $scope.crw.getHighId()
         };
+    }
+    $scope.setMode = function(m) {
+        $scope.mode = m;
+        initData();
     };
-    $scope.$watch("crosswordData.name", function() {
-        $scope.currentMarking = {
-            ID: $scope.crw.getHighId()
-        };
-    });
+    $scope.$watch("crosswordData.name", initData);
     $scope.testResize = function(direction, change) {
         var critical = $scope.crw.testWordBoundaries(direction, change);
         if (critical.length) {

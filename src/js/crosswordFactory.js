@@ -357,9 +357,7 @@ crwApp.factory('crosswordFactory', ['basics', 'ajaxFactory',
         // The altered object is mirrored back.
         this.probeWord = function (marking) {
             var entry = marking;
-            entry.fields.forEach(function (field) {
-                field.word = crossword.table[field.y][field.x];
-            });
+            _setFields(marking);
             entry.solved = false;
             angular.forEach(crossword.words, function (word) {
                 if (angular.equals(word.start, entry.start) && angular.equals(word.stop, entry.stop)) {

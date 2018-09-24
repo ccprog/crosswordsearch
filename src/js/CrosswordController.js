@@ -61,7 +61,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     $scope.commandState = 'full';
     $scope.highlight = [];
     $scope.levelList = $scope.crw.getLevelList();
-    $scope.tableVisible = true;
+    $scope.riddleVisible = true;
 
     // build page only: data object for command menu
     // move the namesIn Project list into the command sub-menu
@@ -89,11 +89,11 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             delete $scope.commands.insert;
             break;
         case 'timer': // competitive solve mode
-            $scope.tableVisible = false;
+            $scope.riddleVisible = false;
             $scope.$watch('timer.state', function (newState, oldState) {
                 if (newState === 'playing') {
                     // make riddle visible
-                    $scope.tableVisible = true;
+                    $scope.riddleVisible = true;
                 } else if (oldState === 'scored' && newState === 'waiting') {
                     // restart an already solved riddle
                     $scope.restart();
@@ -201,7 +201,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         $scope.count = $scope.crw.getCount();
         updateNames();
         if (typeof $scope.timer === 'object') {
-            $scope.tableVisible = false;
+            $scope.riddleVisible = false;
             $scope.$broadcast('timerInit');
         }
     };
@@ -239,11 +239,13 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             if ($scope.timer.submitting) {
                 return;
             }
-            $scope.tableVisible = false;
+            $scope.riddleVisible = false;
             $scope.$broadcast('timerInit');
         }
         if (!$scope.crw.getLevelRestriction('sol')) {
-            $scope.crosswordData.solution = {};
+            Object.keys($scope.crosswordData.solution).forEach(function (id) {
+                delete $scope.crosswordData.solution[id];
+            });
         }
         angular.forEach($scope.crosswordData.words, function (word) {
             word.solved = false;

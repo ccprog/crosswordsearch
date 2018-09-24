@@ -639,6 +639,9 @@ function crw_test_shortcode ($atts, $names_list) {
     return false;
 }
 
+// identifier for multiple shortcode instances on one page
+$crw_scid = 0;
+
 /**
  * Load the crossword into a post.
  *
@@ -650,6 +653,8 @@ function crw_test_shortcode ($atts, $names_list) {
  * @return string Angular app HTML partial including app.php and immediate.php.
  */
 function crw_shortcode_handler( $atts, $content = null ) {
+    global $crw_scid;
+
     if( function_exists( 'is_gutenberg_page' ) && is_gutenberg_page() ) return;
 
     $filtered_atts = shortcode_atts( array(
@@ -720,6 +725,9 @@ function crw_shortcode_handler( $atts, $content = null ) {
 
 	// load stylesheet into page bottom to get it past theming
     crw_compose_style();
+
+    // injected into XML ids to ensure uniqueness for references
+    $crw_scid +=1;
 
     ob_start();
     include 'app.php';

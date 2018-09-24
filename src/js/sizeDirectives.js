@@ -2,8 +2,8 @@
 crwApp.directive("crwGridsize", ['basics', function (basics) {
     return {
         link: function (scope, element) {
-            var pattern = element.find('#crw-gridpattern'),
-                border = element.find('#crw-gridborder');
+            var pattern = element.find('pattern'),
+                border = element.find('clipPath rect');
 
             var path = [
                 'M', basics.fieldShift, basics.fieldSize,

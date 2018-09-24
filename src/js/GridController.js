@@ -32,17 +32,19 @@ crwApp.controller("GridController", ['$scope', '$q', 'basics',
         }
     }
 
-    // init controller for build and solve page
-    $scope.setMode = function (m) {
-        $scope.mode = m;
+    function initData () {
         $scope.isMarking = false;
         // shift marking ids so they never overlap with pre-existing word ids
         $scope.currentMarking = { ID: $scope.crw.getHighId() };
+    }
+
+    // init controller for build and solve page
+    $scope.setMode = function (m) {
+        $scope.mode = m;
+        initData();
     };
 
-    $scope.$watch('crosswordData.name', function () {
-        $scope.currentMarking = { ID: $scope.crw.getHighId() };
-    });
+    $scope.$watch('crosswordData.name', initData);
 
     $scope.testResize = function (direction, change) {
         var critical = $scope.crw.testWordBoundaries(direction, change);

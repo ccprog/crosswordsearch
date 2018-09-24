@@ -1,6 +1,6 @@
 <?php 
 
-include 'images/sprites.svg';
+include_once 'images/sprites.svg';
 
 // build mode has an action menu including a name selection for server reload
 if ( 'build' == $mode ) {
@@ -93,23 +93,23 @@ if ( 'build' == $mode ) {
         <svg class="crw-gridtable" ng-controller="GridController" crw-gridsize 
             ng-Init="setMode('<?php echo $mode ?>')">
             <defs>
-                <line id="crw-markerline-current" crw-gridline="currentMarking" stroke-linecap="round" />
-                <mask id="crw-markermask-current" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+                <line id="crw-markerline-<?php echo $crw_scid; ?>-current" crw-gridline="currentMarking" stroke-linecap="round" />
+                <mask id="crw-markermask-<?php echo $crw_scid; ?>-current" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
                     <rect fill="white" width="100%" height="100%"/>
-                    <use class="crw-markerline" stroke="black" xlink:href="#crw-markerline-current"/>
+                    <use class="crw-markerline" stroke="black" xlink:href="#crw-markerline-<?php echo $crw_scid; ?>-current"/>
                 </mask>
                 <pattern id="crw-gridpattern" patternUnits="userSpaceOnUse">
                     <path class="gridlines"/>
                 </pattern>
-                <clipPath id="crw-gridborderclip" clipPathUnits="userSpaceOnUse">
-                    <rect id="crw-gridborder"/>
+                <clipPath id="crw-gridborderclip-<?php echo $crw_scid; ?>" clipPathUnits="userSpaceOnUse">
+                    <rect id="crw-gridborder-<?php echo $crw_scid; ?>"/>
                 </clipPath>
             </defs>
             <defs ng-repeat="word in crosswordData.words">
-                <line id="crw-markerline-{{word.ID}}" crw-gridline="word" stroke-linecap="round" />
-                <mask id="crw-markermask-{{word.ID}}" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+                <line id="crw-markerline-<?php echo $crw_scid; ?>-{{word.ID}}" crw-gridline="word" stroke-linecap="round" />
+                <mask id="crw-markermask-<?php echo $crw_scid; ?>-{{word.ID}}" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
                     <rect fill="white" width="100%" height="100%"/>
-                    <use class="crw-markerline" stroke="black" xlink:href="{{getId('#crw-markerline-', word.ID)}}"/>
+                    <use class="crw-markerline" stroke="black" xlink:href="{{getId('#crw-markerline-<?php echo $crw_scid; ?>-', word.ID)}}"/>
                 </mask>
             </defs>
 <?php // drag handles
@@ -162,8 +162,8 @@ if ( 'build' == $mode ) {
 }
 
 ?>
-            <use xlink:href="#crw-gridborder" class="gridborder" ng-class="{invisible: gridVisible}" fill="url(#crw-gridpattern)"/>
-            <g clip-path="url(#crw-gridborderclip)"<?php if ( 'build' == $mode ) { ?> crw-catch-mouse down="startMark" up="stopMark" prevent-default<?php } ?>>
+            <use xlink:href="#crw-gridborder-<?php echo $crw_scid; ?>" class="gridborder" ng-class="{invisible: mode != 'build' && riddleVisible}" fill="url(#crw-gridpattern)"/>
+            <g ng-class="{invisible: !riddleVisible}" clip-path="url(#crw-gridborderclip-<?php echo $crw_scid; ?>)"<?php if ( 'preview' != $mode ) { ?> crw-catch-mouse down="startMark" up="stopMark" prevent-default<?php } ?>>
                 <g ng-repeat="row in crosswordData.table" crw-index-checker="line">
                     <g ng-repeat="field in row" crw-index-checker="column" crw-gridfield>
                         <rect class="gridlight"/>
@@ -171,8 +171,15 @@ if ( 'build' == $mode ) {
                     </g>
                 </g>
             </g>
-            <use class="crw-marker" ng-class="word.color" ng-repeat="word in crosswordData.words" mask="url(#crw-markermask-{{word.ID}})" xlink:href="{{getId('#crw-markerline-', word.ID)}}"/>
-            <use class="crw-marker" ng-class="currentMarking.color" ng-if="isMarking" mask="url(#crw-markermask-current)" xlink:href="#crw-markerline-current"/>
+            <use class="crw-marker" ng-class="word.color"
+<?php if ( 'solve' == $mode ) { //marker source ?>
+                ng-repeat="word in wordsToArray(crosswordData.solution) | filter:{solved:true}"
+<?php } else { ?>
+                ng-repeat="word in crosswordData.words"
+<?php } ?>
+                mask="url(#crw-markermask-<?php echo $crw_scid; ?>-{{word.ID}})" xlink:href="{{getId('#crw-markerline-<?php echo $crw_scid; ?>-', word.ID)}}"/>
+            <crw-markings mode="<?php echo $mode ?>"></crw-markings>
+            <use class="crw-marker" ng-class="currentMarking.color" ng-if="isMarking" mask="url(#crw-markermask-<?php echo $crw_scid; ?>-current)" xlink:href="#crw-markerline-<?php echo $crw_scid; ?>-current"/>
         </svg>
 <?php // fill/empty buttons
 
@@ -230,7 +237,7 @@ if ( 'build' == $mode ) {
 } else {
 
 ?>
-    <div class="crw-controls" ng-class="{invisible: !tableVisible}">
+    <div class="crw-controls" ng-class="{invisible: !riddleVisible}">
         <p ng-show="crosswordData.name">
             <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crosswordsearch'), '{{count.solution|localeNumber}}', '{{count.words|localeNumber}}' ) ?></span>
             <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crosswordsearch'), '{{count.words|localeNumber}}' ) ?></span>
@@ -251,7 +258,7 @@ if ( 'build' == $mode ) {
         </p>
         <ul class="crw-word" ng-class="{'palid': crw.getLevelRestriction('sol')}">
             <li ng-class="{'highlight': isHighlighted(), 'found': word.solved}" ng-repeat="word in wordsToArray(crosswordData.solution) | orderBy:'ID'" ng-controller="EntryController">
-                <svg ng-class="word.solved ? word.color : 'grey'" title="{{localize(word.color)}}"><use xlink:href="#crw-bullet"></svg>
+                <svg class="crw-marker" ng-class="word.solved ? word.color : 'grey'" title="{{localize(word.color)}}"><use xlink:href="#crw-bullet"></svg>
                 <span>{{word.fields | joinWord}}</span>
             </li>
         </ul>
