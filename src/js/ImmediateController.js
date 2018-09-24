@@ -119,24 +119,6 @@ crwApp.controller("ImmediateController", ['$scope', '$sce', function ($scope, $s
         }
     };
 
-    // deferred handler for blocking input during data download
-    // register
-    $scope.immediateStore.register('loadCrossword', function (loadDeferred, name) {
-        deferred = loadDeferred;
-        $scope.message = {
-            which: 'load_crossword',
-            buttons: {}
-        };
-        $scope.immediate = 'dialogue';
-        $scope.crw.loadCrosswordData(name).then(
-            $scope.finish,
-            function (error) {
-                $scope.immediate=null;
-                deferred.reject(error);
-            }
-        );
-    });
-
     // build page only: deferred handlers for user dialogue in case of
     // table size change
     // register

@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Claus Colloseus <ccprog@gmx.de>
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the crosswordsearch package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 14:52+0200\n"
+"POT-Creation-Date: 2018-09-24 22:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,140 +17,142 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: plugin/app.php:7
+#: plugin/app.php:9
 msgid "Riddle..."
 msgstr ""
 
-#: plugin/app.php:12
+#: plugin/app.php:14
 msgid "Describe which words should be found:"
 msgstr ""
 
-#: plugin/app.php:14 plugin/editorsTab.php:24 plugin/immediate.php:76
+#: plugin/app.php:16 plugin/editorsTab.php:24 plugin/immediate.php:76
 #: plugin/immediate.php:87
 msgid "Dont't try to be clever!"
 msgstr ""
 
-#: plugin/app.php:17
+#: plugin/app.php:19
 msgid "Select a difficulty level:"
 msgstr ""
 
-#: plugin/app.php:33
+#: plugin/app.php:35
 msgid "Select a riddle"
 msgstr ""
 
-#: plugin/app.php:42
+#: plugin/app.php:44
 msgid "Find these words in the riddle:"
 msgstr ""
 
-#: plugin/app.php:44
+#: plugin/app.php:46
 msgid "Difficulty level"
 msgstr ""
 
-#: plugin/app.php:50
+#: plugin/app.php:52
 msgid "Word directions"
 msgstr ""
 
-#: plugin/app.php:51
+#: plugin/app.php:53
 msgid "only to the right and down"
 msgstr ""
 
-#: plugin/app.php:52
+#: plugin/app.php:54
 msgid "any, including diagonal and backwards"
 msgstr ""
 
-#: plugin/app.php:53
+#: plugin/app.php:55
 msgid "List of words that should be found"
 msgstr ""
 
-#: plugin/app.php:54
+#: plugin/app.php:56
 msgid "visible before found"
 msgstr ""
 
-#: plugin/app.php:55
+#: plugin/app.php:57
 msgid "hidden before found"
 msgstr ""
 
-#: plugin/app.php:63
+#: plugin/app.php:65
 msgid "Fill in the the letters and mark the words:"
 msgstr ""
 
-#: plugin/app.php:69
+#: plugin/app.php:71
 msgid "Mark the words:"
 msgstr ""
 
-#: plugin/app.php:76
+#: plugin/app.php:78
 msgid "Start"
 msgstr ""
 
-#: plugin/app.php:76
+#: plugin/app.php:78
 msgid "Start solving the riddle"
 msgstr ""
 
-#: plugin/app.php:77
+#: plugin/app.php:79
 msgid "Time"
 msgstr ""
 
-#: plugin/app.php:78 plugin/app.php:196
+#: plugin/app.php:80 plugin/app.php:260
 msgid "Restart"
 msgstr ""
 
-#: plugin/app.php:78 plugin/app.php:196
+#: plugin/app.php:80 plugin/app.php:260
 msgid "Restart solving the riddle"
 msgstr ""
 
-#: plugin/app.php:79
+#: plugin/app.php:81
 msgid "Result"
 msgstr ""
 
-#: plugin/app.php:80
+#: plugin/app.php:82
 msgid "Remaining time"
 msgstr ""
 
-#: plugin/app.php:81
+#: plugin/app.php:83
 msgid "Time used"
 msgstr ""
 
-#: plugin/app.php:98 plugin/app.php:99 plugin/app.php:100 plugin/app.php:101
+#. /translators:  cut the following sentence into halves to distribute it over two lines; first half...
+#: plugin/app.php:98
+msgid "Please be patient for the"
+msgstr ""
+
+#. /translators: ...second half
+#: plugin/app.php:101
+msgid "crossword being loaded."
+msgstr ""
+
+#: plugin/app.php:133 plugin/app.php:143 plugin/app.php:153 plugin/app.php:163
 msgid "Drag to move the border of the riddle"
 msgstr ""
 
-#: plugin/app.php:146
+#: plugin/app.php:201
 msgid "Fill all empty fields with random letters"
 msgstr ""
 
-#: plugin/app.php:146
-msgid "Fill fields"
-msgstr ""
-
-#: plugin/app.php:146
+#: plugin/app.php:205
 msgid "Empty all fields"
 msgstr ""
 
-#: plugin/app.php:146
-msgid "Empty"
-msgstr ""
-
 #. / translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
-#: plugin/app.php:165
+#: plugin/app.php:226
 #, php-format
 msgid "from line %1$s, column %2$s %3$s"
 msgstr ""
 
-#: plugin/app.php:166 plugin/immediate.php:151
+#: plugin/app.php:228 plugin/immediate.php:150
 msgid "Delete"
 msgstr ""
 
-#: plugin/app.php:188
+#: plugin/app.php:252
 #, php-format
 msgid "You have found %1$s of %2$s words"
 msgstr ""
 
-#: plugin/app.php:189
+#: plugin/app.php:253
 #, php-format
 msgid "You have found all %1$s words!"
 msgstr ""
 
-#: plugin/app.php:216
+#: plugin/app.php:281
 msgid "Authored by"
 msgstr ""
 
@@ -232,76 +234,76 @@ msgstr ""
 msgid "User submitted solutions for crosswordsearch riddles"
 msgstr ""
 
-#: plugin/crosswordsearch.php:433 plugin/js/block-editor.js:65
+#: plugin/crosswordsearch.php:425 plugin/js/block-editor.js:65
 msgid "Empty Crossword"
 msgstr ""
 
-#: plugin/crosswordsearch.php:434 plugin/js/block-editor.js:69
+#: plugin/crosswordsearch.php:426 plugin/js/block-editor.js:69
 msgid "First crossword"
 msgstr ""
 
-#: plugin/crosswordsearch.php:435 plugin/js/block-editor.js:73
+#: plugin/crosswordsearch.php:427 plugin/js/block-editor.js:73
 msgid "Choose from all"
 msgstr ""
 
-#: plugin/crosswordsearch.php:564
+#: plugin/crosswordsearch.php:556
 msgid "Insert a Crosswordsearch shortcode"
 msgstr ""
 
-#: plugin/crosswordsearch.php:565 plugin/js/block-editor.js:373
+#: plugin/crosswordsearch.php:557 plugin/js/block-editor.js:373
 msgid "Crosswordsearch Shortcode"
 msgstr ""
 
-#: plugin/crosswordsearch.php:609 plugin/js/block-editor.js:237
+#: plugin/crosswordsearch.php:601 plugin/js/block-editor.js:237
 msgid "The shortcode usage is faulty:"
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'mode'
-#: plugin/crosswordsearch.php:613
+#: plugin/crosswordsearch.php:605
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'restricted', %2 the literal 'name'
-#: plugin/crosswordsearch.php:618
+#: plugin/crosswordsearch.php:610
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must be omitted."
 msgstr ""
 
-#: plugin/crosswordsearch.php:622
+#: plugin/crosswordsearch.php:614
 #, php-format
 msgid "Attribute %1$s is only allowed in solve mode."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'timer'
-#: plugin/crosswordsearch.php:627
+#: plugin/crosswordsearch.php:619
 #, php-format
 msgid "Attribute %1$s must be a non-negative integer."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'submitting', %2 the literal 'timer'
-#: plugin/crosswordsearch.php:632
+#: plugin/crosswordsearch.php:624
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must also be set."
 msgstr ""
 
 #. / translators: argument %1 will be the literal 'project'
-#: plugin/crosswordsearch.php:637
+#: plugin/crosswordsearch.php:629
 #, php-format
 msgid "Attribute %1$s needs to be an existing project."
 msgstr ""
 
-#: plugin/crosswordsearch.php:641 plugin/js/block-editor.js:243
-#, php-format
+#: plugin/crosswordsearch.php:633 plugin/js/block-editor.js:243
+#, php-format, javascript-format
 msgid "There is no crossword in project %1$s."
 msgstr ""
 
-#: plugin/crosswordsearch.php:645
+#: plugin/crosswordsearch.php:637
 #, php-format
 msgid "There is no crossword with the name %1$s."
 msgstr ""
 
-#: plugin/crosswordsearch.php:707
+#: plugin/crosswordsearch.php:704
 msgid "Do you want to submit your result?"
 msgstr ""
 
@@ -618,7 +620,7 @@ msgid "Abort saving the project"
 msgstr ""
 
 #: plugin/editorsTab.php:43 plugin/editorsTab.php:72 plugin/immediate.php:79
-#: plugin/immediate.php:94 plugin/immediate.php:152
+#: plugin/immediate.php:94 plugin/immediate.php:151
 msgid "Abort"
 msgstr ""
 
@@ -713,7 +715,7 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: plugin/immediate.php:93 plugin/immediate.php:150
+#: plugin/immediate.php:93 plugin/immediate.php:149
 msgid "OK"
 msgstr ""
 
@@ -769,10 +771,6 @@ msgstr ""
 #: plugin/immediate.php:142
 #, php-format
 msgid "Approve crossword %1$s for project %2$s"
-msgstr ""
-
-#: plugin/immediate.php:148
-msgid "Please be patient for the crossword being loaded."
 msgstr ""
 
 #: plugin/l10n.php:4

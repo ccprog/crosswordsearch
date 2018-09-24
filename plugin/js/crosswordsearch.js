@@ -1311,6 +1311,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     $scope.highlight = [];
     $scope.levelList = $scope.crw.getLevelList();
     $scope.riddleVisible = true;
+    $scope.waitsForData = true;
     function updateLoadList(names) {
         $scope.commandList.filter(function(command) {
             return command.value === "load";
@@ -1429,6 +1430,7 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
             $scope.riddleVisible = false;
             $scope.$broadcast("timerInit");
         }
+        $scope.waitsForData = false;
     };
     $scope.setHighlight = function(h) {
         $scope.highlight = h;
@@ -1436,10 +1438,12 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     $scope.load = function(name) {
         $scope.loadError = null;
         if (name || typeof name === "string") {
-            $scope.immediateStore.newPromise("loadCrossword", name).then(updateModel, function(error) {
+            $scope.waitsForData = true;
+            $scope.crw.loadCrosswordData(name).then(updateModel, function(error) {
                 $scope.loadError = error;
             });
         } else {
+            $scope.waitsForData = false;
             $scope.crw.loadDefault();
             updateModel();
         }
@@ -1969,18 +1973,6 @@ crwApp.controller("ImmediateController", [ "$scope", "$sce", function($scope, $s
             deferred.reject();
         }
     };
-    $scope.immediateStore.register("loadCrossword", function(loadDeferred, name) {
-        deferred = loadDeferred;
-        $scope.message = {
-            which: "load_crossword",
-            buttons: {}
-        };
-        $scope.immediate = "dialogue";
-        $scope.crw.loadCrosswordData(name).then($scope.finish, function(error) {
-            $scope.immediate = null;
-            deferred.reject(error);
-        });
-    });
     $scope.immediateStore.register("invalidWords", function(invalidDeferred, critical) {
         deferred = invalidDeferred;
         $scope.message = {

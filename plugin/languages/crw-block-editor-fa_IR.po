@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 14:52+0200\n"
-"PO-Revision-Date: 2018-09-12 14:52+0200\n"
+"POT-Creation-Date: 2018-09-24 22:42+0200\n"
+"PO-Revision-Date: 2018-09-24 22:42+0200\n"
 "Last-Translator: مرتضی نجاتی <mortazanejatijeze56@gmail.com>\n"
 "Language-Team: Persian\n"
 "Language: fa-IR\n"
@@ -22,28 +22,28 @@ msgstr ""
 "X-Loco-Target-Locale: fa_IR\n"
 "X-Generator: Loco - https://localise.biz/\n"
 
-#: plugin/crosswordsearch.php:433 plugin/js/block-editor.js:65
+#: plugin/crosswordsearch.php:425 plugin/js/block-editor.js:65
 msgid "Empty Crossword"
 msgstr "جدول خالی"
 
-#: plugin/crosswordsearch.php:434 plugin/js/block-editor.js:69
+#: plugin/crosswordsearch.php:426 plugin/js/block-editor.js:69
 msgid "First crossword"
 msgstr "نخستین جدول"
 
-#: plugin/crosswordsearch.php:435 plugin/js/block-editor.js:73
+#: plugin/crosswordsearch.php:427 plugin/js/block-editor.js:73
 msgid "Choose from all"
 msgstr "انتخاب برای همه"
 
-#: plugin/crosswordsearch.php:565 plugin/js/block-editor.js:373
+#: plugin/crosswordsearch.php:557 plugin/js/block-editor.js:373
 msgid "Crosswordsearch Shortcode"
 msgstr "کدکوتاه جدول"
 
-#: plugin/crosswordsearch.php:609 plugin/js/block-editor.js:237
+#: plugin/crosswordsearch.php:601 plugin/js/block-editor.js:237
 msgid "The shortcode usage is faulty:"
 msgstr "کدکوتاه اشتباه است:"
 
-#: plugin/crosswordsearch.php:641 plugin/js/block-editor.js:243
-#, php-format
+#: plugin/crosswordsearch.php:633 plugin/js/block-editor.js:243
+#, fuzzy, php-format, javascript-format
 msgid "There is no crossword in project %1$s."
 msgstr "در پروژه هیچ جدولی نیست."
 

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 14:52+0200\n"
-"PO-Revision-Date: 2018-09-12 14:52+0200\n"
+"POT-Creation-Date: 2018-09-24 22:42+0200\n"
+"PO-Revision-Date: 2018-09-24 22:42+0200\n"
 "Last-Translator: مرتضی نجاتی <mortazanejatijeze56@gmail.com>\n"
 "Language-Team: Persian\n"
 "Language: fa-IR\n"
@@ -22,142 +22,143 @@ msgstr ""
 "X-Loco-Target-Locale: fa_IR\n"
 "X-Generator: Loco - https://localise.biz/\n"
 
-#: plugin/app.php:7
+#: plugin/app.php:9
 msgid "Riddle..."
 msgstr "جدول..."
 
-#: plugin/app.php:12
+#: plugin/app.php:14
 msgid "Describe which words should be found:"
 msgstr "شرح کلماتی که باید یافت شود:"
 
-#: plugin/app.php:14 plugin/editorsTab.php:24 plugin/immediate.php:76
+#: plugin/app.php:16 plugin/editorsTab.php:24 plugin/immediate.php:76
 #: plugin/immediate.php:87
 msgid "Dont't try to be clever!"
 msgstr "تمرین نکن باهوش!"
 
-#: plugin/app.php:17
+#: plugin/app.php:19
 msgid "Select a difficulty level:"
 msgstr "انتخاب سطح دشواری:"
 
-#: plugin/app.php:33
+#: plugin/app.php:35
 msgid "Select a riddle"
 msgstr "انتخاب جدول"
 
-#: plugin/app.php:42
+#: plugin/app.php:44
 msgid "Find these words in the riddle:"
 msgstr "این کلمات را در جدول بیابید:"
 
-#: plugin/app.php:44
+#: plugin/app.php:46
 msgid "Difficulty level"
 msgstr "سطح دشواری"
 
-#: plugin/app.php:50
+#: plugin/app.php:52
 msgid "Word directions"
 msgstr "مسیر کلمه"
 
-#: plugin/app.php:51
+#: plugin/app.php:53
 msgid "only to the right and down"
 msgstr "فقط به چپ و پایین"
 
-#: plugin/app.php:52
+#: plugin/app.php:54
 msgid "any, including diagonal and backwards"
 msgstr "همه، شامل قطرها و رو به عقب"
 
-#: plugin/app.php:53
+#: plugin/app.php:55
 msgid "List of words that should be found"
 msgstr "فهرست کلماتی که باید یافت شوند"
 
-#: plugin/app.php:54
+#: plugin/app.php:56
 msgid "visible before found"
 msgstr "قبل از یافت شدن، دیدنی باشند."
 
-#: plugin/app.php:55
+#: plugin/app.php:57
 msgid "hidden before found"
 msgstr "قبل از یافت شدن، نادیدنی باشند."
 
-#: plugin/app.php:63
+#: plugin/app.php:65
 msgid "Fill in the the letters and mark the words:"
 msgstr "حروف را پر کنید و کلمات را نشان دهید."
 
-#: plugin/app.php:69
+#: plugin/app.php:71
 msgid "Mark the words:"
 msgstr "کلمات نشان دار:"
 
-#: plugin/app.php:76
+#: plugin/app.php:78
 msgid "Start"
 msgstr "از نو"
 
-#: plugin/app.php:76
+#: plugin/app.php:78
 msgid "Start solving the riddle"
 msgstr "از نو جدول را حل کنید."
 
-#: plugin/app.php:77
+#: plugin/app.php:79
 msgid "Time"
 msgstr "زمان"
 
-#: plugin/app.php:78 plugin/app.php:196
+#: plugin/app.php:80 plugin/app.php:260
 msgid "Restart"
 msgstr "از نو"
 
-#: plugin/app.php:78 plugin/app.php:196
+#: plugin/app.php:80 plugin/app.php:260
 msgid "Restart solving the riddle"
 msgstr "از نو جدول را حل کنید."
 
-#: plugin/app.php:79
+#: plugin/app.php:81
 msgid "Result"
 msgstr "نتیجه"
 
-#: plugin/app.php:80
+#: plugin/app.php:82
 msgid "Remaining time"
 msgstr "زمان باقیمانده"
 
-#: plugin/app.php:81
+#: plugin/app.php:83
 msgid "Time used"
 msgstr "زمان مورد استفاده"
 
-#: plugin/app.php:98 plugin/app.php:99 plugin/app.php:100 plugin/app.php:101
+#. /translators:  cut the following sentence into halves to distribute it over two lines; first half...
+#: plugin/app.php:98
+msgid "Please be patient for the"
+msgstr "صبور باشید تا جدول"
+
+#. /translators: ...second half
+#: plugin/app.php:101
+msgid "crossword being loaded."
+msgstr "بارگزاری شود"
+
+#: plugin/app.php:133 plugin/app.php:143 plugin/app.php:153 plugin/app.php:163
 msgid "Drag to move the border of the riddle"
 msgstr "برای تغییر اندازه جدول لبه را بکشید."
 
-#: plugin/app.php:146
+#: plugin/app.php:201
 msgid "Fill all empty fields with random letters"
 msgstr "جاهای خالی با حروف اتفاقی پر شوند."
 
-#: plugin/app.php:146
-msgid "Fill fields"
-msgstr "پر کردن زمینه‌ها"
-
-#: plugin/app.php:146
+#: plugin/app.php:205
 msgid "Empty all fields"
 msgstr "پاک کردن همه زمینه‌ها"
 
-#: plugin/app.php:146
-msgid "Empty"
-msgstr "خالی"
-
 #. / translators: first two arguments are line/column numbers, third is a direction like "to the right" or "down"
-#: plugin/app.php:165
+#: plugin/app.php:226
 #, php-format
 msgid "from line %1$s, column %2$s %3$s"
 msgstr "از خط %1$s, ستون %2$s %3$s"
 
-#: plugin/app.php:166 plugin/immediate.php:151
+#: plugin/app.php:228 plugin/immediate.php:150
 msgid "Delete"
 msgstr "حذف"
 
-#: plugin/app.php:188
+#: plugin/app.php:252
 #, php-format
 msgid "You have found %1$s of %2$s words"
 msgstr ""
-"شما %1$s از %2$s را یافته‌اید.\n"
-"\n"
+"شما %1$s از %2$s را یافته‌اید"
 
-#: plugin/app.php:189
+#: plugin/app.php:253
 #, php-format
 msgid "You have found all %1$s words!"
 msgstr "شما همه  %1$s کلمه را یافتید."
 
-#: plugin/app.php:216
+#: plugin/app.php:281
 msgid "Authored by"
 msgstr "مولف"
 
@@ -241,76 +242,76 @@ msgstr "شما به دستاوردی نرسیدید."
 msgid "User submitted solutions for crosswordsearch riddles"
 msgstr "کاربران راه حل را ارئه می‌دهند."
 
-#: plugin/crosswordsearch.php:433 plugin/js/block-editor.js:65
+#: plugin/crosswordsearch.php:425 plugin/js/block-editor.js:65
 msgid "Empty Crossword"
 msgstr "جدول خالی"
 
-#: plugin/crosswordsearch.php:434 plugin/js/block-editor.js:69
+#: plugin/crosswordsearch.php:426 plugin/js/block-editor.js:69
 msgid "First crossword"
 msgstr "نخستین جدول"
 
-#: plugin/crosswordsearch.php:435 plugin/js/block-editor.js:73
+#: plugin/crosswordsearch.php:427 plugin/js/block-editor.js:73
 msgid "Choose from all"
 msgstr "انتخاب برای همه"
 
-#: plugin/crosswordsearch.php:564
+#: plugin/crosswordsearch.php:556
 msgid "Insert a Crosswordsearch shortcode"
 msgstr "کد کوتاه جدول را قرار دهید."
 
-#: plugin/crosswordsearch.php:565 plugin/js/block-editor.js:373
+#: plugin/crosswordsearch.php:557 plugin/js/block-editor.js:373
 msgid "Crosswordsearch Shortcode"
 msgstr "کدکوتاه جدول"
 
-#: plugin/crosswordsearch.php:609 plugin/js/block-editor.js:237
+#: plugin/crosswordsearch.php:601 plugin/js/block-editor.js:237
 msgid "The shortcode usage is faulty:"
 msgstr "کدکوتاه اشتباه است:"
 
 #. / translators: argument %1 will be the literal 'mode'
-#: plugin/crosswordsearch.php:613
+#: plugin/crosswordsearch.php:605
 #, php-format
 msgid "Attribute %1$s needs to be set to one of \"%2$s\" or \"%3$s\"."
 msgstr "Attribute %1$s احتیاج به \"%2$s\" یا \"%3$s\" است."
 
 #. / translators: argument %1 will be the literal 'restricted', %2 the literal 'name'
-#: plugin/crosswordsearch.php:618
+#: plugin/crosswordsearch.php:610
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must be omitted."
 msgstr "اگر صفت  %1$s به کار گرفته شود, صفت %2$s باید حذف شود."
 
-#: plugin/crosswordsearch.php:622
+#: plugin/crosswordsearch.php:614
 #, php-format
 msgid "Attribute %1$s is only allowed in solve mode."
 msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
 
 #. / translators: argument %1 will be the literal 'timer'
-#: plugin/crosswordsearch.php:627
+#: plugin/crosswordsearch.php:619
 #, php-format
 msgid "Attribute %1$s must be a non-negative integer."
 msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
 
 #. / translators: argument %1 will be the literal 'submitting', %2 the literal 'timer'
-#: plugin/crosswordsearch.php:632
+#: plugin/crosswordsearch.php:624
 #, php-format
 msgid "If attribute %1$s is set, attribute %2$s must also be set."
 msgstr "اگر صفت %1$s به کار گرفته شود, صفت%2$s باید به کار رود."
 
 #. / translators: argument %1 will be the literal 'project'
-#: plugin/crosswordsearch.php:637
+#: plugin/crosswordsearch.php:629
 #, php-format
 msgid "Attribute %1$s needs to be an existing project."
 msgstr "برای ساخت  %1$ ابتدا پروژه را ایجاد کنید"
 
-#: plugin/crosswordsearch.php:641 plugin/js/block-editor.js:243
-#, php-format
+#: plugin/crosswordsearch.php:633 plugin/js/block-editor.js:243
+#, fuzzy, php-format, javascript-format
 msgid "There is no crossword in project %1$s."
 msgstr "در پروژه هیچ جدولی نیست."
 
-#: plugin/crosswordsearch.php:645
+#: plugin/crosswordsearch.php:637
 #, php-format
 msgid "There is no crossword with the name %1$s."
 msgstr "جدولی با عنوان  %1$s نیست."
 
-#: plugin/crosswordsearch.php:707
+#: plugin/crosswordsearch.php:704
 msgid "Do you want to submit your result?"
 msgstr "آیا می‌خواهید نتیجه را ارسال کنید؟"
 
@@ -649,7 +650,7 @@ msgid "Abort saving the project"
 msgstr "ذخیره نشود"
 
 #: plugin/editorsTab.php:43 plugin/editorsTab.php:72 plugin/immediate.php:79
-#: plugin/immediate.php:94 plugin/immediate.php:152
+#: plugin/immediate.php:94 plugin/immediate.php:151
 msgid "Abort"
 msgstr "نادیده گرفتن"
 
@@ -718,8 +719,7 @@ msgstr "مولف:"
 #, php-format
 msgid "You have found %1$s of %2$s hidden words during the alloted time."
 msgstr ""
-"شما %1$s از %2$s را یافته‌اید.\n"
-"\n"
+"شما %1$s از %2$s را یافته‌اید"
 
 #: plugin/immediate.php:43 plugin/immediate.php:132
 #, php-format
@@ -746,7 +746,7 @@ msgstr "ارائه کنید"
 msgid "Loading..."
 msgstr "در حال بارگزاری..."
 
-#: plugin/immediate.php:93 plugin/immediate.php:150
+#: plugin/immediate.php:93 plugin/immediate.php:149
 msgid "OK"
 msgstr "عالی"
 
@@ -806,11 +806,7 @@ msgstr "جدول %1$s از پروژه %2$s حذف شد"
 #: plugin/immediate.php:142
 #, php-format
 msgid "Approve crossword %1$s for project %2$s"
-msgstr "جدول %1$s از پروژه  %2$s تایید شد\n"
-
-#: plugin/immediate.php:148
-msgid "Please be patient for the crossword being loaded."
-msgstr "صبور باشید تا جدول بارگزاری شود"
+msgstr "جدول %1$s از پروژه  %2$s تایید شد"
 
 #: plugin/l10n.php:4
 msgid "down and right"
@@ -1157,3 +1153,9 @@ msgstr ""
 #: plugin/js/block-editor.js:437
 msgid "Shortcode"
 msgstr "کد کوتاه"
+
+#~ msgid "Fill fields"
+#~ msgstr "پر کردن زمینه‌ها"
+
+#~ msgid "Empty"
+#~ msgstr "خالی"

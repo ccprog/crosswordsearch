@@ -145,7 +145,6 @@ if ( 'build' == $mode ) {
 }
 
 ?>
-                <p ng-switch-when="load_crossword"><?php _e('Please be patient for the crossword being loaded.', 'crosswordsearch') ?></p>
                 <p class="actions">
                     <button ng-if="message.buttons.ok" ng-click="finish(true)"><?php _e('OK', 'crosswordsearch') ?></button>
                     <button ng-if="message.buttons.delete" ng-click="finish(true)"><?php _e('Delete', 'crosswordsearch') ?></button>

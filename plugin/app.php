@@ -10,12 +10,12 @@ if ( 'build' == $mode ) {
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="name">{{crosswordData.name}}</p>
-    <form name="meta">
+    <form name="meta" ng-disabled="waitsForData">
         <label class="crw-instruction" for ="description"><?php _e('Describe which words should be found:', 'crosswordsearch') ?></label>
         <textarea ng-model="crosswordData.description" name="description" crw-add-parsers="sane"></textarea>
         <p class="error" ng-show="meta.$error.sane"><?php _e('Dont\'t try to be clever!', 'crosswordsearch') ?></p>
     </form>
-    <dl class="crw-level">
+    <dl class="crw-level" ng-class="{invisible: waitsForData}">
         <dt class="crw-instruction"><span><?php _e('Select a difficulty level:', 'crosswordsearch') ?></span>
             <dl cse-select="level" cse-options="levelList" cse-model="crosswordData.level" display="value + 1|localeNumber"></dl>
         </dt>
@@ -42,7 +42,7 @@ if ( 'build' == $mode ) {
     <p class="error" ng-if="loadError">{{loadError.error}}</p>
     <p class="error" ng-repeat="msg in loadError.debug">{{msg}}</p>
     <p class="crw-description" ng-show="crosswordData.description"><em><?php _e('Find these words in the riddle:', 'crosswordsearch') ?></em> {{crosswordData.description}}</p>
-    <dl class="crw-level">
+    <dl class="crw-level" ng-class="{invisible: waitsForData}">
         <dt><?php _e('Difficulty level', 'crosswordsearch') ?> {{crosswordData.level+1|localeNumber}}</dt>
 <?php
 
@@ -74,7 +74,7 @@ if ( 'build' == $mode ) {
     if ( $timer ) {
 
 ?>
-    <div crw-timer-element="timer" countdown="<?php echo $countdown ?>" <?php if ($submitting) { echo 'submitting'; } ?>>
+    <div ng-class="{invisible: waitsForData}" crw-timer-element="timer" countdown="<?php echo $countdown ?>" <?php if ($submitting) { echo 'submitting'; } ?>>
         <span state="waiting" alt="<?php _e('Start', 'crosswordsearch') ?>"><?php _e('Start solving the riddle', 'crosswordsearch') ?></span>
         <span state="playing" alt="<?php _e('Time', 'crosswordsearch') ?>"></span>
         <span state="scored" alt="<?php _e('Restart', 'crosswordsearch') ?>"><?php _e('Restart solving the riddle', 'crosswordsearch') ?></span>
@@ -89,8 +89,18 @@ if ( 'build' == $mode ) {
 }
 
 ?>
-    <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide' : '' ) ?>" ng-if="crosswordData">
-        <svg class="crw-gridtable" ng-controller="GridController" crw-gridsize 
+    <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide' : '' ) ?>" ng-class="{invisible: waitsForData}">
+        <svg class="crw-spinner" ng-if="waitsForData" width="100%" height="100%">
+            <title></title>
+            <use xlink:href="#crw-spinner" x="50%" y="30%" width="64" height="64" transform="translate(-32 -32)"/>
+            <text x="50%" y="90%" dy="-1.25em"><?php
+               ///translators:  cut the following sentence into halves to distribute it over two lines; first half... 
+               _e('Please be patient for the', 'crosswordsearch') ?></text>
+            <text x="50%" y="90%"><?php
+               ///translators: ...second half
+               _e('crossword being loaded.', 'crosswordsearch') ?></text>
+        </svg>
+        <svg class="crw-gridtable" ng-if="crosswordData" ng-controller="GridController" crw-gridsize 
             ng-Init="setMode('<?php echo $mode ?>')">
             <defs>
                 <line id="crw-markerline-<?php echo $crw_scid; ?>-current" crw-gridline="currentMarking" stroke-linecap="round" />
@@ -207,7 +217,7 @@ if ( 'build' == $mode ) {
 if ( 'build' == $mode ) {
 
 ?>
-    <div class="crw-controls wide">
+    <div class="crw-controls wide" ng-class="{invisible: waitsForData}">
         <ul class="crw-word">
             <li ng-class="{'highlight': isHighlighted()}" ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
                 <dl class="crw-color" template="color-select" cse-select="color" cse-options="colors" cse-model="word.color"></dl>
@@ -225,7 +235,7 @@ if ( 'build' == $mode ) {
 } elseif ( 'preview' == $mode ) {
 
 ?>
-    <div class="crw-controls">
+    <div class="crw-controls" ng-class="{invisible: waitsForData}">
         <ul class="crw-word">
             <li ng-repeat="word in wordsToArray(crosswordData.words) | orderBy:'ID'" ng-controller="EntryController">
                 <svg class="crw-marker" ng-class="word.color" title="{{localize(word.color)}}"><use xlink:href="#crw-bullet"></svg>
@@ -237,7 +247,7 @@ if ( 'build' == $mode ) {
 } else {
 
 ?>
-    <div class="crw-controls" ng-class="{invisible: !riddleVisible}">
+    <div class="crw-controls" ng-class="{invisible: !riddleVisible ||waitsForData }">
         <p ng-show="crosswordData.name">
             <span ng-if="count.solution<count.words"><?php printf( __('You have found %1$s of %2$s words', 'crosswordsearch'), '{{count.solution|localeNumber}}', '{{count.words|localeNumber}}' ) ?></span>
             <span ng-if="count.solution===count.words"><?php printf( __('You have found all %1$s words!', 'crosswordsearch'), '{{count.words|localeNumber}}' ) ?></span>

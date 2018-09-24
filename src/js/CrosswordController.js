@@ -62,6 +62,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
     $scope.highlight = [];
     $scope.levelList = $scope.crw.getLevelList();
     $scope.riddleVisible = true;
+    $scope.waitsForData = true;
 
     // build page only: data object for command menu
     // move the namesIn Project list into the command sub-menu
@@ -204,6 +205,7 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
             $scope.riddleVisible = false;
             $scope.$broadcast('timerInit');
         }
+        $scope.waitsForData = false;
     };
 
     $scope.setHighlight = function (h) {
@@ -215,14 +217,16 @@ crwApp.controller("CrosswordController", ['$scope', 'qStore', 'basics', 'crosswo
         $scope.loadError = null;
         // if the page shortcode explicitely sets name='', it will be routed
         // through by $scope.prepare.
-       if (name || typeof name === 'string') {
-            $scope.immediateStore.newPromise('loadCrossword', name).then(
+        if (name || typeof name === 'string') {
+            $scope.waitsForData = true;
+            $scope.crw.loadCrosswordData(name).then(
                 updateModel,
                 function (error) {
                     $scope.loadError = error;
                 }
             );
         } else {
+            $scope.waitsForData = false;
             $scope.crw.loadDefault();
             updateModel();
         }

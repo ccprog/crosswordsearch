@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crosswordsearch 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 14:52+0200\n"
-"PO-Revision-Date: 2018-09-12 14:52+0200\n"
+"POT-Creation-Date: 2018-09-24 22:42+0200\n"
+"PO-Revision-Date: 2018-09-24 22:42+0200\n"
 "Last-Translator: JoanaSousa <joanasousa@squared-potato.pt>\n"
 "Language-Team: Português\n"
 "Language: pt-PT\n"
@@ -18,28 +18,28 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Loco https://localise.biz/\n"
 
-#: plugin/crosswordsearch.php:433 plugin/js/block-editor.js:65
+#: plugin/crosswordsearch.php:425 plugin/js/block-editor.js:65
 msgid "Empty Crossword"
 msgstr "Esvaziar as Palavras Cruzadas "
 
-#: plugin/crosswordsearch.php:434 plugin/js/block-editor.js:69
+#: plugin/crosswordsearch.php:426 plugin/js/block-editor.js:69
 msgid "First crossword"
 msgstr "Primeiras palavras cruzadas"
 
-#: plugin/crosswordsearch.php:435 plugin/js/block-editor.js:73
+#: plugin/crosswordsearch.php:427 plugin/js/block-editor.js:73
 msgid "Choose from all"
 msgstr "Escolha entre todos"
 
-#: plugin/crosswordsearch.php:565 plugin/js/block-editor.js:373
+#: plugin/crosswordsearch.php:557 plugin/js/block-editor.js:373
 msgid "Crosswordsearch Shortcode"
 msgstr "Shortcode de palavras cruzadas"
 
-#: plugin/crosswordsearch.php:609 plugin/js/block-editor.js:237
+#: plugin/crosswordsearch.php:601 plugin/js/block-editor.js:237
 msgid "The shortcode usage is faulty:"
 msgstr "O uso do shortcode está com defeito:"
 
-#: plugin/crosswordsearch.php:641 plugin/js/block-editor.js:243
-#, php-format
+#: plugin/crosswordsearch.php:633 plugin/js/block-editor.js:243
+#, php-format, javascript-format
 msgid "There is no crossword in project %1$s."
 msgstr "Não há palavras cruzadas no projecto %1$s."
 
