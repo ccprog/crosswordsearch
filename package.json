@@ -9,14 +9,18 @@
     "dateformat": "^1.0.8-1.2.3",
     "grunt": "~0.4.4",
     "grunt-babel": "^8.0.0-beta.0",
-    "grunt-contrib-jasmine": "^0.7.0",
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-contrib-uglify": "~0.4.0",
-    "grunt-po2mo": "~0.1.0",
     "grunt-pot": "~0.1.2",
-    "grunt-sass": "^2.1.0"
+    "grunt-sass": "^2.1.0",
+    "jasmine-core": "^2.99.1",
+    "lodash": "^4.17.11",
+    "rimraf": "^2.6.2"
   },
   "scripts": {
     "postinstall": "bower install"
+  },
+  "dependencies": {
+    "grunt-po2mo-multiFiles": "^0.1.6"
   }
 }

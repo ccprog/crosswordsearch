@@ -60,10 +60,9 @@ some Jasmine test dependencies installed in `tests/vendor` with bower.
 
 The following tasks are available for the development process:
 
-+ `grunt jasmine` will execute the unit tests in `tests/unit/` (with subtasks for testing different
-  jQuery versions delivered with WordPress, and for the main app and the shortcode wizzard)  
-  Tip: if you uncomment the line `keepRunner: true` in the jasmine task configuration, you get a
-  `tests/_SpecRunner-*.html` file you can run directly in the browser.
++ `grunt jasmine` will build files `tests/_SpecRunner-*.html` that can run the unit tests in
+  `tests/unit/` in any browser you like (one for the main app and one the shortcode wizzard).
+  It will not run the tests as part of the task.
 + `grunt jshint:main` will lint the files in `src/js/`, `grunt jshint:spec` those in `tests/unit/`
 + `grunt uglify` will link the files in `src/js/` together as `plugin/js/crosswordsearch.js`
   and minify them as `plugin/js/crosswordsearch.min.js`. Please note that if you add a new file,

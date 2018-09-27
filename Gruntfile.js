@@ -30,24 +30,22 @@ module.exports = function(grunt) {
     srcdir + 'thickbox-size-hack.js'
   ],
   vendor = [
+    testdir + 'vendor/jquery-1.12.4.min/index.js',
     testdir + 'vendor/tv4/tv4.js',
     testdir + 'vendor/uri.js/src/URI.min.js',
     destdir + 'angular.js',
     destdir + 'angular-route.js',
-    destdir + 'qantic.angularjs.stylemodel.js'
-  ],
-  vendor_3 = [testdir + 'vendor/jquery-1.10.2.min/index.js'].concat(vendor)
-             .concat([testdir + 'vendor/angular-mocks-1.7.4/index.js']),
-  vendor_4 = [testdir + 'vendor/jquery-1.12.4.min/index.js'].concat(vendor)
-             .concat([testdir + 'vendor/angular-mocks-1.7.4/index.js']);
+    testdir + 'vendor/angular-mocks-1.7.4/index.js'
+  ];
 
-  var processJasmineTemplate = function (grunt, task, context) {
+  var processJasmineTemplate = function (grunt, context) {
     var letterData = grunt.file.readJSON('src/json/letter.json', {encoding:'utf8'}),
         localeData = grunt.file.readJSON('src/json/locale.json', {encoding:'utf8'});
     context.crwBasics = JSON.stringify({
         locale: localeData.locale,
         letterDist: letterData.en.letterDist,
         numerals: letterData.en.numerals,
+        dimensions: {},
         letterRegEx: letterData.en.letterRegEx,
         textDirection: 'ltr',
         imagesPath: 'mock/',
@@ -131,35 +129,19 @@ module.exports = function(grunt) {
         template: { process: processJasmineTemplate },
         keepRunner: true
       },
-      app_wp_3: {
+      app_wp: {
         src: jslist,
         options: {
           specs: testdir + 'unit/*Spec.js',
-          vendor: vendor_3,
+          vendor: vendor,
           outfile: testdir + '_SpecRunner-app.html'
         }
       },
-      wizzard_wp_3: {
+      wizzard_wp: {
         src:  wzlist.slice(0, 4),
         options: {
           specs: testdir + 'unit/*Spec2.js',
-          vendor: vendor_3,
-          outfile: testdir + '_SpecRunner-wizzard.html'
-        }
-      },
-      app_wp_4: {
-        src: jslist,
-        options: {
-          specs: testdir + 'unit/*Spec.js',
-          vendor: vendor_4,
-          outfile: testdir + '_SpecRunner-app.html'
-        }
-      },
-      wizzard_wp_4: {
-        src:  wzlist.slice(0, 4),
-        options: {
-          specs: testdir + 'unit/*Spec2.js',
-          vendor: vendor_4,
+          vendor: vendor,
           outfile: testdir + '_SpecRunner-wizzard.html'
         }
       },
@@ -222,8 +204,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-pot');
-  grunt.loadNpmTasks('grunt-po2mo');
-  grunt.loadNpmTasks('grunt-contrib-jasmine');
+  grunt.loadNpmTasks('grunt-po2mo-multiFiles');
   grunt.task.loadTasks('tasks/');
 
   grunt.registerTask('msgupdate', ['block', 'pot', 'msgmerge']);
