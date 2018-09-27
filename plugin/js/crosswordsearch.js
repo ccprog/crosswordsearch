@@ -1515,7 +1515,9 @@ crwApp.directive("crwGridsize", [ "basics", function(basics) {
                 border.attr(computeBorderBox(abstractSize));
             };
             scope.$watch("crosswordData.size", function(newSize) {
-                if (!newSize) return;
+                if (!newSize) {
+                    return;
+                }
                 var viewBox = computeBorderBox({
                     x: 0,
                     y: 0,
@@ -1609,7 +1611,7 @@ crwApp.directive("crwGridhandle", [ "$document", "basics", function($document, b
                     }
                     return abstract;
                 }
-                return 0;
+                return delta;
             }
             scope.$watch("crosswordData.size", move);
             switch (attrs.crwGridhandle) {
@@ -1680,8 +1682,10 @@ crwApp.directive("crwGridfield", [ "basics", function(basics) {
                     scope.$apply("outofField(line, column)");
                 });
             }
-            scope.$watchGroup([ "line", "column" ], function(newValues, oldValues) {
-                if (!newValues) return;
+            scope.$watchGroup([ "line", "column" ], function(newValues) {
+                if (!newValues) {
+                    return;
+                }
                 highlight.attr({
                     x: basics.fieldSize * newValues[1] + basics.fieldShift + 1,
                     y: basics.fieldSize * newValues[0] + basics.fieldShift + 1
@@ -1700,7 +1704,9 @@ crwApp.directive("crwGridline", [ "basics", function(basics) {
         link: function(scope, element, attrs) {
             var start = attrs.crwGridline + ".start", stop = attrs.crwGridline + ".stop";
             scope.$watchGroup([ start, stop ], function(newValues) {
-                if (!newValues[0] || !newValues[1]) return;
+                if (!newValues[0] || !newValues[1]) {
+                    return;
+                }
                 element.attr({
                     x1: basics.fieldSize * newValues[0].x + basics.fieldSize / 2,
                     y1: basics.fieldSize * newValues[0].y + basics.fieldSize / 2,
@@ -1788,9 +1794,6 @@ crwApp.controller("GridController", [ "$scope", "$q", "basics", function($scope,
         if (!angular.equals($scope.currentMarking.start, $scope.currentMarking.stop)) {
             if ($scope.mode === "build") {
                 word = $scope.crw.setWord($scope.currentMarking);
-                if (!word) {
-                    dropMarking();
-                }
             } else {
                 word = $scope.crw.probeWord($scope.currentMarking);
                 if (word.solved) {

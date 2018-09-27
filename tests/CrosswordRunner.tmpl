@@ -16,12 +16,7 @@ var schema = <%= schema %>;
 var crwBasics = <%= crwBasics %>;
   </script>
 <% with (scripts) { %>
-<!--[IF !IE]> no polyfills for IE, so it's possible to test against-->
-  <% polyfills.forEach(function(script){ %>
-  <script src="<%= script %>"></script>
-  <% }) %>
-<!-- <![ENDIF]-->
-  <% [].concat(jasmine, boot, vendor, helpers, src, specs,reporters).forEach(function(script){ %>
+  <% [].concat(jasmine, boot, vendor, helpers, src, specs).forEach(function(script){ %>
   <script src="<%= script %>"></script>
   <% }) %>
 <% }; %>

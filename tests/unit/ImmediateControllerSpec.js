@@ -206,32 +206,6 @@ describe("ImmediateController", function () {
         expect($scope.saveDebug).toBeUndefined();
     });
 
-    it("handles data download on resolution", function () {
-        var deferredData = $q.defer();
-        $scope.crw.loadCrosswordData = jasmine.createSpy("loadCrosswordData").and.returnValue(deferredData.promise);
-        var deferredImmediate = initPromise('loadCrossword', 'name');
-        expect($scope.immediate).toBe('dialogue');
-        expect($scope.message).toEqual({
-            which: 'load_crossword',
-            buttons: {}
-        });
-        expect($scope.crw.loadCrosswordData).toHaveBeenCalledWith('name');
-        deferredData.resolve(true);
-        $scope.$apply();
-        expect($scope.finish).toHaveBeenCalled();
-        expect(deferredImmediate.resolve).toHaveBeenCalled();
-    });
-
-    it("handles download on rejection", function () {
-        var deferredData = $q.defer();
-        $scope.crw.loadCrosswordData = jasmine.createSpy("loadCrosswordData").and.returnValue(deferredData.promise);
-        var deferredImmediate = initPromise('loadCrossword', 'name');
-        deferredData.reject('error');
-        $scope.$apply();
-        expect($scope.finish).not.toHaveBeenCalled();
-        expect(deferredImmediate.reject).toHaveBeenCalledWith('error');
-    });
-
     it("handles invalid words at table size change", function () {
         $scope.immediateStore.newPromise('invalidWords', [1,2]);
         expect($scope.immediate).toBe('dialogue');

@@ -101,10 +101,6 @@ crwApp.controller("GridController", ['$scope', '$q', 'basics',
             if ($scope.mode === 'build') {
                 // on build page save new marking as word
                 word = $scope.crw.setWord($scope.currentMarking);
-                if (!word) {
-                    // drop silently if word was marked previously
-                    dropMarking();
-                }
             } else {
                 // on solve page test if marking is a valid solution
                 word = $scope.crw.probeWord($scope.currentMarking);

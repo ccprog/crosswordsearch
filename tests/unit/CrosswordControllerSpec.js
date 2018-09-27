@@ -118,7 +118,8 @@ describe("CrosswordController", function () {
             expect($scope.commandState).toBe('full');
             expect($scope.highlight).toEqual([]);
             expect($scope.crw.getLevelList).toHaveBeenCalled();
-            expect($scope.tableVisible).toBe(true);
+            expect($scope.riddleVisible).toBe(true);
+            expect($scope.waitsForData).toBe(true);
             expect($scope.commands).toBeDefined();
         }));
     });
@@ -194,7 +195,7 @@ describe("CrosswordController", function () {
         it("inits competitive solve mode", function () {
             $scope.prepare('project', 'nc', 'ne', 'timer', 'name');
             expect($scope.crw.setProject).toHaveBeenCalledWith('project', 'nc', 'ne', false);
-            expect($scope.tableVisible).toBe(false);
+            expect($scope.riddleVisible).toBe(false);
         });
 
         describe("watches timer state", function () {
@@ -215,11 +216,11 @@ describe("CrosswordController", function () {
 
             it("from waiting to playing", function () {
                 $scope.$apply('timer.state="waiting"');
-                expect($scope.tableVisible).toBe(false);
+                expect($scope.riddleVisible).toBe(false);
                 expect($scope.restart).not.toHaveBeenCalled();
                 expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
                 $scope.$apply('timer.state="playing"');
-                expect($scope.tableVisible).toBe(true);
+                expect($scope.riddleVisible).toBe(true);
                 expect($scope.restart).not.toHaveBeenCalled();
                 expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
             });
@@ -228,7 +229,7 @@ describe("CrosswordController", function () {
                 spyOn($scope, '$broadcast');
                 $scope.$apply('timer.state="playing"');
                 $scope.$apply('timer.state="scored"');
-                expect($scope.tableVisible).toBe(true);
+                expect($scope.riddleVisible).toBe(true);
                 expect($scope.restart).not.toHaveBeenCalled();
                 expect($scope.$broadcast).toHaveBeenCalledWith('markingStop');
                 expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('solvedCompletely', 64263);
@@ -380,7 +381,7 @@ describe("CrosswordController", function () {
         describe("Crossword loading", function () {
             var namesList = ['name1', 'name2'];
 
-            beforeEach(function () {
+            beforeEach(inject(function ($q) {
                 $scope.namesInProject = ['name1', 'name3'];
                 $scope.crosswordData.name = $scope.loadedName = namesList[0];
                 $scope.crw.getCrosswordData = function () {
@@ -400,21 +401,26 @@ describe("CrosswordController", function () {
                 };
                 $scope.levelList = 'levelList1';
                 $scope.crw.getLevelList = jasmine.createSpy("getLevelList").and.returnValue('levelList2');
-                $scope.crw.setWord = jasmine.createSpy("setWord");
                 $scope.crw.loadDefault = jasmine.createSpy("loadDefault");
+                $scope.crw.loadCrosswordData = function () {
+                    deferred = $q.defer();
+                    return deferred.promise;
+                };
+                spyOn($scope.crw, 'loadCrosswordData').and.callThrough();
                 $scope.commandList = [{value: 'load'}];
                 $scope.loadError = 'error1';
                 $scope.count = {
                     word: 3,
                     solution: 3
                 };
-            });
+            }));
 
             it("loads default crossword data", function () {
                 $scope.load();
                 expect($scope.loadError).toBeNull();
+                expect($scope.waitsForData).toBe(false);
                 expect($scope.crw.loadDefault).toHaveBeenCalled();
-                expect($scope.immediateStore.newPromise).not.toHaveBeenCalled();
+                expect($scope.crw.loadCrosswordData).not.toHaveBeenCalled();
                 expect($scope.crosswordData.name).toBe('name2');
                 expect($scope.crosswordData.words).toBeDefined();
                 expect($scope.levelList).toBe('levelList2');
@@ -426,38 +432,43 @@ describe("CrosswordController", function () {
                 expect($scope.count.solution).toBe(0);
                 $scope.load('');
                 expect($scope.crw.loadDefault.calls.count()).toBe(1);
-                expect($scope.immediateStore.newPromise).toHaveBeenCalled();
+                expect($scope.crw.loadCrosswordData).toHaveBeenCalled();
+                expect($scope.waitsForData).toBe(true);
             });
 
             it("updates on async response", function () {
                 $scope.load('name3');
                 expect($scope.crw.loadDefault).not.toHaveBeenCalled();
-                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', 'name3');
+                expect($scope.crw.loadCrosswordData).toHaveBeenCalledWith('name3');
+                expect($scope.waitsForData).toBe(true);
                 expect($scope.crw.getLevelList).not.toHaveBeenCalled();
                 deferred.resolve();
                 $scope.$apply();
                 expect($scope.crw.getLevelList).toHaveBeenCalled();
-                expect($scope.tableVisible).toBe(true);
+                expect($scope.riddleVisible).toBe(true);
+                expect($scope.waitsForData).toBe(false);
             });
 
             it("does not update on async error", function () {
                 $scope.load('name2');
-                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', 'name2');
+                expect($scope.crw.loadCrosswordData).toHaveBeenCalledWith('name2');
                 deferred.reject('error2');
                 $scope.$apply();
                 expect($scope.crw.getLevelList).not.toHaveBeenCalled();
                 expect($scope.loadError).toBe('error2');
+                expect($scope.waitsForData).toBe(true);
             });
 
             it("inits timer on load", function () {
                 $scope.timer = {};
                 spyOn($scope, '$broadcast');
                 $scope.load('name3');
-                expect($scope.immediateStore.newPromise).toHaveBeenCalledWith('loadCrossword', 'name3');
+                expect($scope.crw.loadCrosswordData).toHaveBeenCalledWith('name3');
                 deferred.resolve();
                 $scope.$apply();
-                expect($scope.tableVisible).toBe(false);
+                expect($scope.riddleVisible).toBe(false);
                 expect($scope.$broadcast).toHaveBeenCalledWith('timerInit');
+                expect($scope.waitsForData).toBe(false);
             });
         });
 
@@ -471,10 +482,11 @@ describe("CrosswordController", function () {
             var restrict = true;
             $scope.crw.getLevelRestriction = function () { return restrict; };
             spyOn($scope.crw, 'getLevelRestriction').and.callThrough();
-            $scope.crosswordData.words = $scope.crosswordData.solution = {
+            $scope.crosswordData.words = {
                 word1: {solved: true},
                 word2: {solved: true}
             };
+            $scope.crosswordData.solution = angular.copy($scope.crosswordData.words);
             $scope.count = {
                 solution: 2
             };
@@ -482,12 +494,11 @@ describe("CrosswordController", function () {
             expect($scope.count.solution).toBe(0);
             expect($scope.crosswordData.words.word1.solved).toBe(false);
             expect($scope.crosswordData.words.word2.solved).toBe(false);
-            expect($scope.crosswordData.solution.word1.solved).toBe(false);
-            expect($scope.crosswordData.solution.word2.solved).toBe(false);
-            $scope.crosswordData.words = $scope.crosswordData.solution = {
+            $scope.crosswordData.words = {
                 word1: {solved: true},
                 word2: {solved: true}
             };
+            $scope.crosswordData.solution = angular.copy($scope.crosswordData.words);
             restrict = false;
             $scope.count.solution = 2;
             $scope.restart();
@@ -507,14 +518,14 @@ describe("CrosswordController", function () {
             $scope.timer = {
                 submitting: true
             };
-            $scope.tableVisible = true;
+            $scope.riddleVisible = true;
             $scope.restart();
-            expect($scope.tableVisible).toBe(true);
+            expect($scope.riddleVisible).toBe(true);
             expect($scope.$broadcast).not.toHaveBeenCalled();
             expect($scope.crw.getLevelRestriction).not.toHaveBeenCalled();
             $scope.timer.submitting = false;
             $scope.restart();
-            expect($scope.tableVisible).toBe(false);
+            expect($scope.riddleVisible).toBe(false);
             expect($scope.$broadcast).toHaveBeenCalledWith('timerInit');
             expect($scope.crw.getLevelRestriction).toHaveBeenCalled();
         });

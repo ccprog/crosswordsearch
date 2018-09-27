@@ -245,29 +245,38 @@ describe("crosswordFactory", function () {
             expect(crw.getLevelRestriction('dir')).toBe(false);
             expect(crw.getLevelRestriction('sol')).toBe(false);
         });
-
-        function compareLetters (table, word) {
-            var field, xses = [], yses = [];
-            for (var i = 0; i < word.fields.length; i++) {
-                field = word.fields[i];
-                xses.push(field.x);
-                yses.push(field.y);
-                expect(field.word.letter).toBe(table[field.y][field.x].letter);
-            }
-            expect(xses).toEqual([0,1,2]);
-            expect(yses).toEqual([1,2,3]);
-        }
         
-        it("saves a marking as a word", function () {
-            var crossword = crw.getCrosswordData();
-            angular.extend(crossword, angular.copy(testdata));
-            var marking = {
-                ID: 11,
-                fields: [ {x: 0, y: 1}, {x: 1, y: 2}, {x: 2, y: 3}  ]
-            };
-            var word = crw.setWord(marking);
-            expect(crossword.words[11]).toBe(marking);
-            compareLetters(crossword.table, word);
+        var markingData = [
+            { start: {x: 2, y: 3}, stop: {x: 4, y: 3}, fields: [[2, 3], [3 ,3], [4, 3]], direction: 'right' },
+            { start: {x: 2, y: 3}, stop: {x: 4, y: 5}, fields: [[2, 3], [3, 4], [4, 5]], direction: 'down-right' },
+            { start: {x: 2, y: 3}, stop: {x: 2, y: 6}, fields: [[2, 3], [2, 4], [2, 5], [2, 6]], direction: 'down' },
+            { start: {x: 2, y: 3}, stop: {x: 0, y: 5}, fields: [[2, 3], [1, 4], [0, 5]], direction: 'down-left' },
+            { start: {x: 2, y: 3}, stop: {x: 0, y: 3}, fields: [[2, 3], [1, 3], [0, 3]], direction: 'left' },
+            { start: {x: 2, y: 3}, stop: {x: 1, y: 2}, fields: [[2, 3], [1, 2]], direction: 'up-left' },
+            { start: {x: 2, y: 3}, stop: {x: 2, y: 2}, fields: [[2, 3], [2, 2]], direction: 'up' },
+            { start: {x: 2, y: 3}, stop: {x: 4, y: 1}, fields: [[2, 3], [3, 2], [4, 1]], direction: 'up-right' },
+            { start: {x: 2, y: 3}, stop: {x: 2, y: 3}, fields: [[2, 3]], direction: 'origin' }
+        ];
+
+        markingData.forEach(function (data) {
+            it("saves a marking as a word in direction " + data.direction, function () {
+                var crossword = crw.getCrosswordData();
+                angular.extend(crossword, angular.copy(testdata));
+                var marking = {
+                    ID: 11,
+                    start: data.start,
+                    stop: data.stop
+                };
+                var word = crw.setWord(marking);
+                expect(crossword.words[11]).toBe(marking);
+                expect(word).toBe(marking);
+                expect(marking.direction).toBe(data.direction);
+                data.fields.forEach(function (field, i) {
+                    expect(marking.fields[i].x).toBe(field[0]);
+                    expect(marking.fields[i].y).toBe(field[1]);
+                    expect(marking.fields[i].word).toBe(crossword.table[field[1]][field[0]]);
+                });
+            });
         });
         
         it("saves a double marking as a word only if IDs are identical", function () {
@@ -277,8 +286,7 @@ describe("crosswordFactory", function () {
                 ID: 11,
                 color: 'color',
                 start: {"x":4,"y":5},
-                stop: {"x":0,"y":5},
-                fields: [ {"x":4,"y":5}, {"x":3,"y":5}, {"x":2,"y":5}, {"x":1,"y":5}, {"x":0,"y":5} ]
+                stop: {"x":0,"y":5}
             };
             var word = crw.setWord(marking);
             expect(crossword.words[11]).toBeUndefined();
@@ -286,6 +294,7 @@ describe("crosswordFactory", function () {
             marking.ID = 2;
             word = crw.setWord(marking);
             expect(crossword.words[2]).toBe(marking);
+            expect(marking.fields.length).toBe(5);
         });
 
         it("probes a marking to be a solution", function () {
@@ -295,24 +304,27 @@ describe("crosswordFactory", function () {
                 ID: 11,
                 color: 'color',
                 start: {x: 0, y: 1},
-                stop: {x: 2, y: 3},
-                fields: [ {x: 0, y: 1}, {x: 1, y: 2}, {x: 2, y: 3} ]
+                stop: {x: 2, y: 3}
             };
             var word = crw.probeWord(marking);
             expect(crossword.solution[11]).toBe(marking);
-            compareLetters(crossword.table, word);
+            expect(marking.fields.length).toBe(3);
+            expect(marking.fields[0].word).toBe(crossword.table[1][0]);
+            expect(marking.fields[1].word).toBe(crossword.table[2][1]);
+            expect(marking.fields[2].word).toBe(crossword.table[3][2]);
             expect(word.solved).toBe(false);
             marking = {
                 ID: 12,
                 color: 'color',
                 start: {x: 0, y: 0},
-                stop: {x: 4, y: 4},
-                fields: []
+                stop: {x: 4, y: 4}
             };
             word = crw.probeWord(marking);
             expect(crossword.solution[12]).toBeUndefined();
-            expect(crossword.solution[4]).toBe(crossword.words[4]);
-            expect(word).toBe(crossword.words[4]);
+            expect(crossword.solution[4]).toEqual(crossword.words[4]);
+            expect(word.start).toEqual(crossword.words[4].start);
+            expect(word.stop).toEqual(crossword.words[4].stop);
+            expect(word.color).toEqual(crossword.words[4].color);
             expect(word.solved).toBe(true);
             expect(word.markingId).toBe(12);
         });
@@ -322,14 +334,13 @@ describe("crosswordFactory", function () {
             angular.extend(crossword, angular.copy(testdata));
             crossword.words[4].solved = true;
             crossword.solution[4] = crossword.words[4];
-            marking = {
+            var marking = {
                 ID: 12,
                 color: 'color',
                 start: {x: 0, y: 0},
-                stop: {x: 4, y: 4},
-                fields: []
+                stop: {x: 4, y: 4}
             };
-            word = crw.probeWord(marking);
+            var word = crw.probeWord(marking);
             expect(crossword.solution[12]).toBe(marking);
             expect(word.solved).toBeNull();
         });
@@ -337,25 +348,25 @@ describe("crosswordFactory", function () {
         it("finds critical size changes", function () {
             var crossword = crw.getCrosswordData();
             angular.extend(crossword, angular.copy(testdata));
-            expect(crw.testWordBoundaries({left: 2, right: 0, top: 0, bottom: 0}).length).toBe(0);
-            expect(crw.testWordBoundaries({left: 0, right: 2, top: 0, bottom: 0}).length).toBe(0);
-            expect(crw.testWordBoundaries({left: 0, right: 0, top: 2, bottom: 0}).length).toBe(0);
-            expect(crw.testWordBoundaries({left: 0, right: 0, top: 0, bottom: 2}).length).toBe(0);
-            var critical = crw.testWordBoundaries({left: -1, right: 0, top: 0, bottom: 0});
+            expect(crw.testWordBoundaries('left', -2).length).toBe(0);
+            expect(crw.testWordBoundaries('right', 2).length).toBe(0);
+            expect(crw.testWordBoundaries('top', -2).length).toBe(0);
+            expect(crw.testWordBoundaries('bottom', 2).length).toBe(0);
+            var critical = crw.testWordBoundaries('left', 1);
             expect(critical.length).toBe(3);
             expect(critical).toContain(2);
             expect(critical).toContain(3);
             expect(critical).toContain(4);
-            critical = crw.testWordBoundaries({left: 0, right: -1, top: 0, bottom: 0});
+            critical = crw.testWordBoundaries('right', -1);
             expect(critical.length).toBe(2);
             expect(critical).toContain(5);
             expect(critical).toContain(7);
-            critical = crw.testWordBoundaries({left: 0, right: 0, top: -1, bottom: 0});
+            critical = crw.testWordBoundaries('top', 1);
             expect(critical.length).toBe(3);
             expect(critical).toContain(4);
             expect(critical).toContain(8);
             expect(critical).toContain(10);
-            critical = crw.testWordBoundaries({left: 0, right: 0, top: 0, bottom: -2});
+            critical = crw.testWordBoundaries('bottom', -2);
             expect(critical.length).toBe(4);
             expect(critical).toContain(2);
             expect(critical).toContain(6);
@@ -391,25 +402,25 @@ describe("crosswordFactory", function () {
             var crossword = crw.getCrosswordData();
             crw.loadDefault();
             crossword.table[5][5].letter = "X";
-            crw.changeSize({left: 2, right: 0, top: 0, bottom: 0}, []);
+            crw.changeSize('left', -2, []);
             expect(crossword.table[5][7].letter).toBe("X");
             expect(crossword.table.length).toBe(10);
             for (var i = 0; i < crossword.table.length; i++) {
                 expect(crossword.table[i].length).toBe(12);
             }
-            crw.changeSize({left: 0, right: -2, top: 0, bottom: 0}, []);
+            crw.changeSize('right', -2, []);
             expect(crossword.table[5][7].letter).toBe("X");
             expect(crossword.table.length).toBe(10);
             for (i = 0; i < crossword.table.length; i++) {
                 expect(crossword.table[i].length).toBe(10);
             }
-            crw.changeSize({left: 0, right: 0, top: -1, bottom: 0}, []);
+            crw.changeSize('top', 1, []);
             expect(crossword.table[4][7].letter).toBe("X");
             expect(crossword.table.length).toBe(9);
             for (i = 0; i < crossword.table.length; i++) {
                 expect(crossword.table[i].length).toBe(10);
             }
-            crw.changeSize({left: 0, right: 0, top: 0, bottom: 3}, []);
+            crw.changeSize('bottom', 3, []);
             expect(crossword.table[4][7].letter).toBe("X");
             expect(crossword.table.length).toBe(12);
             for (i = 0; i < crossword.table.length; i++) {
@@ -422,7 +433,7 @@ describe("crosswordFactory", function () {
             angular.extend(crossword, angular.copy(testdata));
             expect(crossword.words[4]).toBeDefined();
             expect(crossword.words[5]).toBeDefined();
-            crw.changeSize({left: 0, right: 0, top: 0, bottom: 0}, [4, 5]);
+            crw.changeSize('left', 0, [4, 5]);
             expect(crossword.words[4]).toBeUndefined();
             expect(crossword.words[5]).toBeUndefined();
         });

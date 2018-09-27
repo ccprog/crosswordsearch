@@ -31,7 +31,7 @@ crwApp.directive("crwGridsize", ['basics', function (basics) {
             };
 
             scope.$watch('crosswordData.size', function (newSize) {
-                if(!newSize) return;
+                if(!newSize) { return; }
                 var viewBox = computeBorderBox({
                     x: 0, y: 0,
                     width: newSize.width, height: newSize.height
@@ -128,7 +128,7 @@ crwApp.directive('crwGridhandle', ['$document', 'basics', function ($document, b
                     }
                     return abstract;
                 }
-                return 0;
+                return delta;
             }
             scope.$watch('crosswordData.size', move);
 
@@ -208,8 +208,8 @@ crwApp.directive('crwGridfield', ['basics', function (basics) {
                 });
             }
 
-            scope.$watchGroup(['line', 'column'], function (newValues, oldValues) {
-                if  (!newValues) return;
+            scope.$watchGroup(['line', 'column'], function (newValues) {
+                if  (!newValues) { return; }
 
                 highlight.attr({
                     x: basics.fieldSize * newValues[1] + basics.fieldShift + 1,
@@ -231,7 +231,7 @@ crwApp.directive("crwGridline", ['basics', function (basics) {
             var start = attrs.crwGridline + '.start',
                 stop = attrs.crwGridline + '.stop';
             scope.$watchGroup([start, stop], function (newValues) {
-                if (!newValues[0] || !newValues[1]) return;
+                if (!newValues[0] || !newValues[1]) { return; }
                 element.attr({
                     x1: basics.fieldSize * newValues[0].x + basics.fieldSize / 2,
                     y1: basics.fieldSize * newValues[0].y + basics.fieldSize / 2,

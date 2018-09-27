@@ -2,7 +2,6 @@ describe("basics factory", function () {
     var basics;
 
     afterEach(function () {
-        delete crwBasics.dimensions;
         delete crwBasics.casesensitive;
         delete crwBasics.accentMap;
         crwBasics.textDirection = 'ltr';
@@ -12,7 +11,12 @@ describe("basics factory", function () {
 
         beforeEach(function () {
             module('crwApp');
-            crwBasics.dimensions = {data: 'data'};
+            crwBasics.dimensions = {
+                field: 8,
+                fieldBorder: 1,
+                handleOutside: 5,
+                handleInside: 2
+            };
             inject(function($injector) {
                 basics = $injector.get('basics');
             });
@@ -22,8 +26,10 @@ describe("basics factory", function () {
             expect(Array.isArray(basics.colors)).toBe(true);
             expect(typeof basics.colors[0]).toBe('string');
             expect(typeof basics.textIsLTR).toBe('boolean');
-            expect(basics.dimensions).toEqual(crwBasics.dimensions);
-            expect(basics.imagesPath).toBe(crwBasics.imagesPath);
+            expect(basics.fieldSize).toBe(9);
+            expect(basics.fieldShift).toBe(0.5);
+            expect(basics.handleWidth).toBe(7);
+            expect(basics.handleOffset).toBe(2);
             expect(basics.letterRegEx.toString()).toBe('/^' + crwBasics.letterRegEx + '$/');
             expect("A").toMatch(basics.letterRegEx);
             var moveCharacters = String.fromCharCode(0x25, 0x26, 0x27, 0x28, 0x2E, 0x08);
