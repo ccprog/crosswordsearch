@@ -1,3 +1,50 @@
+describe("crwCatchMouse", function() {
+    var $scope, element, bodyevent;
+
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function ($rootScope) {
+        $scope = $rootScope.$new();
+        $scope.down = jasmine.createSpy("down");
+        $scope.up = jasmine.createSpy("up");
+        bodyevent = {
+            down: jasmine.createSpy('downbody'),
+            up: jasmine.createSpy('upbody')
+        };
+        jQuery('body')
+            .on('mousedown', bodyevent.down)
+            .on('mouseup', bodyevent.up);
+    }));
+    afterEach(function () {
+        element.remove();
+    });
+
+    it("executes mousedown/mouseup callbacks", inject(function($compile) {
+        element = $compile('<p crw-catch-mouse down="down" up="up">abc</p>')($scope);
+        jQuery('body').append(element);
+        element.trigger('mouseup');
+        expect($scope.up).not.toHaveBeenCalled();
+        element.trigger('mousedown');
+        expect($scope.down).toHaveBeenCalled();
+        expect(bodyevent.down.calls.argsFor(0)[0].isDefaultPrevented()).toBe(false);
+        element.trigger('mouseup');
+        expect($scope.up).toHaveBeenCalled();
+        expect(bodyevent.up.calls.argsFor(0)[0].isDefaultPrevented()).toBe(false);
+        element.trigger('mouseup');
+        expect($scope.down.calls.count()).toBe(1);
+    }));
+
+    it("suppresses event defaults if option is set", inject(function($compile) {
+        element = $compile('<p crw-catch-mouse down="down" up="up" prevent-default>abc</p>')($scope);
+        jQuery('body').append(element);
+        element.trigger('mousedown');
+        expect($scope.down).toHaveBeenCalled();
+        expect(bodyevent.down.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
+        element.trigger('mouseup');
+        expect($scope.up).toHaveBeenCalled();
+        expect(bodyevent.up.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
+    }));
+});
+
 describe("crwIndexChecker", function() {
     var $scope, element;
 
@@ -125,15 +172,6 @@ describe("GridController", function () {
             expect(resolutions.resolved).toHaveBeenCalled();
             expect(resolutions.rejected).not.toHaveBeenCalled();
         });
-    });
-
-    it("broadcasts setFocus events", function () {
-        $scope.child = $scope.$new();
-        var listener = jasmine.createSpy("listener");
-        $scope.child.$on('setFocus', listener);
-        $scope.activate(1, 2);
-        expect(listener.calls.argsFor(0)[1]).toBe(1);
-        expect(listener.calls.argsFor(0)[2]).toBe(2);
     });
 
     it("starts marking depending on timer state", function () {

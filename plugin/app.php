@@ -90,6 +90,7 @@ if ( 'build' == $mode ) {
 
 ?>
     <div class="crw-crossword<?php echo ( 'build' == $mode ? ' wide' : '' ) ?>" ng-class="{invisible: waitsForData}">
+        <input type="text" tabindex="-1" crw-letter-input></input>
         <svg class="crw-spinner" ng-if="waitsForData" width="100%" height="100%">
             <title></title>
             <use xlink:href="#crw-spinner" x="50%" y="30%" width="64" height="64" transform="translate(-32 -32)"/>

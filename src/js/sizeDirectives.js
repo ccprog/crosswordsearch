@@ -191,7 +191,8 @@ crwApp.directive('crwGridfield', ['basics', function (basics) {
             });
 
             if (scope.mode === 'build') {
-                element.on('click', function () {
+                element.on('click', function (event) {
+                    event.preventDefault();
                     scope.$apply('activate(line, column)');
                 });
                 scope.$on('setFocus', function(event, line, column) {

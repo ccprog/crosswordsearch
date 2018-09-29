@@ -1,50 +1,3 @@
-describe("crwCatchMouse", function() {
-    var $scope, element, bodyevent;
-
-    beforeEach(module('crwApp'));
-    beforeEach(inject(function ($rootScope) {
-        $scope = $rootScope.$new();
-        $scope.down = jasmine.createSpy("down");
-        $scope.up = jasmine.createSpy("up");
-        bodyevent = {
-            down: jasmine.createSpy('downbody'),
-            up: jasmine.createSpy('upbody')
-        };
-        jQuery('body')
-            .on('mousedown', bodyevent.down)
-            .on('mouseup', bodyevent.up);
-    }));
-    afterEach(function () {
-        element.remove();
-    });
-
-    it("executes mousedown/mouseup callbacks", inject(function($compile) {
-        element = $compile('<p crw-catch-mouse down="down" up="up">abc</p>')($scope);
-        jQuery('body').append(element);
-        element.trigger('mouseup');
-        expect($scope.up).not.toHaveBeenCalled();
-        element.trigger('mousedown');
-        expect($scope.down).toHaveBeenCalled();
-        expect(bodyevent.down.calls.argsFor(0)[0].isDefaultPrevented()).toBe(false);
-        element.trigger('mouseup');
-        expect($scope.up).toHaveBeenCalled();
-        expect(bodyevent.up.calls.argsFor(0)[0].isDefaultPrevented()).toBe(false);
-        element.trigger('mouseup');
-        expect($scope.down.calls.count()).toBe(1);
-    }));
-
-    it("suppresses event defaults if option is set", inject(function($compile) {
-        element = $compile('<p crw-catch-mouse down="down" up="up" prevent-default>abc</p>')($scope);
-        jQuery('body').append(element);
-        element.trigger('mousedown');
-        expect($scope.down).toHaveBeenCalled();
-        expect(bodyevent.down.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
-        element.trigger('mouseup');
-        expect($scope.up).toHaveBeenCalled();
-        expect(bodyevent.up.calls.argsFor(0)[0].isDefaultPrevented()).toBe(true);
-    }));
-});
-
 describe("crwMenu (cse option template)", function () {
     beforeEach(module('crwApp'));
 
@@ -59,6 +12,94 @@ describe("crwMenu (cse option template)", function () {
         expect(element.text()).toBe('display');
         expect(element.attr('title')).toBe('title');
     }));
+});
+
+describe("crwLetterInput", function() {
+    var $scope, element;
+
+    beforeEach(module('crwApp'));
+    beforeEach(inject(function ($compile, $rootScope) {
+        $scope = $rootScope.$new();
+        $scope.crosswordData = {
+            size: { width: 8, height: 9 }
+        };
+        $scope.activate = jasmine.createSpy('activate');
+        $scope.setLetter = jasmine.createSpy('setLetter');
+        element = $compile('<input type="text" crw-letter-input></input>')($scope);
+        $scope.$apply();
+    }));
+
+    it("remembers focused field", function () {
+        var event = jQuery.Event('keydown');
+        event.key = 'Backspace';
+        $scope.$broadcast('setFocus', 2, 3);
+        element.trigger(event);
+        expect($scope.setLetter).toHaveBeenCalledWith(null, 2, 3);
+        element.trigger(jQuery.Event('blur'));
+        element.trigger(event);
+        expect($scope.setLetter.calls.count()).toBe(1);
+    });
+
+    it("evaluates keydown keys", function () {
+        var line, column,  event;
+        function trigger (key, ctrlKey) {
+            $scope.activate.calls.reset();
+            $scope.setLetter.calls.reset();
+            event = jQuery.Event('keydown');
+            event.key = key;
+            event.ctrlKey = ctrlKey;
+            $scope.$broadcast('setFocus', line, column);
+            element.trigger(event);
+            expect(event.isPropagationStopped()).toBe(true);
+        }
+        line = 2; column = 2;
+        trigger('ArrowUp');
+        expect($scope.activate).toHaveBeenCalledWith(1, 2);
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('ArrowLeft');
+        expect($scope.activate).toHaveBeenCalledWith(2, 1);
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('ArrowRight');
+        expect($scope.activate).toHaveBeenCalledWith(2, 3);
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('ArrowDown');
+        expect($scope.activate).toHaveBeenCalledWith(3, 2);
+        expect(event.isDefaultPrevented()).toBe(true);
+        line = 0; column = 0;
+        $scope.crosswordData.size = { width: 1, height: 1 };
+        trigger('ArrowLeft');
+        expect($scope.activate).not.toHaveBeenCalled();
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('ArrowUp');
+        expect($scope.activate).not.toHaveBeenCalled();
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('ArrowRight');
+        expect($scope.activate).not.toHaveBeenCalled();
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('ArrowDown');
+        expect($scope.activate).not.toHaveBeenCalled();
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('Delete');
+        expect($scope.setLetter).toHaveBeenCalledWith(null, 0, 0);
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('Backspace');
+        expect($scope.setLetter).toHaveBeenCalledWith(null, 0, 0);
+        expect(event.isDefaultPrevented()).toBe(true);
+        trigger('F');
+        expect($scope.activate).not.toHaveBeenCalled();
+        expect(event.isDefaultPrevented()).toBe(false);
+        trigger('F', true);
+        expect($scope.activate).not.toHaveBeenCalled();
+        expect(event.isDefaultPrevented()).toBe(true);
+    });
+
+    it("reads and discards input", function () {
+        $scope.$broadcast('setFocus', 2, 3);
+        element.val('X');
+        element.trigger(jQuery.Event('input'));
+        expect($scope.setLetter).toHaveBeenCalledWith('X', 2, 3);
+        expect(element.val()).toBe('');
+    });
 });
 
 describe("CrosswordController", function () {
@@ -134,9 +175,14 @@ describe("CrosswordController", function () {
             basics = {
                 localize: function (str) {
                     return crwBasics.locale[str];
-                }
+                },
+                letterRegEx: {
+                    test: jasmine.createSpy('test')
+                },
+                normalizeLetter: angular.identity
             };
             spyOn(basics, 'localize').and.callThrough();
+            spyOn(basics, 'normalizeLetter').and.callThrough();
             $scope.crw = {
                 getLevelList: function () {
                     return [0,1,2,3];
@@ -569,6 +615,35 @@ describe("CrosswordController", function () {
             $scope.crw.emptyAllFields = jasmine.createSpy("emptyAllFields");
             $scope.empty();
             expect($scope.crw.emptyAllFields).toHaveBeenCalled();
+        });
+
+        it("broadcasts setFocus events", function () {
+            $scope.child = $scope.$new();
+            var listener = jasmine.createSpy("listener");
+            $scope.child.$on('setFocus', listener);
+            $scope.activate(1, 2);
+            expect(listener.calls.argsFor(0)[1]).toBe(1);
+            expect(listener.calls.argsFor(0)[2]).toBe(2);
+        });
+
+        it("sets the letters in the crossword data", function () {
+            $scope.$apply($scope.crosswordData = angular.copy(testdata));
+            expect($scope.crosswordData.table[0][0].letter).toBe('V');
+            expect($scope.crosswordData.table[0][1].letter).toBe('N');
+            expect($scope.crosswordData.table[0][2].letter).toBe('N');
+            basics.letterRegEx.test.and.returnValue(true);
+            $scope.setLetter('A', 0, 0);
+            expect(basics.letterRegEx.test).toHaveBeenCalledWith('A');
+            expect(basics.normalizeLetter).toHaveBeenCalledWith('A');
+            expect($scope.crosswordData.table[0][0].letter).toBe('A');
+            $scope.setLetter(null, 0, 1);
+            expect(basics.letterRegEx.test.calls.count()).toBe(1);
+            expect($scope.crosswordData.table[0][1].letter).toBe(null);
+            basics.letterRegEx.test.and.returnValue(false);
+            $scope.setLetter('B', 0, 2);
+            expect(basics.letterRegEx.test).toHaveBeenCalledWith('B');
+            expect(basics.normalizeLetter.calls.count()).toBe(1);
+            expect($scope.crosswordData.table[0][2].letter).toBe('N');
         });
     });
 });

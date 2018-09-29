@@ -1260,32 +1260,6 @@ crwApp.directive("crwTimerElement", [ "time", "$interval", function(time, $inter
     };
 } ]);
 
-crwApp.directive("crwCatchMouse", [ "$document", function($document) {
-    return {
-        link: function(scope, element, attrs) {
-            var onMouseDown = function(event) {
-                if (angular.isDefined(attrs.preventDefault)) {
-                    event.preventDefault();
-                }
-                $document.bind("mouseup", onMouseUp);
-                scope[attrs.down]();
-            };
-            var onMouseUp = function(event) {
-                if (angular.isDefined(attrs.preventDefault)) {
-                    event.preventDefault();
-                }
-                $document.unbind("mouseup", onMouseUp);
-                scope.$apply(scope[attrs.up]());
-            };
-            element.bind("mousedown", onMouseDown);
-            element.on("$destroy", function() {
-                element.unbind("mousedown", onMouseDown);
-                $document.unbind("mouseup", onMouseUp);
-            });
-        }
-    };
-} ]);
-
 crwApp.directive("crwMenu", [ "$compile", function($compile) {
     return {
         scope: {
@@ -1297,6 +1271,80 @@ crwApp.directive("crwMenu", [ "$compile", function($compile) {
             });
         },
         template: '<span crw-bind-trusted="value.display || value"></span>'
+    };
+} ]);
+
+crwApp.constant("combiningRegExp", /^[^\u02B0-\u036F\u064B-\u065F\u1AB0-\u1AFF\u1DC0-\u1DFF][\u02B0-\u036F\u064B-\u065F\u1AB0-\u1AFF\u1DC0-\u1DFF]+$/);
+
+crwApp.directive("crwLetterInput", [ "combiningRegExp", function(combiningRegExp) {
+    return {
+        link: function(scope, element) {
+            var line, column;
+            var combined = "";
+            scope.$on("setFocus", function(event, l, c) {
+                element[0].focus();
+                line = l;
+                column = c;
+                combined = "";
+            });
+            element.on("keydown", function(event) {
+                event.stopPropagation();
+                switch (event.key) {
+                  case "Del":
+                  case "Delete":
+                  case "Backspace":
+                    scope.$apply(scope.setLetter(null, line, column));
+                    return event.preventDefault();
+
+                  case "Left":
+                  case "ArrowLeft":
+                    if (column > 0) {
+                        scope.activate(line, column - 1);
+                    }
+                    return event.preventDefault();
+
+                  case "Up":
+                  case "ArrowUp":
+                    if (line > 0) {
+                        scope.activate(line - 1, column);
+                    }
+                    return event.preventDefault();
+
+                  case "Right":
+                  case "ArrowRight":
+                    if (column < scope.crosswordData.size.width - 1) {
+                        scope.activate(line, column + 1);
+                    }
+                    return event.preventDefault();
+
+                  case "Down":
+                  case "ArrowDown":
+                    if (line < scope.crosswordData.size.height - 1) {
+                        scope.activate(line + 1, column);
+                    }
+                    return event.preventDefault();
+                }
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                }
+            });
+            element.on("input", function(event) {
+                var letter = element.val();
+                if (combiningRegExp.test(combined + letter)) {
+                    combined += letter;
+                } else {
+                    combined = letter;
+                }
+                scope.$apply(scope.setLetter(combined, line, column));
+                element.val(null);
+            });
+            element.on("paste", function(event) {
+                event.preventDefault();
+            });
+            element.on("blur", function() {
+                scope.$broadcast("setFocus", -1, -1);
+            });
+        }
     };
 } ]);
 
@@ -1490,6 +1538,16 @@ crwApp.controller("CrosswordController", [ "$scope", "qStore", "basics", "crossw
     $scope.empty = function() {
         $scope.crw.emptyAllFields();
     };
+    $scope.activate = function(row, col) {
+        $scope.$broadcast("setFocus", row, col);
+    };
+    $scope.setLetter = function(letter, line, column) {
+        if (letter === null) {
+            $scope.crosswordData.table[line][column].letter = null;
+        } else if (basics.letterRegEx.test(letter)) {
+            $scope.crosswordData.table[line][column].letter = basics.normalizeLetter(letter);
+        }
+    };
 } ]);
 
 crwApp.directive("crwGridsize", [ "basics", function(basics) {
@@ -1667,7 +1725,8 @@ crwApp.directive("crwGridfield", [ "basics", function(basics) {
                 height: basics.fieldSize - 2 * (basics.fieldShift + 1)
             });
             if (scope.mode === "build") {
-                element.on("click", function() {
+                element.on("click", function(event) {
+                    event.preventDefault();
                     scope.$apply("activate(line, column)");
                 });
                 scope.$on("setFocus", function(event, line, column) {
@@ -1713,6 +1772,32 @@ crwApp.directive("crwGridline", [ "basics", function(basics) {
                     x2: basics.fieldSize * newValues[1].x + basics.fieldSize / 2,
                     y2: basics.fieldSize * newValues[1].y + basics.fieldSize / 2
                 });
+            });
+        }
+    };
+} ]);
+
+crwApp.directive("crwCatchMouse", [ "$document", function($document) {
+    return {
+        link: function(scope, element, attrs) {
+            var onMouseDown = function(event) {
+                if (angular.isDefined(attrs.preventDefault)) {
+                    event.preventDefault();
+                }
+                $document.bind("mouseup", onMouseUp);
+                scope[attrs.down]();
+            };
+            var onMouseUp = function(event) {
+                if (angular.isDefined(attrs.preventDefault)) {
+                    event.preventDefault();
+                }
+                $document.unbind("mouseup", onMouseUp);
+                scope.$apply(scope[attrs.up]());
+            };
+            element.bind("mousedown", onMouseDown);
+            element.on("$destroy", function() {
+                element.unbind("mousedown", onMouseDown);
+                $document.unbind("mouseup", onMouseUp);
             });
         }
     };
@@ -1766,9 +1851,6 @@ crwApp.controller("GridController", [ "$scope", "$q", "basics", function($scope,
             $scope.crw.changeSize(direction, change, critical);
             return $q.resolve();
         }
-    };
-    $scope.activate = function(row, col) {
-        $scope.$broadcast("setFocus", row, col);
     };
     $scope.startMark = function() {
         $scope.isMarking = $scope.timer ? $scope.timer.state === "playing" : true;

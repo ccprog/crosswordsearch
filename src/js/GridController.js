@@ -1,3 +1,37 @@
+// bind/unbind mousedown/mouseup events, arguments:
+// down: name of scope function to execute on mousedown
+// up: name of scope function to execute on mouseup
+// prevent-default: (optional) if present, suppresses event defaults
+crwApp.directive('crwCatchMouse', ['$document', function($document) {
+    return {
+        link: function(scope, element, attrs) {
+            // catch mouseup everywhere
+            var onMouseDown = function (event) {
+                if (angular.isDefined(attrs.preventDefault)) {
+                    event.preventDefault();
+                }
+                $document.bind('mouseup', onMouseUp);
+                scope[attrs.down]();
+            };
+
+            var onMouseUp = function (event) {
+                if (angular.isDefined(attrs.preventDefault)) {
+                    event.preventDefault();
+                }
+                $document.unbind('mouseup', onMouseUp);
+                // this is bound to a DOM event, therefore it must be $applied
+                scope.$apply(scope[attrs.up]());
+            };
+
+            element.bind('mousedown', onMouseDown);
+            element.on('$destroy', function () {
+                element.unbind('mousedown', onMouseDown);
+                $document.unbind('mouseup', onMouseUp);
+            });
+        }
+    };
+}]);
+
 // keep the line/column values current when $index changes
 crwApp.directive('crwIndexChecker', function() {
     return {
@@ -62,10 +96,6 @@ crwApp.controller("GridController", ['$scope', '$q', 'basics',
             $scope.crw.changeSize(direction, change, critical);
             return $q.resolve();
         }
-    };
-
-    $scope.activate = function (row, col) {
-        $scope.$broadcast('setFocus', row, col);
     };
 
     // event handler on mousedown in a field:
