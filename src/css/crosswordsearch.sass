@@ -168,6 +168,7 @@
   input[crw-letter-input]
     position: absolute
     width: 0
+    left: -9999em
     text-indent: -5em
     opacity: 0
     cursor: default
@@ -225,6 +226,9 @@
       stroke-width: 28
       pointer-events: none
 
+      &.invalid
+        stroke-opacity: 0.1
+
   .crw-extras
     margin-top: 10px
 
@@ -272,6 +276,15 @@
 
     dt a
       width: 20px
+
+@supports ( mix-blend-mode: color-dodge )
+  .crw-wrapper .crw-gridtable .crw-marker.invalid
+    mix-blend-mode: color-dodge
+    stroke-opacity: 0.5
+
+    &.black
+      stroke:#888
+      stroke-opacit: 1
 
 .crw-immediate
   > .blocker

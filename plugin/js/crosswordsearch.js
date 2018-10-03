@@ -1895,14 +1895,23 @@ crwApp.controller("GridController", [ "$scope", "$q", "basics", function($scope,
             }
         }
         $scope.isMarking = false;
+        delete $scope.invalidMarking;
     };
     $scope.intoField = function(row, col) {
         var newStop = {
             x: col,
             y: row
         };
-        if ($scope.isMarking && $scope.currentMarking.start && validMarking(newStop)) {
-            $scope.currentMarking.stop = newStop;
+        if ($scope.isMarking && $scope.currentMarking.start) {
+            if (validMarking(newStop)) {
+                $scope.currentMarking.stop = newStop;
+                delete $scope.invalidMarking;
+            } else {
+                $scope.invalidMarking = {
+                    start: $scope.currentMarking.start,
+                    stop: newStop
+                };
+            }
         }
     };
     $scope.outofField = function(row, col) {

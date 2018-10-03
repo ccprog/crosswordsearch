@@ -189,7 +189,7 @@ if ( 'build' == $mode ) {
                 ng-repeat="word in crosswordData.words"
 <?php } ?>
                 mask="url(#crw-markermask-<?php echo $crw_scid; ?>-{{word.ID}})" xlink:href="{{getId('#crw-markerline-<?php echo $crw_scid; ?>-', word.ID)}}"/>
-            <crw-markings mode="<?php echo $mode ?>"></crw-markings>
+            <line class="crw-marker invalid" ng-class="currentMarking.color" crw-gridline="invalidMarking" ng-if="invalidMarking" stroke-linecap="round" />
             <use class="crw-marker" ng-class="currentMarking.color" ng-if="isMarking" mask="url(#crw-markermask-<?php echo $crw_scid; ?>-current)" xlink:href="#crw-markerline-<?php echo $crw_scid; ?>-current"/>
         </svg>
 <?php // fill/empty buttons

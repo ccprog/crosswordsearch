@@ -150,14 +150,22 @@ crwApp.controller("GridController", ['$scope', '$q', 'basics',
             }
         }
         $scope.isMarking = false;
+        delete $scope.invalidMarking;
     };
 
     // event handler on mouseenter
     $scope.intoField = function (row, col) {
         var newStop = {x: col, y:row};
-        // draw marking only for valid directions
-        if ($scope.isMarking && $scope.currentMarking.start && validMarking(newStop)) {
-            $scope.currentMarking.stop = newStop;
+        if ($scope.isMarking && $scope.currentMarking.start) {
+            if (validMarking(newStop)) {
+                $scope.currentMarking.stop = newStop;
+                delete $scope.invalidMarking;
+            } else {
+                $scope.invalidMarking = {
+                    start: $scope.currentMarking.start,
+                    stop: newStop
+                }
+            }
         }
     };
     // event handler on mouseleave
