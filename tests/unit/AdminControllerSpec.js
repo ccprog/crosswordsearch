@@ -196,9 +196,9 @@ describe("EditorController", function () {
         });
         admin = $scope.admin = angular.copy({
             projects: [
-                {name: 'project1', default_level: 1, maximum_level: 2, used_level: 0, editors: [1,2]},
-                {name: 'project2', default_level: 2, maximum_level: 3, used_level: 3, editors: [2,3]},
-                {name: '_project3', default_level: 2, maximum_level: 3, used_level: 3, editors: [1,3]}
+                {name: 'project1', default_level: 1, maximum_level: 2, used_level: 0, lang: 'en', editors: [1,2]},
+                {name: 'project2', default_level: 2, maximum_level: 3, used_level: 3, lang: 'en', editors: [2,3]},
+                {name: '_project3', default_level: 2, maximum_level: 3, used_level: 3, lang: 'en', editors: [1,3]}
             ],
             all_users: [
                 {user_id: 1, user_name: 'one'},
@@ -210,6 +210,7 @@ describe("EditorController", function () {
             '<input type="text" name="name" ng-model="currentProject.name"></input>' + 
             '<input type="text" name="defaultL" ng-model="currentProject.default_level"></input>' +
             '<input type="text" name="maximumL" ng-model="currentProject.maximum_level"></input>' +
+            '<input type="text" name="lang" ng-model="currentProject.lang"></input>' +
             '<input type="text" name="extra" ng-model="extra"></input>' +
             '</form>')($scope);
         spyOn($scope.projectMod, '$setPristine').and.callThrough();
@@ -285,6 +286,7 @@ describe("EditorController", function () {
             default_level: 1,
             maximum_level: 3,
             used_level: 0,
+            lang: 'en',
             editors: []
         });
         expect($scope.currentEditors).toEqual([]);
@@ -325,7 +327,8 @@ describe("EditorController", function () {
             project: undefined,
             new_name: 'project1',
             default_level: 1,
-            maximum_level: 2
+            maximum_level: 2,
+            lang: 'en'
         });
         expect(ajaxFactory.http.calls.argsFor(0)[1]).toBe('editors');
         deferred.resolve(admin);
@@ -345,7 +348,8 @@ describe("EditorController", function () {
             project: '_project3',
             new_name: 'project4',
             default_level: 2,
-            maximum_level: 3
+            maximum_level: 3,
+            lang: 'en'
         });
         expect(ajaxFactory.http.calls.argsFor(1)[1]).toBe('editors');
         deferred.reject('error');

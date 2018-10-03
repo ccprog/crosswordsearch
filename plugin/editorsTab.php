@@ -6,7 +6,7 @@
                 <th colspan="3"></th>
             </tr>
             <tr>
-                <td class="project" rowspan="7">
+                <td class="project" rowspan="8">
                     <select size="10" ng-model="selectedProject" ng-options="project as project.name for project in admin.projects | orderBy:'name'" ng-disabled="!selectedProject || !projectMod.$pristine || !editorsPristine"></select>
                 </td>
                 <td><?php _e('Project Name', 'crosswordsearch') ?></td>
@@ -35,6 +35,12 @@
                 <td><?php _e('Maximum difficulty level', 'crosswordsearch') ?></td>
                 <td class="between aligned">
                     <select class="spin" name="maximumL" ng-model="currentProject.maximum_level" ng-options="num+1 for num in levelList('maximum')"></select>
+                </td>
+            </tr>
+            <tr>
+                <td><?php _e('Riddle language', 'crosswordsearch') ?></td>
+                <td colspan="2" class="aligned projectname">
+                    <select name="lang" ng-model="currentProject.lang" ng-options="code as name for (code, name) in riddleLanguages"></select>
                 </td>
             </tr>
             <tr class="actions">

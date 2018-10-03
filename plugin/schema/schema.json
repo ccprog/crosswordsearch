@@ -130,9 +130,8 @@
       "properties": {
         "letter": {
               "type": [ "string", "null" ],
-              "minLength": 1,
-              "maxLength": 1,
-              "pattern": "[a-zA-Z]"
+              "pattern": "[a-zA-Z]",
+              "patternFlags": "u"
         }
       }
     }

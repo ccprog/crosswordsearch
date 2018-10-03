@@ -117,6 +117,8 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         return list;
     };
 
+    $scope.riddleLanguages = crwBasics.riddleLanguages;
+
     // extract the list of project names from the admin object
     $scope.getProjectList = function (current) {
         var list = [];
@@ -151,7 +153,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
     // prune out form fields that do not count for selectedProject
     $scope.$watch('projectMod.$pristine', function (p) {
         var truePristine = true;
-        ['name', 'defaultL', 'maximumL'].forEach(function (name) {
+        ['name', 'defaultL', 'maximumL', 'lang'].forEach(function (name) {
             truePristine &= $scope.projectMod[name].$pristine;
         });
         if (!p && truePristine) {
@@ -170,6 +172,7 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
         default_level: 1,
         maximum_level: 3,
         used_level: 0,
+        lang: 'en',
         editors: []
     };
     $scope.currentProject = angular.copy(emptyProject);
@@ -204,7 +207,8 @@ crwApp.controller("EditorController", ['$scope', '$filter', 'ajaxFactory',
             project: $scope.selectedProject ? $scope.selectedProject.name : undefined,
             new_name: $scope.currentProject.name,
             default_level: $scope.currentProject.default_level,
-            maximum_level: $scope.currentProject.maximum_level
+            maximum_level: $scope.currentProject.maximum_level,
+            lang: $scope.currentProject.lang
         }, adminContext).then(function (data) {
             showLoaded(data, $scope.currentProject.name);
         }, $scope.setError);

@@ -859,6 +859,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         }
         return list;
     };
+    $scope.riddleLanguages = crwBasics.riddleLanguages;
     $scope.getProjectList = function(current) {
         var list = [];
         $scope.admin.projects.forEach(function(project) {
@@ -886,7 +887,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
     };
     $scope.$watch("projectMod.$pristine", function(p) {
         var truePristine = true;
-        [ "name", "defaultL", "maximumL" ].forEach(function(name) {
+        [ "name", "defaultL", "maximumL", "lang" ].forEach(function(name) {
             truePristine &= $scope.projectMod[name].$pristine;
         });
         if (!p && truePristine) {
@@ -901,6 +902,7 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
         default_level: 1,
         maximum_level: 3,
         used_level: 0,
+        lang: "en",
         editors: []
     };
     $scope.currentProject = angular.copy(emptyProject);
@@ -931,7 +933,8 @@ crwApp.controller("EditorController", [ "$scope", "$filter", "ajaxFactory", func
             project: $scope.selectedProject ? $scope.selectedProject.name : undefined,
             new_name: $scope.currentProject.name,
             default_level: $scope.currentProject.default_level,
-            maximum_level: $scope.currentProject.maximum_level
+            maximum_level: $scope.currentProject.maximum_level,
+            lang: $scope.currentProject.lang
         }, adminContext).then(function(data) {
             showLoaded(data, $scope.currentProject.name);
         }, $scope.setError);

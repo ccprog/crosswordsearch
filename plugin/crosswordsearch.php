@@ -35,7 +35,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * ---------------------------------- */
 
 define('CRW_VERSION', '1.1.0');
-define('CRW_DB_VERSION', '0.5');
+define('CRW_DB_VERSION', '2.0');
 define('CRW_DIMENSIONS_OPTION', 'crw_dimensions');
 define('CRW_CUSTOM_DIMENSIONS_OPTION', 'crw_custom_dimensions');
 define('CRW_ROLES_OPTION', 'crw_roles_caps');
@@ -70,9 +70,8 @@ $child_css = crw_get_child_stylesheet();
  * ---------------------------------- */
 
 /**
- * Installation routine executed on activation.
+ * Database table creation and update
  *
- * @global WP_Roles $wp_roles
  * @global wpdb $wpdb
  * @global string $charset_collate
  * @global string $project_table_name
@@ -81,9 +80,82 @@ $child_css = crw_get_child_stylesheet();
  *
  * @return void
  */
-function crw_install ( $network_wide = null ) {
-    global $wp_roles, $wpdb, $charset_collate, $project_table_name, $data_table_name, $editors_table_name;
+function crw_write_tables () {
+    global $wpdb, $charset_collate, $project_table_name, $data_table_name, $editors_table_name;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    require_once 'l10n.php';
+
+    $lang = get_locale();
+    $default_locale = array_key_exists($lang, crw_get_language_list()) ? $lang : 'en';
+
+    dbDelta( "
+CREATE TABLE $project_table_name (
+  project varchar(190) NOT NULL,
+  default_level int NOT NULL,
+  maximum_level int NOT NULL,
+  used_level int NOT NULL,
+  lang varchar(20) DEFAULT '$default_locale' NOT NULL,
+  PRIMARY KEY  (project)
+) ENGINE=InnoDB $charset_collate;\n"
+    );
+
+    $result = dbDelta( "
+CREATE TABLE $data_table_name (
+  project varchar(190) NOT NULL,
+  name varchar(190) NOT NULL,
+  crossword text NOT NULL,
+  first_user bigint(20) unsigned NOT NULL,
+  last_user bigint(20) unsigned NOT NULL,
+  pending boolean NOT NULL DEFAULT FALSE,
+  PRIMARY KEY  (project, name)
+) ENGINE=InnoDB $charset_collate;\n"
+    );
+    $creation = array_filter($result, function ($entry) {
+        return strpos($entry, 'Created table' !== false);
+    });
+    if ( count($creation) ) {
+        $wpdb->query("
+            ALTER TABLE $data_table_name
+            ADD CONSTRAINT " . $wpdb->prefix . "project_crossword FOREIGN KEY (project)
+            REFERENCES $project_table_name (project)
+            ON UPDATE CASCADE
+        ");
+    }
+
+    $result = dbDelta( "
+CREATE TABLE $editors_table_name (
+  project varchar(190) NOT NULL,
+  user_id bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (project, user_id)
+) ENGINE=InnoDB $charset_collate;\n"
+    );
+    $creation = array_filter($result, function ($entry) {
+        return strpos($entry, 'Created table' !== false);
+    });
+    if ( count($creation) ) {
+        $wpdb->query("
+            ALTER TABLE $editors_table_name
+            ADD CONSTRAINT " . $wpdb->prefix . "project_editors FOREIGN KEY (project)
+            REFERENCES $project_table_name (project)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        ");
+    }
+
+    update_option( "crw_db_version", CRW_DB_VERSION );
+}
+
+/**
+ * Installation routine executed on activation.
+ *
+ * @global WP_Roles $wp_roles
+ * @global wpdb $wpdb
+ * @global WP_Roles $wp_roles
+ *
+ * @return void
+ */
+function crw_install ( $network_wide = null ) {
+    global $wpdb, $wp_roles;
 
     if ( $network_wide ) {
         trigger_error( 'Please activate the plugin individually on each site.', E_USER_ERROR );
@@ -100,7 +172,6 @@ function crw_install ( $network_wide = null ) {
         trigger_error( 'This plugin requires MySQL to support the InnoDB table engine. Please contact your server administrator before you activate this plugin', E_USER_ERROR );
     }
 
-    update_option( "crw_db_version", CRW_DB_VERSION );
     $old_roles_option = get_option(CRW_ROLES_OPTION); // prexisting option, may not exist
     $roles_caps = array(); // new option to be constructed
     foreach ( $wp_roles->role_objects as $name => $role ) {
@@ -119,53 +190,9 @@ function crw_install ( $network_wide = null ) {
         }
     }
 
-    dbDelta( "
-CREATE TABLE IF NOT EXISTS $project_table_name (
-  project varchar(190) NOT NULL,
-  default_level int NOT NULL,
-  maximum_level int NOT NULL,
-  used_level int NOT NULL,
-  PRIMARY KEY  (project)
-) ENGINE=InnoDB $charset_collate;\n"
-    );
-
-    dbDelta( "
-CREATE TABLE IF NOT EXISTS $data_table_name (
-  project varchar(190) NOT NULL,
-  name varchar(190) NOT NULL,
-  crossword text NOT NULL,
-  first_user bigint(20) unsigned NOT NULL,
-  last_user bigint(20) unsigned NOT NULL,
-  pending boolean NOT NULL DEFAULT FALSE,
-  PRIMARY KEY  (project, name)
-) ENGINE=InnoDB $charset_collate;\n"
-    );
-
-    dbDelta( "
-CREATE TABLE IF NOT EXISTS $editors_table_name (
-  project varchar(190) NOT NULL,
-  user_id bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (project, user_id)
-) ENGINE=InnoDB $charset_collate;\n"
-    );
-
-    $wpdb->query("
-        ALTER TABLE $data_table_name
-        ADD CONSTRAINT " . $wpdb->prefix . "project_crossword FOREIGN KEY (project)
-        REFERENCES $project_table_name (project)
-        ON UPDATE CASCADE
-    ");
-
-    $wpdb->query("
-        ALTER TABLE $editors_table_name
-        ADD CONSTRAINT " . $wpdb->prefix . "project_editors FOREIGN KEY (project)
-        REFERENCES $project_table_name (project)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-    ");
+    crw_write_tables();
 }
 register_activation_hook( CRW_PLUGIN_FILE, 'crw_install' );
-
 
 /**
  * Update tasks.
@@ -200,6 +227,9 @@ function crw_update () {
         'handleOutside' => 19
     );
     update_option( CRW_DIMENSIONS_OPTION, $dimensions );
+    if ( version_compare( get_option( "crw_db_version" ),  CRW_DB_VERSION, '<' ) ) {
+        crw_write_tables();
+    }
 }
 add_action( 'plugins_loaded', 'crw_update' );
 
@@ -251,6 +281,7 @@ function crw_install_data () {
     crw_change_project_list('add', null, array(
         'default_level' => 1,
         'maximum_level' => 3,
+        'lang' => 'de_DE',
         'project' => 'test'
     ) );
 
@@ -391,13 +422,12 @@ function crw_enqueue_block_editor_assets () {
  */
 function add_crw_scripts ( $hook ) {
     require_once 'l10n.php';
-    global $wp_styles, $crw_has_crossword, $text_direction, $child_css;
+    global $wp_styles, $crw_has_crossword, $text_direction, $child_css, $wpdb, $project_table_name;
 
     $edits_post = 'post.php' == $hook || 'post-new.php' == $hook;
     if ( !$crw_has_crossword && 'settings_page_crw_options' != $hook && !$edits_post ) return;
 
 	$suffix = SCRIPT_DEBUG ? '' : '.min';
-    $locale_data = crw_get_locale_data();
     $scripts = array( );
     $angular_deps = array ( 'jquery' );
     $localize = array( );
@@ -412,14 +442,22 @@ function add_crw_scripts ( $hook ) {
 
 	if ( $crw_has_crossword || 'settings_page_crw_options' == $hook ) {
         $scripts['crw-js'] = array( 'file' => 'crosswordsearch', 'deps' => array( 'angular', 'angular-route' ), 'ver' => CRW_VERSION );
+
+        $lang = $wpdb->get_var($wpdb->prepare("
+            SELECT lang FROM $project_table_name WHERE project=%s
+        ", $crw_has_crossword));
+        $locale_data = crw_get_locale_data($lang);
+
         $localize = array_merge($locale_data, array(
             'textDirection' => $text_direction,
+            'riddleLanguages' => crw_get_language_list(),
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'dimensions' => get_option( $child_css ? CRW_CUSTOM_DIMENSIONS_OPTION : CRW_DIMENSIONS_OPTION )
         ));
 	} else if ( $edits_post ) {
         unset( $scripts['angular-route'] );
         $scripts['crw-js'] = array( 'file' => 'wizzard', 'deps' => array( 'angular', 'media-upload', 'shortcode' ), 'ver' => CRW_VERSION );
+
         $localize = array(
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'l10nEmpty' => '&lt;' .__('Empty Crossword', 'crosswordsearch') . '&gt;',
@@ -449,7 +487,10 @@ function crw_set_header () {
 	global $post, $crw_has_crossword;
 
 	if ( is_object( $post ) && has_shortcode( $post->post_content, 'crosswordsearch') ) {
-        $crw_has_crossword = true;
+        $re = get_shortcode_regex( [ 'crosswordsearch' ] );
+        preg_match( '/' . $re . '/', $post->post_content, $matches );
+        $attr = shortcode_parse_atts( $matches[3] );
+        $crw_has_crossword = $attr['project'];
         add_filter ( 'language_attributes', 'crw_add_angular_attribute' );
         add_action( 'wp_enqueue_scripts', 'add_crw_scripts');
     }
@@ -770,7 +811,9 @@ add_action( 'init', 'crw_render_init' );
  *     @type int $name Difficulty level.
  * }
  */
-function crw_verify_json($json, &$msg) {
+function crw_verify_json($json, $project, &$msg) {
+    global $wpdb, $project_table_name;
+    
     $easy_directions = array('right', 'down');
     include('schema/jsv4.php');
     include('schema/schema-store.php');
@@ -783,8 +826,12 @@ function crw_verify_json($json, &$msg) {
     $store->add($url, $raw_schema);
     $schema = $store->get($url);
 
-    $locale_data = crw_get_locale_data();
-    $schema->definitions->word->properties->letter->pattern = $locale_data["letterRegEx"];
+    $lang = $wpdb->get_var($wpdb->prepare("
+        SELECT lang FROM $project_table_name WHERE project=%s
+    ", $project));
+    $locale_data = crw_get_locale_data($lang);
+    $pcre_pattern = preg_replace('/\\\\u([0-9a-fA-F]{4})/', '\\x{$1}', $locale_data["letterRegEx"]);
+    $schema->definitions->word->properties->letter->pattern = $pcre_pattern;
 
     // json string decoding
     try {
@@ -1045,12 +1092,12 @@ function crw_get_names_list ($project) {
  * @return boolean Action success.
  */
 function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
-    global $wpdb, $project_table_name;
+    global $wpdb, $project_table_name, $data_table_name;
 
     if ( 'add' == $method ) {
         ksort($args);
-        // resulting order: default_level, maximum_level, project
-        $success = $wpdb->insert( $project_table_name, $args, array('%d', '%d', '%s') );
+        // resulting order: default_level, lang, maximum_level, project
+        $success = $wpdb->insert( $project_table_name, $args, array('%d', '%s', '%d', '%s') );
     } elseif ( 'remove' == $method ) {
         $success = $wpdb->query( $wpdb->prepare("
             DELETE FROM $project_table_name
@@ -1065,9 +1112,9 @@ function crw_change_project_list ( $method, $project, $args, &$debug = '' ) {
     } elseif ( 'update' == $method ) {
         $success = $wpdb->query( $wpdb->prepare("
             UPDATE $project_table_name
-            SET project=%s, default_level=%d, maximum_level=%d
+            SET project=%s, default_level=%d, maximum_level=%d, lang=%s
             WHERE project=%s
-        ", $args['project'], $args['default_level'], $args['maximum_level'], $project) );
+        ", $args['project'], $args['default_level'], $args['maximum_level'], $args['lang'], $project) );
         // no row altered is not considered an error
         if (0 === $success) {
             $success = true;
@@ -1338,6 +1385,7 @@ add_action( 'wp_ajax_update_crw_subscribers', 'crw_update_subscribers' );
  *                 number default_level
  *                 number maximum_level
  *                 number used_level
+ *                 string lang
  *                 array editors [
  *                     string user_id
  *                 ]
@@ -1359,14 +1407,15 @@ add_action( 'wp_ajax_update_crw_subscribers', 'crw_update_subscribers' );
  * @return void
  */
 function crw_send_admin_data () {
-    global $wpdb, $project_table_name, $editors_table_name;
+    global $wpdb, $project_table_name, $editors_table_name, $data_table_name;
 
     crw_test_permission( 'admin', wp_get_current_user() );
 
     // rule out deleted users
     $editors_list = array_filter( $wpdb->get_results("
         SELECT pt.project AS project, pt.default_level AS default_level,
-        pt.maximum_level AS maximum_level, pt.used_level AS used_level,
+        pt.maximum_level AS maximum_level, pt.used_level AS used_level, pt.lang AS lang,
+        (SELECT count(*) FROM $data_table_name AS pts WHERE pts.project=pt.project) = 0 AS lang_editable,
         et.user_id AS user_id
         FROM $project_table_name AS pt
         LEFT JOIN ($editors_table_name AS et
@@ -1385,6 +1434,8 @@ function crw_send_admin_data () {
                 'default_level' => (int)$entry->default_level,
                 'maximum_level' => (int)$entry->maximum_level,
                 'used_level' => (int)$entry->used_level,
+                'lang' => $entry->lang,
+                'lang_editable' => (boolean)$entry->lang_editable,
                 'editors' => array(),
             );
         }
@@ -1427,6 +1478,7 @@ add_action( 'wp_ajax_get_admin_data', 'crw_send_admin_data' );
  * @return void
  */
 function crw_save_project () {
+    require_once 'l10n.php';
     $level_list = range(0, 3);
 
     crw_test_permission( 'admin', wp_get_current_user() );
@@ -1442,6 +1494,7 @@ function crw_save_project () {
             'project' => sanitize_text_field( wp_unslash( $_POST['new_name']) ),
             'default_level' => (int)wp_unslash( $_POST['default_level']),
             'maximum_level' => (int)wp_unslash( $_POST['maximum_level']),
+            'lang' => sanitize_text_field( wp_unslash($_POST['lang']) ),
         );
 
         if ( mb_strlen($args['project'], 'UTF-8') > 190 ) {
@@ -1452,7 +1505,8 @@ function crw_save_project () {
                 !in_array($args['maximum_level'], $level_list) ||
                 $args['default_level'] > $args['maximum_level'] ) {
             $debug = 'Invalid levels: default ' . $default_level . ' / maximum ' . $maximum_level;
-            crw_send_error($error, $debug);
+        } elseif ( !array_key_exists($args['lang'], crw_get_language_list()) ) {
+            $debug = 'Invalid language: ' . $args['lang'];
         }
 
         if ( 'add' == $method ) {
@@ -1460,6 +1514,9 @@ function crw_save_project () {
             $error = __('The project could not be added.', 'crosswordsearch');
         } elseif ( 'update' == $method ) {
             $error = __('The project could not be altered.', 'crosswordsearch');
+        }
+        if ( isset($debug) ) {
+            crw_send_error($error, $debug);
         }
     }
     $success = crw_change_project_list( $method, $project, $args, $debug );
@@ -1741,7 +1798,7 @@ function crw_save_crossword () {
 
     // verify crossword data
     $crossword = wp_unslash( $_POST['crossword'] );
-    $verification = crw_verify_json( $crossword, $debug );
+    $verification = crw_verify_json( $crossword, $project, $debug );
 
     // as a drive-by, finds if a project exists
     $maximum_level = $wpdb->get_var( $wpdb->prepare("
@@ -2059,8 +2116,10 @@ function crw_set_admin_header () {
         $screen->add_help_tab( array(
             'id'	=> 'crw-help-tab-projects',
             'title'	=> __('Projects', 'crosswordsearch'),
-            'content'	=> '<p>' . __('If you change the name of a project, remember that you need to change it also in every shortcode referring to it.', 'crosswordsearch') . '</p><p>' . __('The lowest eligible maximum difficulty level is either the the default level or the highest level used in an existing riddle, whatever is higher.', 'crosswordsearch') . '</p><p>'
-                . __('You need to assign editors to a project in order for them to see its riddles in the <em>Review</em> tab.', 'crosswordsearch') . '</p><p>' .
+            'content'	=> '<p>' . __('If you change the name of a project, remember that you need to change it also in every shortcode referring to it.', 'crosswordsearch') . '</p><p>' . 
+                __('The lowest eligible maximum difficulty level is either the the default level or the highest level used in an existing riddle, whatever is higher.', 'crosswordsearch') . '</p><p>' .
+                __('The riddle language is that used for the searched words. Selectable letters for a word will depend on this choice. For all other parts of the user interface, the language used is that of the rest of the page it is displayed on.', 'crosswordsearch') . '</p><p>' .
+                __('You need to assign editors to a project in order for them to see its riddles in the <em>Review</em> tab.', 'crosswordsearch') . '</p><p>' .
                 __('If you want to delete a project, you need first to delete all its riddles.', 'crosswordsearch') . '</p>',
         ) );
     }
